@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "id": "nature",
+  "name": "Nature",
+  "description": "Outdoor clearing with trees, tent, and a campfire",
+  "builtin": true,
+  "floor": {
+    "size": 22,
+    "style": "surface",
+    "cells": 18,
+    "color": "#6B9B4A",
+    "surface": "grass"
+  },
+  "theme": {
+    "floor": "#8FAE6E",
+    "accent": "#4A7566",
+    "background": "#DDE8D0",
+    "fog": "#DDE8D0",
+    "ambient": "#ffffff",
+    "hemiSky": "#e8f0e0",
+    "hemiGround": "#7a9460",
+    "sun": "#fff8e8"
+  },
+  "spawnPoints": [
+    { "id": "spawn_0", "position": [-2, 0, 1], "rotationY": 0 },
+    { "id": "spawn_1", "position": [2, 0, 1], "rotationY": 0 },
+    { "id": "spawn_2", "position": [0, 0, -2], "rotationY": 0 },
+    { "id": "spawn_3", "position": [-3, 0, -1], "rotationY": 0.5 }
+  ],
+  "placeables": [
+    { "id": "pine_nw", "placeableId": "tree_pine", "position": [-8, 0, -8], "rotationY": 0.3 },
+    { "id": "birch_ne", "placeableId": "tree_birch", "position": [8.5, 0, -7], "rotationY": 1.1 },
+    { "id": "simple_sw", "placeableId": "tree_simple", "position": [-7.5, 0, 8], "rotationY": 2.0 },
+    { "id": "styl_se", "placeableId": "tree_stylized", "position": [7, 0, 7.5], "rotationY": 0.8 },
+    { "id": "pine_n", "placeableId": "tree_pine", "position": [0, 0, -9], "rotationY": 0 },
+    { "id": "birch_w", "placeableId": "tree_birch", "position": [-9.5, 0, 1], "rotationY": 0.4 },
+    { "id": "tent_1", "placeableId": "tent", "position": [4, 0, 4], "rotationY": -0.6 },
+    { "id": "fire_1", "placeableId": "campfire", "position": [0.5, 0, 3.2], "rotationY": 0 },
+    { "id": "log_1", "placeableId": "log", "position": [-1.2, 0, 3.5], "rotationY": 1.2 },
+    { "id": "log_2", "placeableId": "log", "position": [1.8, 0, 4.2], "rotationY": -0.4 },
+    { "id": "rock_1", "placeableId": "rock", "position": [-3, 0, 5], "rotationY": 0.2 },
+    { "id": "rock_2", "placeableId": "rock", "position": [5.5, 0, -2], "rotationY": 1.0 },
+    { "id": "bench_1", "placeableId": "bench", "position": [-4, 0, 0], "rotationY": 0.3 },
+    { "id": "plant_1", "placeableId": "plant", "position": [3, 0, -4], "rotationY": 0 },
+    { "id": "plant_2", "placeableId": "plant_small", "position": [-5, 0, -3], "rotationY": 0 }
+  ]
+}

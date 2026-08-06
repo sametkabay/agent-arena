@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { getMap } from "@/lib/maps";
 import { useArenaStore } from "@/store/arenaStore";
 
 export function Hud() {
@@ -7,10 +6,10 @@ export function Hud() {
   const userName = useArenaStore((s) => s.userName);
   const agents = useArenaStore((s) => s.agents);
   const models = useArenaStore((s) => s.models);
-  const mapId = useArenaStore((s) => s.mapId);
+  const activeMap = useArenaStore((s) => s.activeMap);
   const setSettingsOpen = useArenaStore((s) => s.setSettingsOpen);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
-  const map = getMap(mapId);
+  const openMapEditor = useArenaStore((s) => s.openMapEditor);
 
   return (
     <header className="hud">
@@ -26,10 +25,13 @@ export function Hud() {
           {t("hud.models")}: {models.length}
         </span>
         <span>
-          {t("hud.map")}: {t(map.nameKey)}
+          {t("hud.map")}: {activeMap?.name ?? "—"}
         </span>
       </div>
       <div className="hud__actions">
+        <button type="button" className="hud__ghost" onClick={() => openMapEditor()}>
+          {t("hud.editMap")}
+        </button>
         <button type="button" className="hud__ghost" onClick={() => setSettingsTab("agents")}>
           {t("settings.tabs.agents")}
         </button>

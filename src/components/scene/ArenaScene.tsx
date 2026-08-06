@@ -2,10 +2,11 @@ import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
-import { getMap, shadowMapSize } from "@/lib/maps";
+import { shadowMapSize } from "@/lib/maps";
+import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
 import { useArenaStore } from "@/store/arenaStore";
 import { CharacterAgent } from "@/components/scene/CharacterAgent";
-import { OfficeFloor } from "@/components/scene/OfficeFloor";
+import { ArenaFloor } from "@/components/scene/OfficeFloor";
 import { Placeables } from "@/components/scene/Placeables";
 
 function SceneTick() {
@@ -19,13 +20,21 @@ function ArenaWorld() {
   const floorSize = useArenaStore((s) => s.floorSize);
   const placeables = useArenaStore((s) => s.placeables);
   const agents = useArenaStore((s) => s.runtimeAgents);
-  const mapId = useArenaStore((s) => s.mapId);
+  const activeMap = useArenaStore((s) => s.activeMap);
   const graphics = useArenaStore((s) => s.graphics);
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
-  const theme = getMap(mapId).theme;
+  const theme = activeMap?.theme;
+  const floor = activeMap?.floor ?? {
+    size: floorSize,
+    style: "checker" as const,
+    cells: 8,
+    color: "#D2C9BB",
+  };
 
   const camTarget = useMemo(() => new THREE.Vector3(0, 0, 0), []);
+
+  if (!theme) return null;
 
   return (
     <>
@@ -56,7 +65,7 @@ function ArenaWorld() {
         </>
       )}
 
-      <OfficeFloor size={floorSize} mapId={mapId} />
+      <ArenaFloor floor={{ ...floor, size: floorSize }} />
       <Placeables items={placeables} />
 
       {agents.map((agent) => (
@@ -70,13 +79,13 @@ function ArenaWorld() {
 
       {graphics.contactShadows && (
         <ContactShadows
-          key={`contact-${agents.length}-${floorSize}`}
+          key={`contact-${floorSize}`}
           position={[0, 0.04, 0]}
           opacity={0.38}
           scale={floorSize * 1.15}
-          blur={2.6}
+          blur={2.4}
           far={8}
-          resolution={512}
+          resolution={256}
           frames={Infinity}
         />
       )}
@@ -117,11 +126,17 @@ export function ArenaScene() {
   return (
     <div className="scene-root">
       <Canvas
-        key={`${graphics.antialias}-${graphics.maxDpr}-${graphics.castShadows}`}
-        shadows={graphics.castShadows}
+        // Only remount when antialias changes (requires new GL context).
+        key={graphics.antialias ? "aa" : "noaa"}
+        shadows={graphics.castShadows ? CANVAS_SHADOWS : false}
         dpr={[1, graphics.maxDpr]}
         camera={{ position: [16, 18, 20], fov: 42, near: 0.1, far: 280 }}
-        gl={{ antialias: graphics.antialias }}
+        gl={{
+          antialias: graphics.antialias,
+          powerPreference: "default",
+          failIfMajorPerformanceCaveat: false,
+        }}
+        onCreated={onCanvasCreated}
         onPointerMissed={() => useArenaStore.getState().selectAgent(null)}
       >
         <ArenaWorld />

@@ -15,7 +15,8 @@
     "models": "Models",
     "map": "Map",
     "settings": "Settings",
-    "hello": "Hello, {{name}}"
+    "hello": "Hello, {{name}}",
+    "editMap": "Edit map"
   },
   "agentList": {
     "title": "Agents",
@@ -89,15 +90,20 @@
       "color": "Accent color",
       "bio": "Short bio",
       "needModel": "Add an AI model first.",
-      "rebuildNote": "Saving rebuilds the map layout.",
+      "rebuildNote": "Agents spawn on the active map without changing its layout.",
       "customRole": "Custom role",
       "customRoleHint": "Pick a role to fill the display name, or choose Custom and type your own."
     },
     "map": {
       "title": "Map",
-      "hint": "The floor expands as you add agents. Walls are not used — only ground and props.",
+      "hint": "Maps are JSON layouts (aamf v1). Agents do not resize the floor — edit maps in the map editor.",
       "comingSoon": "Coming soon",
-      "active": "Active map"
+      "active": "Active map",
+      "edit": "Edit",
+      "new": "New map",
+      "duplicate": "Duplicate",
+      "import": "Import JSON",
+      "custom": "Custom"
     },
     "graphics": {
       "title": "Graphics",
@@ -160,15 +166,85 @@
     },
     "nature": {
       "name": "Nature",
-      "description": "Outdoor clearing (coming soon)"
+      "description": "Outdoor clearing with trees and a campfire"
     },
     "factory": {
       "name": "Factory",
-      "description": "Industrial workspace (coming soon)"
+      "description": "Industrial workspace with crates and work tables"
     },
     "mars": {
       "name": "Mars",
-      "description": "Martian outpost (coming soon)"
+      "description": "Sparse Martian outpost"
     }
+  },
+  "mapEditor": {
+    "title": "Map editor",
+    "builtinHint": "Builtin — save creates a custom copy",
+    "toolSelect": "Select",
+    "toolSpawn": "Spawn",
+    "export": "Export JSON",
+    "import": "Import",
+    "save": "Save map",
+    "close": "Close",
+    "library": "Asset library",
+    "catAll": "All",
+    "cat": {
+      "furniture": "Furniture",
+      "nature": "Nature",
+      "camping": "Camping",
+      "decor": "Decor",
+      "ground": "Ground"
+    },
+    "libraryHint": "Pick a category, click an asset, then click the floor to place it. Click a placed object to select — rotate, scale, or delete in the inspector.",
+    "inspector": "Inspector",
+    "mapName": "Map name",
+    "description": "Description",
+    "floorSize": "Floor size",
+    "floorSurface": "Ground type",
+    "floorStyle": "Pattern",
+    "styleChecker": "Checker",
+    "stylePattern": "Surface",
+    "styleSolid": "Solid",
+    "styles": {
+      "surface": "Surface",
+      "solid": "Solid",
+      "checker": "Checker",
+      "patches": "Patches",
+      "slabs": "Slabs"
+    },
+    "floorColor": "Floor color",
+    "surfaces": {
+      "office": "Wood / office",
+      "grass": "Grass",
+      "dirt": "Dirt / soil",
+      "concrete": "Concrete",
+      "factory": "Dark factory"
+    },
+    "bgColor": "Sky / fog",
+    "rotation": "Rotation",
+    "scale": "Scale",
+    "axisUp": "up",
+    "deleteObject": "Delete object",
+    "deleteSpawn": "Delete spawn",
+    "spawnPoint": "Spawn point",
+    "selectHint": "Select an object on the floor to edit it.",
+    "hotkeys": "Hotkeys: Ctrl/⌘Z undo, Ctrl/⌘⇧Z redo, R rotate, Delete remove, Ctrl/⌘D duplicate, Esc clear. Right-click assets for more.",
+    "undo": "Undo",
+    "redo": "Redo",
+    "ctx": {
+      "rotateLeft": "Rotate left 90°",
+      "rotateRight": "Rotate right 90°",
+      "scaleUp": "Scale up",
+      "scaleDown": "Scale down",
+      "duplicate": "Duplicate"
+    },
+    "spawnMode": "Click the floor to add a spawn point",
+    "paintMode": "Click the floor to place {{name}}",
+    "selectedBanner": "Selected: {{name}} — drag to move, R to rotate",
+    "saved": "Map saved",
+    "imported": "Map imported",
+    "importError": "Could not import map JSON",
+    "placed": "Asset placed",
+    "placedCenter": "Asset placed at center — drag it into position"
   }
 }

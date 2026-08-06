@@ -15,7 +15,8 @@
     "models": "Modeller",
     "map": "Harita",
     "settings": "Ayarlar",
-    "hello": "Merhaba, {{name}}"
+    "hello": "Merhaba, {{name}}",
+    "editMap": "Haritayı düzenle"
   },
   "agentList": {
     "title": "Ajanlar",
@@ -89,15 +90,20 @@
       "color": "Vurgu rengi",
       "bio": "Kısa bio",
       "needModel": "Önce bir AI modeli ekle.",
-      "rebuildNote": "Kaydetmek haritayı yeniden oluşturur.",
+      "rebuildNote": "Ajanlar aktif haritaya yerleşir; harita düzeni değişmez.",
       "customRole": "Özel rol",
       "customRoleHint": "Rol seçince görünen ad otomatik dolar; Özel’de kendi adını yazabilirsin."
     },
     "map": {
       "title": "Harita",
-      "hint": "Ajan ekledikçe zemin büyür. Duvar yok — yalnızca zemin ve objeler.",
+      "hint": "Haritalar JSON düzenlerdir (aamf v1). Ajan eklemek zemini büyütmez — harita editöründen düzenle.",
       "comingSoon": "Yakında",
-      "active": "Aktif harita"
+      "active": "Aktif harita",
+      "edit": "Düzenle",
+      "new": "Yeni harita",
+      "duplicate": "Kopyala",
+      "import": "JSON içe aktar",
+      "custom": "Özel"
     },
     "graphics": {
       "title": "Grafik",
@@ -160,15 +166,85 @@
     },
     "nature": {
       "name": "Doğa",
-      "description": "Açık alan (yakında)"
+      "description": "Ağaçlar ve kamp ateşiyle açık alan"
     },
     "factory": {
       "name": "Fabrika",
-      "description": "Endüstriyel alan (yakında)"
+      "description": "Kasa ve çalışma masalarıyla endüstriyel alan"
     },
     "mars": {
       "name": "Mars",
-      "description": "Mars üssü (yakında)"
+      "description": "Seyrek Mars üssü"
     }
+  },
+  "mapEditor": {
+    "title": "Harita editörü",
+    "builtinHint": "Sistem haritası — kaydetmek özel kopya oluşturur",
+    "toolSelect": "Seç",
+    "toolSpawn": "Spawn",
+    "export": "JSON dışa aktar",
+    "import": "İçe aktar",
+    "save": "Haritayı kaydet",
+    "close": "Kapat",
+    "library": "Asset kütüphanesi",
+    "catAll": "Tümü",
+    "cat": {
+      "furniture": "Mobilya",
+      "nature": "Doğa",
+      "camping": "Kamp",
+      "decor": "Dekor",
+      "ground": "Zemin"
+    },
+    "libraryHint": "Kategori seç, asset’e tıkla, zemine yerleştir. Yerleşik objeye tıklayınca seçilir — denetçiden döndür, boyutlandır veya sil.",
+    "inspector": "Denetçi",
+    "mapName": "Harita adı",
+    "description": "Açıklama",
+    "floorSize": "Zemin boyutu",
+    "floorSurface": "Zemin türü",
+    "floorStyle": "Desen",
+    "styleChecker": "Damalı",
+    "stylePattern": "Surface",
+    "styleSolid": "Düz",
+    "styles": {
+      "surface": "Surface",
+      "solid": "Düz",
+      "checker": "Damalı",
+      "patches": "Yamalı",
+      "slabs": "Plaka"
+    },
+    "floorColor": "Zemin rengi",
+    "surfaces": {
+      "office": "Ahşap / ofis",
+      "grass": "Çim",
+      "dirt": "Toprak",
+      "concrete": "Beton",
+      "factory": "Koyu fabrika"
+    },
+    "bgColor": "Gökyüzü / sis",
+    "rotation": "Rotasyon",
+    "scale": "Boyut",
+    "axisUp": "yukarı",
+    "deleteObject": "Objeyi sil",
+    "deleteSpawn": "Spawn sil",
+    "spawnPoint": "Spawn noktası",
+    "selectHint": "Düzenlemek için zemindeki bir objeyi seç.",
+    "hotkeys": "Kısayollar: Ctrl/⌘Z geri al, Ctrl/⌘⇧Z ileri al, R döndür, Delete sil, Ctrl/⌘D kopyala, Esc temizle. Asset’e sağ tık menü.",
+    "undo": "Geri al",
+    "redo": "İleri al",
+    "ctx": {
+      "rotateLeft": "Sola 90° döndür",
+      "rotateRight": "Sağa 90° döndür",
+      "scaleUp": "Büyüt",
+      "scaleDown": "Küçült",
+      "duplicate": "Çoğalt"
+    },
+    "spawnMode": "Spawn eklemek için zemine tıkla",
+    "paintMode": "{{name}} yerleştirmek için zemine tıkla",
+    "selectedBanner": "Seçili: {{name}} — sürükle taşı, R ile döndür",
+    "saved": "Harita kaydedildi",
+    "imported": "Harita içe aktarıldı",
+    "importError": "Harita JSON’u okunamadı",
+    "placed": "Asset yerleştirildi",
+    "placedCenter": "Asset merkeze kondu — sürükleyerek taşı"
   }
 }

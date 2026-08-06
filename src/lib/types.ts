@@ -1,8 +1,11 @@
+import type { ArenaMapDefinition } from "@/lib/maps/schema";
+
 export type AiProviderKind = "openai" | "gemini" | "claude" | "ollama" | "custom";
 
 export type LanguageCode = "en" | "tr";
 
-export type MapId = "office" | "nature" | "factory" | "mars";
+/** Builtin id or custom_* user map id. */
+export type MapId = string;
 
 export type AgentVisualState = "idle" | "wander" | "walk" | "thinking" | "talking";
 
@@ -51,6 +54,8 @@ export interface AppPersisted {
   models: AiModelConfig[];
   agents: AgentConfig[];
   mapId: MapId;
+  /** User-authored aamf v1 maps (builtins live in src/lib/maps/defs). */
+  customMaps: ArenaMapDefinition[];
   graphics: GraphicsSettings;
 }
 

@@ -10,7 +10,16 @@ import type {
   MapId,
   PlaceableInstance,
 } from "@/lib/types";
-import { buildLayout } from "@/lib/maps";
+import type { ArenaMapDefinition } from "@/lib/maps/schema";
+import {
+  buildMapRuntime,
+  createBlankCustomMap,
+  createCustomMapFromBuiltin,
+  parseMapJson,
+  resolveMapDefinition,
+  syncRuntimeAgents,
+  placeAgentsOnMap,
+} from "@/lib/maps";
 import { DEFAULT_GRAPHICS, loadPersisted, savePersisted, uid } from "@/lib/storage";
 import i18n from "@/i18n";
 
@@ -20,11 +29,14 @@ interface ArenaState extends AppPersisted {
   // runtime
   floorSize: number;
   placeables: PlaceableInstance[];
+  activeMap: ArenaMapDefinition | null;
   runtimeAgents: ArenaAgent[];
   selectedAgentId: string | null;
   chatOpen: boolean;
   settingsOpen: boolean;
   settingsTab: "general" | "models" | "agents" | "map" | "graphics";
+  mapEditorOpen: boolean;
+  mapEditorSourceId: string | null;
   chats: Record<string, ChatMessage[]>;
   chatBusyById: Record<string, boolean>;
   toast: string | null;
@@ -37,12 +49,21 @@ interface ArenaState extends AppPersisted {
   setSettingsTab: (tab: ArenaState["settingsTab"]) => void;
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setMapId: (mapId: MapId) => void;
-  rebuildLayout: () => void;
+  applyMapAndAgents: () => void;
 
   upsertModel: (model: AiModelConfig) => void;
   deleteModel: (id: string) => void;
   upsertAgent: (agent: AgentConfig) => void;
   deleteAgent: (id: string) => void;
+
+  upsertCustomMap: (def: ArenaMapDefinition) => void;
+  deleteCustomMap: (id: string) => void;
+  importMapJson: (raw: string) => string;
+  openMapEditor: (mapId?: string) => void;
+  closeMapEditor: () => void;
+  saveMapFromEditor: (def: ArenaMapDefinition, activate?: boolean) => void;
+  createNewMap: () => void;
+  duplicateActiveMap: () => void;
 
   selectAgent: (id: string | null) => void;
   setChatOpen: (open: boolean) => void;
@@ -62,35 +83,50 @@ function persistSlice(s: ArenaState): AppPersisted {
     models: s.models,
     agents: s.agents,
     mapId: s.mapId,
+    customMaps: s.customMaps,
     graphics: s.graphics,
   };
 }
 
-function applyLayout(s: Pick<ArenaState, "agents" | "mapId">) {
-  const built = buildLayout(s.mapId, s.agents);
+function applyMapSlice(
+  s: Pick<ArenaState, "agents" | "mapId" | "customMaps" | "runtimeAgents">,
+  resetAgentPositions: boolean,
+) {
+  const def = resolveMapDefinition(s.mapId, s.customMaps);
+  const runtime = buildMapRuntime(def);
+  const runtimeAgents = resetAgentPositions
+    ? placeAgentsOnMap(s.agents, def)
+    : syncRuntimeAgents(s.runtimeAgents, s.agents, def);
   return {
-    floorSize: built.floorSize,
-    placeables: built.placeables,
-    runtimeAgents: built.agents,
+    activeMap: def,
+    floorSize: runtime.floorSize,
+    placeables: runtime.placeables,
+    runtimeAgents,
   };
 }
 
 export const useArenaStore = create<ArenaState>((set, get) => ({
   ...loadPersisted(),
-  floorSize: 12,
+  floorSize: 18,
   placeables: [],
+  activeMap: null,
   runtimeAgents: [],
   selectedAgentId: null,
   chatOpen: false,
   settingsOpen: false,
   settingsTab: "general",
+  mapEditorOpen: false,
+  mapEditorSourceId: null,
   chats: {},
   chatBusyById: {},
   toast: null,
 
   hydrate: () => {
     const data = loadPersisted();
-    const layout = applyLayout(data);
+    const layout = applyMapSlice(
+      { ...data, runtimeAgents: [] },
+      true,
+    );
     set({ ...data, ...layout });
     void i18n.changeLanguage(data.language);
   },
@@ -119,17 +155,15 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   },
 
   setMapId: (mapId) => {
-    const metaOk = mapId === "office";
-    if (!metaOk) return;
     set((s) => {
       const next = { ...s, mapId };
-      return { mapId, ...applyLayout(next) };
+      return { mapId, ...applyMapSlice(next, true) };
     });
     get().persist();
   },
 
-  rebuildLayout: () => {
-    set((s) => ({ ...applyLayout(s) }));
+  applyMapAndAgents: () => {
+    set((s) => ({ ...applyMapSlice(s, true) }));
   },
 
   upsertModel: (model) => {
@@ -152,7 +186,13 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
       ),
     }));
     get().persist();
-    get().rebuildLayout();
+    set((s) => ({
+      runtimeAgents: syncRuntimeAgents(
+        s.runtimeAgents,
+        s.agents,
+        resolveMapDefinition(s.mapId, s.customMaps),
+      ),
+    }));
   },
 
   upsertAgent: (agent) => {
@@ -162,8 +202,11 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
         idx >= 0
           ? s.agents.map((a, i) => (i === idx ? agent : a))
           : [...s.agents, agent];
-      const next = { ...s, agents };
-      return { agents, ...applyLayout(next) };
+      const def = resolveMapDefinition(s.mapId, s.customMaps);
+      return {
+        agents,
+        runtimeAgents: syncRuntimeAgents(s.runtimeAgents, agents, def),
+      };
     });
     get().persist();
   },
@@ -171,15 +214,113 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   deleteAgent: (id) => {
     set((s) => {
       const agents = s.agents.filter((a) => a.id !== id);
-      const next = { ...s, agents };
       return {
         agents,
         selectedAgentId: s.selectedAgentId === id ? null : s.selectedAgentId,
         chatOpen: s.selectedAgentId === id ? false : s.chatOpen,
-        ...applyLayout(next),
+        runtimeAgents: s.runtimeAgents.filter((a) => a.id !== id),
       };
     });
     get().persist();
+  },
+
+  upsertCustomMap: (def) => {
+    set((s) => {
+      const cleaned = { ...def, builtin: false, version: 1 as const };
+      const idx = s.customMaps.findIndex((m) => m.id === cleaned.id);
+      const customMaps =
+        idx >= 0
+          ? s.customMaps.map((m, i) => (i === idx ? cleaned : m))
+          : [...s.customMaps, cleaned];
+      const patch =
+        s.mapId === cleaned.id
+          ? applyMapSlice({ ...s, customMaps }, true)
+          : {};
+      return { customMaps, ...patch };
+    });
+    get().persist();
+  },
+
+  deleteCustomMap: (id) => {
+    set((s) => {
+      const customMaps = s.customMaps.filter((m) => m.id !== id);
+      const mapId = s.mapId === id ? "office" : s.mapId;
+      const next = { ...s, customMaps, mapId };
+      return {
+        customMaps,
+        mapId,
+        ...applyMapSlice(next, true),
+      };
+    });
+    get().persist();
+  },
+
+  importMapJson: (raw) => {
+    const parsed = parseMapJson(raw);
+    const id = parsed.id.startsWith("custom_")
+      ? parsed.id
+      : `custom_${Math.random().toString(36).slice(2, 10)}`;
+    const def: ArenaMapDefinition = {
+      ...parsed,
+      id,
+      builtin: false,
+      name: parsed.name || "Imported map",
+    };
+    get().upsertCustomMap(def);
+    get().setMapId(def.id);
+    return def.id;
+  },
+
+  openMapEditor: (mapId) => {
+    set({
+      mapEditorOpen: true,
+      mapEditorSourceId: mapId ?? get().mapId,
+      settingsOpen: false,
+    });
+  },
+
+  closeMapEditor: () => {
+    set({ mapEditorOpen: false, mapEditorSourceId: null });
+  },
+
+  saveMapFromEditor: (def, activate = true) => {
+    if (def.builtin) {
+      // Builtin edits must become a custom copy
+      const copy = createCustomMapFromBuiltin(def.id, get().customMaps);
+      const saved: ArenaMapDefinition = {
+        ...def,
+        id: copy.id,
+        name: def.name.endsWith("(copy)") ? def.name : `${def.name} (edited)`,
+        builtin: false,
+      };
+      get().upsertCustomMap(saved);
+      if (activate) get().setMapId(saved.id);
+    } else {
+      get().upsertCustomMap({ ...def, builtin: false });
+      if (activate) get().setMapId(def.id);
+    }
+    set({ mapEditorOpen: false, mapEditorSourceId: null });
+  },
+
+  createNewMap: () => {
+    const blank = createBlankCustomMap();
+    get().upsertCustomMap(blank);
+    set({
+      mapEditorOpen: true,
+      mapEditorSourceId: blank.id,
+      settingsOpen: false,
+    });
+  },
+
+  duplicateActiveMap: () => {
+    const s = get();
+    const copy = createCustomMapFromBuiltin(s.mapId, s.customMaps);
+    get().upsertCustomMap(copy);
+    set({
+      mapEditorOpen: true,
+      mapEditorSourceId: copy.id,
+      settingsOpen: false,
+    });
   },
 
   selectAgent: (id) => {
@@ -263,7 +404,6 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
           return next;
         }
 
-        // Wander AI
         if (!next.target && next.state !== "talking") {
           if (Math.random() < dt * 0.15) {
             const angle = Math.random() * Math.PI * 2;

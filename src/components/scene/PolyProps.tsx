@@ -260,6 +260,11 @@ export function PolyProp({ id }: { id: PlaceableId }) {
     case "side_table":
       return <PropSideTable />;
     default:
-      return null;
+      return (
+        <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.5, 0.5, 0.5]} />
+          <meshStandardMaterial color={MAT.wood} roughness={0.85} />
+        </mesh>
+      );
   }
 }

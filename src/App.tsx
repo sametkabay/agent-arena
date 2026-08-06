@@ -4,6 +4,7 @@ import { Hud } from "@/components/Hud";
 import { AgentList } from "@/components/AgentList";
 import { ChatPanel } from "@/components/ChatPanel";
 import { SettingsModal } from "@/components/SettingsModal";
+import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
 import { useArenaStore } from "@/store/arenaStore";
 
@@ -11,6 +12,7 @@ export default function App() {
   const hydrate = useArenaStore((s) => s.hydrate);
   const userName = useArenaStore((s) => s.userName);
   const toast = useArenaStore((s) => s.toast);
+  const mapEditorOpen = useArenaStore((s) => s.mapEditorOpen);
 
   useEffect(() => {
     hydrate();
@@ -22,11 +24,16 @@ export default function App() {
 
   return (
     <div className="app">
-      <ArenaScene />
-      <Hud />
-      <AgentList />
-      <ChatPanel />
-      <SettingsModal />
+      {!mapEditorOpen && <ArenaScene />}
+      {!mapEditorOpen && (
+        <>
+          <Hud />
+          <AgentList />
+          <ChatPanel />
+          <SettingsModal />
+        </>
+      )}
+      <MapEditor />
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
