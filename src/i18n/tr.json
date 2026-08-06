@@ -1,0 +1,174 @@
+{
+  "app": {
+    "title": "Agent Arena",
+    "tagline": "Yerel çoklu ajan oyun alanın"
+  },
+  "nameGate": {
+    "badge": "Hoş geldin",
+    "heading": "Sana nasıl hitap edelim?",
+    "blurb": "Ajanlar bu isimle sana hitap eder. Daha sonra Ayarlar’dan değiştirebilirsin.",
+    "placeholder": "Adın",
+    "continue": "Arenaya Gir"
+  },
+  "hud": {
+    "agents": "Ajanlar",
+    "models": "Modeller",
+    "map": "Harita",
+    "settings": "Ayarlar",
+    "hello": "Merhaba, {{name}}"
+  },
+  "agentList": {
+    "title": "Ajanlar",
+    "empty": "Henüz ajan yok. Ayarlar’dan ekle.",
+    "talk": "Konuş"
+  },
+  "chat": {
+    "placeholder": "{{name}} için sor…",
+    "send": "Gönder",
+    "empty": "Sohbete başlamak için yaz.",
+    "noModel": "Bu ajana AI modeli bağlanmamış.",
+    "thinking": "Düşünüyor…",
+    "close": "Kapat",
+    "error": "Bir şeyler ters gitti"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "close": "Kapat",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "add": "Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "saved": "Kaydedildi",
+    "tabs": {
+      "general": "Genel",
+      "models": "AI Modelleri",
+      "agents": "Ajanlar",
+      "map": "Harita",
+      "graphics": "Grafik"
+    },
+    "general": {
+      "displayName": "Görünen ad",
+      "language": "Dil",
+      "languageHint": "Arayüz dili. Ajanlar senin yazdığın dilde yanıt verir."
+    },
+    "models": {
+      "title": "AI Modelleri",
+      "hint": "OpenAI, Gemini, Claude, Ollama veya özel OpenAI uyumlu gateway ekle.",
+      "empty": "Henüz model yok.",
+      "name": "Görünen ad",
+      "provider": "Sağlayıcı",
+      "baseUrl": "Base URL",
+      "apiKey": "API anahtarı",
+      "modelId": "Model",
+      "fetchModels": "Modelleri getir",
+      "fetching": "Getiriliyor…",
+      "test": "Bağlantıyı test et",
+      "testing": "Test ediliyor…",
+      "extraHeaders": "Ekstra başlıklar",
+      "addHeader": "Başlık ekle",
+      "headerKey": "Başlık",
+      "headerValue": "Değer",
+      "corsNote": "Tarayıcı istekleri CORS yüzünden engellenebilir. Geliştirmede Ollama /ollama üzerinden proxylenır. Diğer sağlayıcılar için özel gateway genellikle en iyi seçenektir.",
+      "providers": {
+        "openai": "OpenAI uyumlu bulut API",
+        "gemini": "Google Gemini API",
+        "claude": "Anthropic Claude API",
+        "ollama": "Yerel Ollama sunucusu",
+        "custom": "Özel gateway (OpenAI uyumlu)"
+      }
+    },
+    "agents": {
+      "title": "Ajanlar",
+      "hint": "Her ajan bir AI modeli ve özelleştirebileceğin düşük poligonlu bir karakter preset’i kullanır.",
+      "empty": "Henüz ajan yok.",
+      "displayName": "Görünen ad",
+      "model": "AI modeli",
+      "poly": "Rol",
+      "systemPrompt": "Sistem promptu",
+      "color": "Vurgu rengi",
+      "bio": "Kısa bio",
+      "needModel": "Önce bir AI modeli ekle.",
+      "rebuildNote": "Kaydetmek haritayı yeniden oluşturur.",
+      "customRole": "Özel rol",
+      "customRoleHint": "Rol seçince görünen ad otomatik dolar; Özel’de kendi adını yazabilirsin."
+    },
+    "map": {
+      "title": "Harita",
+      "hint": "Ajan ekledikçe zemin büyür. Duvar yok — yalnızca zemin ve objeler.",
+      "comingSoon": "Yakında",
+      "active": "Aktif harita"
+    },
+    "graphics": {
+      "title": "Grafik",
+      "hint": "Cihazına göre performansı ayarla. Ayarlar bu tarayıcıda saklanır.",
+      "castShadows": "Dinamik gölgeler",
+      "shadowQuality": "Gölge kalitesi",
+      "contactShadows": "Yumuşak zemin gölgesi",
+      "lampLights": "Lamba ışıkları",
+      "roomLights": "Nokta ışıklar",
+      "antialias": "Antialias",
+      "maxDpr": "Maks. piksel oranı",
+      "reset": "Varsayılanlara dön",
+      "low": "Düşük",
+      "medium": "Orta",
+      "high": "Yüksek"
+    }
+  },
+  "poly": {
+    "explorer": {
+      "name": "Kaşif",
+      "blurb": "Meraklı keşif rehberi"
+    },
+    "engineer": {
+      "name": "Mühendis",
+      "blurb": "Pratik ve yapılandırılmış çözümcü"
+    },
+    "botanist": {
+      "name": "Botanikçi",
+      "blurb": "Sakin ve yumuşak tonlu yardımcı"
+    },
+    "scholar": {
+      "name": "Bilgin",
+      "blurb": "Düşünceli ve net açıklayıcı"
+    },
+    "artisan": {
+      "name": "Zanaatkâr",
+      "blurb": "Yaratıcı ve el işçiliğine odaklı"
+    },
+    "guardian": {
+      "name": "Koruyucu",
+      "blurb": "Sakin ve güven veren danışman"
+    },
+    "scout": {
+      "name": "İzci",
+      "blurb": "Hızlı özet ve net sonraki adım"
+    },
+    "muse": {
+      "name": "İlham",
+      "blurb": "Hayal gücünü açan ortak"
+    },
+    "custom": {
+      "name": "Özel",
+      "blurb": "Kendi rol adın ve prompt’un"
+    }
+  },
+  "maps": {
+    "office": {
+      "name": "Ofis",
+      "description": "Masalar ve dekorla açık ofis zemini"
+    },
+    "nature": {
+      "name": "Doğa",
+      "description": "Açık alan (yakında)"
+    },
+    "factory": {
+      "name": "Fabrika",
+      "description": "Endüstriyel alan (yakında)"
+    },
+    "mars": {
+      "name": "Mars",
+      "description": "Mars üssü (yakında)"
+    }
+  }
+}

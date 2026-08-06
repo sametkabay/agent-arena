@@ -1,0 +1,174 @@
+{
+  "app": {
+    "title": "Agent Arena",
+    "tagline": "Your local multi-agent playground"
+  },
+  "nameGate": {
+    "badge": "Welcome",
+    "heading": "What should we call you?",
+    "blurb": "Agents will address you by this name. You can change it later in Settings.",
+    "placeholder": "Your name",
+    "continue": "Enter Arena"
+  },
+  "hud": {
+    "agents": "Agents",
+    "models": "Models",
+    "map": "Map",
+    "settings": "Settings",
+    "hello": "Hello, {{name}}"
+  },
+  "agentList": {
+    "title": "Agents",
+    "empty": "No agents yet. Add one in Settings.",
+    "talk": "Talk"
+  },
+  "chat": {
+    "placeholder": "Ask {{name}}…",
+    "send": "Send",
+    "empty": "Say hello to start chatting.",
+    "noModel": "This agent has no AI model configured.",
+    "thinking": "Thinking…",
+    "close": "Close",
+    "error": "Something went wrong"
+  },
+  "settings": {
+    "title": "Settings",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "saved": "Saved",
+    "tabs": {
+      "general": "General",
+      "models": "AI Models",
+      "agents": "Agents",
+      "map": "Map",
+      "graphics": "Graphics"
+    },
+    "general": {
+      "displayName": "Display name",
+      "language": "Language",
+      "languageHint": "Interface language. Agents reply in the language you use."
+    },
+    "models": {
+      "title": "AI Models",
+      "hint": "Add OpenAI, Gemini, Claude, Ollama, or a custom OpenAI-compatible gateway.",
+      "empty": "No models yet.",
+      "name": "Display name",
+      "provider": "Provider",
+      "baseUrl": "Base URL",
+      "apiKey": "API key",
+      "modelId": "Model",
+      "fetchModels": "Fetch models",
+      "fetching": "Fetching…",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "extraHeaders": "Extra headers",
+      "addHeader": "Add header",
+      "headerKey": "Header",
+      "headerValue": "Value",
+      "corsNote": "Browser requests may be blocked by CORS. In development, Ollama is proxied via /ollama. For other providers, a custom gateway often works best.",
+      "providers": {
+        "openai": "OpenAI-compatible cloud API",
+        "gemini": "Google Gemini API",
+        "claude": "Anthropic Claude API",
+        "ollama": "Local Ollama server",
+        "custom": "Custom gateway (OpenAI-compatible)"
+      }
+    },
+    "agents": {
+      "title": "Agents",
+      "hint": "Each agent uses one AI model and a low-poly character preset you can customize.",
+      "empty": "No agents yet.",
+      "displayName": "Display name",
+      "model": "AI model",
+      "poly": "Role",
+      "systemPrompt": "System prompt",
+      "color": "Accent color",
+      "bio": "Short bio",
+      "needModel": "Add an AI model first.",
+      "rebuildNote": "Saving rebuilds the map layout.",
+      "customRole": "Custom role",
+      "customRoleHint": "Pick a role to fill the display name, or choose Custom and type your own."
+    },
+    "map": {
+      "title": "Map",
+      "hint": "The floor expands as you add agents. Walls are not used — only ground and props.",
+      "comingSoon": "Coming soon",
+      "active": "Active map"
+    },
+    "graphics": {
+      "title": "Graphics",
+      "hint": "Tune performance for your device. Settings are stored in this browser.",
+      "castShadows": "Dynamic shadows",
+      "shadowQuality": "Shadow quality",
+      "contactShadows": "Soft ground shadow",
+      "lampLights": "Lamp lights",
+      "roomLights": "Point lights",
+      "antialias": "Antialias",
+      "maxDpr": "Max pixel ratio",
+      "reset": "Reset to defaults",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
+  },
+  "poly": {
+    "explorer": {
+      "name": "Explorer",
+      "blurb": "Curious guide who loves discovery"
+    },
+    "engineer": {
+      "name": "Engineer",
+      "blurb": "Practical and structured problem-solver"
+    },
+    "botanist": {
+      "name": "Botanist",
+      "blurb": "Calm helper with a gentle tone"
+    },
+    "scholar": {
+      "name": "Scholar",
+      "blurb": "Thoughtful and precise explainer"
+    },
+    "artisan": {
+      "name": "Artisan",
+      "blurb": "Creative maker focused on craft"
+    },
+    "guardian": {
+      "name": "Guardian",
+      "blurb": "Steady, protective advisor"
+    },
+    "scout": {
+      "name": "Scout",
+      "blurb": "Fast summaries and clear next steps"
+    },
+    "muse": {
+      "name": "Muse",
+      "blurb": "Imaginative brainstorming partner"
+    },
+    "custom": {
+      "name": "Custom",
+      "blurb": "Your own role name and prompt"
+    }
+  },
+  "maps": {
+    "office": {
+      "name": "Office",
+      "description": "Open office floor with desks and décor"
+    },
+    "nature": {
+      "name": "Nature",
+      "description": "Outdoor clearing (coming soon)"
+    },
+    "factory": {
+      "name": "Factory",
+      "description": "Industrial workspace (coming soon)"
+    },
+    "mars": {
+      "name": "Mars",
+      "description": "Martian outpost (coming soon)"
+    }
+  }
+}
