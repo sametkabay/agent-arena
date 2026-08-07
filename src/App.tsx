@@ -13,18 +13,32 @@ export default function App() {
   const userName = useArenaStore((s) => s.userName);
   const toast = useArenaStore((s) => s.toast);
   const mapEditorOpen = useArenaStore((s) => s.mapEditorOpen);
+  const dayNight = useArenaStore((s) => s.dayNight);
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    document.documentElement.dataset.dayNight = dayNight;
+  }, [dayNight]);
 
   if (!userName) {
     return <NameGate />;
   }
 
   return (
-    <div className="app">
-      {!mapEditorOpen && <ArenaScene />}
+    <div className="app" data-day-night={dayNight}>
+      {/* Keep the arena WebGL context alive while the map editor is open —
+          remounting the Canvas each time caused "Context Lost" warnings. */}
+      <div
+        className={
+          "arena-layer" + (mapEditorOpen ? " arena-layer--dormant" : "")
+        }
+        aria-hidden={mapEditorOpen}
+      >
+        <ArenaScene dormant={mapEditorOpen} />
+      </div>
       {!mapEditorOpen && (
         <>
           <Hud />

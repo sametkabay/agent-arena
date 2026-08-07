@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ShadowQuality } from "@/lib/maps/types";
 import { DEFAULT_GRAPHICS } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
+import { Select } from "@/components/ui/Select";
 
 export function GraphicsTab() {
   const { t } = useTranslation();
@@ -23,17 +24,16 @@ export function GraphicsTab() {
 
       <label className="settings-row">
         <span>{t("settings.graphics.shadowQuality")}</span>
-        <select
+        <Select
           value={graphics.shadowQuality}
           disabled={!graphics.castShadows}
-          onChange={(e) =>
-            setGraphics({ shadowQuality: e.target.value as ShadowQuality })
-          }
-        >
-          <option value="low">{t("settings.graphics.low")}</option>
-          <option value="medium">{t("settings.graphics.medium")}</option>
-          <option value="high">{t("settings.graphics.high")}</option>
-        </select>
+          onChange={(v) => setGraphics({ shadowQuality: v as ShadowQuality })}
+          options={[
+            { value: "low", label: t("settings.graphics.low") },
+            { value: "medium", label: t("settings.graphics.medium") },
+            { value: "high", label: t("settings.graphics.high") },
+          ]}
+        />
       </label>
 
       <label className="settings-row">
@@ -74,15 +74,16 @@ export function GraphicsTab() {
 
       <label className="settings-row">
         <span>{t("settings.graphics.maxDpr")}</span>
-        <select
+        <Select
           value={String(graphics.maxDpr)}
-          onChange={(e) => setGraphics({ maxDpr: Number(e.target.value) })}
-        >
-          <option value="1">1.0</option>
-          <option value="1.25">1.25</option>
-          <option value="1.5">1.5</option>
-          <option value="2">2.0</option>
-        </select>
+          onChange={(v) => setGraphics({ maxDpr: Number(v) })}
+          options={[
+            { value: "1", label: "1.0" },
+            { value: "1.25", label: "1.25" },
+            { value: "1.5", label: "1.5" },
+            { value: "2", label: "2.0" },
+          ]}
+        />
       </label>
 
       <div className="form-actions">

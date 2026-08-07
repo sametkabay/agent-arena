@@ -1,32 +1,18 @@
-export type AssetCategory = "furniture" | "nature" | "decor" | "ground" | "camping";
+import { PACK_GLB_INVENTORY } from "@/lib/assets/packInventory.generated";
 
-export type PlaceableId =
-  | "desk"
-  | "chair"
-  | "lounge_chair"
-  | "coffee_table"
-  | "couch"
-  | "plant"
-  | "plant_small"
-  | "monitor"
-  | "bookshelf"
-  | "table"
-  | "cabinet"
-  | "rug"
-  | "floor_lamp"
-  | "desk_lamp"
-  | "trash"
-  | "side_table"
-  | "tree_birch"
-  | "tree_pine"
-  | "tree_simple"
-  | "tree_stylized"
-  | "tent"
-  | "campfire"
-  | "log"
-  | "rock"
-  | "bench"
-  | "cardboard_box";
+export type AssetCategory =
+  | "furniture"
+  | "nature"
+  | "decor"
+  | "ground"
+  | "camping"
+  | "vehicles"
+  | "animals"
+  | "food"
+  | "cosmetics";
+
+/** Stable placeable id — curated short ids + `pack__slug` for pack fills. */
+export type PlaceableId = string;
 
 export interface PlaceableSpec {
   label: string;
@@ -34,9 +20,81 @@ export interface PlaceableSpec {
   pack: string;
   footprint: [number, number];
   glb?: string;
+  /** Explicit group scale (curated measured ratios). Ignored when autoFit is set. */
   scale: number;
+  /** Auto-normalize GLB to targetSize meters (lazy-measured AABB). */
+  autoFit?: "height" | "xz";
+  targetSize?: number;
   topY?: number;
   faces?: "posZ" | "negZ";
+  /** Asset has a locomotion clip (Walk / Swim / …). */
+  canWander?: boolean;
+  /** Preferred clip name substrings (first match in GLB wins). */
+  walkClipHints?: string[];
+  idleClipHints?: string[];
+  /** In-place mesh animation (e.g. Fire.glb flame stretch). */
+  canAnimate?: boolean;
+}
+
+/** Files with real locomotion clips (scanned from pack GLBs). */
+const WANDER_LOCOMOTION: Record<
+  string,
+  { walk: string[]; idle: string[] }
+> = {
+  "animals/Fish.glb": {
+    walk: ["Swim"],
+    idle: ["Swim"],
+  },
+  "animals/Snake.glb": {
+    walk: ["Snake_Walk", "Walk"],
+    idle: ["Snake_Idle", "Idle"],
+  },
+  "animals/Spider.glb": {
+    walk: ["Spider_Walk", "Walk"],
+    idle: ["Spider_Idle", "Idle"],
+  },
+  "animals/Wolf.glb": {
+    walk: ["Walk", "Gallop"],
+    idle: ["Idle"],
+  },
+  "farm-animals/Cow.glb": {
+    walk: ["Walk", "WalkSlow", "Run"],
+    idle: ["Idle"],
+  },
+  "farm-animals/Horse.glb": {
+    walk: ["Walk", "WalkSlow", "Run"],
+    idle: ["Idle"],
+  },
+  "farm-animals/Zebra.glb": {
+    walk: ["Walk", "WalkSlow", "Run"],
+    idle: ["Idle"],
+  },
+};
+
+function wanderMeta(
+  pack: string,
+  file: string,
+): Pick<PlaceableSpec, "canWander" | "walkClipHints" | "idleClipHints"> | null {
+  const entry = WANDER_LOCOMOTION[`${pack}/${file}`];
+  if (!entry) return null;
+  return {
+    canWander: true,
+    walkClipHints: entry.walk,
+    idleClipHints: entry.idle,
+  };
+}
+
+export function pickClipName(
+  clipNames: string[],
+  hints: string[] | undefined,
+): string | undefined {
+  if (!hints?.length || clipNames.length === 0) return undefined;
+  for (const hint of hints) {
+    const h = hint.toLowerCase();
+    const hit = clipNames.find((n) => n.toLowerCase().includes(h));
+    if (hit) return hit;
+  }
+  return undefined;
 }
 
 const FURN = "/assets/packs/furniture";
@@ -55,8 +113,99 @@ function camp(name: string): string {
   return `${CAMP}/${encodeURIComponent(name)}`;
 }
 
-/** Placeable library — scales from measured AABB height → target meters. */
-export const PLACEABLE_SPECS: Record<PlaceableId, PlaceableSpec> = {
+function packUrl(pack: string, file: string): string {
+  return `/assets/packs/${pack}/${encodeURIComponent(file)}`;
+}
+
+function slugify(file: string): string {
+  return file
+    .replace(/\.glb$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
+function labelFromFile(file: string): string {
+  return file.replace(/\.glb$/i, "").replace(/\s+/g, " ").trim();
+}
+
+function inferCategory(pack: string, file: string): AssetCategory {
+  const n = file.toLowerCase();
+  if (pack === "trees") return "nature";
+  if (pack === "cars") return "vehicles";
+  if (pack === "animals" || pack === "farm-animals") return "animals";
+  if (pack === "food") return "food";
+  if (pack === "cosmetics") return "cosmetics";
+  if (pack === "camping") {
+    if (n.includes("tree") || n === "rock.glb") return "nature";
+    return "camping";
+  }
+  if (/rug|mat\b/.test(n)) return "ground";
+  if (
+    /plant|lamp|trash|cardboard|box|duck|keyboard|mouse|laptop|phone|radio|speaker|pencil|sticky|picture|painting|trophy|toiletpaper|toilet paper|cup|mug|plate|bowl|book(?!case)/.test(
+      n,
+    )
+  ) {
+    return "decor";
+  }
+  return "furniture";
+}
+
+function defaultFootprint(category: AssetCategory, file: string): [number, number] {
+  const n = file.toLowerCase();
+  if (category === "ground") return [2.2, 1.4];
+  if (category === "vehicles") return [2.2, 1.1];
+  if (category === "animals") return [1.0, 0.7];
+  if (category === "food") return [0.35, 0.35];
+  if (category === "cosmetics") return [0.4, 0.4];
+  if (category === "nature") {
+    if (n.includes("tree")) return [1.2, 1.2];
+    return [0.7, 0.7];
+  }
+  if (category === "camping") {
+    if (n.includes("tent")) return [2.2, 2.0];
+    if (n.includes("island")) return [2.5, 2.5];
+    return [0.9, 0.9];
+  }
+  if (/sofa|couch|bed|bathtub|desk|table|wardrobe|fridge|bookcase|shelf/.test(n)) {
+    return [1.4, 0.8];
+  }
+  if (/chair|stool|bench/.test(n)) return [0.65, 0.65];
+  return [0.85, 0.85];
+}
+
+function defaultAutoFit(
+  category: AssetCategory,
+  file: string,
+): { autoFit: "height" | "xz"; targetSize: number } {
+  const n = file.toLowerCase();
+  if (category === "ground") return { autoFit: "xz", targetSize: 2.2 };
+  if (category === "nature" && n.includes("tree")) {
+    return { autoFit: "height", targetSize: 3.2 };
+  }
+  if (category === "vehicles") return { autoFit: "height", targetSize: 1.35 };
+  if (category === "animals") return { autoFit: "height", targetSize: 1.0 };
+  if (category === "food") return { autoFit: "height", targetSize: 0.22 };
+  if (category === "cosmetics") return { autoFit: "height", targetSize: 0.4 };
+  if (category === "camping") {
+    if (n.includes("tent")) return { autoFit: "height", targetSize: 2.0 };
+    if (n.includes("island")) return { autoFit: "xz", targetSize: 3.0 };
+    return { autoFit: "height", targetSize: 0.7 };
+  }
+  if (/door|wardrobe|closet|fridge|bookcase|shelf/.test(n)) {
+    return { autoFit: "height", targetSize: 1.85 };
+  }
+  if (/chair|stool|sofa|couch|bench/.test(n)) {
+    return { autoFit: "height", targetSize: 0.95 };
+  }
+  if (/lamp/.test(n) && /floor/.test(n)) {
+    return { autoFit: "height", targetSize: 1.55 };
+  }
+  return { autoFit: "height", targetSize: 0.85 };
+}
+
+/** Curated office set — stable short ids used by maps / layoutGrowth. */
+const CURATED_SPECS: Record<string, PlaceableSpec> = {
   desk: {
     label: "Desk",
     category: "furniture",
@@ -275,6 +424,57 @@ export const PLACEABLE_SPECS: Record<PlaceableId, PlaceableSpec> = {
   },
 };
 
+function buildCatalog(): Record<PlaceableId, PlaceableSpec> {
+  const specs: Record<PlaceableId, PlaceableSpec> = { ...CURATED_SPECS };
+  const claimed = new Set(
+    Object.values(CURATED_SPECS)
+      .map((s) => s.glb)
+      .filter((g): g is string => Boolean(g)),
+  );
+
+  for (const { pack, file } of PACK_GLB_INVENTORY) {
+    const glb = packUrl(pack, file);
+    if (claimed.has(glb)) continue;
+
+    const baseId = `${pack}__${slugify(file)}`;
+    let id = baseId;
+    let n = 2;
+    while (id in specs) {
+      id = `${baseId}_${n++}`;
+    }
+
+    const category = inferCategory(pack, file);
+    const fit = defaultAutoFit(category, file);
+    const wander = wanderMeta(pack, file);
+    const canAnimate = /^Fire\.glb$/i.test(file);
+    specs[id] = {
+      label: labelFromFile(file),
+      category,
+      pack,
+      footprint: defaultFootprint(category, file),
+      glb,
+      scale: 1,
+      autoFit: fit.autoFit,
+      targetSize: fit.targetSize,
+      ...wander,
+      ...(canAnimate ? { canAnimate: true } : {}),
+    };
+  }
+
+  return specs;
+}
+
+/** Full placeable library — curated short ids + every pack GLB. */
+export const PLACEABLE_SPECS: Record<PlaceableId, PlaceableSpec> = buildCatalog();
+
+export function placeableCanWander(placeableId: string): boolean {
+  return Boolean(PLACEABLE_SPECS[placeableId]?.canWander);
+}
+
+export function placeableCanAnimate(placeableId: string): boolean {
+  return Boolean(PLACEABLE_SPECS[placeableId]?.canAnimate);
+}
+
 /** Yaw so a Kenney prop’s front faces toward `to`. */
 export function yawToward(
   from: [number, number, number],
@@ -299,10 +499,14 @@ export function listPlaceables(category?: AssetCategory): PlaceableId[] {
 
 export const ASSET_CATEGORIES: AssetCategory[] = [
   "furniture",
-  "nature",
-  "camping",
   "decor",
   "ground",
+  "nature",
+  "camping",
+  "vehicles",
+  "animals",
+  "food",
+  "cosmetics",
 ];
 
 export const ASSET_PACKS = [

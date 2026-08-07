@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import type { LanguageCode } from "@/lib/types";
 import { useArenaStore } from "@/store/arenaStore";
+import { Select } from "@/components/ui/Select";
 
 export function GeneralTab() {
   const { t } = useTranslation();
@@ -23,13 +24,14 @@ export function GeneralTab() {
       </label>
       <label>
         {t("settings.general.language")}
-        <select
+        <Select
           value={language}
-          onChange={(e) => setLanguage(e.target.value as LanguageCode)}
-        >
-          <option value="en">English</option>
-          <option value="tr">Türkçe</option>
-        </select>
+          onChange={(v) => setLanguage(v as LanguageCode)}
+          options={[
+            { value: "en", label: "English" },
+            { value: "tr", label: "Türkçe" },
+          ]}
+        />
       </label>
     </div>
   );

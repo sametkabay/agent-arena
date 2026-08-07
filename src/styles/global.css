@@ -10,9 +10,28 @@
   --glass: rgba(242, 237, 228, 0.9);
   --shadow: 0 10px 30px rgba(60, 45, 30, 0.14);
   --radius: 14px;
+  --hud-fade-top: rgba(242, 237, 228, 0.94);
+  --hud-fade-mid: rgba(242, 237, 228, 0.72);
   font-family: "Nunito", system-ui, sans-serif;
   color: var(--ink);
   background: radial-gradient(1200px 700px at 20% 0%, #f7f2e8 0%, var(--cream) 45%, #ddd3c2 100%);
+}
+
+:root[data-day-night="night"] {
+  --cream: #161922;
+  --cream-deep: #1e2330;
+  --wood: #6b5a48;
+  --wood-dark: #8a7359;
+  --sage: #6f9474;
+  --sage-dark: #8fb894;
+  --ink: #e6e2d8;
+  --ink-soft: #a8a296;
+  --glass: rgba(22, 25, 34, 0.92);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --hud-fade-top: rgba(16, 18, 26, 0.94);
+  --hud-fade-mid: rgba(16, 18, 26, 0.72);
+  background: radial-gradient(1200px 700px at 20% 0%, #1c2230 0%, #12151c 45%, #0a0c12 100%);
+  color-scheme: dark;
 }
 
 * {
@@ -39,10 +58,238 @@ button {
   cursor: pointer;
 }
 
+/* —— Scrollbars —— */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(166, 124, 82, 0.55) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(166, 124, 82, 0.42);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(166, 124, 82, 0.68);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.map-editor,
+.map-editor *,
+.aa-select__menu--dark,
+.aa-select__menu--dark * {
+  scrollbar-color: rgba(244, 239, 230, 0.32) transparent;
+}
+
+.map-editor *::-webkit-scrollbar-thumb,
+.aa-select__menu--dark::-webkit-scrollbar-thumb {
+  background: rgba(244, 239, 230, 0.22);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.map-editor *::-webkit-scrollbar-thumb:hover,
+.aa-select__menu--dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 239, 230, 0.4);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
 .app {
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+.arena-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.arena-layer--dormant {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* —— Custom select —— */
+.aa-select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.aa-select__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid rgba(196, 164, 132, 0.65);
+  border-radius: 12px;
+  padding: 0.65rem 0.8rem;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  font-weight: 700;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.aa-select__trigger:hover:not(:disabled) {
+  border-color: rgba(166, 124, 82, 0.85);
+}
+
+.aa-select__trigger:focus-visible {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.28);
+}
+
+.aa-select.is-open .aa-select__trigger {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.22);
+}
+
+.aa-select.is-disabled .aa-select__trigger,
+.aa-select__trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.aa-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aa-select__chevron {
+  flex: 0 0 auto;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  opacity: 0.55;
+  transition: transform 0.15s ease;
+}
+
+.aa-select.is-open .aa-select__chevron {
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.aa-select__menu {
+  position: fixed;
+  z-index: 500;
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(196, 164, 132, 0.55);
+  background: rgba(255, 251, 243, 0.98);
+  box-shadow:
+    0 18px 48px rgba(72, 54, 36, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+}
+
+.aa-select__option {
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  border-radius: 9px;
+  padding: 0.52rem 0.7rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.aa-select__option:hover,
+.aa-select__option.is-active {
+  background: rgba(122, 158, 126, 0.16);
+}
+
+.aa-select__option.is-selected {
+  background: rgba(122, 158, 126, 0.24);
+  color: var(--sage-dark);
+}
+
+.aa-select__option.is-selected.is-active {
+  background: rgba(122, 158, 126, 0.32);
+}
+
+/* Dark variant (map editor) */
+.aa-select--dark .aa-select__trigger {
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  border-radius: 8px;
+  padding: 0.42rem 0.7rem;
+  background: #2a2520;
+  color: #f4efe6;
+  font-weight: 700;
+  font-size: inherit;
+  box-shadow: none;
+}
+
+.aa-select--dark .aa-select__trigger:hover:not(:disabled) {
+  border-color: rgba(244, 239, 230, 0.3);
+  background: #322c26;
+}
+
+.aa-select--dark .aa-select__trigger:focus-visible,
+.aa-select--dark.is-open .aa-select__trigger {
+  border-color: rgba(122, 180, 150, 0.55);
+  box-shadow: 0 0 0 2px rgba(74, 117, 102, 0.35);
+}
+
+.aa-select__menu--dark {
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  border-radius: 12px;
+  background: rgba(28, 25, 22, 0.98);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+}
+
+.aa-select__menu--dark .aa-select__option {
+  color: #f4efe6;
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.aa-select__menu--dark .aa-select__option:hover,
+.aa-select__menu--dark .aa-select__option.is-active {
+  background: rgba(74, 117, 102, 0.35);
+}
+
+.aa-select__menu--dark .aa-select__option.is-selected {
+  background: rgba(74, 117, 102, 0.5);
+  color: #f4efe6;
+}
+
+.settings-row .aa-select {
+  width: auto;
+  min-width: 160px;
 }
 
 /* —— Name gate —— */
@@ -146,7 +393,7 @@ button {
   gap: 12px 18px;
   align-items: center;
   padding: 14px 18px;
-  background: linear-gradient(180deg, rgba(242, 237, 228, 0.94), rgba(242, 237, 228, 0.72), transparent);
+  background: linear-gradient(180deg, var(--hud-fade-top), var(--hud-fade-mid), transparent);
   pointer-events: none;
 }
 
@@ -199,9 +446,157 @@ button {
   background: var(--sage-dark);
 }
 
+.hud button.daynight-switch,
+.hud button.daynight-switch:hover {
+  width: 56px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: transparent;
+}
+
 .hud__ghost {
   background: var(--wood) !important;
   box-shadow: none !important;
+}
+
+/* —— Day / night decorative switch —— */
+.daynight-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none !important;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.daynight-switch:hover {
+  background: transparent !important;
+}
+
+.daynight-switch__track {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.28);
+}
+
+.daynight-switch.is-day .daynight-switch__track {
+  background: linear-gradient(180deg, #7ec8f5 0%, #4aa3e0 100%);
+}
+
+.daynight-switch.is-night .daynight-switch__track {
+  background: linear-gradient(180deg, #2a3a6e 0%, #1a2748 100%);
+}
+
+.daynight-switch__stars,
+.daynight-switch__clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.daynight-switch__stars {
+  opacity: 0;
+  background-image:
+    radial-gradient(1px 1px at 18% 32%, #e8f0c8 99%, transparent),
+    radial-gradient(1.5px 1.5px at 28% 58%, #dfe8ff 99%, transparent),
+    radial-gradient(1px 1px at 42% 24%, #f0f4c8 99%, transparent),
+    radial-gradient(1px 1px at 52% 70%, #e4ecff 99%, transparent),
+    radial-gradient(1.5px 1.5px at 66% 38%, #eef5d0 99%, transparent),
+    radial-gradient(1px 1px at 78% 62%, #dce6ff 99%, transparent),
+    radial-gradient(1px 1px at 88% 28%, #f2f6d8 99%, transparent),
+    radial-gradient(1px 1px at 36% 78%, #e8eef8 99%, transparent);
+}
+
+.daynight-switch.is-night .daynight-switch__stars {
+  opacity: 1;
+}
+
+.daynight-switch__clouds {
+  opacity: 0;
+  background-image:
+    radial-gradient(ellipse 10px 5px at 62% 42%, rgba(255, 255, 255, 0.85) 55%, transparent 70%),
+    radial-gradient(ellipse 8px 4px at 74% 55%, rgba(255, 255, 255, 0.7) 55%, transparent 70%),
+    radial-gradient(ellipse 7px 3.5px at 80% 38%, rgba(255, 255, 255, 0.65) 55%, transparent 70%);
+}
+
+.daynight-switch.is-day .daynight-switch__clouds {
+  opacity: 1;
+}
+
+.daynight-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: transform 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+
+.daynight-switch.is-night .daynight-switch__thumb {
+  transform: translateX(28px);
+}
+
+.daynight-switch__sun,
+.daynight-switch__moon {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transition: opacity 0.28s ease;
+}
+
+.daynight-switch__sun {
+  background:
+    radial-gradient(circle at 35% 30%, #fff6c8 0%, #ffd56a 42%, #f0a832 100%);
+  opacity: 1;
+}
+
+.daynight-switch__moon {
+  background-color: #8eb8e8;
+  background-image:
+    radial-gradient(ellipse 8px 6px at 64% 36%, #5d7fa8 0%, #5d7fa8 68%, transparent 70%),
+    radial-gradient(ellipse 6px 5px at 36% 70%, #56769e 0%, #56769e 68%, transparent 70%),
+    radial-gradient(ellipse 5px 4px at 74% 72%, #5a7aa4 0%, #5a7aa4 68%, transparent 70%),
+    radial-gradient(circle at 30% 28%, rgba(232, 244, 255, 0.55) 0%, transparent 42%);
+  opacity: 0;
+}
+
+.daynight-switch.is-day .daynight-switch__sun {
+  opacity: 1;
+}
+
+.daynight-switch.is-day .daynight-switch__moon {
+  opacity: 0;
+}
+
+.daynight-switch.is-night .daynight-switch__sun {
+  opacity: 0;
+}
+
+.daynight-switch.is-night .daynight-switch__moon {
+  opacity: 1;
+}
+
+.hud__actions .daynight-switch {
+  align-self: center;
+}
+
+.map-editor__toolbar-actions .daynight-switch {
+  margin-right: 2px;
 }
 
 /* —— Agent list —— */
@@ -423,20 +818,37 @@ button {
 }
 
 .agent-label {
+  display: inline-block;
+  margin: 0;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   background: rgba(242, 237, 228, 0.92);
   border: 1px solid rgba(196, 164, 132, 0.55);
-  color: var(--ink);
+  /* Fixed dark ink — do not use --ink (night mode lightens it). */
+  color: #2c2620;
+  font: inherit;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(60, 45, 30, 0.12);
-  pointer-events: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.agent-label:hover {
+  border-color: rgba(166, 124, 82, 0.9);
+  background: #fff;
+  color: #2c2620;
 }
 
 .agent-label--selected {
   background: var(--sage);
+  color: #fff;
+  border-color: var(--sage-dark);
+}
+
+.agent-label--selected:hover {
+  background: var(--sage-dark);
   color: #fff;
   border-color: var(--sage-dark);
 }
@@ -449,7 +861,7 @@ button {
   border-radius: 12px;
   background: rgba(255, 254, 249, 0.96);
   border: 1px solid rgba(160, 130, 100, 0.5);
-  color: var(--ink);
+  color: #2c2620;
   font-size: 12px;
   font-weight: 600;
   line-height: 1.3;
@@ -470,6 +882,32 @@ button {
   border-right: 1px solid rgba(160, 130, 100, 0.5);
   border-bottom: 1px solid rgba(160, 130, 100, 0.5);
   transform: rotate(45deg);
+}
+
+:root[data-day-night="night"] .agent-label:not(.agent-label--selected) {
+  background: rgba(22, 25, 34, 0.92);
+  border-color: rgba(140, 150, 170, 0.4);
+  color: #ece8df;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-day-night="night"] .agent-label:not(.agent-label--selected):hover {
+  background: rgba(32, 38, 52, 0.96);
+  border-color: rgba(170, 180, 200, 0.55);
+  color: #f4f1ea;
+}
+
+:root[data-day-night="night"] .agent-speech {
+  background: rgba(22, 25, 34, 0.94);
+  border-color: rgba(140, 150, 170, 0.4);
+  color: #ece8df;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-day-night="night"] .agent-speech::after {
+  background: rgba(22, 25, 34, 0.94);
+  border-right-color: rgba(140, 150, 170, 0.4);
+  border-bottom-color: rgba(140, 150, 170, 0.4);
 }
 
 /* —— Settings —— */
@@ -589,7 +1027,6 @@ button {
   color: var(--ink-soft);
 }
 
-.settings-row select,
 .settings-row input[type="text"],
 .settings-row input[type="password"],
 .settings-row input[type="number"] {
@@ -610,8 +1047,7 @@ button {
 }
 
 .form-grid input,
-.form-grid textarea,
-.form-grid select {
+.form-grid textarea {
   width: 100%;
   border: 1px solid rgba(196, 164, 132, 0.65);
   border-radius: 12px;
@@ -627,8 +1063,7 @@ button {
 }
 
 .form-grid input:focus,
-.form-grid textarea:focus,
-.form-grid select:focus {
+.form-grid textarea:focus {
   border-color: var(--sage);
   box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.16);
 }
@@ -945,6 +1380,18 @@ button {
   font-size: 0.82rem;
 }
 
+.map-editor__toolbar-actions button.daynight-switch,
+.map-editor__toolbar-actions button.daynight-switch:hover {
+  width: 56px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: transparent;
+  box-shadow: none;
+}
+
 .map-editor__toolbar-actions button:disabled {
   opacity: 0.35;
   cursor: not-allowed;
@@ -1023,6 +1470,44 @@ button {
 .map-editor__inspector h4 {
   margin: 0 0 10px;
   font-size: 0.92rem;
+}
+
+.map-editor__search {
+  display: block;
+  margin: 0 0 10px;
+}
+
+.map-editor__search input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 239, 230, 0.16);
+  background: rgba(0, 0, 0, 0.28);
+  color: #f4efe6;
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+.map-editor__search input::placeholder {
+  color: rgba(244, 239, 230, 0.42);
+}
+
+.map-editor__search input:focus {
+  outline: none;
+  border-color: rgba(74, 117, 102, 0.85);
+  box-shadow: 0 0 0 2px rgba(74, 117, 102, 0.25);
+}
+
+.map-editor__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .map-editor__cats {
@@ -1251,7 +1736,6 @@ button {
 }
 
 .map-editor__field input,
-.map-editor__field select,
 .map-editor__field textarea {
   width: 100%;
   border: 1px solid rgba(244, 239, 230, 0.16);

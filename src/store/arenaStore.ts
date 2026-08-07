@@ -5,6 +5,7 @@ import type {
   AppPersisted,
   ArenaAgent,
   ChatMessage,
+  DayNightMode,
   GraphicsSettings,
   LanguageCode,
   MapId,
@@ -21,6 +22,7 @@ import {
   placeAgentsOnMap,
 } from "@/lib/maps";
 import { DEFAULT_GRAPHICS, loadPersisted, savePersisted, uid } from "@/lib/storage";
+import { placeableCanWander } from "@/lib/assets/catalog";
 import i18n from "@/i18n";
 
 export const THINKING_BUBBLE = "🤔";
@@ -48,6 +50,8 @@ interface ArenaState extends AppPersisted {
   setSettingsOpen: (open: boolean) => void;
   setSettingsTab: (tab: ArenaState["settingsTab"]) => void;
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
+  setDayNight: (mode: DayNightMode) => void;
+  toggleDayNight: () => void;
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
 
@@ -66,6 +70,7 @@ interface ArenaState extends AppPersisted {
   duplicateActiveMap: () => void;
 
   selectAgent: (id: string | null) => void;
+  commandAgentTo: (agentId: string, pos: [number, number, number]) => void;
   setChatOpen: (open: boolean) => void;
   appendChat: (agentId: string, message: ChatMessage) => void;
   replaceLastAssistant: (agentId: string, content: string) => void;
@@ -85,6 +90,7 @@ function persistSlice(s: ArenaState): AppPersisted {
     mapId: s.mapId,
     customMaps: s.customMaps,
     graphics: s.graphics,
+    dayNight: s.dayNight,
   };
 }
 
@@ -151,6 +157,16 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
 
   setGraphics: (partial) => {
     set((s) => ({ graphics: { ...s.graphics, ...partial } }));
+    get().persist();
+  },
+
+  setDayNight: (mode) => {
+    set({ dayNight: mode });
+    get().persist();
+  },
+
+  toggleDayNight: () => {
+    set((s) => ({ dayNight: s.dayNight === "day" ? "night" : "day" }));
     get().persist();
   },
 
@@ -284,19 +300,20 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   },
 
   saveMapFromEditor: (def, activate = true) => {
+    const name = def.name.trim() || "Untitled map";
     if (def.builtin) {
-      // Builtin edits must become a custom copy
+      // Builtin edits must become a custom copy; keep the name the user set
       const copy = createCustomMapFromBuiltin(def.id, get().customMaps);
       const saved: ArenaMapDefinition = {
         ...def,
         id: copy.id,
-        name: def.name.endsWith("(copy)") ? def.name : `${def.name} (edited)`,
+        name,
         builtin: false,
       };
       get().upsertCustomMap(saved);
       if (activate) get().setMapId(saved.id);
     } else {
-      get().upsertCustomMap({ ...def, builtin: false });
+      get().upsertCustomMap({ ...def, name, builtin: false });
       if (activate) get().setMapId(def.id);
     }
     set({ mapEditorOpen: false, mapEditorSourceId: null });
@@ -327,6 +344,28 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
     set({
       selectedAgentId: id,
       chatOpen: id != null,
+    });
+  },
+
+  commandAgentTo: (agentId, pos) => {
+    set((s) => {
+      if (s.chatBusyById[agentId]) return s;
+      const half = s.floorSize / 2 - 1.2;
+      const x = Math.max(-half, Math.min(half, pos[0]));
+      const z = Math.max(-half, Math.min(half, pos[2]));
+      const target: [number, number, number] = [x, 0, z];
+      return {
+        runtimeAgents: s.runtimeAgents.map((a) =>
+          a.id === agentId
+            ? {
+                ...a,
+                target,
+                commandTarget: target,
+                state: "walk" as const,
+              }
+            : a,
+        ),
+      };
     });
   },
 
@@ -427,21 +466,87 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
           if (dist < 0.08) {
             next.position = [tx, 0, tz];
             next.target = undefined;
+            next.commandTarget = undefined;
             next.state = "idle";
           } else {
-            const step = Math.min(dist, next.moveSpeed * dt);
+            const speed =
+              next.moveSpeed * (next.commandTarget ? 2 : 1);
+            const step = Math.min(dist, speed * dt);
             const nx = next.position[0] + (dx / dist) * step;
             const nz = next.position[2] + (dz / dist) * step;
             next.position = [nx, 0, nz];
             next.rotationY = Math.atan2(dx, dz);
-            next.state = "wander";
+            next.state = next.commandTarget ? "walk" : "wander";
           }
         }
 
         next.thinkingIntensity = Math.max(0, next.thinkingIntensity - dt * 0.8);
         return next;
       });
-      return { runtimeAgents: agents };
+
+      const placeables = s.placeables.map((item) => {
+        if (item.behavior !== "wander" || !placeableCanWander(item.placeableId)) {
+          if (item.locomotion || item.target) {
+            return {
+              ...item,
+              target: undefined,
+              locomotion: undefined,
+            };
+          }
+          return item;
+        }
+
+        let next = { ...item };
+        const home = next.homePosition ?? next.position;
+        if (!next.homePosition) {
+          next.homePosition = [home[0], home[1], home[2]];
+        }
+        const speed = next.moveSpeed ?? 1.1;
+
+        if (!next.target) {
+          if (Math.random() < dt * 0.12) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 1.2 + Math.random() * 2.2;
+            const tx = Math.max(
+              -half,
+              Math.min(half, home[0] + Math.cos(angle) * dist),
+            );
+            const tz = Math.max(
+              -half,
+              Math.min(half, home[2] + Math.sin(angle) * dist),
+            );
+            next.target = [tx, home[1], tz];
+            next.locomotion = "walk";
+          } else {
+            next.locomotion = "idle";
+          }
+        }
+
+        if (next.target) {
+          const [tx, ty, tz] = next.target;
+          const dx = tx - next.position[0];
+          const dz = tz - next.position[2];
+          const dist = Math.hypot(dx, dz);
+          if (dist < 0.08) {
+            next.position = [tx, ty, tz];
+            next.target = undefined;
+            next.locomotion = "idle";
+          } else {
+            const step = Math.min(dist, speed * dt);
+            next.position = [
+              next.position[0] + (dx / dist) * step,
+              next.position[1],
+              next.position[2] + (dz / dist) * step,
+            ];
+            next.rotationY = Math.atan2(dx, dz);
+            next.locomotion = "walk";
+          }
+        }
+
+        return next;
+      });
+
+      return { runtimeAgents: agents, placeables };
     });
   },
 

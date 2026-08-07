@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "assets:inventory": "node scripts/generate-pack-inventory.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

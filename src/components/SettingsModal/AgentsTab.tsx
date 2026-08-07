@@ -8,6 +8,7 @@ import {
   isCustomPreset,
 } from "@/lib/poly/presets";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
+import { Select } from "@/components/ui/Select";
 
 export function AgentsTab() {
   const { t } = useTranslation();
@@ -111,16 +112,11 @@ export function AgentsTab() {
         </label>
         <label>
           {t("settings.agents.model")}
-          <select
+          <Select
             value={editing.modelConfigId}
-            onChange={(e) => setEditing({ ...editing, modelConfigId: e.target.value })}
-          >
-            {models.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => setEditing({ ...editing, modelConfigId: v })}
+            options={models.map((m) => ({ value: m.id, label: m.name }))}
+          />
         </label>
         <label>
           {t("settings.agents.systemPrompt")}

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { AiModelConfig, AiProviderKind, ExtraHeader } from "@/lib/types";
 import { fetchModels, providerDefaults, testConnection } from "@/lib/ai/providers";
 import { createModelDraft, useArenaStore } from "@/store/arenaStore";
+import { Select } from "@/components/ui/Select";
 
 const PROVIDERS: AiProviderKind[] = ["openai", "gemini", "claude", "ollama", "custom"];
 
@@ -87,16 +88,11 @@ export function ModelsTab() {
     if (!draft) return null;
     if (fetched && fetched.length > 0) {
       return (
-        <select
+        <Select
           value={draft.modelId}
-          onChange={(e) => setEditing({ ...draft, modelId: e.target.value })}
-        >
-          {fetched.map((id) => (
-            <option key={id} value={id}>
-              {id}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setEditing({ ...draft, modelId: v })}
+          options={fetched.map((id) => ({ value: id, label: id }))}
+        />
       );
     }
     return (
@@ -121,16 +117,14 @@ export function ModelsTab() {
         </label>
         <label>
           {t("settings.models.provider")}
-          <select
+          <Select
             value={draft.provider}
-            onChange={(e) => onProviderChange(e.target.value as AiProviderKind)}
-          >
-            {PROVIDERS.map((p) => (
-              <option key={p} value={p}>
-                {p} — {t(`settings.models.providers.${p}`)}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => onProviderChange(v as AiProviderKind)}
+            options={PROVIDERS.map((p) => ({
+              value: p,
+              label: `${p} — ${t(`settings.models.providers.${p}`)}`,
+            }))}
+          />
         </label>
         <label>
           {t("settings.models.baseUrl")}

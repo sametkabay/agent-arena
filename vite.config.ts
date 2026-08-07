@@ -18,7 +18,6 @@ export default defineConfig({
     watch: {
       ignored: [
         "**/public/assets/packs/**",
-        "**/public/assets/poly/**",
         "**/*.glb",
         "**/*.gltf",
         "**/*.bin",

@@ -2,6 +2,7 @@ import type { AppPersisted, GraphicsSettings, LanguageCode, MapId } from "@/lib/
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { isArenaMapDefinition, migrateLegacyMapFloorStyles } from "@/lib/maps/schema";
 import { isBuiltinMapId } from "@/lib/maps/runtime";
+import { isDayNightMode } from "@/lib/dayNight";
 
 export const STORAGE_KEY = "agent-arena-data";
 /** One-shot: rewrite legacy floor.style "checker" → "surface". */
@@ -26,6 +27,7 @@ export function defaultPersisted(): AppPersisted {
     mapId: "office",
     customMaps: [],
     graphics: { ...DEFAULT_GRAPHICS },
+    dayNight: "day",
   };
 }
 
@@ -65,6 +67,7 @@ export function loadPersisted(): AppPersisted {
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: { ...DEFAULT_GRAPHICS, ...(parsed.graphics ?? {}) },
+      dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : "day",
     };
   } catch {
     return defaultPersisted();

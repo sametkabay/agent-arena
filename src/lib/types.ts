@@ -1,4 +1,7 @@
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
+import type { DayNightMode } from "@/lib/dayNight";
+
+export type { DayNightMode } from "@/lib/dayNight";
 
 export type AiProviderKind = "openai" | "gemini" | "claude" | "ollama" | "custom";
 
@@ -57,6 +60,8 @@ export interface AppPersisted {
   /** User-authored aamf v1 maps (builtins live in src/lib/maps/defs). */
   customMaps: ArenaMapDefinition[];
   graphics: GraphicsSettings;
+  /** Arena + UI day/night preference (persisted). */
+  dayNight: DayNightMode;
 }
 
 export interface ChatMessage {
@@ -70,6 +75,22 @@ export interface PlaceableInstance {
   position: [number, number, number];
   rotationY: number;
   scale?: number;
+  /**
+   * Motion mode for capable assets:
+   * - `wander` — `canWander` animals walk randomly
+   * - `animated` — in-place FX (e.g. Fire.glb flame stretch)
+   * - `static` — frozen
+   * Omit: wander assets default static in runtime unless placed as wander;
+   * animate-capable assets default to animated when omitted.
+   */
+  behavior?: "static" | "wander" | "animated";
+  /** Anchor for random wander radius (play runtime; optional in map JSON). */
+  homePosition?: [number, number, number];
+  /** Current walk target (runtime). */
+  target?: [number, number, number];
+  moveSpeed?: number;
+  /** Drives clip selection (runtime). */
+  locomotion?: "idle" | "walk";
 }
 
 export interface ArenaAgent {
@@ -85,6 +106,8 @@ export interface ArenaAgent {
   homePosition: [number, number, number];
   state: AgentVisualState;
   target?: [number, number, number];
+  /** User right-click destination — shown while selected until arrival. */
+  commandTarget?: [number, number, number];
   walkPath?: [number, number, number][];
   speechBubble?: string;
   speechBubbleUntil?: number;

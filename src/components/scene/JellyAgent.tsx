@@ -1,5 +1,5 @@
 import { Html } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { forwardRef, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { getPolyPreset } from "@/lib/poly/presets";
@@ -9,7 +9,7 @@ import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
 interface Props {
   agent: ArenaAgent;
   selected: boolean;
-  onClick: () => void;
+  onPick: (e: ThreeEvent<MouseEvent>) => void;
 }
 
 const softMat = (color: string) => (
@@ -33,7 +33,7 @@ const Limb = forwardRef<
 });
 
 /** Soft rounded low-poly character (capsules + spheres — visible limbs). */
-export function JellyAgent({ agent, selected, onClick }: Props) {
+export function JellyAgent({ agent, selected, onPick }: Props) {
   const group = useRef<THREE.Group>(null);
   const leftArm = useRef<THREE.Mesh>(null);
   const rightArm = useRef<THREE.Mesh>(null);
@@ -86,9 +86,10 @@ export function JellyAgent({ agent, selected, onClick }: Props) {
   return (
     <group
       ref={group}
+      userData={{ agentId: agent.id }}
       onClick={(e) => {
         e.stopPropagation();
-        onClick();
+        onPick(e);
       }}
     >
       {/* Head */}
@@ -147,12 +148,20 @@ export function JellyAgent({ agent, selected, onClick }: Props) {
           center
           distanceFactor={10}
           zIndexRange={[45, 10]}
-          style={{ pointerEvents: "none" }}
           className="agent-html-overlay"
         >
-          <div className={"agent-label" + (selected ? " agent-label--selected" : "")}>
+          <button
+            type="button"
+            className={
+              "agent-label" + (selected ? " agent-label--selected" : "")
+            }
+            onClick={(ev) => {
+              ev.stopPropagation();
+              useArenaStore.getState().selectAgent(agent.id);
+            }}
+          >
             {agent.displayName}
-          </div>
+          </button>
         </Html>
       )}
       {showLabels && bubble && !chatOpen && (

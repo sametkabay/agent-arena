@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
+import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
 
 export function Hud() {
   const { t } = useTranslation();
@@ -7,6 +8,8 @@ export function Hud() {
   const agents = useArenaStore((s) => s.agents);
   const models = useArenaStore((s) => s.models);
   const activeMap = useArenaStore((s) => s.activeMap);
+  const dayNight = useArenaStore((s) => s.dayNight);
+  const toggleDayNight = useArenaStore((s) => s.toggleDayNight);
   const setSettingsOpen = useArenaStore((s) => s.setSettingsOpen);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
   const openMapEditor = useArenaStore((s) => s.openMapEditor);
@@ -29,6 +32,7 @@ export function Hud() {
         </span>
       </div>
       <div className="hud__actions">
+        <DayNightSwitch mode={dayNight} onToggle={toggleDayNight} />
         <button type="button" className="hud__ghost" onClick={() => openMapEditor()}>
           {t("hud.editMap")}
         </button>

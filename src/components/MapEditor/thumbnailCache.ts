@@ -14,16 +14,24 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PLACEABLE_SPECS, type PlaceableId } from "@/lib/assets/catalog";
 
 const SIZE = 128;
+/** Frame size after normalize; higher margin = more padding in thumb. */
 const FIT = 1;
-const MARGIN = 1.35;
+const MARGIN_DEFAULT = 1.45;
+const MARGIN_ANIMALS = 1.9;
+/** Bump to invalidate in-memory thumbs after framing changes. */
+const CACHE_VER = "framing-v2";
 
-const cache = new Map<PlaceableId, string>();
+const cache = new Map<string, string>();
 const inflight = new Map<PlaceableId, Promise<string>>();
 const waiters = new Map<PlaceableId, Set<() => void>>();
 
 let renderer: WebGLRenderer | null = null;
 let loader: GLTFLoader | null = null;
 let renderChain: Promise<void> = Promise.resolve();
+
+function cacheKey(id: PlaceableId): string {
+  return `${CACHE_VER}:${id}`;
+}
 
 /** Serialize GPU reads so concurrent thumbs don't corrupt the shared canvas. */
 function enqueueRender<T>(fn: () => T | Promise<T>): Promise<T> {
@@ -59,9 +67,35 @@ function getLoader(): GLTFLoader {
   return loader;
 }
 
-function normalizeToBox(root: Object3D, target = FIT): boolean {
+/** Prefer real mesh volumes — skinned animal armatures often poison setFromObject. */
+function contentBox(root: Object3D): Box3 {
   root.updateMatrixWorld(true);
-  const box = new Box3().setFromObject(root);
+  const box = new Box3();
+  let found = false;
+  root.traverse((obj) => {
+    const mesh = obj as Mesh;
+    if (!mesh.isMesh || !mesh.geometry) return;
+    const geo = mesh.geometry;
+    if (!geo.boundingBox) geo.computeBoundingBox();
+    if (!geo.boundingBox || geo.boundingBox.isEmpty()) return;
+    const b = geo.boundingBox.clone();
+    b.applyMatrix4(mesh.matrixWorld);
+    const size = new Vector3();
+    b.getSize(size);
+    if (Math.max(size.x, size.y, size.z) < 1e-5) return;
+    if (!found) {
+      box.copy(b);
+      found = true;
+    } else {
+      box.union(b);
+    }
+  });
+  if (found && !box.isEmpty()) return box;
+  return new Box3().setFromObject(root);
+}
+
+function normalizeToBox(root: Object3D, target = FIT): boolean {
+  const box = contentBox(root);
   if (box.isEmpty()) return false;
   const size = new Vector3();
   const center = new Vector3();
@@ -86,14 +120,25 @@ function prepareMeshes(root: Object3D) {
   });
 }
 
-function buildScene(model: Object3D): { scene: Scene; camera: OrthographicCamera } {
+function frameMarginFor(id: PlaceableId): number {
+  const cat = PLACEABLE_SPECS[id]?.category;
+  if (cat === "animals") return MARGIN_ANIMALS;
+  return MARGIN_DEFAULT;
+}
+
+function buildScene(
+  model: Object3D,
+  margin: number,
+): { scene: Scene; camera: OrthographicCamera } {
   const scene = new Scene();
-  const camera = new OrthographicCamera(-1, 1, 1, -1, -20, 40);
-  const half = (FIT / 2) * MARGIN;
-  camera.left = -half;
-  camera.right = half;
-  camera.top = half;
-  camera.bottom = -half;
+  // Refit ortho to the actual content AABB after normalize (avoids overshoot).
+  const box = contentBox(model);
+  const size = new Vector3();
+  box.getSize(size);
+  const maxDim = Math.max(size.x, size.y, size.z, FIT);
+  const half = (maxDim / 2) * margin;
+
+  const camera = new OrthographicCamera(-half, half, half, -half, -40, 80);
   camera.position.set(1.55, 1.25, 1.55);
   camera.lookAt(0, 0, 0);
   camera.updateProjectionMatrix();
@@ -110,23 +155,22 @@ function buildScene(model: Object3D): { scene: Scene; camera: OrthographicCamera
   return { scene, camera };
 }
 
-function renderToDataUrl(model: Object3D): string {
+function renderToDataUrl(model: Object3D, margin: number): string {
   const gl = getRenderer();
-  const { scene, camera } = buildScene(model);
+  const { scene, camera } = buildScene(model, margin);
   gl.clear();
   gl.render(scene, camera);
-  // Do not dispose mesh geometries/materials — GLTFLoader shares them across clones.
   return gl.domElement.toDataURL("image/png");
 }
 
-async function renderGlb(path: string): Promise<string> {
+async function renderGlb(path: string, margin: number): Promise<string> {
   const gltf = await getLoader().loadAsync(path);
   const root = gltf.scene.clone(true);
   prepareMeshes(root);
   if (!normalizeToBox(root, FIT)) {
     root.scale.setScalar(0.01);
   }
-  return enqueueRender(() => renderToDataUrl(root));
+  return enqueueRender(() => renderToDataUrl(root, margin));
 }
 
 /** Solid placeholder when GLB fails — keeps grid from looking empty. */
@@ -157,7 +201,7 @@ function notify(id: PlaceableId) {
 }
 
 export function getCachedThumb(id: PlaceableId): string | null {
-  return cache.get(id) ?? null;
+  return cache.get(cacheKey(id)) ?? null;
 }
 
 export function subscribeThumb(id: PlaceableId, fn: () => void): () => void {
@@ -173,9 +217,34 @@ export function subscribeThumb(id: PlaceableId, fn: () => void): () => void {
   };
 }
 
+/** Max parallel GLB→thumb jobs (serial GPU queue still applies). */
+const MAX_PARALLEL_LOADS = 2;
+let activeLoads = 0;
+const waitQueue: Array<() => void> = [];
+
+function acquireLoadSlot(): Promise<void> {
+  if (activeLoads < MAX_PARALLEL_LOADS) {
+    activeLoads += 1;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    waitQueue.push(() => {
+      activeLoads += 1;
+      resolve();
+    });
+  });
+}
+
+function releaseLoadSlot() {
+  activeLoads = Math.max(0, activeLoads - 1);
+  const next = waitQueue.shift();
+  if (next) next();
+}
+
 /** Load+render one thumbnail (cached). Safe to call from many React thumbs. */
 export function requestThumb(id: PlaceableId): Promise<string> {
-  const hit = cache.get(id);
+  const key = cacheKey(id);
+  const hit = cache.get(key);
   if (hit) return Promise.resolve(hit);
 
   const pending = inflight.get(id);
@@ -183,24 +252,26 @@ export function requestThumb(id: PlaceableId): Promise<string> {
 
   const spec = PLACEABLE_SPECS[id];
   const job = (async () => {
+    await acquireLoadSlot();
     try {
       let url: string;
       if (spec?.glb) {
-        url = await renderGlb(spec.glb);
+        url = await renderGlb(spec.glb, frameMarginFor(id));
       } else {
         url = renderPlaceholder(spec?.label ?? id);
       }
-      cache.set(id, url);
+      cache.set(key, url);
       notify(id);
       return url;
     } catch (err) {
       console.warn(`[thumb] failed ${id}`, err);
       const url = renderPlaceholder(spec?.label ?? id);
-      cache.set(id, url);
+      cache.set(key, url);
       notify(id);
       return url;
     } finally {
       inflight.delete(id);
+      releaseLoadSlot();
     }
   })();
 
@@ -211,19 +282,22 @@ export function requestThumb(id: PlaceableId): Promise<string> {
 /** Release the shared offscreen WebGL context (call when leaving map editor). */
 export function disposeThumbRenderer(): void {
   if (renderer) {
+    // Dispose without forceContextLoss — that logs a noisy "Context Lost" warning
+    // and can cascade onto other canvases on Windows.
     renderer.dispose();
-    renderer.forceContextLoss();
     renderer = null;
   }
   loader = null;
   renderChain = Promise.resolve();
+  activeLoads = 0;
+  waitQueue.length = 0;
 }
 
 /** Warm a list sequentially to avoid GLTF/GPU spikes. */
 export function warmThumbs(ids: PlaceableId[]): void {
   void (async () => {
     for (const id of ids) {
-      if (!cache.has(id)) await requestThumb(id);
+      if (!cache.has(cacheKey(id))) await requestThumb(id);
     }
   })();
 }
