@@ -45,3 +45,18 @@ export {
   createBlankCustomMap,
   isBuiltinMapId,
 } from "@/lib/maps/runtime";
+export {
+  AMBIENCE_IDS,
+  isAmbienceId,
+  resolveAmbienceId,
+  mapWantsRoomLights,
+  surfaceWantsRoomLights,
+} from "@/lib/maps/ambience";
+export type {
+  AmbienceId,
+  MapZone,
+  MapZoneKind,
+  MapLightPoint,
+} from "@/lib/maps/ambience";
+export { MAP_PRESETS, createMapFromPreset } from "@/lib/maps/presets";
+export type { MapPresetId, MapPresetMeta } from "@/lib/maps/presets";

@@ -6,13 +6,20 @@ export function AgentList() {
   const agents = useArenaStore((s) => s.agents);
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
+  const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
 
   return (
     <aside className="agent-list">
       <div className="agent-list__header">{t("agentList.title")}</div>
       <div className="agent-list__items">
         {agents.length === 0 ? (
-          <div className="agent-list__empty">{t("agentList.empty")}</div>
+          <button
+            type="button"
+            className="agent-list__empty agent-list__empty--action"
+            onClick={() => setSettingsTab("agents")}
+          >
+            {t("agentList.empty")}
+          </button>
         ) : (
           agents.map((agent) => (
             <button

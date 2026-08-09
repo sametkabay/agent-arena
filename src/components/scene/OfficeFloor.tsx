@@ -56,8 +56,10 @@ export function ArenaFloor({ floor }: { floor: MapFloor }) {
             const odd = (x + z) % 2 === 0;
             color = odd ? shade(base, 0.04) : shade(alt, -0.02);
           } else {
+            // Soft mottling — avoid board-game checker contrast
             const n = hash2(x, z);
-            color = shade(n > 0.55 ? alt : base, n * 0.12 - 0.06);
+            const mix = n * 0.55 + 0.22;
+            color = shade(n > 0.62 ? alt : base, mix * 0.05 - 0.025);
           }
           tileItems.push({
             key: `${pattern}-${x}-${z}`,

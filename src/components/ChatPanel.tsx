@@ -51,7 +51,12 @@ export function ChatPanel() {
     setChatBusy(agent.id, true);
     setAgentSpeech(agent.id, "…", 120000);
 
-    const system = buildSystemPrompt(agent.systemPrompt, userName, agent.displayName);
+    const system = buildSystemPrompt(
+      agent.systemPrompt,
+      userName,
+      agent.displayName,
+      agent.skills ?? [],
+    );
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
@@ -61,6 +66,7 @@ export function ChatPanel() {
       const reply = await chatCompletion({
         model,
         signal: ac.signal,
+        thinkingEnabled: agent.thinkingEnabled === true,
         messages: [
           { role: "system", content: system },
           ...prior,

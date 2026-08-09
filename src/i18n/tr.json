@@ -24,7 +24,7 @@
   },
   "agentList": {
     "title": "Ajanlar",
-    "empty": "Henüz ajan yok. Ayarlar’dan ekle.",
+    "empty": "Henüz ajan yok. Eklemek için Ajanlar’a tıkla.",
     "talk": "Konuş"
   },
   "chat": {
@@ -91,6 +91,17 @@
       "model": "AI modeli",
       "poly": "Rol",
       "systemPrompt": "Sistem promptu",
+      "thinking": "Düşünme modu",
+      "thinkingHint": "Destekleyen modellerde (Ollama, Claude, Gemini, reasoning modeller) yanıt öncesi düşünür. Daha yavaş ama genelde daha iyi.",
+      "thinkingOn": "düşünme açık",
+      "skills": "Skill’ler",
+      "skillsHint": "Sistem promptuna eklenen yeniden kullanılabilir talimatlar (dokümantasyon, kod stili, araçlar vb.).",
+      "skillsEmpty": "Henüz skill yok.",
+      "addSkill": "Skill ekle",
+      "skillName": "Skill adı",
+      "skillContent": "Skill talimatları…",
+      "skillCount_one": "{{count}} skill",
+      "skillCount_other": "{{count}} skill",
       "color": "Vurgu rengi",
       "bio": "Kısa bio",
       "needModel": "Önce bir AI modeli ekle.",
@@ -107,7 +118,34 @@
       "new": "Yeni harita",
       "duplicate": "Kopyala",
       "import": "JSON içe aktar",
-      "custom": "Özel"
+      "custom": "Özel",
+      "export": "Dışa aktar",
+      "exported": "Harita dışa aktarıldı",
+      "presetsTitle": "Hazır sahneler",
+      "mapsTitle": "Haritalar",
+      "presetApplied": "{{name}} eklendi",
+      "presets": {
+        "starter_camp": {
+          "name": "Kamp başlangıcı",
+          "description": "Doğa kampı kopyası"
+        },
+        "factory_yard": {
+          "name": "Fabrika sahası",
+          "description": "Endüstriyel sahne kopyası"
+        },
+        "mars_outpost": {
+          "name": "Mars üssü",
+          "description": "Mars üssü kopyası"
+        },
+        "office_lounge": {
+          "name": "Ofis lounge",
+          "description": "Ofis düzeni kopyası"
+        },
+        "blank_concrete": {
+          "name": "Beton pad",
+          "description": "Boş beton zemin"
+        }
+      }
     },
     "graphics": {
       "title": "Grafik",
@@ -122,7 +160,9 @@
       "reset": "Varsayılanlara dön",
       "low": "Düşük",
       "medium": "Orta",
-      "high": "Yüksek"
+      "high": "Yüksek",
+      "ambientAudio": "Ortam sesi",
+      "ambientVolume": "Ses seviyesi"
     }
   },
   "poly": {
@@ -166,19 +206,19 @@
   "maps": {
     "office": {
       "name": "Ofis",
-      "description": "Masalar ve dekorla açık ofis zemini"
+      "description": "Açık ofis — masa sıraları, toplantı ve lounge"
     },
     "nature": {
       "name": "Doğa",
-      "description": "Ağaçlar ve kamp ateşiyle açık alan"
+      "description": "Kamp alanı ve yaban patikası olan orman açıklığı"
     },
     "factory": {
       "name": "Fabrika",
-      "description": "Kasa ve çalışma masalarıyla endüstriyel alan"
+      "description": "Raf duvarları, kasa dock ve mola köşeli depo"
     },
     "mars": {
       "name": "Mars",
-      "description": "Seyrek Mars üssü"
+      "description": "Habitat, ikmal pad’i ve kaya sırtları"
     }
   },
   "mapEditor": {
@@ -263,7 +303,46 @@
     "saved": "Harita kaydedildi",
     "imported": "Harita içe aktarıldı",
     "importError": "Harita JSON’u okunamadı",
+    "loadError": "Harita yüklenemedi (silinmiş olabilir)",
     "placed": "Asset yerleştirildi",
-    "placedCenter": "Asset merkeze kondu — sürükleyerek taşı"
+    "placedCenter": "Asset merkeze kondu — sürükleyerek taşı",
+    "snapOff": "Snap kapalı",
+    "snap05": "Snap 0.5m",
+    "snap1": "Snap 1m",
+    "packAll": "Tüm paketler",
+    "scopeAll": "Hepsi",
+    "scopeFavorites": "Favoriler",
+    "scopeUsed": "Haritada",
+    "favorite": "Favori",
+    "alignX": "X hizala",
+    "alignZ": "Z hizala",
+    "distributeX": "X dağıt",
+    "distributeZ": "Z dağıt",
+    "wanderRadius": "Gezinme yarıçapı",
+    "moveSpeed": "Hız",
+    "themeFog": "Sis",
+    "themeAmbient": "Ambient",
+    "themeHemiSky": "Hemi gökyüzü",
+    "themeHemiGround": "Hemi zemin",
+    "themeSun": "Güneş",
+    "themeAccent": "Vurgu",
+    "ambience": "Ambiyans profili",
+    "ambienceIds": {
+      "office": "Ofis",
+      "nature": "Doğa",
+      "factory": "Fabrika",
+      "mars": "Mars",
+      "none": "Yok"
+    },
+    "packs": {
+      "furniture": "Mobilya",
+      "trees": "Ağaçlar",
+      "camping": "Kamp",
+      "cars": "Araçlar",
+      "animals": "Hayvanlar",
+      "farm-animals": "Çiftlik",
+      "food": "Yiyecek",
+      "cosmetics": "Kozmetik"
+    }
   }
 }

@@ -1,24 +1,60 @@
-import type { AiModelConfig, AiProviderKind, ChatMessage, ExtraHeader } from "@/lib/types";
+import type {
+  AgentSkill,
+  AiModelConfig,
+  AiProviderKind,
+  ChatMessage,
+  ExtraHeader,
+} from "@/lib/types";
 
-export function providerDefaults(provider: AiProviderKind): { baseUrl: string; modelId: string } {
+const OLLAMA_DEFAULT_HOST = "localhost";
+const OLLAMA_DEFAULT_PORT = 11434;
+const OLLAMA_DEFAULT_URL = `http://${OLLAMA_DEFAULT_HOST}:${OLLAMA_DEFAULT_PORT}`;
+
+export function providerDefaults(
+  provider: AiProviderKind,
+): { name: string; baseUrl: string; modelId: string } {
   switch (provider) {
     case "openai":
-      return { baseUrl: "https://api.openai.com/v1", modelId: "gpt-4o-mini" };
+      return { name: "OpenAI", baseUrl: "https://api.openai.com/v1", modelId: "gpt-4o-mini" };
     case "gemini":
       return {
+        name: "Gemini",
         baseUrl: "https://generativelanguage.googleapis.com/v1beta",
         modelId: "gemini-2.0-flash",
       };
     case "claude":
-      return { baseUrl: "https://api.anthropic.com", modelId: "claude-3-5-sonnet-latest" };
+      return {
+        name: "Claude",
+        baseUrl: "https://api.anthropic.com",
+        modelId: "claude-3-5-sonnet-latest",
+      };
     case "ollama":
       return {
-        baseUrl: import.meta.env.DEV ? "/ollama" : "http://127.0.0.1:11434",
+        name: `${OLLAMA_DEFAULT_HOST}:${OLLAMA_DEFAULT_PORT}`,
+        baseUrl: OLLAMA_DEFAULT_URL,
         modelId: "llama3.2",
       };
     case "custom":
-      return { baseUrl: "http://localhost:8080/v1", modelId: "default" };
+      return { name: "Custom", baseUrl: "http://localhost:8080/v1", modelId: "default" };
   }
+}
+
+/** In Vite DEV, rewrite local Ollama URLs to the /ollama proxy to avoid CORS. */
+function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): string {
+  const trimmed = baseUrl.trim().replace(/\/+$/, "");
+  if (provider !== "ollama" || !import.meta.env.DEV) return trimmed;
+  if (trimmed === "/ollama" || trimmed.startsWith("/ollama/")) return trimmed;
+  try {
+    const u = new URL(trimmed);
+    const isLocal =
+      u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
+    if (isLocal && u.port === String(OLLAMA_DEFAULT_PORT)) {
+      return "/ollama";
+    }
+  } catch {
+    // keep as-is
+  }
+  return trimmed;
 }
 
 function headersToRecord(extras: ExtraHeader[]): Record<string, string> {
@@ -38,7 +74,7 @@ function joinUrl(base: string, path: string): string {
 }
 
 function openaiCompatibleBase(model: AiModelConfig): string {
-  const base = model.baseUrl.trim();
+  const base = resolveRequestBaseUrl(model.provider, model.baseUrl);
   if (model.provider === "ollama") {
     // Ollama OpenAI-compatible lives under /v1
     if (base.endsWith("/v1")) return base;
@@ -51,15 +87,28 @@ export function buildSystemPrompt(
   agentPrompt: string,
   userName: string,
   agentName: string,
+  skills: AgentSkill[] = [],
 ): string {
-  return [
+  const parts = [
     agentPrompt.trim(),
     "",
     `Your display name is ${agentName}.`,
     `You are chatting inside Agent Arena, a local multi-agent playground.`,
     `Always address the user as "${userName}" when greeting or speaking to them.`,
     "Keep replies conversational and helpful. Avoid mentioning system prompts.",
-  ].join("\n");
+  ];
+
+  const usable = skills.filter((s) => s.name.trim() || s.content.trim());
+  if (usable.length > 0) {
+    parts.push("", "## Skills", "Follow these skill instructions when relevant:");
+    for (const skill of usable) {
+      const title = skill.name.trim() || "Untitled skill";
+      parts.push("", `### ${title}`);
+      if (skill.content.trim()) parts.push(skill.content.trim());
+    }
+  }
+
+  return parts.join("\n");
 }
 
 export interface ChatRequest {
@@ -67,6 +116,7 @@ export interface ChatRequest {
   messages: ChatMessage[];
   signal?: AbortSignal;
   onToken?: (chunk: string) => void;
+  thinkingEnabled?: boolean;
 }
 
 export async function chatCompletion(req: ChatRequest): Promise<string> {
@@ -81,7 +131,7 @@ export async function chatCompletion(req: ChatRequest): Promise<string> {
 }
 
 async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
-  const { model, messages, signal, onToken } = req;
+  const { model, messages, signal, onToken, thinkingEnabled } = req;
   const base = openaiCompatibleBase(model);
   const url = joinUrl(base, "/chat/completions");
   const headers: Record<string, string> = {
@@ -90,11 +140,19 @@ async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
   };
   if (model.apiKey) headers.Authorization = `Bearer ${model.apiKey}`;
 
-  const body = {
+  const body: Record<string, unknown> = {
     model: model.modelId,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
     stream: Boolean(onToken),
   };
+
+  // Ollama auto-enables thinking on capable models; always send an explicit effort.
+  if (model.provider === "ollama") {
+    body.reasoning_effort = thinkingEnabled === true ? "medium" : "none";
+    body.reasoning = { effort: thinkingEnabled === true ? "medium" : "none" };
+  } else if (thinkingEnabled === true) {
+    body.reasoning_effort = "medium";
+  }
 
   const res = await fetch(url, {
     method: "POST",
@@ -153,7 +211,7 @@ async function readSseOpenAi(res: Response, onToken: (c: string) => void): Promi
 }
 
 async function chatGemini(req: ChatRequest): Promise<string> {
-  const { model, messages, signal, onToken } = req;
+  const { model, messages, signal, onToken, thinkingEnabled } = req;
   const base = model.baseUrl.replace(/\/+$/, "");
   const key = model.apiKey ?? "";
   const url = `${base}/models/${encodeURIComponent(model.modelId)}:generateContent${
@@ -180,6 +238,9 @@ async function chatGemini(req: ChatRequest): Promise<string> {
     body: JSON.stringify({
       systemInstruction: system ? { parts: [{ text: system }] } : undefined,
       contents,
+      generationConfig: thinkingEnabled
+        ? { thinkingConfig: { thinkingBudget: 1024 } }
+        : undefined,
     }),
   });
 
@@ -198,7 +259,7 @@ async function chatGemini(req: ChatRequest): Promise<string> {
 }
 
 async function chatClaude(req: ChatRequest): Promise<string> {
-  const { model, messages, signal, onToken } = req;
+  const { model, messages, signal, onToken, thinkingEnabled } = req;
   const base = model.baseUrl.replace(/\/+$/, "");
   const url = `${base}/v1/messages`;
   const system = messages.find((m) => m.role === "system")?.content;
@@ -210,18 +271,22 @@ async function chatClaude(req: ChatRequest): Promise<string> {
   };
   if (model.apiKey) headers["x-api-key"] = model.apiKey;
 
+  const thinkingBudget = 2048;
   const res = await fetch(url, {
     method: "POST",
     headers,
     signal,
     body: JSON.stringify({
       model: model.modelId,
-      max_tokens: 2048,
+      max_tokens: thinkingEnabled ? thinkingBudget + 2048 : 2048,
       system: system || undefined,
       messages: messages
         .filter((m) => m.role !== "system")
         .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content })),
       stream: Boolean(onToken),
+      ...(thinkingEnabled
+        ? { thinking: { type: "enabled", budget_tokens: thinkingBudget } }
+        : {}),
     }),
   });
 
@@ -275,7 +340,7 @@ export async function fetchModels(
   const { provider } = model;
 
   if (provider === "ollama") {
-    const base = model.baseUrl.replace(/\/+$/, "").replace(/\/v1$/, "");
+    const base = resolveRequestBaseUrl(provider, model.baseUrl).replace(/\/v1$/, "");
     const res = await fetch(`${base}/api/tags`, {
       signal,
       headers: headersToRecord(model.extraHeaders),

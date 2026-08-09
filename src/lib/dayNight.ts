@@ -21,6 +21,8 @@ export interface SceneLighting {
   fillIntensity: number;
   fillColor: string;
   fillPosition: [number, number, number];
+  /** 0 = day, 1 = night — for fog pulse / sky opacity. */
+  nightAmount: number;
 }
 
 /** Map theme → day/night lighting for the arena / editor scene. */
@@ -43,6 +45,7 @@ export function resolveSceneLighting(
       fillIntensity: 0,
       fillColor: "#ffffff",
       fillPosition: [0, 8, 0],
+      nightAmount: 0,
     };
   }
 
@@ -60,10 +63,51 @@ export function resolveSceneLighting(
     fillIntensity: 0.18,
     fillColor: "#7a8ec4",
     fillPosition: [4, 6, 2],
+    nightAmount: 1,
   };
 }
 
-function mixHex(a: string, b: string, t: number): string {
+/** Smooth blend between day and night lighting (t = 0 day → 1 night). */
+export function lerpSceneLighting(
+  theme: MapTheme,
+  t: number,
+): SceneLighting {
+  const u = Math.min(1, Math.max(0, t));
+  if (u <= 0.001) return resolveSceneLighting(theme, "day");
+  if (u >= 0.999) return resolveSceneLighting(theme, "night");
+  const day = resolveSceneLighting(theme, "day");
+  const night = resolveSceneLighting(theme, "night");
+  return {
+    background: mixHex(day.background, night.background, u),
+    fog: mixHex(day.fog, night.fog, u),
+    ambient: mixHex(day.ambient, night.ambient, u),
+    hemiSky: mixHex(day.hemiSky, night.hemiSky, u),
+    hemiGround: mixHex(day.hemiGround, night.hemiGround, u),
+    sun: mixHex(day.sun, night.sun, u),
+    ambientIntensity: lerp(day.ambientIntensity, night.ambientIntensity, u),
+    hemiIntensity: lerp(day.hemiIntensity, night.hemiIntensity, u),
+    sunIntensity: lerp(day.sunIntensity, night.sunIntensity, u),
+    sunPosition: [
+      lerp(day.sunPosition[0], night.sunPosition[0], u),
+      lerp(day.sunPosition[1], night.sunPosition[1], u),
+      lerp(day.sunPosition[2], night.sunPosition[2], u),
+    ],
+    fillIntensity: lerp(day.fillIntensity, night.fillIntensity, u),
+    fillColor: mixHex(day.fillColor, night.fillColor, u),
+    fillPosition: [
+      lerp(day.fillPosition[0], night.fillPosition[0], u),
+      lerp(day.fillPosition[1], night.fillPosition[1], u),
+      lerp(day.fillPosition[2], night.fillPosition[2], u),
+    ],
+    nightAmount: u,
+  };
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+export function mixHex(a: string, b: string, t: number): string {
   const ca = parseHex(a);
   const cb = parseHex(b);
   if (!ca || !cb) return t > 0.5 ? b : a;

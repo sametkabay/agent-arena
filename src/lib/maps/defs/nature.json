@@ -2,46 +2,975 @@
   "version": 1,
   "id": "nature",
   "name": "Nature",
-  "description": "Outdoor clearing with trees, tent, and a campfire",
+  "description": "Temperate pine-birch forest with a camp clearing and a wildlife trail north-east",
   "builtin": true,
   "floor": {
-    "size": 22,
-    "style": "surface",
-    "cells": 18,
+    "size": 24,
+    "style": "solid",
+    "cells": 24,
     "color": "#6B9B4A",
     "surface": "grass"
   },
   "theme": {
     "floor": "#8FAE6E",
     "accent": "#4A7566",
-    "background": "#DDE8D0",
-    "fog": "#DDE8D0",
+    "background": "#D0DFC4",
+    "fog": "#D0DFC4",
     "ambient": "#ffffff",
-    "hemiSky": "#e8f0e0",
-    "hemiGround": "#7a9460",
-    "sun": "#fff8e8"
+    "hemiSky": "#e4f0d8",
+    "hemiGround": "#5f7a48",
+    "sun": "#fff6e0"
   },
+  "ambience": "nature",
+  "roomLights": false,
   "spawnPoints": [
-    { "id": "spawn_0", "position": [-2, 0, 1], "rotationY": 0 },
-    { "id": "spawn_1", "position": [2, 0, 1], "rotationY": 0 },
-    { "id": "spawn_2", "position": [0, 0, -2], "rotationY": 0 },
-    { "id": "spawn_3", "position": [-3, 0, -1], "rotationY": 0.5 }
+    {
+      "id": "spawn_0",
+      "position": [
+        -1.5,
+        0,
+        0.2
+      ],
+      "rotationY": 0.3
+    },
+    {
+      "id": "spawn_1",
+      "position": [
+        1.6,
+        0,
+        0.2
+      ],
+      "rotationY": -0.3
+    },
+    {
+      "id": "spawn_2",
+      "position": [
+        0,
+        0,
+        -2.2
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "spawn_3",
+      "position": [
+        -2.8,
+        0,
+        -1.2
+      ],
+      "rotationY": 0.6
+    },
+    {
+      "id": "spawn_4",
+      "position": [
+        2.5,
+        0,
+        -1.0
+      ],
+      "rotationY": -0.5
+    }
+  ],
+  "lights": [
+    {
+      "id": "light_camp_fill",
+      "position": [
+        0,
+        2.3,
+        1.5
+      ],
+      "color": "#ff8844",
+      "intensity": 0.55,
+      "distance": 12
+    },
+    {
+      "id": "light_tent",
+      "position": [
+        0.2,
+        1.7,
+        4.5
+      ],
+      "color": "#ffcc88",
+      "intensity": 0.32,
+      "distance": 8
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone_camp",
+      "name": "Camp",
+      "kind": "camp",
+      "center": [
+        0,
+        0,
+        2.2
+      ],
+      "radius": 4.5
+    },
+    {
+      "id": "zone_clearing",
+      "name": "Clearing",
+      "kind": "path",
+      "center": [
+        0,
+        0,
+        -3.5
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "zone_trail",
+      "name": "Trail",
+      "kind": "path",
+      "center": [
+        5.0,
+        0,
+        -6.0
+      ],
+      "radius": 3.0
+    }
   ],
   "placeables": [
-    { "id": "pine_nw", "placeableId": "tree_pine", "position": [-8, 0, -8], "rotationY": 0.3 },
-    { "id": "birch_ne", "placeableId": "tree_birch", "position": [8.5, 0, -7], "rotationY": 1.1 },
-    { "id": "simple_sw", "placeableId": "tree_simple", "position": [-7.5, 0, 8], "rotationY": 2.0 },
-    { "id": "styl_se", "placeableId": "tree_stylized", "position": [7, 0, 7.5], "rotationY": 0.8 },
-    { "id": "pine_n", "placeableId": "tree_pine", "position": [0, 0, -9], "rotationY": 0 },
-    { "id": "birch_w", "placeableId": "tree_birch", "position": [-9.5, 0, 1], "rotationY": 0.4 },
-    { "id": "tent_1", "placeableId": "tent", "position": [4, 0, 4], "rotationY": -0.6 },
-    { "id": "fire_1", "placeableId": "campfire", "position": [0.5, 0, 3.2], "rotationY": 0 },
-    { "id": "log_1", "placeableId": "log", "position": [-1.2, 0, 3.5], "rotationY": 1.2 },
-    { "id": "log_2", "placeableId": "log", "position": [1.8, 0, 4.2], "rotationY": -0.4 },
-    { "id": "rock_1", "placeableId": "rock", "position": [-3, 0, 5], "rotationY": 0.2 },
-    { "id": "rock_2", "placeableId": "rock", "position": [5.5, 0, -2], "rotationY": 1.0 },
-    { "id": "bench_1", "placeableId": "bench", "position": [-4, 0, 0], "rotationY": 0.3 },
-    { "id": "plant_1", "placeableId": "plant", "position": [3, 0, -4], "rotationY": 0 },
-    { "id": "plant_2", "placeableId": "plant_small", "position": [-5, 0, -3], "rotationY": 0 }
+    {
+      "id": "fire_ring",
+      "placeableId": "campfire",
+      "position": [
+        0,
+        0,
+        1.5
+      ],
+      "rotationY": 0
+    },
+    {
+      "id": "fire_fx",
+      "placeableId": "fire",
+      "position": [
+        0,
+        0.1,
+        1.5
+      ],
+      "rotationY": 0.2,
+      "scale": 0.9,
+      "behavior": "animated"
+    },
+    {
+      "id": "log_a",
+      "placeableId": "log",
+      "position": [
+        -2.2,
+        0,
+        1.0
+      ],
+      "rotationY": 1.2,
+      "scale": 0.72
+    },
+    {
+      "id": "log_b",
+      "placeableId": "log",
+      "position": [
+        2.1,
+        0,
+        1.5
+      ],
+      "rotationY": -0.4,
+      "scale": 0.7
+    },
+    {
+      "id": "log_c",
+      "placeableId": "log",
+      "position": [
+        0.3,
+        0,
+        3.5
+      ],
+      "rotationY": 0.1,
+      "scale": 0.68
+    },
+    {
+      "id": "rk_a",
+      "placeableId": "rock_small",
+      "position": [
+        -1.1,
+        0,
+        0.5
+      ],
+      "rotationY": 0.4,
+      "scale": 0.65
+    },
+    {
+      "id": "rk_b",
+      "placeableId": "rock_small",
+      "position": [
+        1.15,
+        0,
+        0.55
+      ],
+      "rotationY": 1.1,
+      "scale": 0.62
+    },
+    {
+      "id": "rk_c",
+      "placeableId": "rock_small",
+      "position": [
+        -0.8,
+        0,
+        2.55
+      ],
+      "rotationY": -0.3,
+      "scale": 0.6
+    },
+    {
+      "id": "rk_d",
+      "placeableId": "rock_small",
+      "position": [
+        1.0,
+        0,
+        2.5
+      ],
+      "rotationY": 0.8,
+      "scale": 0.63
+    },
+    {
+      "id": "rk_e",
+      "placeableId": "rock",
+      "position": [
+        -2.6,
+        0,
+        2.8
+      ],
+      "rotationY": 0.5,
+      "scale": 0.72
+    },
+    {
+      "id": "tent_a",
+      "placeableId": "tent",
+      "position": [
+        -2.4,
+        0,
+        4.8
+      ],
+      "rotationY": 0.35,
+      "scale": 1.0
+    },
+    {
+      "id": "tent_b",
+      "placeableId": "tent",
+      "position": [
+        2.6,
+        0,
+        5.2
+      ],
+      "rotationY": -0.45,
+      "scale": 0.95
+    },
+    {
+      "id": "t_nw_0",
+      "placeableId": "tree_pine",
+      "position": [
+        -10.5,
+        0,
+        -9.5
+      ],
+      "rotationY": 0.0,
+      "scale": 0.82
+    },
+    {
+      "id": "t_nw_1",
+      "placeableId": "tree_birch",
+      "position": [
+        -9.0,
+        0,
+        -10.5
+      ],
+      "rotationY": 0.37,
+      "scale": 0.78
+    },
+    {
+      "id": "t_nw_2",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.0,
+        0,
+        -7.5
+      ],
+      "rotationY": 0.74,
+      "scale": 0.75
+    },
+    {
+      "id": "t_nw_3",
+      "placeableId": "tree_birch",
+      "position": [
+        -8.2,
+        0,
+        -8.4
+      ],
+      "rotationY": 1.11,
+      "scale": 0.72
+    },
+    {
+      "id": "t_nw_4",
+      "placeableId": "tree_pine",
+      "position": [
+        -9.8,
+        0,
+        -6.6
+      ],
+      "rotationY": 1.48,
+      "scale": 0.7
+    },
+    {
+      "id": "t_nw_5",
+      "placeableId": "tree_pine",
+      "position": [
+        -7.0,
+        0,
+        -9.8
+      ],
+      "rotationY": 1.85,
+      "scale": 0.68
+    },
+    {
+      "id": "t_nw_6",
+      "placeableId": "tree_birch",
+      "position": [
+        -10.2,
+        0,
+        -4.8
+      ],
+      "rotationY": 2.22,
+      "scale": 0.74
+    },
+    {
+      "id": "t_nw_7",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.0,
+        0,
+        -2.6
+      ],
+      "rotationY": 2.59,
+      "scale": 0.8
+    },
+    {
+      "id": "t_w_8",
+      "placeableId": "tree_pine",
+      "position": [
+        -10.8,
+        0,
+        0.8
+      ],
+      "rotationY": 2.96,
+      "scale": 0.78
+    },
+    {
+      "id": "t_w_9",
+      "placeableId": "tree_birch",
+      "position": [
+        -9.5,
+        0,
+        2.6
+      ],
+      "rotationY": 3.33,
+      "scale": 0.7
+    },
+    {
+      "id": "t_w_10",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.0,
+        0,
+        4.2
+      ],
+      "rotationY": 3.7,
+      "scale": 0.74
+    },
+    {
+      "id": "t_w_11",
+      "placeableId": "tree_birch",
+      "position": [
+        -8.8,
+        0,
+        5.5
+      ],
+      "rotationY": 4.07,
+      "scale": 0.72
+    },
+    {
+      "id": "t_w_12",
+      "placeableId": "tree_pine",
+      "position": [
+        -10.2,
+        0,
+        7.2
+      ],
+      "rotationY": 4.44,
+      "scale": 0.76
+    },
+    {
+      "id": "t_sw_13",
+      "placeableId": "tree_pine",
+      "position": [
+        -9.5,
+        0,
+        8.5
+      ],
+      "rotationY": 4.81,
+      "scale": 0.8
+    },
+    {
+      "id": "t_sw_14",
+      "placeableId": "tree_birch",
+      "position": [
+        -7.5,
+        0,
+        10.0
+      ],
+      "rotationY": 5.18,
+      "scale": 0.74
+    },
+    {
+      "id": "t_sw_15",
+      "placeableId": "tree_pine",
+      "position": [
+        -10.8,
+        0,
+        10.2
+      ],
+      "rotationY": 5.55,
+      "scale": 0.72
+    },
+    {
+      "id": "t_sw_16",
+      "placeableId": "tree_pine",
+      "position": [
+        -5.5,
+        0,
+        10.5
+      ],
+      "rotationY": 5.92,
+      "scale": 0.78
+    },
+    {
+      "id": "t_sw_17",
+      "placeableId": "tree_birch",
+      "position": [
+        -3.2,
+        0,
+        10.8
+      ],
+      "rotationY": 0.09,
+      "scale": 0.7
+    },
+    {
+      "id": "t_sw_18",
+      "placeableId": "tree_pine",
+      "position": [
+        -1.0,
+        0,
+        10.6
+      ],
+      "rotationY": 0.46,
+      "scale": 0.76
+    },
+    {
+      "id": "t_sw_19",
+      "placeableId": "tree_birch",
+      "position": [
+        -8.2,
+        0,
+        9.2
+      ],
+      "rotationY": 0.83,
+      "scale": 0.68
+    },
+    {
+      "id": "t_se_20",
+      "placeableId": "tree_pine",
+      "position": [
+        4.5,
+        0,
+        10.2
+      ],
+      "rotationY": 1.2,
+      "scale": 0.78
+    },
+    {
+      "id": "t_se_21",
+      "placeableId": "tree_birch",
+      "position": [
+        7.0,
+        0,
+        10.5
+      ],
+      "rotationY": 1.57,
+      "scale": 0.74
+    },
+    {
+      "id": "t_se_22",
+      "placeableId": "tree_pine",
+      "position": [
+        9.5,
+        0,
+        9.8
+      ],
+      "rotationY": 1.94,
+      "scale": 0.8
+    },
+    {
+      "id": "t_se_23",
+      "placeableId": "tree_birch",
+      "position": [
+        10.8,
+        0,
+        7.5
+      ],
+      "rotationY": 2.31,
+      "scale": 0.72
+    },
+    {
+      "id": "t_se_24",
+      "placeableId": "tree_pine",
+      "position": [
+        10.5,
+        0,
+        5.2
+      ],
+      "rotationY": 2.68,
+      "scale": 0.7
+    },
+    {
+      "id": "t_se_25",
+      "placeableId": "tree_pine",
+      "position": [
+        8.8,
+        0,
+        8.2
+      ],
+      "rotationY": 3.05,
+      "scale": 0.76
+    },
+    {
+      "id": "t_e_26",
+      "placeableId": "tree_pine",
+      "position": [
+        10.8,
+        0,
+        1.5
+      ],
+      "rotationY": 3.42,
+      "scale": 0.75
+    },
+    {
+      "id": "t_e_27",
+      "placeableId": "tree_birch",
+      "position": [
+        10.2,
+        0,
+        -1.0
+      ],
+      "rotationY": 3.79,
+      "scale": 0.7
+    },
+    {
+      "id": "t_e_28",
+      "placeableId": "tree_pine",
+      "position": [
+        9.5,
+        0,
+        -3.5
+      ],
+      "rotationY": 4.16,
+      "scale": 0.78
+    },
+    {
+      "id": "t_e_29",
+      "placeableId": "tree_birch",
+      "position": [
+        10.8,
+        0,
+        -5.5
+      ],
+      "rotationY": 4.53,
+      "scale": 0.72
+    },
+    {
+      "id": "t_n_30",
+      "placeableId": "tree_pine",
+      "position": [
+        -6.5,
+        0,
+        -10.5
+      ],
+      "rotationY": 4.9,
+      "scale": 0.8
+    },
+    {
+      "id": "t_n_31",
+      "placeableId": "tree_birch",
+      "position": [
+        -4.0,
+        0,
+        -10.8
+      ],
+      "rotationY": 5.27,
+      "scale": 0.74
+    },
+    {
+      "id": "t_n_32",
+      "placeableId": "tree_pine",
+      "position": [
+        -1.5,
+        0,
+        -10.5
+      ],
+      "rotationY": 5.64,
+      "scale": 0.76
+    },
+    {
+      "id": "t_n_33",
+      "placeableId": "tree_birch",
+      "position": [
+        1.0,
+        0,
+        -10.8
+      ],
+      "rotationY": 6.01,
+      "scale": 0.7
+    },
+    {
+      "id": "t_n_34",
+      "placeableId": "tree_pine",
+      "position": [
+        7.0,
+        0,
+        -10.5
+      ],
+      "rotationY": 0.18,
+      "scale": 0.78
+    },
+    {
+      "id": "t_n_35",
+      "placeableId": "tree_birch",
+      "position": [
+        9.5,
+        0,
+        -10.2
+      ],
+      "rotationY": 0.55,
+      "scale": 0.74
+    },
+    {
+      "id": "t_n_36",
+      "placeableId": "tree_pine",
+      "position": [
+        10.8,
+        0,
+        -8.5
+      ],
+      "rotationY": 0.92,
+      "scale": 0.72
+    },
+    {
+      "id": "t_n_37",
+      "placeableId": "tree_pine",
+      "position": [
+        -8.5,
+        0,
+        -10.0
+      ],
+      "rotationY": 1.29,
+      "scale": 0.7
+    },
+    {
+      "id": "t_inner_38",
+      "placeableId": "tree_pine",
+      "position": [
+        -5.5,
+        0,
+        -5.5
+      ],
+      "rotationY": 1.66,
+      "scale": 0.7
+    },
+    {
+      "id": "t_inner_39",
+      "placeableId": "tree_birch",
+      "position": [
+        -6.8,
+        0,
+        -3.2
+      ],
+      "rotationY": 2.03,
+      "scale": 0.65
+    },
+    {
+      "id": "t_inner_40",
+      "placeableId": "tree_pine",
+      "position": [
+        -5.0,
+        0,
+        6.5
+      ],
+      "rotationY": 2.4,
+      "scale": 0.68
+    },
+    {
+      "id": "t_inner_41",
+      "placeableId": "tree_birch",
+      "position": [
+        5.5,
+        0,
+        6.8
+      ],
+      "rotationY": 2.77,
+      "scale": 0.66
+    },
+    {
+      "id": "t_inner_42",
+      "placeableId": "tree_pine",
+      "position": [
+        6.2,
+        0,
+        -4.5
+      ],
+      "rotationY": 3.14,
+      "scale": 0.7
+    },
+    {
+      "id": "t_inner_43",
+      "placeableId": "tree_birch",
+      "position": [
+        -4.2,
+        0,
+        3.2
+      ],
+      "rotationY": 3.51,
+      "scale": 0.62
+    },
+    {
+      "id": "trail_r1",
+      "placeableId": "rock_small",
+      "position": [
+        3.5,
+        0,
+        -4.0
+      ],
+      "rotationY": 0.2,
+      "scale": 0.55
+    },
+    {
+      "id": "trail_r2",
+      "placeableId": "rock_small",
+      "position": [
+        4.5,
+        0,
+        -6.5
+      ],
+      "rotationY": 0.8,
+      "scale": 0.5
+    },
+    {
+      "id": "trail_r3",
+      "placeableId": "rock",
+      "position": [
+        5.5,
+        0,
+        -8.5
+      ],
+      "rotationY": 0.3,
+      "scale": 0.65
+    },
+    {
+      "id": "trail_log",
+      "placeableId": "log",
+      "position": [
+        4.0,
+        0,
+        -5.5
+      ],
+      "rotationY": 1.4,
+      "scale": 0.55
+    },
+    {
+      "id": "big_nw",
+      "placeableId": "rock_large",
+      "position": [
+        -7.5,
+        0,
+        -7.0
+      ],
+      "rotationY": 0.6,
+      "scale": 0.7
+    },
+    {
+      "id": "big_se",
+      "placeableId": "rock_large",
+      "position": [
+        7.5,
+        0,
+        7.0
+      ],
+      "rotationY": 1.2,
+      "scale": 0.65
+    },
+    {
+      "id": "wolf_nw",
+      "placeableId": "animals__wolf",
+      "position": [
+        -9.2,
+        0,
+        -6.0
+      ],
+      "rotationY": 0.8,
+      "scale": 0.85,
+      "behavior": "wander",
+      "wanderRadius": 2.8
+    },
+    {
+      "id": "wolf_se",
+      "placeableId": "animals__wolf",
+      "position": [
+        8.5,
+        0,
+        6.5
+      ],
+      "rotationY": -1.2,
+      "scale": 0.82,
+      "behavior": "wander",
+      "wanderRadius": 3.0
+    },
+    {
+      "id": "snake_sw",
+      "placeableId": "animals__snake",
+      "position": [
+        -7.0,
+        0,
+        8.5
+      ],
+      "rotationY": 0.4,
+      "scale": 0.7,
+      "behavior": "wander",
+      "wanderRadius": 2.5
+    },
+    {
+      "id": "bear_w",
+      "placeableId": "animals__bear",
+      "position": [
+        -9.5,
+        0,
+        3.5
+      ],
+      "rotationY": -0.5,
+      "scale": 0.9
+    },
+    {
+      "id": "fox_camp",
+      "placeableId": "animals__fox",
+      "position": [
+        -3.2,
+        0,
+        0.2
+      ],
+      "rotationY": 1.2,
+      "scale": 0.75
+    },
+    {
+      "id": "raccoon_trail",
+      "placeableId": "animals__raccoon",
+      "position": [
+        5.0,
+        0,
+        -3.5
+      ],
+      "rotationY": 0.3,
+      "scale": 0.7
+    },
+    {
+      "id": "t_mid_a",
+      "placeableId": "tree_pine",
+      "position": [
+        -4.5,
+        0,
+        -2.5
+      ],
+      "rotationY": 0.5,
+      "scale": 0.72
+    },
+    {
+      "id": "t_mid_b",
+      "placeableId": "tree_birch",
+      "position": [
+        -3.2,
+        0,
+        -6.5
+      ],
+      "rotationY": 1.1,
+      "scale": 0.68
+    },
+    {
+      "id": "t_mid_c",
+      "placeableId": "tree_pine",
+      "position": [
+        3.8,
+        0,
+        3.2
+      ],
+      "rotationY": 0.3,
+      "scale": 0.7
+    },
+    {
+      "id": "t_mid_d",
+      "placeableId": "tree_birch",
+      "position": [
+        6.5,
+        0,
+        4.0
+      ],
+      "rotationY": -0.5,
+      "scale": 0.66
+    },
+    {
+      "id": "t_mid_e",
+      "placeableId": "tree_pine",
+      "position": [
+        -6.0,
+        0,
+        1.5
+      ],
+      "rotationY": 0.8,
+      "scale": 0.74
+    },
+    {
+      "id": "t_mid_f",
+      "placeableId": "tree_birch",
+      "position": [
+        7.5,
+        0,
+        -0.5
+      ],
+      "rotationY": 1.4,
+      "scale": 0.7
+    },
+    {
+      "id": "t_mid_g",
+      "placeableId": "tree_pine",
+      "position": [
+        2.2,
+        0,
+        7.5
+      ],
+      "rotationY": 0.2,
+      "scale": 0.72
+    },
+    {
+      "id": "t_mid_h",
+      "placeableId": "tree_birch",
+      "position": [
+        -2.5,
+        0,
+        7.8
+      ],
+      "rotationY": 0.9,
+      "scale": 0.68
+    }
   ]
 }

@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { AgentConfig } from "@/lib/types";
+import type { AgentConfig, AgentSkill } from "@/lib/types";
 import {
   ALL_POLY_PRESETS,
   CUSTOM_PRESET,
   getPolyPreset,
   isCustomPreset,
 } from "@/lib/poly/presets";
+import { uid } from "@/lib/storage";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
+import { ColorField } from "@/components/ui/ColorField";
 import { Select } from "@/components/ui/Select";
+import { Switch } from "@/components/ui/Switch";
 
 export function AgentsTab() {
   const { t } = useTranslation();
@@ -33,6 +36,7 @@ export function AgentsTab() {
         polyPresetId: preset.id,
         systemPrompt: preset.defaultSystemPrompt,
         color: preset.defaultColor,
+        thinkingEnabled: false,
       }),
     );
   }
@@ -62,6 +66,14 @@ export function AgentsTab() {
     upsertAgent({
       ...editing,
       displayName: name,
+      thinkingEnabled: editing.thinkingEnabled === true,
+      skills: (editing.skills ?? [])
+        .map((s) => ({
+          ...s,
+          name: s.name.trim(),
+          content: s.content.trim(),
+        }))
+        .filter((s) => s.name || s.content),
       bio: editing.bio?.trim() || undefined,
     });
     setEditing(null);
@@ -69,6 +81,7 @@ export function AgentsTab() {
   }
 
   if (editing) {
+    const skills = editing.skills ?? [];
     return (
       <div className="form-grid">
         <p className="settings-hint">{t("settings.agents.rebuildNote")}</p>
@@ -118,6 +131,19 @@ export function AgentsTab() {
             options={models.map((m) => ({ value: m.id, label: m.name }))}
           />
         </label>
+        <div className="aa-toggle-card">
+          <div className="aa-toggle-card__body">
+            <div className="aa-toggle-card__title">{t("settings.agents.thinking")}</div>
+            <p className="aa-toggle-card__hint">{t("settings.agents.thinkingHint")}</p>
+          </div>
+          <Switch
+            checked={editing.thinkingEnabled === true}
+            onChange={(checked) =>
+              setEditing({ ...editing, thinkingEnabled: checked })
+            }
+            aria-label={t("settings.agents.thinking")}
+          />
+        </div>
         <label>
           {t("settings.agents.systemPrompt")}
           <textarea
@@ -125,12 +151,53 @@ export function AgentsTab() {
             onChange={(e) => setEditing({ ...editing, systemPrompt: e.target.value })}
           />
         </label>
+        <div>
+          <div className="header-row">
+            <strong>{t("settings.agents.skills")}</strong>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() =>
+                setEditing({
+                  ...editing,
+                  skills: [
+                    ...skills,
+                    { id: uid("skill"), name: "", content: "" },
+                  ],
+                })
+              }
+            >
+              {t("settings.agents.addSkill")}
+            </button>
+          </div>
+          <p className="settings-hint">{t("settings.agents.skillsHint")}</p>
+          {skills.length === 0 ? (
+            <p className="settings-hint">{t("settings.agents.skillsEmpty")}</p>
+          ) : (
+            skills.map((skill, i) => (
+              <SkillRow
+                key={skill.id}
+                skill={skill}
+                onChange={(next) => {
+                  const nextSkills = skills.map((s, idx) => (idx === i ? next : s));
+                  setEditing({ ...editing, skills: nextSkills });
+                }}
+                onRemove={() =>
+                  setEditing({
+                    ...editing,
+                    skills: skills.filter((_, idx) => idx !== i),
+                  })
+                }
+              />
+            ))
+          )}
+        </div>
         <label>
           {t("settings.agents.color")}
-          <input
-            type="color"
+          <ColorField
             value={editing.color}
-            onChange={(e) => setEditing({ ...editing, color: e.target.value })}
+            onChange={(color) => setEditing({ ...editing, color })}
+            aria-label={t("settings.agents.color")}
           />
         </label>
         <label>
@@ -169,6 +236,7 @@ export function AgentsTab() {
           {agents.map((a) => {
             const model = models.find((m) => m.id === a.modelConfigId);
             const role = getPolyPreset(a.polyPresetId);
+            const skillCount = a.skills?.length ?? 0;
             return (
               <div key={a.id} className="card-item">
                 <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -181,6 +249,10 @@ export function AgentsTab() {
                     <div className="card-item__title">{a.displayName}</div>
                     <div className="card-item__sub">
                       {model?.name ?? "—"} · {t(role.nameKey)}
+                      {a.thinkingEnabled ? ` · ${t("settings.agents.thinkingOn")}` : ""}
+                      {skillCount > 0
+                        ? ` · ${t("settings.agents.skillCount", { count: skillCount })}`
+                        : ""}
                     </div>
                   </div>
                 </div>
@@ -188,7 +260,13 @@ export function AgentsTab() {
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    onClick={() => setEditing({ ...a })}
+                    onClick={() =>
+                      setEditing({
+                        ...a,
+                        thinkingEnabled: a.thinkingEnabled === true,
+                        skills: a.skills ?? [],
+                      })
+                    }
                   >
                     {t("settings.edit")}
                   </button>
@@ -205,6 +283,37 @@ export function AgentsTab() {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function SkillRow({
+  skill,
+  onChange,
+  onRemove,
+}: {
+  skill: AgentSkill;
+  onChange: (s: AgentSkill) => void;
+  onRemove: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="skill-row">
+      <div className="header-pair">
+        <input
+          placeholder={t("settings.agents.skillName")}
+          value={skill.name}
+          onChange={(e) => onChange({ ...skill, name: e.target.value })}
+        />
+        <button type="button" className="btn btn--danger" onClick={onRemove}>
+          ×
+        </button>
+      </div>
+      <textarea
+        placeholder={t("settings.agents.skillContent")}
+        value={skill.content}
+        onChange={(e) => onChange({ ...skill, content: e.target.value })}
+      />
     </div>
   );
 }

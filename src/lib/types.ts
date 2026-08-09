@@ -30,12 +30,22 @@ export interface AiModelConfig {
   createdAt: number;
 }
 
+export interface AgentSkill {
+  id: string;
+  name: string;
+  content: string;
+}
+
 export interface AgentConfig {
   id: string;
   displayName: string;
   modelConfigId: string;
   polyPresetId: string;
   systemPrompt: string;
+  /** Enable model reasoning / thinking when the provider supports it. */
+  thinkingEnabled: boolean;
+  /** Optional skill blocks injected into the system prompt. */
+  skills: AgentSkill[];
   color: string;
   bio?: string;
   createdAt: number;
@@ -49,6 +59,9 @@ export interface GraphicsSettings {
   roomLights: boolean;
   antialias: boolean;
   maxDpr: number;
+  /** Procedural map ambience (Web Audio — no sample files). */
+  ambientAudio: boolean;
+  ambientVolume: number;
 }
 
 export interface AppPersisted {
@@ -62,6 +75,8 @@ export interface AppPersisted {
   graphics: GraphicsSettings;
   /** Arena + UI day/night preference (persisted). */
   dayNight: DayNightMode;
+  /** Favorite placeable ids for the map editor library. */
+  favoriteAssets?: string[];
 }
 
 export interface ChatMessage {
@@ -89,6 +104,8 @@ export interface PlaceableInstance {
   /** Current walk target (runtime). */
   target?: [number, number, number];
   moveSpeed?: number;
+  /** Max distance from home when wandering (meters). Default ~3.4. */
+  wanderRadius?: number;
   /** Drives clip selection (runtime). */
   locomotion?: "idle" | "walk";
 }

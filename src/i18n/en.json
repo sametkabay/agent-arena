@@ -24,7 +24,7 @@
   },
   "agentList": {
     "title": "Agents",
-    "empty": "No agents yet. Add one in Settings.",
+    "empty": "No agents yet. Open Agents to add one.",
     "talk": "Talk"
   },
   "chat": {
@@ -91,6 +91,17 @@
       "model": "AI model",
       "poly": "Role",
       "systemPrompt": "System prompt",
+      "thinking": "Thinking mode",
+      "thinkingHint": "When supported (Ollama, Claude, Gemini, reasoning models), the model reasons before answering. Slower but often smarter.",
+      "thinkingOn": "thinking on",
+      "skills": "Skills",
+      "skillsHint": "Reusable instructions injected into the system prompt (docs, coding style, tools, etc.).",
+      "skillsEmpty": "No skills yet.",
+      "addSkill": "Add skill",
+      "skillName": "Skill name",
+      "skillContent": "Skill instructions…",
+      "skillCount_one": "{{count}} skill",
+      "skillCount_other": "{{count}} skills",
       "color": "Accent color",
       "bio": "Short bio",
       "needModel": "Add an AI model first.",
@@ -107,7 +118,34 @@
       "new": "New map",
       "duplicate": "Duplicate",
       "import": "Import JSON",
-      "custom": "Custom"
+      "custom": "Custom",
+      "export": "Export JSON",
+      "exported": "Map exported",
+      "presetsTitle": "Starter presets",
+      "mapsTitle": "Maps",
+      "presetApplied": "Added {{name}}",
+      "presets": {
+        "starter_camp": {
+          "name": "Starter camp",
+          "description": "Nature camp layout copy"
+        },
+        "factory_yard": {
+          "name": "Factory yard",
+          "description": "Industrial bay layout copy"
+        },
+        "mars_outpost": {
+          "name": "Mars outpost",
+          "description": "Martian outpost layout copy"
+        },
+        "office_lounge": {
+          "name": "Office lounge",
+          "description": "Office floor layout copy"
+        },
+        "blank_concrete": {
+          "name": "Concrete pad",
+          "description": "Clean concrete slab to dress up"
+        }
+      }
     },
     "graphics": {
       "title": "Graphics",
@@ -122,7 +160,9 @@
       "reset": "Reset to defaults",
       "low": "Low",
       "medium": "Medium",
-      "high": "High"
+      "high": "High",
+      "ambientAudio": "Ambient audio",
+      "ambientVolume": "Ambience volume"
     }
   },
   "poly": {
@@ -166,19 +206,19 @@
   "maps": {
     "office": {
       "name": "Office",
-      "description": "Open office floor with desks and décor"
+      "description": "Open office with desk rows, meeting table, and lounge"
     },
     "nature": {
       "name": "Nature",
-      "description": "Outdoor clearing with trees and a campfire"
+      "description": "Forest clearing with camp ring and a wildlife trail"
     },
     "factory": {
       "name": "Factory",
-      "description": "Industrial workspace with crates and work tables"
+      "description": "Warehouse aisle with rack walls, crate docks, and break corner"
     },
     "mars": {
       "name": "Mars",
-      "description": "Sparse Martian outpost"
+      "description": "Habitat compound, supply pad, and rock ridges"
     }
   },
   "mapEditor": {
@@ -263,7 +303,46 @@
     "saved": "Map saved",
     "imported": "Map imported",
     "importError": "Could not import map JSON",
+    "loadError": "Could not load that map (it may have been removed)",
     "placed": "Asset placed",
-    "placedCenter": "Asset placed at center — drag it into position"
+    "placedCenter": "Asset placed at center — drag it into position",
+    "snapOff": "Snap off",
+    "snap05": "Snap 0.5m",
+    "snap1": "Snap 1m",
+    "packAll": "All packs",
+    "scopeAll": "All",
+    "scopeFavorites": "Favorites",
+    "scopeUsed": "On map",
+    "favorite": "Favorite",
+    "alignX": "Align X",
+    "alignZ": "Align Z",
+    "distributeX": "Distribute X",
+    "distributeZ": "Distribute Z",
+    "wanderRadius": "Wander radius",
+    "moveSpeed": "Move speed",
+    "themeFog": "Fog",
+    "themeAmbient": "Ambient",
+    "themeHemiSky": "Hemi sky",
+    "themeHemiGround": "Hemi ground",
+    "themeSun": "Sun",
+    "themeAccent": "Accent",
+    "ambience": "Ambience profile",
+    "ambienceIds": {
+      "office": "Office",
+      "nature": "Nature",
+      "factory": "Factory",
+      "mars": "Mars",
+      "none": "None"
+    },
+    "packs": {
+      "furniture": "Furniture",
+      "trees": "Trees",
+      "camping": "Camping",
+      "cars": "Cars",
+      "animals": "Animals",
+      "farm-animals": "Farm animals",
+      "food": "Food",
+      "cosmetics": "Cosmetics"
+    }
   }
 }

@@ -23,9 +23,9 @@ export function ModelsTab() {
   const draft = editing;
 
   function startAdd() {
-    const d = createModelDraft({ name: "OpenAI" });
-    const defs = providerDefaults(d.provider);
-    setEditing({ ...d, ...defs });
+    const defs = providerDefaults("openai");
+    const d = createModelDraft(defs);
+    setEditing(d);
     setFetched(null);
     setStatus(null);
   }
@@ -36,6 +36,7 @@ export function ModelsTab() {
     setEditing({
       ...draft,
       provider,
+      name: defs.name,
       baseUrl: defs.baseUrl,
       modelId: defs.modelId,
     });

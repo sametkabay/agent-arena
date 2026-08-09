@@ -32,7 +32,7 @@ export const FLOOR_SURFACES: Record<FloorSurfaceId, FloorSurfaceSpec> = {
   office: {
     id: "office",
     color: "#D2C9BB",
-    alt: "#C4B8A6",
+    alt: "#D0C8BA",
     border: "#B5A894",
     pattern: "checker",
     tileMeters: 1,
@@ -43,7 +43,7 @@ export const FLOOR_SURFACES: Record<FloorSurfaceId, FloorSurfaceSpec> = {
   grass: {
     id: "grass",
     color: "#6B9B4A",
-    alt: "#5A8A3C",
+    alt: "#638F46",
     border: "#4A7034",
     pattern: "patches",
     tileMeters: 1,
@@ -54,7 +54,7 @@ export const FLOOR_SURFACES: Record<FloorSurfaceId, FloorSurfaceSpec> = {
   dirt: {
     id: "dirt",
     color: "#8B6A4A",
-    alt: "#7A5A3C",
+    alt: "#826244",
     border: "#5C4030",
     pattern: "patches",
     tileMeters: 1,

@@ -2,164 +2,643 @@
   "version": 1,
   "id": "mars",
   "name": "Mars",
-  "description": "Sparse Martian outpost with rocks and a lonely tent",
+  "description": "Martian outpost \u2014 habitat compound, crate pad, and rock ridges",
   "builtin": true,
   "floor": {
-    "size": 20,
+    "size": 24,
     "style": "solid",
-    "cells": 16,
-    "color": "#8B6A4A",
+    "cells": 24,
+    "color": "#B07050",
     "surface": "dirt"
   },
   "theme": {
-    "floor": "#C07A5A",
+    "floor": "#B07050",
     "accent": "#A85A3A",
-    "background": "#E8C8B0",
-    "fog": "#E8C8B0",
+    "background": "#C99A78",
+    "fog": "#C99A78",
     "ambient": "#ffffff",
-    "hemiSky": "#f0d8c8",
-    "hemiGround": "#a06040",
-    "sun": "#ffe8d0"
+    "hemiSky": "#efd0c0",
+    "hemiGround": "#8a5038",
+    "sun": "#ffd0a8"
   },
+  "ambience": "mars",
+  "roomLights": false,
   "spawnPoints": [
     {
       "id": "spawn_0",
       "position": [
+        -1.5,
         0,
-        0,
-        2
+        -0.5
       ],
-      "rotationY": 3.1416
+      "rotationY": 2.5
     },
     {
       "id": "spawn_1",
       "position": [
-        -3,
+        1.5,
         0,
-        0
+        -1.0
       ],
-      "rotationY": 1.0
+      "rotationY": -2.2
     },
     {
       "id": "spawn_2",
       "position": [
-        3,
+        -3.5,
         0,
-        0
-      ],
-      "rotationY": -1.0
-    }
-  ],
-  "placeables": [
-    {
-      "id": "tent_1",
-      "placeableId": "tent",
-      "position": [
-        -5,
-        0,
-        -4
-      ],
-      "rotationY": 0.8
-    },
-    {
-      "id": "rock_1",
-      "placeableId": "rock",
-      "position": [
-        4,
-        0,
-        3
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "rock_2",
-      "placeableId": "rock",
-      "position": [
-        5.2,
-        0,
-        2.4
+        -1.8
       ],
       "rotationY": 1.2
     },
     {
-      "id": "rock_3",
-      "placeableId": "rock",
+      "id": "spawn_3",
       "position": [
-        -6,
+        0.5,
         0,
-        5
+        -4.5
       ],
-      "rotationY": 0.4
+      "rotationY": 0
+    }
+  ],
+  "lights": [
+    {
+      "id": "light_hab",
+      "position": [
+        -5.0,
+        3.0,
+        -3.5
+      ],
+      "color": "#66aaff",
+      "intensity": 0.55,
+      "distance": 12
     },
     {
-      "id": "rock_4",
-      "placeableId": "rock",
+      "id": "light_pad",
       "position": [
-        7,
-        0,
-        -6
+        0.0,
+        3.4,
+        -7.5
       ],
-      "rotationY": 2.0
+      "color": "#88aaff",
+      "intensity": 0.45,
+      "distance": 11
     },
     {
-      "id": "rock_5",
-      "placeableId": "rock",
+      "id": "light_ridge",
       "position": [
-        -2,
-        0,
-        -7
+        9.0,
+        3.0,
+        2.0
       ],
-      "rotationY": 0.6
+      "color": "#7ab0ff",
+      "intensity": 0.3,
+      "distance": 10
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone_habitat",
+      "name": "Habitat",
+      "kind": "camp",
+      "center": [
+        -5.0,
+        0,
+        -3.5
+      ],
+      "radius": 4.0
     },
     {
-      "id": "log_1",
-      "placeableId": "log",
-      "position": [
-        1,
+      "id": "zone_pad",
+      "name": "Supply pad",
+      "kind": "platform",
+      "center": [
+        0.0,
         0,
-        -3
+        -7.2
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "zone_ridge",
+      "name": "East ridge",
+      "kind": "yard",
+      "center": [
+        9.0,
+        0,
+        2.0
+      ],
+      "radius": 4.0
+    }
+  ],
+  "placeables": [
+    {
+      "id": "tent_habitat",
+      "placeableId": "tent",
+      "position": [
+        -5.0,
+        0,
+        -3.5
       ],
       "rotationY": 0.9
     },
     {
-      "id": "box_1",
-      "placeableId": "cardboard_box",
+      "id": "antenna_hab",
+      "placeableId": "antenna",
       "position": [
-        -3.5,
+        -7.2,
         0,
-        -3
+        -4.8
       ],
-      "rotationY": 0.3
+      "rotationY": 0.4
     },
     {
-      "id": "box_2",
-      "placeableId": "cardboard_box",
+      "id": "crate_h0",
+      "placeableId": "supply_crate",
       "position": [
-        -2.9,
+        -3.2,
+        0,
+        -4.6
+      ],
+      "rotationY": 0.2
+    },
+    {
+      "id": "crate_h1",
+      "placeableId": "supply_crate",
+      "position": [
+        -3.2,
         0,
         -3.5
       ],
-      "rotationY": 1.0
+      "rotationY": 0.2,
+      "scale": 0.95
     },
     {
-      "id": "lamp_1",
-      "placeableId": "floor_lamp",
+      "id": "crate_h2",
+      "placeableId": "supply_crate",
       "position": [
-        -4,
+        -2.1,
         0,
-        -2
+        -4.2
       ],
-      "rotationY": 0
+      "rotationY": -0.3,
+      "scale": 1.0
     },
     {
-      "id": "bench_1",
-      "placeableId": "bench",
+      "id": "beacon_hab_a",
+      "placeableId": "beacon",
       "position": [
-        2,
+        -7.8,
+        0,
+        -2.2
+      ],
+      "rotationY": 0.1,
+      "scale": 1.1
+    },
+    {
+      "id": "beacon_hab_b",
+      "placeableId": "beacon",
+      "position": [
+        -2.4,
+        0,
+        -1.5
+      ],
+      "rotationY": 0.2,
+      "scale": 1.05
+    },
+    {
+      "id": "beacon_pad",
+      "placeableId": "beacon",
+      "position": [
+        0.0,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1.15
+    },
+    {
+      "id": "antenna_pad",
+      "placeableId": "antenna",
+      "position": [
+        2.8,
+        0,
+        -9.0
+      ],
+      "rotationY": -0.4
+    },
+    {
+      "id": "crate_p0",
+      "placeableId": "supply_crate",
+      "position": [
+        -1.5,
+        0,
+        -7.2
+      ],
+      "rotationY": 0.1
+    },
+    {
+      "id": "crate_p1",
+      "placeableId": "supply_crate",
+      "position": [
+        -0.3,
+        0,
+        -7.2
+      ],
+      "rotationY": 0.1
+    },
+    {
+      "id": "crate_p2",
+      "placeableId": "supply_crate",
+      "position": [
+        0.9,
+        0,
+        -7.2
+      ],
+      "rotationY": 0.1
+    },
+    {
+      "id": "crate_p3",
+      "placeableId": "supply_crate",
+      "position": [
+        -1.5,
+        0,
+        -6.1
+      ],
+      "rotationY": 0.15
+    },
+    {
+      "id": "crate_p4",
+      "placeableId": "supply_crate",
+      "position": [
+        0.9,
+        0,
+        -6.1
+      ],
+      "rotationY": -0.1
+    },
+    {
+      "id": "ridge_e_0",
+      "placeableId": "mars_boulder",
+      "position": [
+        9.2,
+        0,
+        -6
+      ],
+      "rotationY": 0.0,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_e_1",
+      "placeableId": "mars_rock",
+      "position": [
+        9.55,
+        0,
+        -3.5
+      ],
+      "rotationY": 0.4,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_e_s_1",
+      "placeableId": "mars_rock",
+      "position": [
+        8.2,
+        0,
+        -2.9
+      ],
+      "rotationY": 0.2,
+      "scale": 0.9
+    },
+    {
+      "id": "ridge_e_2",
+      "placeableId": "mars_boulder",
+      "position": [
+        9.9,
+        0,
+        -1
+      ],
+      "rotationY": 0.8,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_e_3",
+      "placeableId": "mars_rock",
+      "position": [
+        9.2,
+        0,
+        1.5
+      ],
+      "rotationY": 1.2,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_e_s_3",
+      "placeableId": "mars_rock",
+      "position": [
+        8.2,
+        0,
+        2.1
+      ],
+      "rotationY": 0.6,
+      "scale": 0.9
+    },
+    {
+      "id": "ridge_e_4",
+      "placeableId": "mars_boulder",
+      "position": [
+        9.55,
         0,
         4
       ],
-      "rotationY": -0.4
+      "rotationY": 1.6,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_e_5",
+      "placeableId": "mars_rock",
+      "position": [
+        9.9,
+        0,
+        6.5
+      ],
+      "rotationY": 2.0,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_e_s_5",
+      "placeableId": "mars_rock",
+      "position": [
+        8.2,
+        0,
+        7.1
+      ],
+      "rotationY": 1.0,
+      "scale": 0.9
+    },
+    {
+      "id": "ridge_e_6",
+      "placeableId": "mars_boulder",
+      "position": [
+        9.2,
+        0,
+        9
+      ],
+      "rotationY": 2.4,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_n_0",
+      "placeableId": "mars_rock",
+      "position": [
+        -9,
+        0,
+        9.5
+      ],
+      "rotationY": 0.0,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_n_1",
+      "placeableId": "mars_boulder",
+      "position": [
+        -6.5,
+        0,
+        9.1
+      ],
+      "rotationY": 0.35,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_n_2",
+      "placeableId": "mars_rock",
+      "position": [
+        -3.5,
+        0,
+        9.5
+      ],
+      "rotationY": 0.7,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_n_3",
+      "placeableId": "mars_boulder",
+      "position": [
+        0,
+        0,
+        9.1
+      ],
+      "rotationY": 1.05,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_n_4",
+      "placeableId": "mars_rock",
+      "position": [
+        3,
+        0,
+        9.5
+      ],
+      "rotationY": 1.4,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_n_5",
+      "placeableId": "mars_boulder",
+      "position": [
+        6,
+        0,
+        9.1
+      ],
+      "rotationY": 1.75,
+      "scale": 1.0
+    },
+    {
+      "id": "berm_sw_0",
+      "placeableId": "mars_boulder",
+      "position": [
+        -9.5,
+        0,
+        -7
+      ],
+      "rotationY": 0.0,
+      "scale": 1.05
+    },
+    {
+      "id": "berm_sw_1",
+      "placeableId": "mars_rock",
+      "position": [
+        -10.2,
+        0,
+        -5
+      ],
+      "rotationY": 0.5,
+      "scale": 1.05
+    },
+    {
+      "id": "berm_sw_2",
+      "placeableId": "mars_boulder",
+      "position": [
+        -9.8,
+        0,
+        -2.5
+      ],
+      "rotationY": 1.0,
+      "scale": 1.05
+    },
+    {
+      "id": "berm_sw_3",
+      "placeableId": "mars_rock",
+      "position": [
+        -10.5,
+        0,
+        0.5
+      ],
+      "rotationY": 1.5,
+      "scale": 1.05
+    },
+    {
+      "id": "scatter_0",
+      "placeableId": "mars_rock",
+      "position": [
+        3.5,
+        0,
+        2.5
+      ],
+      "rotationY": 0.0,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_1",
+      "placeableId": "mars_rock",
+      "position": [
+        5.0,
+        0,
+        -2.0
+      ],
+      "rotationY": 0.7,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_2",
+      "placeableId": "mars_rock",
+      "position": [
+        1.5,
+        0,
+        5.0
+      ],
+      "rotationY": 1.4,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_3",
+      "placeableId": "mars_rock",
+      "position": [
+        -1.0,
+        0,
+        6.5
+      ],
+      "rotationY": 2.1,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_4",
+      "placeableId": "mars_rock",
+      "position": [
+        4.5,
+        0,
+        7.0
+      ],
+      "rotationY": 2.8,
+      "scale": 0.85
+    },
+    {
+      "id": "beacon_ne",
+      "placeableId": "beacon",
+      "position": [
+        8.5,
+        0,
+        8.0
+      ],
+      "rotationY": 0.3,
+      "scale": 1.0
+    },
+    {
+      "id": "ridge_e2_0",
+      "placeableId": "mars_boulder",
+      "position": [
+        10.2,
+        0,
+        -7.5
+      ],
+      "rotationY": 0.0,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_1",
+      "placeableId": "mars_rock",
+      "position": [
+        10.2,
+        0,
+        -5
+      ],
+      "rotationY": 0.55,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_2",
+      "placeableId": "mars_boulder",
+      "position": [
+        10.2,
+        0,
+        -2.5
+      ],
+      "rotationY": 1.1,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_3",
+      "placeableId": "mars_rock",
+      "position": [
+        10.2,
+        0,
+        0.5
+      ],
+      "rotationY": 1.6500000000000001,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_4",
+      "placeableId": "mars_boulder",
+      "position": [
+        10.2,
+        0,
+        3
+      ],
+      "rotationY": 2.2,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_5",
+      "placeableId": "mars_rock",
+      "position": [
+        10.2,
+        0,
+        5.5
+      ],
+      "rotationY": 2.75,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_6",
+      "placeableId": "mars_boulder",
+      "position": [
+        10.2,
+        0,
+        8
+      ],
+      "rotationY": 3.3000000000000003,
+      "scale": 1.05
     }
   ]
 }

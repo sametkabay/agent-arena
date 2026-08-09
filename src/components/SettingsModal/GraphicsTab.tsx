@@ -3,6 +3,8 @@ import type { ShadowQuality } from "@/lib/maps/types";
 import { DEFAULT_GRAPHICS } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
 import { Select } from "@/components/ui/Select";
+import { Slider } from "@/components/ui/Slider";
+import { Switch } from "@/components/ui/Switch";
 
 export function GraphicsTab() {
   const { t } = useTranslation();
@@ -15,10 +17,10 @@ export function GraphicsTab() {
 
       <label className="settings-row">
         <span>{t("settings.graphics.castShadows")}</span>
-        <input
-          type="checkbox"
+        <Switch
           checked={graphics.castShadows}
-          onChange={(e) => setGraphics({ castShadows: e.target.checked })}
+          onChange={(castShadows) => setGraphics({ castShadows })}
+          aria-label={t("settings.graphics.castShadows")}
         />
       </label>
 
@@ -38,37 +40,59 @@ export function GraphicsTab() {
 
       <label className="settings-row">
         <span>{t("settings.graphics.contactShadows")}</span>
-        <input
-          type="checkbox"
+        <Switch
           checked={graphics.contactShadows}
-          onChange={(e) => setGraphics({ contactShadows: e.target.checked })}
+          onChange={(contactShadows) => setGraphics({ contactShadows })}
+          aria-label={t("settings.graphics.contactShadows")}
         />
       </label>
 
       <label className="settings-row">
         <span>{t("settings.graphics.lampLights")}</span>
-        <input
-          type="checkbox"
+        <Switch
           checked={graphics.lampLights}
-          onChange={(e) => setGraphics({ lampLights: e.target.checked })}
+          onChange={(lampLights) => setGraphics({ lampLights })}
+          aria-label={t("settings.graphics.lampLights")}
         />
       </label>
 
       <label className="settings-row">
         <span>{t("settings.graphics.roomLights")}</span>
-        <input
-          type="checkbox"
+        <Switch
           checked={graphics.roomLights}
-          onChange={(e) => setGraphics({ roomLights: e.target.checked })}
+          onChange={(roomLights) => setGraphics({ roomLights })}
+          aria-label={t("settings.graphics.roomLights")}
+        />
+      </label>
+
+      <label className="settings-row">
+        <span>{t("settings.graphics.ambientAudio")}</span>
+        <Switch
+          checked={graphics.ambientAudio !== false}
+          onChange={(ambientAudio) => setGraphics({ ambientAudio })}
+          aria-label={t("settings.graphics.ambientAudio")}
+        />
+      </label>
+
+      <label className="settings-row">
+        <span>{t("settings.graphics.ambientVolume")}</span>
+        <Slider
+          min={0}
+          max={1}
+          step={0.05}
+          value={graphics.ambientVolume ?? 0.35}
+          disabled={graphics.ambientAudio === false}
+          onChange={(ambientVolume) => setGraphics({ ambientVolume })}
+          aria-label={t("settings.graphics.ambientVolume")}
         />
       </label>
 
       <label className="settings-row">
         <span>{t("settings.graphics.antialias")}</span>
-        <input
-          type="checkbox"
+        <Switch
           checked={graphics.antialias}
-          onChange={(e) => setGraphics({ antialias: e.target.checked })}
+          onChange={(antialias) => setGraphics({ antialias })}
+          aria-label={t("settings.graphics.antialias")}
         />
       </label>
 

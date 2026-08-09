@@ -167,7 +167,7 @@ function defaultFootprint(category: AssetCategory, file: string): [number, numbe
     if (n.includes("island")) return [2.5, 2.5];
     return [0.9, 0.9];
   }
-  if (/sofa|couch|bed|bathtub|desk|table|wardrobe|fridge|bookcase|shelf/.test(n)) {
+  if (/sofa|couch|bed|bathtub|desk|table|wardrobe|fridge|bookcase|shelf|wall/.test(n)) {
     return [1.4, 0.8];
   }
   if (/chair|stool|bench/.test(n)) return [0.65, 0.65];
@@ -183,14 +183,18 @@ function defaultAutoFit(
   if (category === "nature" && n.includes("tree")) {
     return { autoFit: "height", targetSize: 3.2 };
   }
-  if (category === "vehicles") return { autoFit: "height", targetSize: 1.35 };
+  if (category === "vehicles") return { autoFit: "height", targetSize: 1.4 };
   if (category === "animals") return { autoFit: "height", targetSize: 1.0 };
-  if (category === "food") return { autoFit: "height", targetSize: 0.22 };
-  if (category === "cosmetics") return { autoFit: "height", targetSize: 0.4 };
+  if (category === "food") return { autoFit: "height", targetSize: 0.28 };
+  if (category === "cosmetics") return { autoFit: "height", targetSize: 0.45 };
   if (category === "camping") {
     if (n.includes("tent")) return { autoFit: "height", targetSize: 2.0 };
-    if (n.includes("island")) return { autoFit: "xz", targetSize: 3.0 };
+    if (n.includes("island")) return { autoFit: "xz", targetSize: 3.4 };
+    if (n === "fire.glb") return { autoFit: "height", targetSize: 0.9 };
     return { autoFit: "height", targetSize: 0.7 };
+  }
+  if (/^wall |wall window|wall doorway/.test(n)) {
+    return { autoFit: "height", targetSize: 2.6 };
   }
   if (/door|wardrobe|closet|fridge|bookcase|shelf/.test(n)) {
     return { autoFit: "height", targetSize: 1.85 };
@@ -381,6 +385,7 @@ const CURATED_SPECS: Record<string, PlaceableSpec> = {
     footprint: [2.2, 2.0],
     glb: camp("Tent.glb"),
     scale: 2.0 / 1.0,
+    faces: "negZ",
   },
   campfire: {
     label: "Campfire",
@@ -389,6 +394,27 @@ const CURATED_SPECS: Record<string, PlaceableSpec> = {
     footprint: [0.8, 0.8],
     glb: camp("Campfire.glb"),
     scale: 0.7 / 0.4,
+  },
+  fire: {
+    label: "Fire",
+    category: "camping",
+    pack: "camping",
+    footprint: [0.55, 0.55],
+    glb: camp("Fire.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.85,
+    canAnimate: true,
+  },
+  island: {
+    label: "Island",
+    category: "ground",
+    pack: "camping",
+    footprint: [3.0, 3.0],
+    glb: camp("Island.glb"),
+    scale: 1,
+    autoFit: "xz",
+    targetSize: 3.2,
   },
   log: {
     label: "Log",
@@ -421,6 +447,145 @@ const CURATED_SPECS: Record<string, PlaceableSpec> = {
     footprint: [0.5, 0.5],
     glb: furn("Cardboard Box Closed.glb"),
     scale: 0.45 / 0.3,
+  },
+  rock_small: {
+    label: "Small rock",
+    category: "nature",
+    pack: "camping",
+    footprint: [0.4, 0.4],
+    glb: camp("Rock.glb"),
+    scale: 0.32 / 0.35,
+  },
+  rock_large: {
+    label: "Large rock",
+    category: "nature",
+    pack: "camping",
+    footprint: [1.35, 1.35],
+    glb: camp("Rock.glb"),
+    scale: 1.05 / 0.35,
+  },
+  mars_boulder: {
+    label: "Mars boulder",
+    category: "nature",
+    pack: "procedural",
+    footprint: [1.6, 1.4],
+    scale: 1,
+  },
+  mars_rock: {
+    label: "Mars rock",
+    category: "nature",
+    pack: "procedural",
+    footprint: [0.85, 0.75],
+    scale: 1,
+  },
+  supply_crate: {
+    label: "Supply crate",
+    category: "decor",
+    pack: "procedural",
+    footprint: [0.85, 0.65],
+    scale: 1,
+  },
+  beacon: {
+    label: "Beacon light",
+    category: "decor",
+    pack: "procedural",
+    footprint: [0.4, 0.4],
+    scale: 1,
+  },
+  antenna: {
+    label: "Antenna",
+    category: "decor",
+    pack: "procedural",
+    footprint: [0.55, 0.55],
+    scale: 1,
+  },
+  wall_solid: {
+    label: "Wall",
+    category: "furniture",
+    pack: "procedural",
+    footprint: [2.0, 0.22],
+    scale: 1,
+  },
+  door: {
+    label: "Door",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [2.0, 0.35],
+    glb: furn("Doorway.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 2.6,
+    faces: "posZ",
+  },
+  work_stool: {
+    label: "Work stool",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [0.45, 0.45],
+    glb: furn("Bar Stool.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.85,
+  },
+  box_open: {
+    label: "Open box",
+    category: "decor",
+    pack: "furniture",
+    footprint: [0.5, 0.5],
+    glb: furn("Cardboard Box Open.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.45,
+  },
+  lamp_square: {
+    label: "Square floor lamp",
+    category: "decor",
+    pack: "furniture",
+    footprint: [0.35, 0.35],
+    glb: furn("Lamp Square Floor.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 1.55,
+  },
+  fridge: {
+    label: "Fridge",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [0.7, 0.7],
+    glb: furn("Kitchen Fridge.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 1.85,
+  },
+  coat_rack: {
+    label: "Coat rack",
+    category: "decor",
+    pack: "furniture",
+    footprint: [0.4, 0.4],
+    glb: furn("Coat Rack Standing.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 1.7,
+  },
+  ottoman: {
+    label: "Ottoman",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [0.7, 0.7],
+    glb: furn("Lounge Sofa Ottoman.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.42,
+  },
+  round_table: {
+    label: "Round table",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [1.2, 1.2],
+    glb: furn("Round Table.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.75,
   },
 };
 

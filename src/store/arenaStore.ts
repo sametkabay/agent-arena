@@ -42,6 +42,8 @@ interface ArenaState extends AppPersisted {
   chats: Record<string, ChatMessage[]>;
   chatBusyById: Record<string, boolean>;
   toast: string | null;
+  /** Smooth 0 (day) → 1 (night) blend driven by tick. */
+  dayNightBlend: number;
 
   hydrate: () => void;
   persist: () => void;
@@ -52,6 +54,7 @@ interface ArenaState extends AppPersisted {
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
+  toggleFavoriteAsset: (placeableId: string) => void;
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
 
@@ -91,6 +94,7 @@ function persistSlice(s: ArenaState): AppPersisted {
     customMaps: s.customMaps,
     graphics: s.graphics,
     dayNight: s.dayNight,
+    favoriteAssets: s.favoriteAssets ?? [],
   };
 }
 
@@ -126,6 +130,8 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   chats: {},
   chatBusyById: {},
   toast: null,
+  dayNightBlend: 0,
+  favoriteAssets: [],
 
   hydrate: () => {
     const data = loadPersisted();
@@ -133,7 +139,12 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
       { ...data, runtimeAgents: [] },
       true,
     );
-    set({ ...data, ...layout });
+    set({
+      ...data,
+      ...layout,
+      favoriteAssets: data.favoriteAssets ?? [],
+      dayNightBlend: data.dayNight === "night" ? 1 : 0,
+    });
     void i18n.changeLanguage(data.language);
   },
 
@@ -167,6 +178,17 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
 
   toggleDayNight: () => {
     set((s) => ({ dayNight: s.dayNight === "day" ? "night" : "day" }));
+    get().persist();
+  },
+
+  toggleFavoriteAsset: (placeableId) => {
+    set((s) => {
+      const cur = s.favoriteAssets ?? [];
+      const next = cur.includes(placeableId)
+        ? cur.filter((id) => id !== placeableId)
+        : [...cur, placeableId];
+      return { favoriteAssets: next };
+    });
     get().persist();
   },
 
@@ -284,6 +306,9 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
     };
     get().upsertCustomMap(def);
     get().setMapId(def.id);
+    if (get().mapEditorOpen) {
+      set({ mapEditorSourceId: def.id });
+    }
     return def.id;
   },
 
@@ -301,6 +326,9 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
 
   saveMapFromEditor: (def, activate = true) => {
     const name = def.name.trim() || "Untitled map";
+    // Close first so the editor's load effect cannot reset the draft when
+    // customMaps updates (that path used to fall back to the office builtin).
+    set({ mapEditorOpen: false, mapEditorSourceId: null });
     if (def.builtin) {
       // Builtin edits must become a custom copy; keep the name the user set
       const copy = createCustomMapFromBuiltin(def.id, get().customMaps);
@@ -316,7 +344,6 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
       get().upsertCustomMap({ ...def, name, builtin: false });
       if (activate) get().setMapId(def.id);
     }
-    set({ mapEditorOpen: false, mapEditorSourceId: null });
   },
 
   createNewMap: () => {
@@ -425,6 +452,18 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
 
   tick: (dt, now) => {
     set((s) => {
+      const targetBlend = s.dayNight === "night" ? 1 : 0;
+      const blendSpeed = 0.55; // ~1.8s full transition
+      let dayNightBlend = s.dayNightBlend;
+      if (Math.abs(dayNightBlend - targetBlend) > 0.001) {
+        const dir = targetBlend > dayNightBlend ? 1 : -1;
+        dayNightBlend = Math.min(
+          1,
+          Math.max(0, dayNightBlend + dir * blendSpeed * dt),
+        );
+        if (Math.abs(dayNightBlend - targetBlend) < 0.01) dayNightBlend = targetBlend;
+      }
+
       const half = s.floorSize / 2 - 1.2;
       const agents = s.runtimeAgents.map((agent) => {
         let next = { ...agent };
@@ -502,11 +541,12 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
           next.homePosition = [home[0], home[1], home[2]];
         }
         const speed = next.moveSpeed ?? 1.1;
+        const wanderR = next.wanderRadius ?? 3.4;
 
         if (!next.target) {
           if (Math.random() < dt * 0.12) {
             const angle = Math.random() * Math.PI * 2;
-            const dist = 1.2 + Math.random() * 2.2;
+            const dist = Math.min(wanderR, 0.8 + Math.random() * wanderR);
             const tx = Math.max(
               -half,
               Math.min(half, home[0] + Math.cos(angle) * dist),
@@ -546,7 +586,7 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
         return next;
       });
 
-      return { runtimeAgents: agents, placeables };
+      return { runtimeAgents: agents, placeables, dayNightBlend };
     });
   },
 
@@ -583,6 +623,8 @@ export function createAgentDraft(
     modelConfigId: "",
     polyPresetId: "explorer",
     systemPrompt: "",
+    thinkingEnabled: false,
+    skills: [],
     color: "#4A90A4",
     bio: "",
     createdAt: Date.now(),

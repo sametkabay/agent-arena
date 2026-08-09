@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { PLACEABLE_SPECS } from "@/lib/assets/catalog";
 import { useArenaStore } from "@/store/arenaStore";
+import { EmberParticles } from "@/components/scene/EmberParticles";
 
 export type FireFxKind = "campfire" | "fire";
 
@@ -94,7 +95,7 @@ export function CampfireFx() {
       0.15 * Math.sin(t.current * 14) +
       0.08 * Math.sin(t.current * 27.3);
     light.current.intensity =
-      (lampLights ? 1.55 : 0.95) * pulse * nightBoost;
+      (lampLights ? 1.7 : 1.05) * pulse * nightBoost;
   });
 
   return (
@@ -125,11 +126,12 @@ export function CampfireFx() {
       <pointLight
         ref={light}
         color="#ff7a32"
-        intensity={(lampLights ? 1.55 : 0.95) * nightBoost}
-        distance={lampLights ? 7.5 : 5}
+        intensity={(lampLights ? 1.7 : 1.05) * nightBoost}
+        distance={lampLights ? 12.5 : 8}
         decay={2}
         position={[0, 0.42, 0]}
       />
+      <EmberParticles count={22} height={1.35} />
     </group>
   );
 }
@@ -297,21 +299,24 @@ export function FireMeshTicker({ meshes }: { meshes: FireTongueMesh[] }) {
       const pulse =
         0.88 + 0.12 * Math.sin(time * 12) + 0.06 * Math.sin(time * 25);
       light.current.intensity =
-        (lampLights ? 1.2 : 0.65) * pulse * nightBoost;
+        (lampLights ? 1.35 : 0.75) * pulse * nightBoost;
     }
   });
 
   if (meshes.length === 0) return null;
 
   return (
-    <pointLight
-      ref={light}
-      color="#ff7a32"
-      intensity={(lampLights ? 1.2 : 0.65) * nightBoost}
-      distance={lampLights ? 5.5 : 3.5}
-      decay={2}
-      position={[0, 0.4, 0]}
-    />
+    <group>
+      <pointLight
+        ref={light}
+        color="#ff7a32"
+        intensity={(lampLights ? 1.35 : 0.75) * nightBoost}
+        distance={lampLights ? 9.5 : 6}
+        decay={2}
+        position={[0, 0.4, 0]}
+      />
+      <EmberParticles count={18} height={1.2} />
+    </group>
   );
 }
 

@@ -1,9 +1,10 @@
 import { ContactShadows, OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { shadowMapSize } from "@/lib/maps";
-import { resolveSceneLighting } from "@/lib/dayNight";
+import { mapWantsRoomLights } from "@/lib/maps/ambience";
+import { lerpSceneLighting } from "@/lib/dayNight";
 import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
 import {
   agentIdsFromIntersections,
@@ -17,6 +18,7 @@ import {
   MoveMarkers,
   useMoveBursts,
 } from "@/components/scene/MoveMarkers";
+import { NightGlow, NightSky } from "@/components/scene/NightSky";
 
 function SceneTick({ dormant }: { dormant: boolean }) {
   useFrame((_, dt) => {
@@ -24,6 +26,34 @@ function SceneTick({ dormant }: { dormant: boolean }) {
     useArenaStore.getState().tick(Math.min(dt, 0.05), Date.now());
   });
   return null;
+}
+
+/** Subtle fog distance pulse with night amount. */
+function FogPulse({
+  color,
+  floorSize,
+  nightAmount,
+}: {
+  color: string;
+  floorSize: number;
+  nightAmount: number;
+}) {
+  const fogRef = useRef<THREE.Fog>(null);
+  useFrame(({ clock }) => {
+    const fog = fogRef.current;
+    if (!fog) return;
+    const pulse = 1 + Math.sin(clock.elapsedTime * 0.35) * 0.04 * nightAmount;
+    fog.near = floorSize * (2.5 - nightAmount * 0.35) * pulse;
+    fog.far = floorSize * (5.6 - nightAmount * 0.8) * pulse;
+    fog.color.set(color);
+  });
+  return (
+    <fog
+      ref={fogRef}
+      attach="fog"
+      args={[color, floorSize * 2.8, floorSize * 6]}
+    />
+  );
 }
 
 /** Right-click on the ground sends the selected agent (works through props). */
@@ -75,14 +105,14 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
   const agents = useArenaStore((s) => s.runtimeAgents);
   const activeMap = useArenaStore((s) => s.activeMap);
   const graphics = useArenaStore((s) => s.graphics);
-  const dayNight = useArenaStore((s) => s.dayNight);
+  const dayNightBlend = useArenaStore((s) => s.dayNightBlend);
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
   const commandAgentTo = useArenaStore((s) => s.commandAgentTo);
   const theme = activeMap?.theme;
   const lighting = useMemo(
-    () => (theme ? resolveSceneLighting(theme, dayNight) : null),
-    [theme, dayNight],
+    () => (theme ? lerpSceneLighting(theme, dayNightBlend) : null),
+    [theme, dayNightBlend],
   );
   const floor = activeMap?.floor ?? {
     size: floorSize,
@@ -90,6 +120,13 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
     cells: 8,
     color: "#D2C9BB",
   };
+
+  const showRoomLights =
+    Boolean(graphics.roomLights) &&
+    Boolean(activeMap) &&
+    mapWantsRoomLights(activeMap!);
+
+  const roomScale = floorSize / 18;
 
   const camTarget = useMemo(() => new THREE.Vector3(0, 0, 0), []);
   const { bursts, addBurst, removeBurst } = useMoveBursts();
@@ -136,13 +173,19 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
 
   if (!theme || !lighting) return null;
 
+  const nightAmount = lighting.nightAmount;
+
   return (
     <>
       <color attach="background" args={[lighting.background]} />
-      <fog
-        attach="fog"
-        args={[lighting.fog, floorSize * 2.8, floorSize * 6]}
+      <FogPulse
+        color={lighting.fog}
+        floorSize={floorSize}
+        nightAmount={nightAmount}
       />
+      <NightSky nightAmount={nightAmount} radius={Math.max(70, floorSize * 3.2)} />
+      <NightGlow nightAmount={nightAmount} color={lighting.hemiSky} />
+
       <ambientLight
         intensity={lighting.ambientIntensity}
         color={lighting.ambient}
@@ -166,7 +209,7 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
         shadow-camera-top={floorSize / 2 + 4}
         shadow-camera-bottom={-(floorSize / 2 + 4)}
       />
-      {lighting.fillIntensity > 0 && (
+      {lighting.fillIntensity > 0.01 && (
         <pointLight
           position={lighting.fillPosition}
           intensity={lighting.fillIntensity}
@@ -175,22 +218,38 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
           decay={2}
         />
       )}
-      {graphics.roomLights && (
+      {showRoomLights && (
         <>
           <pointLight
-            position={[-4, 3, -3]}
-            intensity={dayNight === "night" ? 0.55 : 0.35}
-            color={dayNight === "night" ? "#ffcc88" : "#fff2dd"}
+            position={[-4 * roomScale, 3, -3 * roomScale]}
+            intensity={0.28 + nightAmount * 0.22}
+            color={nightAmount > 0.5 ? "#ffcc88" : "#fff2dd"}
+            distance={14 * roomScale}
+            decay={2}
           />
           <pointLight
-            position={[5, 3, 4]}
-            intensity={dayNight === "night" ? 0.42 : 0.28}
-            color={dayNight === "night" ? "#a8c0ff" : "#e8f0ff"}
+            position={[5 * roomScale, 3, 4 * roomScale]}
+            intensity={0.22 + nightAmount * 0.18}
+            color={nightAmount > 0.5 ? "#a8c0ff" : "#e8f0ff"}
+            distance={14 * roomScale}
+            decay={2}
           />
         </>
       )}
 
+      {(activeMap?.lights ?? []).map((L) => (
+        <pointLight
+          key={L.id}
+          position={L.position}
+          intensity={L.intensity * (0.7 + nightAmount * 0.5)}
+          color={L.color}
+          distance={L.distance}
+          decay={2}
+        />
+      ))}
+
       <ArenaFloor floor={{ ...floor, size: floorSize }} />
+      {/* Zones are authoring aids — only visible in the map editor. */}
       <Placeables items={placeables} />
 
       {agents.map((agent) => (

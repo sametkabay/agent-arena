@@ -4,6 +4,16 @@ import {
   isFloorSurfaceId,
   type FloorSurfaceId,
 } from "@/lib/maps/floorSurfaces";
+import {
+  isAmbienceId,
+  isMapLightPoint,
+  isMapZone,
+  type AmbienceId,
+  type MapLightPoint,
+  type MapZone,
+} from "@/lib/maps/ambience";
+
+export type { AmbienceId, MapLightPoint, MapZone } from "@/lib/maps/ambience";
 
 export interface MapTheme {
   floor: string;
@@ -82,6 +92,17 @@ export interface ArenaMapDefinition {
   theme: MapTheme;
   spawnPoints: MapSpawnPoint[];
   placeables: PlaceableInstance[];
+  /** Procedural ambience profile (optional; inferred from id/surface). */
+  ambience?: AmbienceId;
+  /** Soft atmosphere / platform regions. */
+  zones?: MapZone[];
+  /** Extra practical point lights authored in the map. */
+  lights?: MapLightPoint[];
+  /**
+   * When set, overrides indoor/outdoor room-fill heuristic.
+   * Outdoor maps usually omit floating office point lights.
+   */
+  roomLights?: boolean;
 }
 
 export const AAMF_VERSION = 1 as const;
@@ -106,6 +127,17 @@ export function isArenaMapDefinition(v: unknown): v is ArenaMapDefinition {
   if (floor.surface != null && !isFloorSurfaceId(floor.surface)) return false;
   if (!m.theme || typeof m.theme !== "object") return false;
   if (!Array.isArray(m.spawnPoints) || !Array.isArray(m.placeables)) return false;
+  if (m.ambience != null && !isAmbienceId(m.ambience)) return false;
+  if (m.zones != null && (!Array.isArray(m.zones) || !m.zones.every(isMapZone))) {
+    return false;
+  }
+  if (
+    m.lights != null &&
+    (!Array.isArray(m.lights) || !m.lights.every(isMapLightPoint))
+  ) {
+    return false;
+  }
+  if (m.roomLights != null && typeof m.roomLights !== "boolean") return false;
   return true;
 }
 
@@ -138,6 +170,10 @@ export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinit
       { id: "spawn_0", position: [0, 0, 2], rotationY: Math.PI },
     ],
     placeables: partial?.placeables ?? [],
+    ambience: partial?.ambience,
+    zones: partial?.zones ? structuredClone(partial.zones) : undefined,
+    lights: partial?.lights ? structuredClone(partial.lights) : undefined,
+    roomLights: partial?.roomLights,
   };
 }
 
@@ -156,5 +192,17 @@ export function cloneMap(
     placeables: overrides?.placeables
       ? structuredClone(overrides.placeables)
       : structuredClone(def.placeables),
+    zones: overrides?.zones
+      ? structuredClone(overrides.zones)
+      : def.zones
+        ? structuredClone(def.zones)
+        : undefined,
+    lights: overrides?.lights
+      ? structuredClone(overrides.lights)
+      : def.lights
+        ? structuredClone(def.lights)
+        : undefined,
+    ambience: overrides?.ambience ?? def.ambience,
+    roomLights: overrides?.roomLights ?? def.roomLights,
   };
 }

@@ -31,6 +31,7 @@ import {
 } from "@/lib/three/pickAgents";
 import {
   ASSET_CATEGORIES,
+  ASSET_PACKS,
   PLACEABLE_SPECS,
   listPlaceables,
   placeableCanWander,
@@ -41,8 +42,12 @@ import {
 import type { PlaceableInstance } from "@/lib/types";
 import { ArenaFloor } from "@/components/scene/OfficeFloor";
 import { Placeables } from "@/components/scene/Placeables";
+import { MapZones } from "@/components/scene/MapZones";
+import { NightGlow, NightSky } from "@/components/scene/NightSky";
 import { AssetPreview } from "@/components/MapEditor/AssetPreview";
+import { ColorField } from "@/components/ui/ColorField";
 import { Select } from "@/components/ui/Select";
+import { Slider } from "@/components/ui/Slider";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
 import {
   EditorContextMenu,
@@ -51,33 +56,45 @@ import {
 import { useMapHistory } from "@/components/MapEditor/useMapHistory";
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
 import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
-import { resolveSceneLighting } from "@/lib/dayNight";
+import { lerpSceneLighting } from "@/lib/dayNight";
+import { AMBIENCE_IDS, type AmbienceId } from "@/lib/maps/ambience";
 import { useArenaStore } from "@/store/arenaStore";
 import { uid } from "@/lib/storage";
 
 type EditorTool = "select" | "spawn";
+type LibraryScope = "all" | "favorites" | "used";
+type SnapMode = "off" | "0.5" | "1";
 
 const DRAG_THRESHOLD = 4;
+
+function snapCoord(v: number, step: number): number {
+  if (step <= 0) return v;
+  return Math.round(v / step) * step;
+}
 
 function clampToFloor(
   x: number,
   z: number,
   floorSize: number,
+  snapStep = 0,
 ): [number, number, number] {
   // Playable grid is size×size; keep a tiny inset from the tile edge
   const half = floorSize / 2 - 0.05;
-  return [
-    Math.max(-half, Math.min(half, x)),
-    0,
-    Math.max(-half, Math.min(half, z)),
-  ];
+  let sx = Math.max(-half, Math.min(half, x));
+  let sz = Math.max(-half, Math.min(half, z));
+  if (snapStep > 0) {
+    sx = Math.max(-half, Math.min(half, snapCoord(sx, snapStep)));
+    sz = Math.max(-half, Math.min(half, snapCoord(sz, snapStep)));
+  }
+  return [sx, 0, sz];
 }
 
 function hitFloor(
   event: ThreeEvent<PointerEvent>,
   floorSize: number,
+  snapStep = 0,
 ): [number, number, number] | null {
-  return clampToFloor(event.point.x, event.point.z, floorSize);
+  return clampToFloor(event.point.x, event.point.z, floorSize, snapStep);
 }
 
 /** Map a DOM pointer (e.g. library drag-drop) onto the y=0 floor plane. */
@@ -87,6 +104,7 @@ function screenToFloor(
   camera: THREE.Camera,
   canvas: HTMLCanvasElement,
   floorSize: number,
+  snapStep = 0,
 ): [number, number, number] | null {
   const rect = canvas.getBoundingClientRect();
   if (rect.width <= 0 || rect.height <= 0) return null;
@@ -99,7 +117,7 @@ function screenToFloor(
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const hit = new THREE.Vector3();
   if (!raycaster.ray.intersectPlane(plane, hit)) return null;
-  return clampToFloor(hit.x, hit.z, floorSize);
+  return clampToFloor(hit.x, hit.z, floorSize, snapStep);
 }
 
 function footprintSize(placeableId: string): [number, number, number] {
@@ -156,6 +174,7 @@ function EditorWorld({
   onDragGestureStart,
   onDragGestureEnd,
   onContextMenu,
+  snapStep,
 }: {
   draft: ArenaMapDefinition;
   selectedIds: string[];
@@ -170,6 +189,7 @@ function EditorWorld({
   onDragGestureStart: () => void;
   onDragGestureEnd: () => void;
   onContextMenu: (menu: ContextMenuState) => void;
+  snapStep: number;
 }) {
   const drag = useRef<{
     ids: string[];
@@ -181,10 +201,10 @@ function EditorWorld({
   } | null>(null);
   const controls = useThree((s) => s.controls) as { enabled?: boolean } | null;
   const floorSize = draft.floor.size;
-  const dayNight = useArenaStore((s) => s.dayNight);
+  const dayNightBlend = useArenaStore((s) => s.dayNightBlend);
   const lighting = useMemo(
-    () => resolveSceneLighting(draft.theme, dayNight),
-    [draft.theme, dayNight],
+    () => lerpSceneLighting(draft.theme, dayNightBlend),
+    [draft.theme, dayNightBlend],
   );
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const primaryId = selectedIds.length ? selectedIds[selectedIds.length - 1] : null;
@@ -277,7 +297,7 @@ function EditorWorld({
     if (!d || tool !== "select") return;
     const dist = Math.hypot(e.clientX - d.startX, e.clientY - d.startY);
     if (!d.moved && dist < DRAG_THRESHOLD) return;
-    const pos = hitFloor(e, floorSize);
+    const pos = hitFloor(e, floorSize, snapStep);
     if (!pos) return;
 
     if (!d.moved) {
@@ -295,7 +315,7 @@ function EditorWorld({
       .map((id) => {
         const o = d.origins[id];
         if (!o) return null;
-        const next = clampToFloor(o[0] + dx, o[2] + dz, floorSize);
+        const next = clampToFloor(o[0] + dx, o[2] + dz, floorSize, snapStep);
         return {
           id,
           position: [next[0], o[1], next[2]] as [number, number, number],
@@ -318,13 +338,13 @@ function EditorWorld({
     if (e.button === 2) return;
     if (tool === "spawn") {
       e.stopPropagation();
-      const pos = hitFloor(e, floorSize);
+      const pos = hitFloor(e, floorSize, snapStep);
       if (pos) onPlaceSpawn(pos);
       return;
     }
     if (paintPlaceableId) {
       e.stopPropagation();
-      const pos = hitFloor(e, floorSize);
+      const pos = hitFloor(e, floorSize, snapStep);
       if (pos) onPlaceAsset(paintPlaceableId, pos);
       return;
     }
@@ -340,6 +360,11 @@ function EditorWorld({
         attach="fog"
         args={[lighting.fog, floorSize * 2.8, floorSize * 6]}
       />
+      <NightSky
+        nightAmount={lighting.nightAmount}
+        radius={Math.max(70, floorSize * 3.2)}
+      />
+      <NightGlow nightAmount={lighting.nightAmount} color={lighting.hemiSky} />
       <ambientLight
         intensity={lighting.ambientIntensity}
         color={lighting.ambient}
@@ -353,7 +378,7 @@ function EditorWorld({
         color={lighting.sun}
         castShadow
       />
-      {lighting.fillIntensity > 0 && (
+      {lighting.fillIntensity > 0.01 && (
         <pointLight
           position={lighting.fillPosition}
           intensity={lighting.fillIntensity}
@@ -362,14 +387,25 @@ function EditorWorld({
           decay={2}
         />
       )}
+      {(draft.lights ?? []).map((L) => (
+        <pointLight
+          key={L.id}
+          position={L.position}
+          intensity={L.intensity}
+          color={L.color}
+          distance={L.distance}
+          decay={2}
+        />
+      ))}
 
       <ArenaFloor floor={draft.floor} />
+      <MapZones zones={draft.zones ?? []} visible opacity={0.16} />
       <gridHelper
         args={[
           floorSize,
-          Math.max(8, Math.round(floorSize / 2)),
-          dayNight === "night" ? "#4a5568" : "#b0a090",
-          dayNight === "night" ? "#2d3748" : "#d8d0c4",
+          Math.max(8, Math.round(floorSize / (snapStep || 2))),
+          lighting.nightAmount > 0.5 ? "#4a5568" : "#b0a090",
+          lighting.nightAmount > 0.5 ? "#2d3748" : "#d8d0c4",
         ]}
         position={[0, 0.02, 0]}
       />
@@ -524,7 +560,6 @@ export function MapEditor() {
   const { t } = useTranslation();
   const open = useArenaStore((s) => s.mapEditorOpen);
   const sourceId = useArenaStore((s) => s.mapEditorSourceId);
-  const customMaps = useArenaStore((s) => s.customMaps);
   const dayNight = useArenaStore((s) => s.dayNight);
   const toggleDayNight = useArenaStore((s) => s.toggleDayNight);
   const closeMapEditor = useArenaStore((s) => s.closeMapEditor);
@@ -547,9 +582,14 @@ export function MapEditor() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [tool, setTool] = useState<EditorTool>("select");
   const [category, setCategory] = useState<AssetCategory | "all">("all");
+  const [packFilter, setPackFilter] = useState<string>("all");
+  const [libraryScope, setLibraryScope] = useState<LibraryScope>("all");
+  const [snapMode, setSnapMode] = useState<SnapMode>("0.5");
   const [assetQuery, setAssetQuery] = useState("");
   const [paintId, setPaintId] = useState<PlaceableId | null>(null);
   const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null);
+  const favoriteAssets = useArenaStore((s) => s.favoriteAssets ?? []);
+  const toggleFavoriteAsset = useArenaStore((s) => s.toggleFavoriteAsset);
   const fileRef = useRef<HTMLInputElement>(null);
   const viewportApi = useRef<{
     camera: THREE.Camera;
@@ -561,13 +601,26 @@ export function MapEditor() {
       reset(null);
       return;
     }
-    const def = resolveMapDefinition(sourceId, customMaps);
+    // Read customs from the store at load time only — do NOT depend on
+    // `customMaps` or every upsert/import while editing will wipe the draft
+    // (and unknown custom ids fall back to office).
+    const customs = useArenaStore.getState().customMaps;
+    const def = resolveMapDefinition(sourceId, customs);
+    if (def.id !== sourceId) {
+      showToast(t("mapEditor.loadError"));
+      closeMapEditor();
+      return;
+    }
     reset(cloneMap(def));
     setSelectedIds([]);
     setPaintId(null);
     setTool("select");
     setCtxMenu(null);
-  }, [open, sourceId, customMaps, reset]);
+  }, [open, sourceId, reset, closeMapEditor, showToast, t]);
+
+  // Always export/save the latest draft (avoids stale closures).
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
 
   useEffect(() => {
     if (!open) {
@@ -611,7 +664,12 @@ export function MapEditor() {
               cz,
               delta,
             );
-            const [nx, , nz] = clampToFloor(x, z, d.floor.size);
+            const [nx, , nz] = clampToFloor(
+              x,
+              z,
+              d.floor.size,
+              snapMode === "off" ? 0 : Number(snapMode),
+            );
             return {
               ...p,
               rotationY,
@@ -625,7 +683,7 @@ export function MapEditor() {
         };
       });
     },
-    [commit],
+    [commit, snapMode],
   );
 
   const deleteTargets = useCallback(
@@ -786,22 +844,41 @@ export function MapEditor() {
     duplicateTargets,
   ]);
 
+  const snapStep = snapMode === "off" ? 0 : Number(snapMode);
+
+  const usedPlaceableIds = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of draft?.placeables ?? []) set.add(p.placeableId);
+    return set;
+  }, [draft?.placeables]);
+
   const libraryGroups = useMemo(() => {
     const q = assetQuery.trim().toLowerCase();
+    const fav = new Set(favoriteAssets);
     const cats =
       category === "all" ? ASSET_CATEGORIES : ([category] as AssetCategory[]);
     return cats
       .map((cat) => {
         const ids = listPlaceables(cat).filter((id) => {
-          if (!q) return true;
           const spec = PLACEABLE_SPECS[id];
+          if (packFilter !== "all" && spec?.pack !== packFilter) return false;
+          if (libraryScope === "favorites" && !fav.has(id)) return false;
+          if (libraryScope === "used" && !usedPlaceableIds.has(id)) return false;
+          if (!q) return true;
           const label = (spec?.label ?? "").toLowerCase();
           return label.includes(q) || id.toLowerCase().includes(q);
         });
         return { category: cat, ids };
       })
       .filter((g) => g.ids.length > 0);
-  }, [category, assetQuery]);
+  }, [
+    category,
+    assetQuery,
+    packFilter,
+    libraryScope,
+    favoriteAssets,
+    usedPlaceableIds,
+  ]);
 
   const libraryMatchCount = useMemo(
     () => libraryGroups.reduce((n, g) => n + g.ids.length, 0),
@@ -819,6 +896,61 @@ export function MapEditor() {
     selectedIds.length === 1
       ? draft?.spawnPoints.find((s) => s.id === selectedIds[0])
       : undefined;
+
+  const alignSelection = useCallback(
+    (axis: "x" | "z") => {
+      if (!draft || selectedPlaceables.length < 2) return;
+      const vals = selectedPlaceables.map((p) =>
+        axis === "x" ? p.position[0] : p.position[2],
+      );
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      const snapped = snapStep > 0 ? snapCoord(avg, snapStep) : avg;
+      commit((d) => ({
+        ...d,
+        placeables: d.placeables.map((p) => {
+          if (!selectedIds.includes(p.id)) return p;
+          const position: [number, number, number] =
+            axis === "x"
+              ? [snapped, p.position[1], p.position[2]]
+              : [p.position[0], p.position[1], snapped];
+          return { ...p, position };
+        }),
+      }));
+    },
+    [draft, selectedPlaceables, selectedIds, snapStep, commit],
+  );
+
+  const distributeSelection = useCallback(
+    (axis: "x" | "z") => {
+      if (!draft || selectedPlaceables.length < 3) return;
+      const sorted = [...selectedPlaceables].sort((a, b) =>
+        axis === "x"
+          ? a.position[0] - b.position[0]
+          : a.position[2] - b.position[2],
+      );
+      const first = axis === "x" ? sorted[0]!.position[0] : sorted[0]!.position[2];
+      const last =
+        axis === "x"
+          ? sorted[sorted.length - 1]!.position[0]
+          : sorted[sorted.length - 1]!.position[2];
+      const step = (last - first) / (sorted.length - 1);
+      const byId = new Map<string, number>();
+      sorted.forEach((p, i) => byId.set(p.id, first + step * i));
+      commit((d) => ({
+        ...d,
+        placeables: d.placeables.map((p) => {
+          const v = byId.get(p.id);
+          if (v == null) return p;
+          const position: [number, number, number] =
+            axis === "x"
+              ? [v, p.position[1], p.position[2]]
+              : [p.position[0], p.position[1], v];
+          return { ...p, position };
+        }),
+      }));
+    },
+    [draft, selectedPlaceables, commit],
+  );
 
   const updateFloor = useCallback(
     (patch: Partial<ArenaMapDefinition["floor"]>) => {
@@ -972,6 +1104,7 @@ export function MapEditor() {
             api.camera,
             api.gl.domElement,
             draft.floor.size,
+            snapStep,
           )
         : null;
     placeAsset(placeableId, pos ?? [0, 0, 0]);
@@ -979,19 +1112,29 @@ export function MapEditor() {
   };
 
   const onSave = () => {
-    if (!draft) return;
-    const name = draft.name.trim() || t("mapEditor.untitled");
-    saveMapFromEditor({ ...draft, name }, true);
+    const current = draftRef.current;
+    if (!current) return;
+    const name = current.name.trim() || t("mapEditor.untitled");
+    saveMapFromEditor({ ...current, name }, true);
     showToast(t("mapEditor.saved"));
   };
 
   const onExport = () => {
-    if (!draft) return;
-    const blob = new Blob([exportMapJson(draft)], { type: "application/json" });
+    const current = draftRef.current;
+    if (!current) return;
+    const blob = new Blob([exportMapJson(current)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${draft.id}.json`;
+    const safeName =
+      current.name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || current.id;
+    a.download = `${safeName}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -1000,6 +1143,9 @@ export function MapEditor() {
     try {
       const text = await file.text();
       const id = useArenaStore.getState().importMapJson(text);
+      // Point the editor at the imported map so a later customMaps-driven
+      // reload (if any) cannot snap back to the previous source / office.
+      useArenaStore.setState({ mapEditorSourceId: id });
       const def = resolveMapDefinition(id, useArenaStore.getState().customMaps);
       reset(cloneMap(def));
       showToast(t("mapEditor.imported"));
@@ -1115,6 +1261,53 @@ export function MapEditor() {
               spellCheck={false}
             />
           </label>
+          <div className="map-editor__filter-row">
+            <Select
+              variant="dark"
+              value={snapMode}
+              onChange={(v) => setSnapMode(v as SnapMode)}
+              options={[
+                { value: "off", label: t("mapEditor.snapOff") },
+                { value: "0.5", label: t("mapEditor.snap05") },
+                { value: "1", label: t("mapEditor.snap1") },
+              ]}
+            />
+            <Select
+              variant="dark"
+              value={packFilter}
+              onChange={setPackFilter}
+              options={[
+                { value: "all", label: t("mapEditor.packAll") },
+                ...ASSET_PACKS.map((p) => ({
+                  value: p,
+                  label: t(`mapEditor.packs.${p}`, { defaultValue: p }),
+                })),
+              ]}
+            />
+          </div>
+          <div className="map-editor__cats">
+            <button
+              type="button"
+              className={libraryScope === "all" ? "is-active" : ""}
+              onClick={() => setLibraryScope("all")}
+            >
+              {t("mapEditor.scopeAll")}
+            </button>
+            <button
+              type="button"
+              className={libraryScope === "favorites" ? "is-active" : ""}
+              onClick={() => setLibraryScope("favorites")}
+            >
+              {t("mapEditor.scopeFavorites")}
+            </button>
+            <button
+              type="button"
+              className={libraryScope === "used" ? "is-active" : ""}
+              onClick={() => setLibraryScope("used")}
+            >
+              {t("mapEditor.scopeUsed")}
+            </button>
+          </div>
           <div className="map-editor__cats">
             <button
               type="button"
@@ -1144,29 +1337,50 @@ export function MapEditor() {
                 <div className="map-editor__asset-grid">
                   {group.ids.map((id) => {
                     const spec = PLACEABLE_SPECS[id];
+                    const fav = favoriteAssets.includes(id);
                     return (
-                      <button
+                      <div
                         key={id}
-                        type="button"
-                        draggable
-                        title={spec.label}
                         className={
-                          "map-editor__asset" + (paintId === id ? " is-active" : "")
+                          "map-editor__asset-wrap" +
+                          (paintId === id ? " is-active" : "")
                         }
-                        onDragStart={(e) => {
-                          e.dataTransfer.setData("text/placeable-id", id);
-                          e.dataTransfer.effectAllowed = "copy";
-                        }}
-                        onClick={() => {
-                          setPaintId((prev) => (prev === id ? null : id));
-                          setTool("select");
-                          setSelectedIds([]);
-                          setCtxMenu(null);
-                        }}
                       >
-                        <AssetPreview placeableId={id} />
-                        <span className="map-editor__asset-name">{spec.label}</span>
-                      </button>
+                        <button
+                          type="button"
+                          draggable
+                          title={spec.label}
+                          className={
+                            "map-editor__asset" + (paintId === id ? " is-active" : "")
+                          }
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("text/placeable-id", id);
+                            e.dataTransfer.effectAllowed = "copy";
+                          }}
+                          onClick={() => {
+                            setPaintId((prev) => (prev === id ? null : id));
+                            setTool("select");
+                            setSelectedIds([]);
+                            setCtxMenu(null);
+                          }}
+                        >
+                          <AssetPreview placeableId={id} />
+                          <span className="map-editor__asset-name">{spec.label}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={
+                            "map-editor__fav" + (fav ? " is-on" : "")
+                          }
+                          title={t("mapEditor.favorite")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavoriteAsset(id);
+                          }}
+                        >
+                          ★
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -1207,6 +1421,7 @@ export function MapEditor() {
               onDragGestureStart={beginGesture}
               onDragGestureEnd={endGesture}
               onContextMenu={setCtxMenu}
+              snapStep={snapStep}
             />
           </Canvas>
           {tool === "spawn" && (
@@ -1310,6 +1525,24 @@ export function MapEditor() {
                   {t("mapEditor.ctx.scaleDown")}
                 </button>
               </div>
+              <div className="map-editor__inline-actions">
+                <button type="button" onClick={() => alignSelection("x")}>
+                  {t("mapEditor.alignX")}
+                </button>
+                <button type="button" onClick={() => alignSelection("z")}>
+                  {t("mapEditor.alignZ")}
+                </button>
+              </div>
+              {selectedPlaceables.length >= 3 && (
+                <div className="map-editor__inline-actions">
+                  <button type="button" onClick={() => distributeSelection("x")}>
+                    {t("mapEditor.distributeX")}
+                  </button>
+                  <button type="button" onClick={() => distributeSelection("z")}>
+                    {t("mapEditor.distributeZ")}
+                  </button>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() =>
@@ -1341,46 +1574,93 @@ export function MapEditor() {
               </h4>
 
               {placeableCanWander(selectedPlaceable.placeableId) && (
-                <label className="map-editor__field">
-                  <span>{t("mapEditor.behavior")}</span>
-                  <Select
-                    variant="dark"
-                    value={selectedPlaceable.behavior ?? "static"}
-                    onChange={(v) => {
-                      const behavior = v as "static" | "wander";
-                      commit((d) => ({
-                        ...d,
-                        placeables: d.placeables.map((p) => {
-                          if (p.id !== selectedPlaceable.id) return p;
-                          if (behavior === "wander") {
+                <>
+                  <label className="map-editor__field">
+                    <span>{t("mapEditor.behavior")}</span>
+                    <Select
+                      variant="dark"
+                      value={selectedPlaceable.behavior ?? "static"}
+                      onChange={(v) => {
+                        const behavior = v as "static" | "wander";
+                        commit((d) => ({
+                          ...d,
+                          placeables: d.placeables.map((p) => {
+                            if (p.id !== selectedPlaceable.id) return p;
+                            if (behavior === "wander") {
+                              return {
+                                ...p,
+                                behavior,
+                                homePosition: [...p.position] as [
+                                  number,
+                                  number,
+                                  number,
+                                ],
+                                moveSpeed: p.moveSpeed ?? 1.1,
+                                wanderRadius: p.wanderRadius ?? 3.4,
+                                target: undefined,
+                                locomotion: "idle",
+                              };
+                            }
                             return {
                               ...p,
-                              behavior,
-                              homePosition: [...p.position] as [
-                                number,
-                                number,
-                                number,
-                              ],
-                              moveSpeed: p.moveSpeed ?? 1.1,
+                              behavior: "static",
                               target: undefined,
-                              locomotion: "idle",
+                              locomotion: undefined,
                             };
+                          }),
+                        }));
+                      }}
+                      options={[
+                        { value: "static", label: t("mapEditor.behaviorStatic") },
+                        { value: "wander", label: t("mapEditor.behaviorWander") },
+                      ]}
+                    />
+                  </label>
+                  {(selectedPlaceable.behavior ?? "static") === "wander" && (
+                    <>
+                      <label className="map-editor__field">
+                        <span>
+                          {t("mapEditor.wanderRadius")}:{" "}
+                          {(selectedPlaceable.wanderRadius ?? 3.4).toFixed(1)}m
+                        </span>
+                        <Slider
+                          variant="dark"
+                          min={1}
+                          max={10}
+                          step={0.5}
+                          value={selectedPlaceable.wanderRadius ?? 3.4}
+                          onPointerDown={beginGesture}
+                          onPointerUp={endGesture}
+                          onChange={(v) =>
+                            patchSelectedPlaceableLive({
+                              wanderRadius: v,
+                            })
                           }
-                          return {
-                            ...p,
-                            behavior: "static",
-                            target: undefined,
-                            locomotion: undefined,
-                          };
-                        }),
-                      }));
-                    }}
-                    options={[
-                      { value: "static", label: t("mapEditor.behaviorStatic") },
-                      { value: "wander", label: t("mapEditor.behaviorWander") },
-                    ]}
-                  />
-                </label>
+                        />
+                      </label>
+                      <label className="map-editor__field">
+                        <span>
+                          {t("mapEditor.moveSpeed")}:{" "}
+                          {(selectedPlaceable.moveSpeed ?? 1.1).toFixed(1)}
+                        </span>
+                        <Slider
+                          variant="dark"
+                          min={0.4}
+                          max={2.5}
+                          step={0.1}
+                          value={selectedPlaceable.moveSpeed ?? 1.1}
+                          onPointerDown={beginGesture}
+                          onPointerUp={endGesture}
+                          onChange={(v) =>
+                            patchSelectedPlaceableLive({
+                              moveSpeed: v,
+                            })
+                          }
+                        />
+                      </label>
+                    </>
+                  )}
+                </>
               )}
 
               {placeableCanAnimate(selectedPlaceable.placeableId) && (
@@ -1454,18 +1734,18 @@ export function MapEditor() {
                   Y ({t("mapEditor.axisUp")}):{" "}
                   {selectedPlaceable.position[1].toFixed(2)}
                 </span>
-                <input
-                  type="range"
+                <Slider
+                  variant="dark"
                   min={-0.5}
                   max={4}
                   step={0.05}
                   value={selectedPlaceable.position[1]}
                   onPointerDown={beginGesture}
                   onPointerUp={endGesture}
-                  onChange={(e) =>
+                  onChange={(v) =>
                     movePlaceableLive(selectedPlaceable.id, [
                       selectedPlaceable.position[0],
-                      Number(e.target.value),
+                      v,
                       selectedPlaceable.position[2],
                     ])
                   }
@@ -1493,17 +1773,17 @@ export function MapEditor() {
                   {t("mapEditor.rotation")}:{" "}
                   {Math.round((selectedPlaceable.rotationY * 180) / Math.PI)}°
                 </span>
-                <input
-                  type="range"
+                <Slider
+                  variant="dark"
                   min={0}
                   max={Math.PI * 2}
                   step={0.01}
                   value={selectedPlaceable.rotationY}
                   onPointerDown={beginGesture}
                   onPointerUp={endGesture}
-                  onChange={(e) =>
+                  onChange={(v) =>
                     patchSelectedPlaceableLive({
-                      rotationY: Number(e.target.value),
+                      rotationY: v,
                     })
                   }
                 />
@@ -1520,16 +1800,16 @@ export function MapEditor() {
                 <span>
                   {t("mapEditor.scale")}: {scaleValue.toFixed(2)}×
                 </span>
-                <input
-                  type="range"
+                <Slider
+                  variant="dark"
                   min={0.25}
                   max={3}
                   step={0.05}
                   value={scaleValue}
                   onPointerDown={beginGesture}
                   onPointerUp={endGesture}
-                  onChange={(e) =>
-                    patchSelectedPlaceableLive({ scale: Number(e.target.value) })
+                  onChange={(v) =>
+                    patchSelectedPlaceableLive({ scale: v })
                   }
                 />
               </label>
@@ -1632,16 +1912,16 @@ export function MapEditor() {
                   {cellsForFloorSize(draft.floor.size, draft.floor.surface)}×
                   {cellsForFloorSize(draft.floor.size, draft.floor.surface)}
                 </span>
-                <input
-                  type="range"
+                <Slider
+                  variant="dark"
                   min={FLOOR_SIZE_MIN}
                   max={FLOOR_SIZE_MAX}
                   step={1}
                   value={draft.floor.size}
                   onPointerDown={beginGesture}
                   onPointerUp={endGesture}
-                  onChange={(e) => {
-                    const size = clampFloorSize(Number(e.target.value));
+                  onChange={(v) => {
+                    const size = clampFloorSize(v);
                     setLive((d) => ({
                       ...d,
                       floor: {
@@ -1709,28 +1989,130 @@ export function MapEditor() {
 
               <label className="map-editor__field">
                 <span>{t("mapEditor.floorColor")}</span>
-                <input
-                  type="color"
+                <ColorField
+                  variant="dark"
                   value={draft.floor.color}
-                  onChange={(e) => updateFloor({ color: e.target.value })}
+                  onChange={(v) => updateFloor({ color: v })}
                 />
               </label>
 
               <label className="map-editor__field">
                 <span>{t("mapEditor.bgColor")}</span>
-                <input
-                  type="color"
+                <ColorField
+                  variant="dark"
                   value={draft.theme.background}
-                  onChange={(e) =>
+                  onChange={(v) =>
                     commit({
                       ...draft,
                       theme: {
                         ...draft.theme,
-                        background: e.target.value,
-                        fog: e.target.value,
+                        background: v,
+                        fog: v,
                       },
                     })
                   }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.themeFog")}</span>
+                <ColorField
+                  variant="dark"
+                  value={draft.theme.fog}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      theme: { ...draft.theme, fog: v },
+                    })
+                  }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.themeAmbient")}</span>
+                <ColorField
+                  variant="dark"
+                  value={draft.theme.ambient}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      theme: { ...draft.theme, ambient: v },
+                    })
+                  }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.themeHemiSky")}</span>
+                <ColorField
+                  variant="dark"
+                  value={draft.theme.hemiSky}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      theme: { ...draft.theme, hemiSky: v },
+                    })
+                  }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.themeHemiGround")}</span>
+                <ColorField
+                  variant="dark"
+                  value={draft.theme.hemiGround}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      theme: { ...draft.theme, hemiGround: v },
+                    })
+                  }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.themeSun")}</span>
+                <ColorField
+                  variant="dark"
+                  value={draft.theme.sun}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      theme: { ...draft.theme, sun: v },
+                    })
+                  }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.themeAccent")}</span>
+                <ColorField
+                  variant="dark"
+                  value={draft.theme.accent}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      theme: { ...draft.theme, accent: v },
+                    })
+                  }
+                />
+              </label>
+
+              <label className="map-editor__field">
+                <span>{t("mapEditor.ambience")}</span>
+                <Select
+                  variant="dark"
+                  value={draft.ambience ?? "none"}
+                  onChange={(v) =>
+                    commit({
+                      ...draft,
+                      ambience: v as AmbienceId,
+                    })
+                  }
+                  options={AMBIENCE_IDS.map((id) => ({
+                    value: id,
+                    label: t(`mapEditor.ambienceIds.${id}`),
+                  }))}
                 />
               </label>
 

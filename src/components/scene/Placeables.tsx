@@ -2,9 +2,11 @@ import { Suspense, useEffect, useMemo, Component, type ReactNode } from "react";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import {
   Box3,
+  Color,
   Vector3,
   type AnimationClip,
   type Mesh,
+  type MeshStandardMaterial,
   type Object3D,
 } from "three";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
@@ -22,7 +24,103 @@ import {
   getFireFxKind,
   prepareFireMesh,
 } from "@/components/scene/CampfireFx";
+import { getLampKind, LampFx } from "@/components/scene/LampFx";
+import { TreeSway, isSwayPlaceable } from "@/components/scene/TreeSway";
 import type { PlaceableInstance } from "@/lib/types";
+
+/** Match procedural `wall_solid` (PropWallSolid) cream palette. */
+const WALL_SOLID_PALETTE = {
+  body: new Color("#E8E2D6"),
+  trim: new Color("#BFAF9A"),
+  trimLight: new Color("#D2C8B8"),
+  glass: new Color("#C5D0C8"),
+};
+
+function isKenneyWallLikeGlb(path: string): boolean {
+  const n = decodeURIComponent(path).toLowerCase();
+  return /wall window|wall doorway|doorway/.test(n);
+}
+
+/**
+ * Kenney Wall*.glb ships duplicate half-modules (`wallWindow` + `wallWindow_1`)
+ * stacked on the same [-1,0] span → z-fighting. Drop the `_1` copy.
+ */
+function dedupeKenneyWallHalves(root: Object3D) {
+  const remove: Object3D[] = [];
+  root.traverse((obj) => {
+    if (!obj.name.endsWith("_1")) return;
+    const base = obj.name.slice(0, -2);
+    if (!/wall/i.test(base)) return;
+    const sibling = obj.parent?.children.find((c) => c !== obj && c.name === base);
+    if (sibling) remove.push(obj);
+  });
+  for (const obj of remove) obj.removeFromParent();
+
+  // Degenerate (zero-thickness) faces in the pack also z-fight.
+  root.traverse((obj) => {
+    const mesh = obj as Mesh;
+    if (!mesh.isMesh || !mesh.geometry) return;
+    mesh.geometry.computeBoundingBox();
+    const box = mesh.geometry.boundingBox;
+    if (!box) return;
+    const dx = box.max.x - box.min.x;
+    const dy = box.max.y - box.min.y;
+    const dz = box.max.z - box.min.z;
+    if (dx < 1e-4 || dy < 1e-4 || dz < 1e-4) mesh.visible = false;
+  });
+}
+
+function cloneMeshMaterial(mat: MeshStandardMaterial): MeshStandardMaterial {
+  const next = mat.clone();
+  next.color = mat.color.clone();
+  return next;
+}
+
+/** Retint Kenney wall/door materials to the cream solid-wall palette. */
+function tintKenneyWallToSolidPalette(root: Object3D) {
+  const remapped = new Map<object, MeshStandardMaterial>();
+  root.traverse((obj) => {
+    const mesh = obj as Mesh;
+    if (!mesh.isMesh) return;
+    const list = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    const nextList = list.map((mat) => {
+      const src = mat as MeshStandardMaterial;
+      if (!src?.color) return mat;
+      const cached = remapped.get(src);
+      if (cached) return cached;
+      const m = cloneMeshMaterial(src);
+      remapped.set(src, m);
+      const name = (m.name || "").toLowerCase();
+      const { r, g, b } = src.color;
+      const warmOrange = r > 0.55 && g < 0.45 && b < 0.3;
+      if (name.includes("glass") || (r < 0.55 && g > 0.5 && b > 0.4 && r < g)) {
+        m.color.copy(WALL_SOLID_PALETTE.glass);
+        m.roughness = Math.max(m.roughness ?? 0.4, 0.35);
+        m.metalness = 0.05;
+        m.transparent = true;
+        m.opacity = Math.min(m.opacity ?? 0.55, 0.55);
+      } else if (name.includes("wood") || warmOrange) {
+        // Frame trim → same as solid wall baseboard
+        m.color.copy(WALL_SOLID_PALETTE.trim);
+        m.roughness = 0.88;
+        m.metalness = 0.02;
+      } else if (name.includes("metal") || (r < 0.2 && g < 0.25 && b < 0.25)) {
+        // Dark metal → solid wall crown trim
+        m.color.copy(WALL_SOLID_PALETTE.trimLight);
+        m.roughness = 0.82;
+        m.metalness = 0.04;
+      } else {
+        // `_defaultMat` / wall body → PropWallSolid cream
+        m.color.copy(WALL_SOLID_PALETTE.body);
+        m.roughness = 0.88;
+        m.metalness = 0.02;
+      }
+      m.needsUpdate = true;
+      return m;
+    });
+    mesh.material = Array.isArray(mesh.material) ? nextList : nextList[0];
+  });
+}
 
 class PropErrorBoundary extends Component<
   { fallback: ReactNode; children: ReactNode },
@@ -93,11 +191,15 @@ function KenneyGlb({
 
   const { clone, scale, fireMeshes } = useMemo(() => {
     const c = cloneSkinned(scene);
+    if (isKenneyWallLikeGlb(path)) {
+      dedupeKenneyWallHalves(c);
+      tintKenneyWallToSolidPalette(c);
+    }
     groundGlb(c);
     const s = resolveScale(c, spec);
     const fireMeshes = shouldAnimateFire ? prepareFireMesh(c) : [];
     return { clone: c, scale: s, fireMeshes };
-  }, [scene, spec, shouldAnimateFire]);
+  }, [scene, spec, shouldAnimateFire, path]);
 
   const { actions, names } = useAnimations(animations, clone);
   const walkName = useMemo(
@@ -173,15 +275,31 @@ export function Placeables({ items }: { items: PlaceableInstance[] }) {
     <group>
       {items.map((item) => {
         if (!isPlaceableId(item.placeableId)) return null;
-        const loco = PLACEABLE_SPECS[item.placeableId]?.canWander
+        const spec = PLACEABLE_SPECS[item.placeableId];
+        const loco = spec?.canWander
           ? item.behavior === "wander"
             ? (item.locomotion ?? "idle")
             : "idle"
           : undefined;
         const fireKind = getFireFxKind(item.placeableId);
+        const lampKind = getLampKind(item.placeableId);
         // Fire: animate unless explicitly static (omit / "animated" → on).
         const animateFire =
           fireKind === "fire" && item.behavior !== "static";
+        const sway = isSwayPlaceable(item.placeableId, spec?.category);
+        const phase =
+          (item.position[0] * 0.37 + item.position[2] * 0.51) % (Math.PI * 2);
+        const mesh = (
+          <>
+            <PlaceableMesh
+              id={item.placeableId}
+              locomotion={loco}
+              animateFire={animateFire}
+            />
+            {fireKind === "campfire" && <CampfireFx />}
+            {lampKind && <LampFx kind={lampKind} />}
+          </>
+        );
         return (
           <group
             key={item.id}
@@ -189,12 +307,13 @@ export function Placeables({ items }: { items: PlaceableInstance[] }) {
             rotation={[0, item.rotationY, 0]}
             scale={item.scale ?? 1}
           >
-            <PlaceableMesh
-              id={item.placeableId}
-              locomotion={loco}
-              animateFire={animateFire}
-            />
-            {fireKind === "campfire" && <CampfireFx />}
+            {sway ? (
+              <TreeSway phase={phase} strength={0.028 + (item.scale ?? 1) * 0.008}>
+                {mesh}
+              </TreeSway>
+            ) : (
+              mesh
+            )}
           </group>
         );
       })}

@@ -129,9 +129,16 @@ export function syncRuntimeAgents(
 }
 
 export function parseMapJson(raw: string): ArenaMapDefinition {
-  const data = JSON.parse(raw) as unknown;
+  let data: unknown;
+  try {
+    data = JSON.parse(raw) as unknown;
+  } catch {
+    throw new Error("Invalid JSON — could not parse map file");
+  }
   if (!isArenaMapDefinition(data)) {
-    throw new Error("Invalid Agent Arena map JSON (expected aamf v1)");
+    throw new Error(
+      "Invalid Agent Arena map (expected aamf v1 with floor, theme, spawnPoints, placeables)",
+    );
   }
   const normalized = cloneMap(data, {
     builtin: false,
