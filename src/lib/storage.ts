@@ -2,6 +2,8 @@ import type {
   AgentConfig,
   AgentSkill,
   AppPersisted,
+  ChatMessage,
+  FloatingChatLine,
   GraphicsSettings,
   LanguageCode,
   MapId,
@@ -23,7 +25,7 @@ export const DEFAULT_GRAPHICS: GraphicsSettings = {
   roomLights: true,
   antialias: true,
   maxDpr: 1.5,
-  ambientAudio: true,
+  ambientAudio: false,
   ambientVolume: 0.35,
 };
 
@@ -38,7 +40,52 @@ export function defaultPersisted(): AppPersisted {
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: "day",
     favoriteAssets: [],
+    chats: {},
+    arenaChatHistory: [],
   };
+}
+
+const CHAT_ROLES = new Set(["user", "assistant", "system"]);
+/** Cap stored messages per agent to protect localStorage quota. */
+const MAX_CHAT_MESSAGES_PER_AGENT = 100;
+export const MAX_ARENA_CHAT_HISTORY = 100;
+const ARENA_LINE_KINDS = new Set(["user", "agent", "system"]);
+
+export function sanitizeChats(raw: unknown): Record<string, ChatMessage[]> {
+  if (!raw || typeof raw !== "object") return {};
+  const out: Record<string, ChatMessage[]> = {};
+  for (const [agentId, list] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof agentId !== "string" || !agentId || !Array.isArray(list)) continue;
+    const messages = list
+      .filter((m): m is Record<string, unknown> => !!m && typeof m === "object")
+      .filter((m) => typeof m.role === "string" && CHAT_ROLES.has(m.role))
+      .map((m) => ({
+        role: m.role as ChatMessage["role"],
+        content: typeof m.content === "string" ? m.content : "",
+      }))
+      .filter((m) => !(m.role === "assistant" && !m.content.trim()))
+      .slice(-MAX_CHAT_MESSAGES_PER_AGENT);
+    if (messages.length) out[agentId] = messages;
+  }
+  return out;
+}
+
+export function sanitizeArenaChatHistory(raw: unknown): FloatingChatLine[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((m): m is Record<string, unknown> => !!m && typeof m === "object")
+    .filter((m) => typeof m.kind === "string" && ARENA_LINE_KINDS.has(m.kind))
+    .map((m) => ({
+      id: typeof m.id === "string" && m.id ? m.id : uid("flog"),
+      agentId: typeof m.agentId === "string" ? m.agentId : undefined,
+      agentName: typeof m.agentName === "string" ? m.agentName : "?",
+      color: typeof m.color === "string" && m.color ? m.color : "#7a9e7e",
+      text: typeof m.text === "string" ? m.text : "",
+      createdAt: typeof m.createdAt === "number" ? m.createdAt : Date.now(),
+      kind: m.kind as FloatingChatLine["kind"],
+    }))
+    .filter((m) => m.text.trim())
+    .slice(-MAX_ARENA_CHAT_HISTORY);
 }
 
 function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
@@ -80,9 +127,17 @@ function sanitizeAgents(raw: unknown): AgentConfig[] {
     .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
     .map((a) => ({
       ...(a as unknown as AgentConfig),
+      enabled: a.enabled !== false,
       thinkingEnabled: a.thinkingEnabled === true,
+      chattiness: clampChattiness(a.chattiness),
       skills: sanitizeSkills(a.skills),
     }));
+}
+
+export function clampChattiness(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
 }
 
 export function loadPersisted(): AppPersisted {
@@ -103,6 +158,8 @@ export function loadPersisted(): AppPersisted {
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets.filter((x): x is string => typeof x === "string")
         : [],
+      chats: sanitizeChats(parsed.chats),
+      arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };
   } catch {
     return defaultPersisted();

@@ -19,6 +19,7 @@ import {
   useMoveBursts,
 } from "@/components/scene/MoveMarkers";
 import { NightGlow, NightSky } from "@/components/scene/NightSky";
+import { SunShadowLight } from "@/components/scene/SunShadowLight";
 
 function SceneTick({ dormant }: { dormant: boolean }) {
   useFrame((_, dt) => {
@@ -193,21 +194,13 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
       <hemisphereLight
         args={[lighting.hemiSky, lighting.hemiGround, lighting.hemiIntensity]}
       />
-      <directionalLight
+      <SunShadowLight
         castShadow={graphics.castShadows}
         position={lighting.sunPosition}
         intensity={lighting.sunIntensity}
         color={lighting.sun}
-        shadow-mapSize-width={shadowMapSize(graphics.shadowQuality)}
-        shadow-mapSize-height={shadowMapSize(graphics.shadowQuality)}
-        shadow-bias={-0.00035}
-        shadow-normalBias={0.04}
-        shadow-camera-near={1}
-        shadow-camera-far={60}
-        shadow-camera-left={-(floorSize / 2 + 4)}
-        shadow-camera-right={floorSize / 2 + 4}
-        shadow-camera-top={floorSize / 2 + 4}
-        shadow-camera-bottom={-(floorSize / 2 + 4)}
+        mapSize={shadowMapSize(graphics.shadowQuality)}
+        floorSize={floorSize}
       />
       {lighting.fillIntensity > 0.01 && (
         <pointLight

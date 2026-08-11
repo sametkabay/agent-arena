@@ -5,15 +5,20 @@ import { ModelsTab } from "@/components/SettingsModal/ModelsTab";
 import { AgentsTab } from "@/components/SettingsModal/AgentsTab";
 import { MapTab } from "@/components/SettingsModal/MapTab";
 import { GraphicsTab } from "@/components/SettingsModal/GraphicsTab";
+import {
+  SettingsNavProvider,
+  useSettingsNav,
+} from "@/components/SettingsModal/SettingsNavContext";
 
 const TABS = ["general", "models", "agents", "map", "graphics"] as const;
 
-export function SettingsModal() {
+function SettingsModalChrome() {
   const { t } = useTranslation();
   const open = useArenaStore((s) => s.settingsOpen);
   const tab = useArenaStore((s) => s.settingsTab);
   const setSettingsOpen = useArenaStore((s) => s.setSettingsOpen);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
+  const { canGoBack, goBack } = useSettingsNav();
 
   if (!open) return null;
 
@@ -41,7 +46,16 @@ export function SettingsModal() {
         </nav>
         <div className="settings-modal__body">
           <header className="settings-modal__header">
-            <div>
+            <div className="settings-modal__header-lead">
+              {canGoBack && (
+                <button
+                  type="button"
+                  className="settings-modal__back"
+                  onClick={goBack}
+                >
+                  ← {t("settings.back")}
+                </button>
+              )}
               <h2>{t(`settings.tabs.${tab}`)}</h2>
             </div>
             <button
@@ -62,5 +76,18 @@ export function SettingsModal() {
         </div>
       </div>
     </div>
+  );
+}
+
+export function SettingsModal() {
+  const open = useArenaStore((s) => s.settingsOpen);
+  const tab = useArenaStore((s) => s.settingsTab);
+
+  if (!open) return null;
+
+  return (
+    <SettingsNavProvider resetKey={tab}>
+      <SettingsModalChrome />
+    </SettingsNavProvider>
   );
 }

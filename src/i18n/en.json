@@ -27,6 +27,13 @@
     "empty": "No agents yet. Open Agents to add one.",
     "talk": "Talk"
   },
+  "mapList": {
+    "title": "Maps",
+    "empty": "No maps yet. Open Map settings to add one.",
+    "builtin": "Built-in",
+    "custom": "Custom",
+    "edit": "Edit map"
+  },
   "chat": {
     "placeholder": "Ask {{name}}…",
     "send": "Send",
@@ -34,11 +41,22 @@
     "noModel": "This agent has no AI model configured.",
     "thinking": "Thinking…",
     "close": "Close",
-    "error": "Something went wrong"
+    "resize": "Resize chat panel",
+    "error": "Something went wrong",
+    "arena": {
+      "placeholder": "Say something… or \"@mention\"",
+      "send": "Say",
+      "history": "Chat history",
+      "closeHistory": "Close history",
+      "empty": "No arena chat yet. Try @AgentName hello",
+      "noMatch": "No agent matched: {{names}}",
+      "noAgents": "No agents with a model configured."
+    }
   },
   "settings": {
     "title": "Settings",
     "close": "Close",
+    "back": "Back",
     "save": "Save",
     "cancel": "Cancel",
     "add": "Add",
@@ -55,7 +73,14 @@
     "general": {
       "displayName": "Display name",
       "language": "Language",
-      "languageHint": "Interface language. Agents reply in the language you use."
+      "languageHint": "Interface language. Agents reply in the language you use.",
+      "clearChats": "Chat history",
+      "clearChatsHint": "Private agent chats and the shared arena log are saved in this browser. Clear them from here anytime.",
+      "clearChatsAction": "Clear chat history",
+      "clearChatsConfirmTitle": "Clear chat history?",
+      "clearChatsConfirmBody": "This permanently deletes all private agent chats and the shared arena chat log in this browser.",
+      "clearChatsConfirm": "Clear",
+      "clearChatsDone": "Chat history cleared"
     },
     "models": {
       "title": "AI Models",
@@ -66,11 +91,13 @@
       "baseUrl": "Base URL",
       "apiKey": "API key",
       "modelId": "Model",
+      "searchModels": "Search models…",
       "fetchModels": "Fetch models",
       "fetching": "Fetching…",
       "test": "Test connection",
       "testing": "Testing…",
       "extraHeaders": "Extra headers",
+      "extraHeadersHint": "Optional HTTP headers sent with every request to this model (e.g. Organization, custom auth). Leave empty unless your provider requires them.",
       "addHeader": "Add header",
       "headerKey": "Header",
       "headerValue": "Value",
@@ -94,6 +121,8 @@
       "thinking": "Thinking mode",
       "thinkingHint": "When supported (Ollama, Claude, Gemini, reasoning models), the model reasons before answering. Slower but often smarter.",
       "thinkingOn": "thinking on",
+      "chattiness": "Chattiness",
+      "chattinessHint": "How often the agent mutters to itself in a speech bubble (LLM-generated, not scripted). 0 = never, 100 ≈ 2 lines per minute.",
       "skills": "Skills",
       "skillsHint": "Reusable instructions injected into the system prompt (docs, coding style, tools, etc.).",
       "skillsEmpty": "No skills yet.",
@@ -104,6 +133,8 @@
       "skillCount_other": "{{count}} skills",
       "color": "Accent color",
       "bio": "Short bio",
+      "enabled": "Active on map",
+      "inactive": "inactive",
       "needModel": "Add an AI model first.",
       "rebuildNote": "Agents spawn on the active map without changing its layout.",
       "customRole": "Custom role",

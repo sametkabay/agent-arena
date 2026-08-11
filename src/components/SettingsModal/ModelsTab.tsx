@@ -4,6 +4,7 @@ import type { AiModelConfig, AiProviderKind, ExtraHeader } from "@/lib/types";
 import { fetchModels, providerDefaults, testConnection } from "@/lib/ai/providers";
 import { createModelDraft, useArenaStore } from "@/store/arenaStore";
 import { Select } from "@/components/ui/Select";
+import { useSettingsBack } from "@/components/SettingsModal/SettingsNavContext";
 
 const PROVIDERS: AiProviderKind[] = ["openai", "gemini", "claude", "ollama", "custom"];
 
@@ -19,6 +20,7 @@ export function ModelsTab() {
   const [busy, setBusy] = useState<"fetch" | "test" | null>(null);
   const [status, setStatus] = useState<{ ok: boolean; detail: string } | null>(null);
   const [showKey, setShowKey] = useState(false);
+  useSettingsBack(editing != null, () => setEditing(null));
 
   const draft = editing;
 
@@ -93,6 +95,8 @@ export function ModelsTab() {
           value={draft.modelId}
           onChange={(v) => setEditing({ ...draft, modelId: v })}
           options={fetched.map((id) => ({ value: id, label: id }))}
+          searchable
+          searchPlaceholder={t("settings.models.searchModels")}
         />
       );
     }
@@ -110,13 +114,6 @@ export function ModelsTab() {
       <div className="form-grid">
         <p className="settings-hint">{t("settings.models.corsNote")}</p>
         <label>
-          {t("settings.models.name")}
-          <input
-            value={draft.name}
-            onChange={(e) => setEditing({ ...draft, name: e.target.value })}
-          />
-        </label>
-        <label>
           {t("settings.models.provider")}
           <Select
             value={draft.provider}
@@ -128,6 +125,13 @@ export function ModelsTab() {
           />
         </label>
         <label>
+          {t("settings.models.name")}
+          <input
+            value={draft.name}
+            onChange={(e) => setEditing({ ...draft, name: e.target.value })}
+          />
+        </label>
+        <label>
           {t("settings.models.baseUrl")}
           <input
             value={draft.baseUrl}
@@ -136,7 +140,7 @@ export function ModelsTab() {
         </label>
         <label>
           {t("settings.models.apiKey")}
-          <div className="header-pair">
+          <div className="header-pair header-pair--name-action">
             <input
               type={showKey ? "text" : "password"}
               value={draft.apiKey ?? ""}
@@ -191,6 +195,7 @@ export function ModelsTab() {
               {t("settings.models.addHeader")}
             </button>
           </div>
+          <p className="settings-hint">{t("settings.models.extraHeadersHint")}</p>
           {draft.extraHeaders.map((h, i) => (
             <HeaderRow
               key={i}
@@ -281,7 +286,7 @@ function HeaderRow({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="header-pair" style={{ marginBottom: 8 }}>
+    <div className="header-pair header-pair--triple">
       <input
         placeholder={t("settings.models.headerKey")}
         value={header.key}
@@ -292,7 +297,12 @@ function HeaderRow({
         value={header.value}
         onChange={(e) => onChange({ ...header, value: e.target.value })}
       />
-      <button type="button" className="btn btn--danger" onClick={onRemove}>
+      <button
+        type="button"
+        className="btn btn--danger btn--icon"
+        aria-label={t("settings.delete")}
+        onClick={onRemove}
+      >
         ×
       </button>
     </div>

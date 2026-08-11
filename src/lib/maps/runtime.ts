@@ -76,24 +76,26 @@ export function placeAgentsOnMap(
   configs: AgentConfig[],
   def: ArenaMapDefinition,
 ): ArenaAgent[] {
-  return configs.map((cfg, i) => {
-    const spawn = spawnPosition(def, i);
-    return {
-      id: cfg.id,
-      displayName: cfg.displayName,
-      modelConfigId: cfg.modelConfigId,
-      polyPresetId: cfg.polyPresetId,
-      systemPrompt: cfg.systemPrompt,
-      color: cfg.color,
-      bio: cfg.bio,
-      position: [...spawn.position] as [number, number, number],
-      homePosition: [...spawn.position] as [number, number, number],
-      rotationY: spawn.rotationY,
-      state: "idle" as const,
-      thinkingIntensity: 0,
-      moveSpeed: 1.6,
-    };
-  });
+  return configs
+    .filter((cfg) => cfg.enabled !== false)
+    .map((cfg, i) => {
+      const spawn = spawnPosition(def, i);
+      return {
+        id: cfg.id,
+        displayName: cfg.displayName,
+        modelConfigId: cfg.modelConfigId,
+        polyPresetId: cfg.polyPresetId,
+        systemPrompt: cfg.systemPrompt,
+        color: cfg.color,
+        bio: cfg.bio,
+        position: [...spawn.position] as [number, number, number],
+        homePosition: [...spawn.position] as [number, number, number],
+        rotationY: spawn.rotationY,
+        state: "idle" as const,
+        thinkingIntensity: 0,
+        moveSpeed: 1.6,
+      };
+    });
 }
 
 /** Keep existing runtime pose for known agents; place newcomers on free spawns. */
@@ -102,8 +104,9 @@ export function syncRuntimeAgents(
   configs: AgentConfig[],
   def: ArenaMapDefinition,
 ): ArenaAgent[] {
+  const active = configs.filter((cfg) => cfg.enabled !== false);
   const prevById = new Map(prev.map((a) => [a.id, a]));
-  return configs.map((cfg, i) => {
+  return active.map((cfg, i) => {
     const existing = prevById.get(cfg.id);
     if (existing) {
       return {

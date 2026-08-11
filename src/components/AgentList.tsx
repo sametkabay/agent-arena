@@ -1,49 +1,75 @@
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
 
-export function AgentList() {
+type Props = {
+  collapsed: boolean;
+  onToggle: () => void;
+};
+
+export function AgentList({ collapsed, onToggle }: Props) {
   const { t } = useTranslation();
   const agents = useArenaStore((s) => s.agents);
+  const activeAgents = agents.filter((a) => a.enabled !== false);
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
 
   return (
-    <aside className="agent-list">
-      <div className="agent-list__header">{t("agentList.title")}</div>
-      <div className="agent-list__items">
-        {agents.length === 0 ? (
-          <button
-            type="button"
-            className="agent-list__empty agent-list__empty--action"
-            onClick={() => setSettingsTab("agents")}
-          >
-            {t("agentList.empty")}
-          </button>
-        ) : (
-          agents.map((agent) => (
+    <div
+      className={
+        "side-panel agent-list" + (collapsed ? " side-panel--collapsed" : "")
+      }
+    >
+      <button
+        type="button"
+        className="side-panel__header"
+        aria-expanded={!collapsed}
+        onClick={onToggle}
+      >
+        <span>{t("agentList.title")}</span>
+        <span className="side-panel__chevron" aria-hidden>
+          {collapsed ? "▸" : "▾"}
+        </span>
+      </button>
+      {!collapsed && (
+        <div className="side-panel__items">
+          {activeAgents.length === 0 ? (
             <button
-              key={agent.id}
               type="button"
-              className={
-                "agent-list__item" +
-                (selectedAgentId === agent.id ? " agent-list__item--active" : "")
-              }
-              onClick={() => selectAgent(agent.id)}
+              className="side-panel__empty side-panel__empty--action"
+              onClick={() => setSettingsTab("agents")}
             >
-              <span
-                className="agent-list__swatch"
-                style={{ background: agent.color }}
-                aria-hidden
-              />
-              <span className="agent-list__meta">
-                <span className="agent-list__name">{agent.displayName}</span>
-                <span className="agent-list__bio">{agent.bio || t("agentList.talk")}</span>
-              </span>
+              {t("agentList.empty")}
             </button>
-          ))
-        )}
-      </div>
-    </aside>
+          ) : (
+            activeAgents.map((agent) => (
+              <button
+                key={agent.id}
+                type="button"
+                className={
+                  "side-panel__item" +
+                  (selectedAgentId === agent.id
+                    ? " side-panel__item--active"
+                    : "")
+                }
+                onClick={() => selectAgent(agent.id)}
+              >
+                <span
+                  className="side-panel__swatch"
+                  style={{ background: agent.color }}
+                  aria-hidden
+                />
+                <span className="side-panel__meta">
+                  <span className="side-panel__name">{agent.displayName}</span>
+                  <span className="side-panel__bio">
+                    {agent.bio || t("agentList.talk")}
+                  </span>
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   );
 }

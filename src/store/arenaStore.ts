@@ -6,6 +6,7 @@ import type {
   ArenaAgent,
   ChatMessage,
   DayNightMode,
+  FloatingChatLine,
   GraphicsSettings,
   LanguageCode,
   MapId,
@@ -21,8 +22,9 @@ import {
   syncRuntimeAgents,
   placeAgentsOnMap,
 } from "@/lib/maps";
-import { DEFAULT_GRAPHICS, loadPersisted, savePersisted, uid } from "@/lib/storage";
+import { DEFAULT_GRAPHICS, loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
 import { placeableCanWander } from "@/lib/assets/catalog";
+import { formatSpeechBubble } from "@/lib/speechBubble";
 import i18n from "@/i18n";
 
 export const THINKING_BUBBLE = "🤔";
@@ -41,6 +43,10 @@ interface ArenaState extends AppPersisted {
   mapEditorSourceId: string | null;
   chats: Record<string, ChatMessage[]>;
   chatBusyById: Record<string, boolean>;
+  /** Persisted shared arena chat (history panel). */
+  arenaChatHistory: FloatingChatLine[];
+  /** Ephemeral fading feed above the input. */
+  floatingChatLog: FloatingChatLine[];
   toast: string | null;
   /** Smooth 0 (day) → 1 (night) blend driven by tick. */
   dayNightBlend: number;
@@ -78,6 +84,17 @@ interface ArenaState extends AppPersisted {
   appendChat: (agentId: string, message: ChatMessage) => void;
   replaceLastAssistant: (agentId: string, content: string) => void;
   setChatBusy: (agentId: string, busy: boolean) => void;
+  clearChats: () => void;
+  clearArenaChatHistory: () => void;
+  pushFloatingChatLog: (entry: {
+    agentId?: string;
+    agentName: string;
+    color: string;
+    text: string;
+    kind?: FloatingChatLine["kind"];
+  }) => void;
+  removeFloatingChatLog: (id: string) => void;
+  clearFloatingChatLog: () => void;
   setAgentSpeech: (agentId: string, text: string | undefined, ms?: number) => void;
   setAgentState: (agentId: string, patch: Partial<ArenaAgent>) => void;
   tick: (dt: number, now: number) => void;
@@ -95,7 +112,16 @@ function persistSlice(s: ArenaState): AppPersisted {
     graphics: s.graphics,
     dayNight: s.dayNight,
     favoriteAssets: s.favoriteAssets ?? [],
+    chats: sanitizeChats(s.chats),
+    arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),
   };
+}
+
+let arenaChatPersistTimer = 0;
+
+function scheduleArenaChatPersist(persist: () => void): void {
+  window.clearTimeout(arenaChatPersistTimer);
+  arenaChatPersistTimer = window.setTimeout(() => persist(), 800);
 }
 
 function applyMapSlice(
@@ -115,8 +141,10 @@ function applyMapSlice(
   };
 }
 
-export const useArenaStore = create<ArenaState>((set, get) => ({
-  ...loadPersisted(),
+export const useArenaStore = create<ArenaState>((set, get) => {
+  const initial = loadPersisted();
+  return {
+  ...initial,
   floorSize: 18,
   placeables: [],
   activeMap: null,
@@ -127,11 +155,13 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   settingsTab: "general",
   mapEditorOpen: false,
   mapEditorSourceId: null,
-  chats: {},
+  chats: initial.chats ?? {},
   chatBusyById: {},
+  arenaChatHistory: initial.arenaChatHistory ?? [],
+  floatingChatLog: [],
   toast: null,
   dayNightBlend: 0,
-  favoriteAssets: [],
+  favoriteAssets: initial.favoriteAssets ?? [],
 
   hydrate: () => {
     const data = loadPersisted();
@@ -142,6 +172,8 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
     set({
       ...data,
       ...layout,
+      chats: data.chats ?? {},
+      arenaChatHistory: data.arenaChatHistory ?? [],
       favoriteAssets: data.favoriteAssets ?? [],
       dayNightBlend: data.dayNight === "night" ? 1 : 0,
     });
@@ -234,16 +266,25 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   },
 
   upsertAgent: (agent) => {
+    const normalized = {
+      ...agent,
+      enabled: agent.enabled !== false,
+      chattiness: clampChattiness(agent.chattiness),
+    };
     set((s) => {
-      const idx = s.agents.findIndex((a) => a.id === agent.id);
+      const idx = s.agents.findIndex((a) => a.id === normalized.id);
       const agents =
         idx >= 0
-          ? s.agents.map((a, i) => (i === idx ? agent : a))
-          : [...s.agents, agent];
+          ? s.agents.map((a, i) => (i === idx ? normalized : a))
+          : [...s.agents, normalized];
       const def = resolveMapDefinition(s.mapId, s.customMaps);
+      const deselected =
+        !normalized.enabled && s.selectedAgentId === normalized.id;
       return {
         agents,
         runtimeAgents: syncRuntimeAgents(s.runtimeAgents, agents, def),
+        selectedAgentId: deselected ? null : s.selectedAgentId,
+        chatOpen: deselected ? false : s.chatOpen,
       };
     });
     get().persist();
@@ -252,8 +293,10 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   deleteAgent: (id) => {
     set((s) => {
       const agents = s.agents.filter((a) => a.id !== id);
+      const { [id]: _removed, ...chats } = s.chats;
       return {
         agents,
+        chats,
         selectedAgentId: s.selectedAgentId === id ? null : s.selectedAgentId,
         chatOpen: s.selectedAgentId === id ? false : s.chatOpen,
         runtimeAgents: s.runtimeAgents.filter((a) => a.id !== id),
@@ -424,16 +467,58 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
     set((s) => ({
       chatBusyById: { ...s.chatBusyById, [agentId]: busy },
     }));
+    // Persist once when the model turn finishes (not on each streamed token).
+    if (!busy) get().persist();
+  },
+
+  clearChats: () => {
+    set({ chats: {}, arenaChatHistory: [], floatingChatLog: [] });
+    get().persist();
+  },
+
+  clearArenaChatHistory: () => {
+    set({ arenaChatHistory: [], floatingChatLog: [] });
+    get().persist();
+  },
+
+  pushFloatingChatLog: ({ agentId, agentName, color, text, kind }) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    const line: FloatingChatLine = {
+      id: uid("flog"),
+      agentId,
+      agentName,
+      color: color || "#7a9e7e",
+      text: trimmed.length > 220 ? `${trimmed.slice(0, 217)}…` : trimmed,
+      createdAt: Date.now(),
+      kind: kind ?? (agentId ? "agent" : "user"),
+    };
+    set((s) => ({
+      floatingChatLog: [...s.floatingChatLog, line].slice(-14),
+      arenaChatHistory: [...s.arenaChatHistory, line].slice(-MAX_ARENA_CHAT_HISTORY),
+    }));
+    scheduleArenaChatPersist(() => get().persist());
+  },
+
+  removeFloatingChatLog: (id) => {
+    set((s) => ({
+      floatingChatLog: s.floatingChatLog.filter((l) => l.id !== id),
+    }));
+  },
+
+  clearFloatingChatLog: () => {
+    set({ floatingChatLog: [] });
   },
 
   setAgentSpeech: (agentId, text, ms = 4000) => {
     const until = text ? Date.now() + ms : 0;
+    const speechBubble = text ? formatSpeechBubble(text) : undefined;
     set((s) => ({
       runtimeAgents: s.runtimeAgents.map((a) =>
         a.id === agentId
           ? {
               ...a,
-              speechBubble: text,
+              speechBubble,
               speechBubbleUntil: until,
               state: text ? "talking" : a.state === "talking" ? "idle" : a.state,
             }
@@ -596,7 +681,8 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
       if (get().toast === msg) set({ toast: null });
     }, 2200);
   },
-}));
+  };
+});
 
 export function createModelDraft(
   partial?: Partial<AiModelConfig>,
@@ -623,7 +709,9 @@ export function createAgentDraft(
     modelConfigId: "",
     polyPresetId: "explorer",
     systemPrompt: "",
+    enabled: true,
     thinkingEnabled: false,
+    chattiness: 10,
     skills: [],
     color: "#4A90A4",
     bio: "",

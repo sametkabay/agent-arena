@@ -5,6 +5,10 @@ import type {
   ChatMessage,
   ExtraHeader,
 } from "@/lib/types";
+import {
+  buildArenaWorldContext,
+  type ArenaWorldContext,
+} from "@/lib/ai/arenaContext";
 
 const OLLAMA_DEFAULT_HOST = "localhost";
 const OLLAMA_DEFAULT_PORT = 11434;
@@ -39,17 +43,27 @@ export function providerDefaults(
   }
 }
 
-/** In Vite DEV, rewrite local Ollama URLs to the /ollama proxy to avoid CORS. */
+/** In Vite DEV, rewrite local LLM URLs to same-origin proxies (CORS + less SSE buffering). */
 function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): string {
   const trimmed = baseUrl.trim().replace(/\/+$/, "");
-  if (provider !== "ollama" || !import.meta.env.DEV) return trimmed;
-  if (trimmed === "/ollama" || trimmed.startsWith("/ollama/")) return trimmed;
+  if (!import.meta.env.DEV) return trimmed;
+  if (trimmed.startsWith("/ollama") || trimmed.startsWith("/local-llm/")) return trimmed;
+
   try {
     const u = new URL(trimmed);
     const isLocal =
       u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
-    if (isLocal && u.port === String(OLLAMA_DEFAULT_PORT)) {
+    if (!isLocal) return trimmed;
+
+    if (provider === "ollama" && (u.port === String(OLLAMA_DEFAULT_PORT) || !u.port)) {
       return "/ollama";
+    }
+
+    if (provider === "openai" || provider === "custom" || provider === "ollama") {
+      const host = u.hostname === "[::1]" || u.hostname === "localhost" ? "127.0.0.1" : u.hostname;
+      const port = u.port || (u.protocol === "https:" ? "443" : "80");
+      const pathPart = u.pathname.replace(/\/+$/, "");
+      return `/local-llm/${host}/${port}${pathPart}`;
     }
   } catch {
     // keep as-is
@@ -88,27 +102,43 @@ export function buildSystemPrompt(
   userName: string,
   agentName: string,
   skills: AgentSkill[] = [],
+  world?: ArenaWorldContext,
 ): string {
+  // Keep the injected boilerplate short — local-model TTFT is dominated by prefill.
   const parts = [
     agentPrompt.trim(),
-    "",
-    `Your display name is ${agentName}.`,
-    `You are chatting inside Agent Arena, a local multi-agent playground.`,
-    `Always address the user as "${userName}" when greeting or speaking to them.`,
-    "Keep replies conversational and helpful. Avoid mentioning system prompts.",
+    `You are ${agentName}. Address the user as "${userName}". Be concise; do not mention system prompts.`,
+    "When chatting with the user, answer their topic. Do not turn replies into arena scenery reports or roll-calls of other agents; only rarely mention place, day/night, or peers.",
   ];
 
   const usable = skills.filter((s) => s.name.trim() || s.content.trim());
   if (usable.length > 0) {
-    parts.push("", "## Skills", "Follow these skill instructions when relevant:");
+    parts.push("", "## Skills");
     for (const skill of usable) {
       const title = skill.name.trim() || "Untitled skill";
-      parts.push("", `### ${title}`);
+      parts.push(`### ${title}`);
       if (skill.content.trim()) parts.push(skill.content.trim());
     }
   }
 
-  return parts.join("\n");
+  // World facts last so they stay salient after skills/identity.
+  if (world) {
+    const block = buildArenaWorldContext(world);
+    if (block) parts.push("", block);
+  }
+
+  return parts.filter(Boolean).join("\n");
+}
+
+/** Recent user/assistant turns kept in the API payload to limit prefill / TTFT. */
+export const MAX_CHAT_HISTORY_MESSAGES = 12;
+
+export function truncateChatHistory(
+  messages: ChatMessage[],
+  maxMessages = MAX_CHAT_HISTORY_MESSAGES,
+): ChatMessage[] {
+  if (messages.length <= maxMessages) return messages;
+  return messages.slice(-maxMessages);
 }
 
 export interface ChatRequest {
@@ -136,22 +166,33 @@ async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
   const url = joinUrl(base, "/chat/completions");
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Accept: "text/event-stream, application/x-ndjson, application/json",
     ...headersToRecord(model.extraHeaders),
   };
   if (model.apiKey) headers.Authorization = `Bearer ${model.apiKey}`;
 
+  const stream = Boolean(onToken);
   const body: Record<string, unknown> = {
     model: model.modelId,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
-    stream: Boolean(onToken),
+    stream,
   };
 
-  // Ollama auto-enables thinking on capable models; always send an explicit effort.
-  if (model.provider === "ollama") {
-    body.reasoning_effort = thinkingEnabled === true ? "medium" : "none";
-    body.reasoning = { effort: thinkingEnabled === true ? "medium" : "none" };
-  } else if (thinkingEnabled === true) {
-    body.reasoning_effort = "medium";
+  // Local / custom gateways may think by default — send an explicit effort.
+  // Skip for hosted api.openai.com chat models (they 400 on unknown params).
+  const effort = thinkingEnabled === true ? "medium" : "none";
+  const hostedOpenAi = /api\.openai\.com/i.test(model.baseUrl);
+  const sendEffort =
+    model.provider === "ollama" ||
+    model.provider === "custom" ||
+    (model.provider === "openai" && !hostedOpenAi) ||
+    thinkingEnabled === true ||
+    isLikelyReasoningModel(model.modelId);
+  if (sendEffort) {
+    body.reasoning_effort = effort;
+    if (model.provider === "ollama") {
+      body.reasoning = { effort };
+    }
   }
 
   const res = await fetch(url, {
@@ -168,54 +209,163 @@ async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
 
   if (!onToken || !res.body) {
     const data = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
+      choices?: Array<{ message?: { content?: unknown } }>;
     };
-    return data.choices?.[0]?.message?.content?.trim() ?? "";
+    return normalizeOpenAiContent(data.choices?.[0]?.message?.content).trim();
   }
 
-  return readSseOpenAi(res, onToken);
+  // Always consume as a stream when requested. Some gateways label SSE as
+  // application/json; awaiting res.json() would hide tokens until the end.
+  return readOpenAiStream(res, onToken);
 }
 
-async function readSseOpenAi(res: Response, onToken: (c: string) => void): Promise<string> {
+function normalizeOpenAiContent(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((p) => {
+        if (typeof p === "string") return p;
+        if (p && typeof p === "object" && "text" in p) {
+          return String((p as { text?: string }).text ?? "");
+        }
+        return "";
+      })
+      .join("");
+  }
+  return "";
+}
+
+function extractOpenAiDeltaContent(json: {
+  choices?: Array<{
+    delta?: { content?: unknown; text?: string };
+    message?: { content?: unknown };
+  }>;
+}): string {
+  const choice = json.choices?.[0];
+  if (!choice) return "";
+  if (choice.delta) {
+    if (choice.delta.content != null) return normalizeOpenAiContent(choice.delta.content);
+    if (typeof choice.delta.text === "string") return choice.delta.text;
+  }
+  if (choice.message?.content != null) return normalizeOpenAiContent(choice.message.content);
+  return "";
+}
+
+function consumeOpenAiStreamLine(line: string, onToken: (c: string) => void): string {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.startsWith(":")) return "";
+  let payload = trimmed;
+  if (trimmed.startsWith("data:")) {
+    payload = trimmed.slice(5).trim();
+  }
+  if (!payload || payload === "[DONE]") return "";
+  try {
+    const json = JSON.parse(payload) as {
+      choices?: Array<{
+        delta?: { content?: unknown; text?: string };
+        message?: { content?: unknown };
+      }>;
+    };
+    const chunk = extractOpenAiDeltaContent(json);
+    if (chunk) onToken(chunk);
+    return chunk;
+  } catch {
+    return "";
+  }
+}
+
+async function readOpenAiStream(res: Response, onToken: (c: string) => void): Promise<string> {
   const reader = res.body!.getReader();
   const decoder = new TextDecoder();
   let full = "";
   let buffer = "";
 
+  const emitFromLine = (line: string) => {
+    const chunk = consumeOpenAiStreamLine(line, onToken);
+    if (chunk) full += chunk;
+  };
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const data = trimmed.slice(5).trim();
-      if (data === "[DONE]") continue;
-      try {
-        const json = JSON.parse(data) as {
-          choices?: Array<{ delta?: { content?: string } }>;
-        };
-        const chunk = json.choices?.[0]?.delta?.content ?? "";
-        if (chunk) {
-          full += chunk;
-          onToken(chunk);
+
+    // Prefer line-delimited SSE/NDJSON; also try to peel complete JSON objects early.
+    let nl: number;
+    while ((nl = buffer.indexOf("\n")) >= 0) {
+      const line = buffer.slice(0, nl);
+      buffer = buffer.slice(nl + 1);
+      emitFromLine(line);
+    }
+
+    // Some gateways flush a complete `data: {...}` without trailing newline for a while.
+    if (buffer.startsWith("data:")) {
+      const payload = buffer.slice(5).trim();
+      if (payload.startsWith("{")) {
+        try {
+          JSON.parse(payload);
+          emitFromLine(buffer);
+          buffer = "";
+        } catch {
+          // incomplete JSON — wait for more bytes
         }
-      } catch {
-        // ignore partial JSON
       }
     }
   }
+
+  buffer += decoder.decode();
+  if (buffer.trim()) emitFromLine(buffer);
+
   return full.trim();
+}
+
+type GeminiPart = { text?: string; thought?: boolean };
+
+function geminiAnswerText(parts: GeminiPart[] | undefined): string {
+  if (!parts?.length) return "";
+  return parts
+    .filter((p) => !p.thought && Boolean(p.text))
+    .map((p) => p.text ?? "")
+    .join("");
+}
+
+/** thinkingConfig is only valid on Gemini 2.5+ / thinking variants. */
+function geminiSupportsThinkingConfig(modelId: string): boolean {
+  const id = modelId.toLowerCase();
+  return (
+    id.includes("2.5") ||
+    id.includes("2.6") ||
+    id.includes("thinking") ||
+    /(?:^|[/:_-])gemini-3/.test(id)
+  );
+}
+
+function geminiGenerationConfig(
+  modelId: string,
+  thinkingEnabled: boolean,
+): Record<string, unknown> | undefined {
+  const wantsThinking = thinkingEnabled === true;
+  if (!geminiSupportsThinkingConfig(modelId) && !wantsThinking) return undefined;
+  return {
+    thinkingConfig: {
+      // 2.5+ may think by default; 0 disables, 1024 enables a budget.
+      thinkingBudget: wantsThinking ? 1024 : 0,
+    },
+  };
 }
 
 async function chatGemini(req: ChatRequest): Promise<string> {
   const { model, messages, signal, onToken, thinkingEnabled } = req;
   const base = model.baseUrl.replace(/\/+$/, "");
   const key = model.apiKey ?? "";
-  const url = `${base}/models/${encodeURIComponent(model.modelId)}:generateContent${
-    key ? `?key=${encodeURIComponent(key)}` : ""
+  const stream = Boolean(onToken);
+  const params = new URLSearchParams();
+  if (key) params.set("key", key);
+  if (stream) params.set("alt", "sse");
+  const qs = params.toString();
+  const method = stream ? "streamGenerateContent" : "generateContent";
+  const url = `${base}/models/${encodeURIComponent(model.modelId)}:${method}${
+    qs ? `?${qs}` : ""
   }`;
 
   const system = messages.find((m) => m.role === "system")?.content;
@@ -231,17 +381,18 @@ async function chatGemini(req: ChatRequest): Promise<string> {
     ...headersToRecord(model.extraHeaders),
   };
 
+  const body: Record<string, unknown> = {
+    systemInstruction: system ? { parts: [{ text: system }] } : undefined,
+    contents,
+  };
+  const generationConfig = geminiGenerationConfig(model.modelId, thinkingEnabled === true);
+  if (generationConfig) body.generationConfig = generationConfig;
+
   const res = await fetch(url, {
     method: "POST",
     headers,
     signal,
-    body: JSON.stringify({
-      systemInstruction: system ? { parts: [{ text: system }] } : undefined,
-      contents,
-      generationConfig: thinkingEnabled
-        ? { thinkingConfig: { thinkingBudget: 1024 } }
-        : undefined,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) {
@@ -249,13 +400,50 @@ async function chatGemini(req: ChatRequest): Promise<string> {
     throw new Error(formatHttpError(res.status, text));
   }
 
-  const data = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-  };
-  const text =
-    data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-  if (onToken && text) onToken(text);
-  return text.trim();
+  if (!stream || !res.body) {
+    const data = (await res.json()) as {
+      candidates?: Array<{ content?: { parts?: GeminiPart[] } }>;
+    };
+    const text = geminiAnswerText(data.candidates?.[0]?.content?.parts);
+    if (onToken && text) onToken(text);
+    return text.trim();
+  }
+
+  return readSseGemini(res, onToken!);
+}
+
+async function readSseGemini(res: Response, onToken: (c: string) => void): Promise<string> {
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let full = "";
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const data = trimmed.slice(5).trim();
+      if (!data || data === "[DONE]") continue;
+      try {
+        const json = JSON.parse(data) as {
+          candidates?: Array<{ content?: { parts?: GeminiPart[] } }>;
+        };
+        const chunk = geminiAnswerText(json.candidates?.[0]?.content?.parts);
+        if (chunk) {
+          full += chunk;
+          onToken(chunk);
+        }
+      } catch {
+        // ignore partial JSON
+      }
+    }
+  }
+  return full.trim();
 }
 
 async function chatClaude(req: ChatRequest): Promise<string> {
@@ -271,6 +459,7 @@ async function chatClaude(req: ChatRequest): Promise<string> {
   };
   if (model.apiKey) headers["x-api-key"] = model.apiKey;
 
+  const thinkingOn = thinkingEnabled === true;
   const thinkingBudget = 2048;
   const res = await fetch(url, {
     method: "POST",
@@ -278,13 +467,13 @@ async function chatClaude(req: ChatRequest): Promise<string> {
     signal,
     body: JSON.stringify({
       model: model.modelId,
-      max_tokens: thinkingEnabled ? thinkingBudget + 2048 : 2048,
+      max_tokens: thinkingOn ? thinkingBudget + 2048 : 2048,
       system: system || undefined,
       messages: messages
         .filter((m) => m.role !== "system")
         .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content })),
       stream: Boolean(onToken),
-      ...(thinkingEnabled
+      ...(thinkingOn
         ? { thinking: { type: "enabled", budget_tokens: thinkingBudget } }
         : {}),
     }),
@@ -405,6 +594,15 @@ export async function testConnection(
   } catch (e) {
     return { ok: false, detail: e instanceof Error ? e.message : String(e) };
   }
+}
+
+function isLikelyReasoningModel(modelId: string): boolean {
+  const id = modelId.toLowerCase();
+  return (
+    /(^|[/:_-])o[1-9]([.-]|$)/.test(id) ||
+    id.includes("gpt-5") ||
+    id.includes("reason")
+  );
 }
 
 function formatHttpError(status: number, body: string): string {

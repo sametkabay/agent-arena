@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { NameGate } from "@/components/NameGate";
 import { Hud } from "@/components/Hud";
-import { AgentList } from "@/components/AgentList";
+import { ArenaSidePanels } from "@/components/ArenaSidePanels";
 import { ChatPanel } from "@/components/ChatPanel";
+import { FloatingChatLog } from "@/components/FloatingChatLog";
+import { AgentChatterLoop } from "@/components/AgentChatterLoop";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
@@ -72,7 +74,7 @@ export default function App() {
     const profile = activeMap ? resolveAmbienceId(activeMap) : "none";
     setAmbienceProfile(profile);
     setAmbienceDayNight(dayNight);
-    setAmbienceEnabled(graphics.ambientAudio !== false);
+    setAmbienceEnabled(graphics.ambientAudio === true);
     setAmbienceVolume(graphics.ambientVolume ?? 0.35);
   }, [activeMap, dayNight, graphics.ambientAudio, graphics.ambientVolume]);
 
@@ -95,8 +97,10 @@ export default function App() {
       {!mapEditorOpen && (
         <>
           <Hud />
-          <AgentList />
+          <ArenaSidePanels />
           <ChatPanel />
+          <FloatingChatLog />
+          <AgentChatterLoop />
           <SettingsModal />
         </>
       )}

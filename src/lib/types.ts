@@ -42,8 +42,15 @@ export interface AgentConfig {
   modelConfigId: string;
   polyPresetId: string;
   systemPrompt: string;
+  /** When false, agent is kept in settings but not placed on the map. Default true. */
+  enabled: boolean;
   /** Enable model reasoning / thinking when the provider supports it. */
   thinkingEnabled: boolean;
+  /**
+   * Idle muttering rate 0–100.
+   * 0 = never; 100 ≈ 2 LLM asides per minute on average.
+   */
+  chattiness: number;
   /** Optional skill blocks injected into the system prompt. */
   skills: AgentSkill[];
   color: string;
@@ -77,11 +84,28 @@ export interface AppPersisted {
   dayNight: DayNightMode;
   /** Favorite placeable ids for the map editor library. */
   favoriteAssets?: string[];
+  /** Per-agent private chat history (localStorage). */
+  chats: Record<string, ChatMessage[]>;
+  /** Shared arena (global) chat log (localStorage). */
+  arenaChatHistory: FloatingChatLine[];
 }
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
+}
+
+/** Shared arena chat line (history + ephemeral floating feed). */
+export interface FloatingChatLine {
+  id: string;
+  /** Set for agent lines; omit for the human user. */
+  agentId?: string;
+  /** Display name (agent or user). */
+  agentName: string;
+  color: string;
+  text: string;
+  createdAt: number;
+  kind: "user" | "agent" | "system";
 }
 
 export interface PlaceableInstance {

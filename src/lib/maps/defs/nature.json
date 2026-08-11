@@ -6,971 +6,690 @@
   "builtin": true,
   "floor": {
     "size": 24,
-    "style": "solid",
+    "style": "patches",
     "cells": 24,
     "color": "#6B9B4A",
     "surface": "grass"
   },
   "theme": {
-    "floor": "#8FAE6E",
+    "floor": "#6B9B4A",
     "accent": "#4A7566",
-    "background": "#D0DFC4",
-    "fog": "#D0DFC4",
+    "background": "#a59e93",
+    "fog": "#a59e93",
     "ambient": "#ffffff",
-    "hemiSky": "#e4f0d8",
-    "hemiGround": "#5f7a48",
-    "sun": "#fff6e0"
+    "hemiSky": "#f5f0e6",
+    "hemiGround": "#c4b8a4",
+    "sun": "#fff5e6"
   },
-  "ambience": "nature",
-  "roomLights": false,
   "spawnPoints": [
     {
       "id": "spawn_0",
       "position": [
-        -1.5,
+        -4.0549473320286085,
         0,
-        0.2
+        2.3161425659270805
       ],
-      "rotationY": 0.3
+      "rotationY": 3.1416
     },
     {
       "id": "spawn_1",
       "position": [
-        1.6,
+        0.41314730620157825,
         0,
-        0.2
+        3.374209023742292
       ],
-      "rotationY": -0.3
+      "rotationY": 3.1416
     },
     {
       "id": "spawn_2",
       "position": [
+        2.4836834454461654,
         0,
-        0,
-        -2.2
+        1.1043738211916097
       ],
-      "rotationY": 0
+      "rotationY": 3.1416
     },
     {
       "id": "spawn_3",
       "position": [
-        -2.8,
+        -4.629125244152379,
         0,
-        -1.2
+        -3.7138929996763563
       ],
-      "rotationY": 0.6
+      "rotationY": 3.1416
     },
     {
       "id": "spawn_4",
       "position": [
-        2.5,
+        1.7213934500627328,
         0,
-        -1.0
+        -3.5306138282987716
       ],
-      "rotationY": -0.5
-    }
-  ],
-  "lights": [
+      "rotationY": 3.1416
+    },
     {
-      "id": "light_camp_fill",
+      "id": "spawn_5",
       "position": [
+        5.182439543671301,
         0,
-        2.3,
-        1.5
+        -1.812023204738881
       ],
-      "color": "#ff8844",
-      "intensity": 0.55,
-      "distance": 12
-    },
-    {
-      "id": "light_tent",
-      "position": [
-        0.2,
-        1.7,
-        4.5
-      ],
-      "color": "#ffcc88",
-      "intensity": 0.32,
-      "distance": 8
-    }
-  ],
-  "zones": [
-    {
-      "id": "zone_camp",
-      "name": "Camp",
-      "kind": "camp",
-      "center": [
-        0,
-        0,
-        2.2
-      ],
-      "radius": 4.5
-    },
-    {
-      "id": "zone_clearing",
-      "name": "Clearing",
-      "kind": "path",
-      "center": [
-        0,
-        0,
-        -3.5
-      ],
-      "radius": 3.5
-    },
-    {
-      "id": "zone_trail",
-      "name": "Trail",
-      "kind": "path",
-      "center": [
-        5.0,
-        0,
-        -6.0
-      ],
-      "radius": 3.0
+      "rotationY": 3.1416
     }
   ],
   "placeables": [
     {
-      "id": "fire_ring",
+      "id": "prop_0n4f7ha1_msilppqr",
       "placeableId": "campfire",
       "position": [
+        -2.939322991514496,
         0,
-        0,
-        1.5
+        -1.9955194443845836
       ],
-      "rotationY": 0
-    },
-    {
-      "id": "fire_fx",
-      "placeableId": "fire",
-      "position": [
-        0,
-        0.1,
-        1.5
-      ],
-      "rotationY": 0.2,
-      "scale": 0.9,
-      "behavior": "animated"
-    },
-    {
-      "id": "log_a",
-      "placeableId": "log",
-      "position": [
-        -2.2,
-        0,
-        1.0
-      ],
-      "rotationY": 1.2,
-      "scale": 0.72
-    },
-    {
-      "id": "log_b",
-      "placeableId": "log",
-      "position": [
-        2.1,
-        0,
-        1.5
-      ],
-      "rotationY": -0.4,
-      "scale": 0.7
-    },
-    {
-      "id": "log_c",
-      "placeableId": "log",
-      "position": [
-        0.3,
-        0,
-        3.5
-      ],
-      "rotationY": 0.1,
-      "scale": 0.68
-    },
-    {
-      "id": "rk_a",
-      "placeableId": "rock_small",
-      "position": [
-        -1.1,
-        0,
-        0.5
-      ],
-      "rotationY": 0.4,
-      "scale": 0.65
-    },
-    {
-      "id": "rk_b",
-      "placeableId": "rock_small",
-      "position": [
-        1.15,
-        0,
-        0.55
-      ],
-      "rotationY": 1.1,
-      "scale": 0.62
-    },
-    {
-      "id": "rk_c",
-      "placeableId": "rock_small",
-      "position": [
-        -0.8,
-        0,
-        2.55
-      ],
-      "rotationY": -0.3,
-      "scale": 0.6
-    },
-    {
-      "id": "rk_d",
-      "placeableId": "rock_small",
-      "position": [
-        1.0,
-        0,
-        2.5
-      ],
-      "rotationY": 0.8,
-      "scale": 0.63
-    },
-    {
-      "id": "rk_e",
-      "placeableId": "rock",
-      "position": [
-        -2.6,
-        0,
-        2.8
-      ],
-      "rotationY": 0.5,
-      "scale": 0.72
-    },
-    {
-      "id": "tent_a",
-      "placeableId": "tent",
-      "position": [
-        -2.4,
-        0,
-        4.8
-      ],
-      "rotationY": 0.35,
-      "scale": 1.0
-    },
-    {
-      "id": "tent_b",
-      "placeableId": "tent",
-      "position": [
-        2.6,
-        0,
-        5.2
-      ],
-      "rotationY": -0.45,
-      "scale": 0.95
-    },
-    {
-      "id": "t_nw_0",
-      "placeableId": "tree_pine",
-      "position": [
-        -10.5,
-        0,
-        -9.5
-      ],
-      "rotationY": 0.0,
-      "scale": 0.82
-    },
-    {
-      "id": "t_nw_1",
-      "placeableId": "tree_birch",
-      "position": [
-        -9.0,
-        0,
-        -10.5
-      ],
-      "rotationY": 0.37,
-      "scale": 0.78
-    },
-    {
-      "id": "t_nw_2",
-      "placeableId": "tree_pine",
-      "position": [
-        -11.0,
-        0,
-        -7.5
-      ],
-      "rotationY": 0.74,
-      "scale": 0.75
-    },
-    {
-      "id": "t_nw_3",
-      "placeableId": "tree_birch",
-      "position": [
-        -8.2,
-        0,
-        -8.4
-      ],
-      "rotationY": 1.11,
-      "scale": 0.72
-    },
-    {
-      "id": "t_nw_4",
-      "placeableId": "tree_pine",
-      "position": [
-        -9.8,
-        0,
-        -6.6
-      ],
-      "rotationY": 1.48,
-      "scale": 0.7
-    },
-    {
-      "id": "t_nw_5",
-      "placeableId": "tree_pine",
-      "position": [
-        -7.0,
-        0,
-        -9.8
-      ],
-      "rotationY": 1.85,
-      "scale": 0.68
-    },
-    {
-      "id": "t_nw_6",
-      "placeableId": "tree_birch",
-      "position": [
-        -10.2,
-        0,
-        -4.8
-      ],
-      "rotationY": 2.22,
-      "scale": 0.74
-    },
-    {
-      "id": "t_nw_7",
-      "placeableId": "tree_pine",
-      "position": [
-        -11.0,
-        0,
-        -2.6
-      ],
-      "rotationY": 2.59,
-      "scale": 0.8
-    },
-    {
-      "id": "t_w_8",
-      "placeableId": "tree_pine",
-      "position": [
-        -10.8,
-        0,
-        0.8
-      ],
-      "rotationY": 2.96,
-      "scale": 0.78
-    },
-    {
-      "id": "t_w_9",
-      "placeableId": "tree_birch",
-      "position": [
-        -9.5,
-        0,
-        2.6
-      ],
-      "rotationY": 3.33,
-      "scale": 0.7
-    },
-    {
-      "id": "t_w_10",
-      "placeableId": "tree_pine",
-      "position": [
-        -11.0,
-        0,
-        4.2
-      ],
-      "rotationY": 3.7,
-      "scale": 0.74
-    },
-    {
-      "id": "t_w_11",
-      "placeableId": "tree_birch",
-      "position": [
-        -8.8,
-        0,
-        5.5
-      ],
-      "rotationY": 4.07,
-      "scale": 0.72
-    },
-    {
-      "id": "t_w_12",
-      "placeableId": "tree_pine",
-      "position": [
-        -10.2,
-        0,
-        7.2
-      ],
-      "rotationY": 4.44,
-      "scale": 0.76
-    },
-    {
-      "id": "t_sw_13",
-      "placeableId": "tree_pine",
-      "position": [
-        -9.5,
-        0,
-        8.5
-      ],
-      "rotationY": 4.81,
-      "scale": 0.8
-    },
-    {
-      "id": "t_sw_14",
-      "placeableId": "tree_birch",
-      "position": [
-        -7.5,
-        0,
-        10.0
-      ],
-      "rotationY": 5.18,
-      "scale": 0.74
-    },
-    {
-      "id": "t_sw_15",
-      "placeableId": "tree_pine",
-      "position": [
-        -10.8,
-        0,
-        10.2
-      ],
-      "rotationY": 5.55,
-      "scale": 0.72
-    },
-    {
-      "id": "t_sw_16",
-      "placeableId": "tree_pine",
-      "position": [
-        -5.5,
-        0,
-        10.5
-      ],
-      "rotationY": 5.92,
-      "scale": 0.78
-    },
-    {
-      "id": "t_sw_17",
-      "placeableId": "tree_birch",
-      "position": [
-        -3.2,
-        0,
-        10.8
-      ],
-      "rotationY": 0.09,
-      "scale": 0.7
-    },
-    {
-      "id": "t_sw_18",
-      "placeableId": "tree_pine",
-      "position": [
-        -1.0,
-        0,
-        10.6
-      ],
-      "rotationY": 0.46,
-      "scale": 0.76
-    },
-    {
-      "id": "t_sw_19",
-      "placeableId": "tree_birch",
-      "position": [
-        -8.2,
-        0,
-        9.2
-      ],
-      "rotationY": 0.83,
-      "scale": 0.68
-    },
-    {
-      "id": "t_se_20",
-      "placeableId": "tree_pine",
-      "position": [
-        4.5,
-        0,
-        10.2
-      ],
-      "rotationY": 1.2,
-      "scale": 0.78
-    },
-    {
-      "id": "t_se_21",
-      "placeableId": "tree_birch",
-      "position": [
-        7.0,
-        0,
-        10.5
-      ],
-      "rotationY": 1.57,
-      "scale": 0.74
-    },
-    {
-      "id": "t_se_22",
-      "placeableId": "tree_pine",
-      "position": [
-        9.5,
-        0,
-        9.8
-      ],
-      "rotationY": 1.94,
-      "scale": 0.8
-    },
-    {
-      "id": "t_se_23",
-      "placeableId": "tree_birch",
-      "position": [
-        10.8,
-        0,
-        7.5
-      ],
-      "rotationY": 2.31,
-      "scale": 0.72
-    },
-    {
-      "id": "t_se_24",
-      "placeableId": "tree_pine",
-      "position": [
-        10.5,
-        0,
-        5.2
-      ],
-      "rotationY": 2.68,
-      "scale": 0.7
-    },
-    {
-      "id": "t_se_25",
-      "placeableId": "tree_pine",
-      "position": [
-        8.8,
-        0,
-        8.2
-      ],
-      "rotationY": 3.05,
-      "scale": 0.76
-    },
-    {
-      "id": "t_e_26",
-      "placeableId": "tree_pine",
-      "position": [
-        10.8,
-        0,
-        1.5
-      ],
-      "rotationY": 3.42,
-      "scale": 0.75
-    },
-    {
-      "id": "t_e_27",
-      "placeableId": "tree_birch",
-      "position": [
-        10.2,
-        0,
-        -1.0
-      ],
-      "rotationY": 3.79,
-      "scale": 0.7
-    },
-    {
-      "id": "t_e_28",
-      "placeableId": "tree_pine",
-      "position": [
-        9.5,
-        0,
-        -3.5
-      ],
-      "rotationY": 4.16,
-      "scale": 0.78
-    },
-    {
-      "id": "t_e_29",
-      "placeableId": "tree_birch",
-      "position": [
-        10.8,
-        0,
-        -5.5
-      ],
-      "rotationY": 4.53,
-      "scale": 0.72
-    },
-    {
-      "id": "t_n_30",
-      "placeableId": "tree_pine",
-      "position": [
-        -6.5,
-        0,
-        -10.5
-      ],
-      "rotationY": 4.9,
-      "scale": 0.8
-    },
-    {
-      "id": "t_n_31",
-      "placeableId": "tree_birch",
-      "position": [
-        -4.0,
-        0,
-        -10.8
-      ],
-      "rotationY": 5.27,
-      "scale": 0.74
-    },
-    {
-      "id": "t_n_32",
-      "placeableId": "tree_pine",
-      "position": [
-        -1.5,
-        0,
-        -10.5
-      ],
-      "rotationY": 5.64,
-      "scale": 0.76
-    },
-    {
-      "id": "t_n_33",
-      "placeableId": "tree_birch",
-      "position": [
-        1.0,
-        0,
-        -10.8
-      ],
-      "rotationY": 6.01,
-      "scale": 0.7
-    },
-    {
-      "id": "t_n_34",
-      "placeableId": "tree_pine",
-      "position": [
-        7.0,
-        0,
-        -10.5
-      ],
-      "rotationY": 0.18,
-      "scale": 0.78
-    },
-    {
-      "id": "t_n_35",
-      "placeableId": "tree_birch",
-      "position": [
-        9.5,
-        0,
-        -10.2
-      ],
-      "rotationY": 0.55,
-      "scale": 0.74
-    },
-    {
-      "id": "t_n_36",
-      "placeableId": "tree_pine",
-      "position": [
-        10.8,
-        0,
-        -8.5
-      ],
-      "rotationY": 0.92,
-      "scale": 0.72
-    },
-    {
-      "id": "t_n_37",
-      "placeableId": "tree_pine",
-      "position": [
-        -8.5,
-        0,
-        -10.0
-      ],
-      "rotationY": 1.29,
-      "scale": 0.7
-    },
-    {
-      "id": "t_inner_38",
-      "placeableId": "tree_pine",
-      "position": [
-        -5.5,
-        0,
-        -5.5
-      ],
-      "rotationY": 1.66,
-      "scale": 0.7
-    },
-    {
-      "id": "t_inner_39",
-      "placeableId": "tree_birch",
-      "position": [
-        -6.8,
-        0,
-        -3.2
-      ],
-      "rotationY": 2.03,
-      "scale": 0.65
-    },
-    {
-      "id": "t_inner_40",
-      "placeableId": "tree_pine",
-      "position": [
-        -5.0,
-        0,
-        6.5
-      ],
-      "rotationY": 2.4,
-      "scale": 0.68
-    },
-    {
-      "id": "t_inner_41",
-      "placeableId": "tree_birch",
-      "position": [
-        5.5,
-        0,
-        6.8
-      ],
-      "rotationY": 2.77,
-      "scale": 0.66
-    },
-    {
-      "id": "t_inner_42",
-      "placeableId": "tree_pine",
-      "position": [
-        6.2,
-        0,
-        -4.5
-      ],
-      "rotationY": 3.14,
-      "scale": 0.7
-    },
-    {
-      "id": "t_inner_43",
-      "placeableId": "tree_birch",
-      "position": [
-        -4.2,
-        0,
-        3.2
-      ],
-      "rotationY": 3.51,
-      "scale": 0.62
-    },
-    {
-      "id": "trail_r1",
-      "placeableId": "rock_small",
-      "position": [
-        3.5,
-        0,
-        -4.0
-      ],
-      "rotationY": 0.2,
-      "scale": 0.55
-    },
-    {
-      "id": "trail_r2",
-      "placeableId": "rock_small",
-      "position": [
-        4.5,
-        0,
-        -6.5
-      ],
-      "rotationY": 0.8,
+      "rotationY": 0,
       "scale": 0.5
     },
     {
-      "id": "trail_r3",
+      "id": "prop_ymcskj0x_msinaru4",
+      "placeableId": "tree_stylized",
+      "position": [
+        -11.5,
+        0,
+        11.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_fhscmycq_msinav2s",
+      "placeableId": "tree_simple",
+      "position": [
+        -8,
+        0,
+        11.5
+      ],
+      "rotationY": 0,
+      "scale": 0.7
+    },
+    {
+      "id": "prop_2bb5fk88_msinaz9z",
       "placeableId": "rock",
       "position": [
-        5.5,
+        -11,
         0,
-        -8.5
+        11.95
       ],
-      "rotationY": 0.3,
+      "rotationY": 0,
       "scale": 0.65
     },
     {
-      "id": "trail_log",
-      "placeableId": "log",
+      "id": "prop_fvxmyjjr_msinb1u3",
+      "placeableId": "rock",
       "position": [
-        4.0,
+        -11.5,
         0,
-        -5.5
+        10
       ],
-      "rotationY": 1.4,
-      "scale": 0.55
+      "rotationY": 0,
+      "scale": 1
     },
     {
-      "id": "big_nw",
-      "placeableId": "rock_large",
-      "position": [
-        -7.5,
-        0,
-        -7.0
-      ],
-      "rotationY": 0.6,
-      "scale": 0.7
-    },
-    {
-      "id": "big_se",
-      "placeableId": "rock_large",
-      "position": [
-        7.5,
-        0,
-        7.0
-      ],
-      "rotationY": 1.2,
-      "scale": 0.65
-    },
-    {
-      "id": "wolf_nw",
-      "placeableId": "animals__wolf",
-      "position": [
-        -9.2,
-        0,
-        -6.0
-      ],
-      "rotationY": 0.8,
-      "scale": 0.85,
-      "behavior": "wander",
-      "wanderRadius": 2.8
-    },
-    {
-      "id": "wolf_se",
-      "placeableId": "animals__wolf",
-      "position": [
-        8.5,
-        0,
-        6.5
-      ],
-      "rotationY": -1.2,
-      "scale": 0.82,
-      "behavior": "wander",
-      "wanderRadius": 3.0
-    },
-    {
-      "id": "snake_sw",
-      "placeableId": "animals__snake",
-      "position": [
-        -7.0,
-        0,
-        8.5
-      ],
-      "rotationY": 0.4,
-      "scale": 0.7,
-      "behavior": "wander",
-      "wanderRadius": 2.5
-    },
-    {
-      "id": "bear_w",
-      "placeableId": "animals__bear",
-      "position": [
-        -9.5,
-        0,
-        3.5
-      ],
-      "rotationY": -0.5,
-      "scale": 0.9
-    },
-    {
-      "id": "fox_camp",
-      "placeableId": "animals__fox",
-      "position": [
-        -3.2,
-        0,
-        0.2
-      ],
-      "rotationY": 1.2,
-      "scale": 0.75
-    },
-    {
-      "id": "raccoon_trail",
-      "placeableId": "animals__raccoon",
-      "position": [
-        5.0,
-        0,
-        -3.5
-      ],
-      "rotationY": 0.3,
-      "scale": 0.7
-    },
-    {
-      "id": "t_mid_a",
-      "placeableId": "tree_pine",
-      "position": [
-        -4.5,
-        0,
-        -2.5
-      ],
-      "rotationY": 0.5,
-      "scale": 0.72
-    },
-    {
-      "id": "t_mid_b",
+      "id": "prop_5j5ybf58_msinc8c6",
       "placeableId": "tree_birch",
       "position": [
-        -3.2,
+        -10,
         0,
-        -6.5
+        9.5
       ],
-      "rotationY": 1.1,
-      "scale": 0.68
+      "rotationY": 0,
+      "scale": 1
     },
     {
-      "id": "t_mid_c",
-      "placeableId": "tree_pine",
+      "id": "prop_d6drgz4m_msincb8w",
+      "placeableId": "rock",
       "position": [
-        3.8,
-        0,
-        3.2
-      ],
-      "rotationY": 0.3,
-      "scale": 0.7
-    },
-    {
-      "id": "t_mid_d",
-      "placeableId": "tree_birch",
-      "position": [
-        6.5,
-        0,
-        4.0
-      ],
-      "rotationY": -0.5,
-      "scale": 0.66
-    },
-    {
-      "id": "t_mid_e",
-      "placeableId": "tree_pine",
-      "position": [
-        -6.0,
-        0,
-        1.5
-      ],
-      "rotationY": 0.8,
-      "scale": 0.74
-    },
-    {
-      "id": "t_mid_f",
-      "placeableId": "tree_birch",
-      "position": [
-        7.5,
-        0,
-        -0.5
-      ],
-      "rotationY": 1.4,
-      "scale": 0.7
-    },
-    {
-      "id": "t_mid_g",
-      "placeableId": "tree_pine",
-      "position": [
-        2.2,
+        -11,
         0,
         7.5
       ],
-      "rotationY": 0.2,
-      "scale": 0.72
+      "rotationY": 0,
+      "scale": 1.5
     },
     {
-      "id": "t_mid_h",
+      "id": "prop_2ftsdwsf_msincpzt",
+      "placeableId": "rock",
+      "position": [
+        -6,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_3091nclf_msind0qx",
+      "placeableId": "rock",
+      "position": [
+        -8.5,
+        0,
+        10
+      ],
+      "rotationY": 0,
+      "scale": 0.55
+    },
+    {
+      "id": "prop_shlcptks_msiolm8b",
+      "placeableId": "animals__spider",
+      "position": [
+        -9.5,
+        0,
+        9
+      ],
+      "rotationY": 0,
+      "scale": 0.25,
+      "behavior": "wander",
+      "homePosition": [
+        -9.5,
+        0,
+        9
+      ],
+      "moveSpeed": 1.1,
+      "locomotion": "idle"
+    },
+    {
+      "id": "prop_3ropytad_msip48ph",
+      "placeableId": "cars__suv",
+      "position": [
+        1,
+        0,
+        -10
+      ],
+      "rotationY": 0,
+      "scale": 0.85
+    },
+    {
+      "id": "prop_18m0emzf_msip5s7g",
+      "placeableId": "tent",
+      "position": [
+        -3,
+        -0.1,
+        -7
+      ],
+      "rotationY": 0,
+      "scale": 1.15
+    },
+    {
+      "id": "prop_wftq8a3o_msipeaje",
+      "placeableId": "log",
+      "position": [
+        -6.5,
+        0,
+        8.5
+      ],
+      "rotationY": 0,
+      "scale": 0.45
+    },
+    {
+      "id": "prop_qw5l8y31_msipenlt",
+      "placeableId": "log",
+      "position": [
+        -10,
+        0,
+        6.5
+      ],
+      "rotationY": 1.5707963267948966,
+      "scale": 0.65
+    },
+    {
+      "id": "prop_fr8rltgc_msipfg2s",
+      "placeableId": "log",
+      "position": [
+        -10,
+        0,
+        10
+      ],
+      "rotationY": 3.97,
+      "scale": 0.7
+    },
+    {
+      "id": "prop_asieyyi4_msipgb46",
+      "placeableId": "camping__tree",
+      "position": [
+        -9.165622313868267,
+        0,
+        -10.291577745759097
+      ],
+      "rotationY": 0,
+      "scale": 1.75
+    },
+    {
+      "id": "prop_oi4z0god_msipgigw",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.95,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_9gz2wmwc_msipglby",
+      "placeableId": "tree_pine",
+      "position": [
+        -8.876055752885843,
+        0,
+        -8.857336343765844
+      ],
+      "rotationY": 0,
+      "scale": 0.65
+    },
+    {
+      "id": "prop_d2aswiwv_msipgpkk",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.95,
+        0,
+        -11.5
+      ],
+      "rotationY": 0,
+      "scale": 1.3
+    },
+    {
+      "id": "prop_2bd8todt_msiph554",
+      "placeableId": "camping__tree",
+      "position": [
+        -11,
+        0,
+        -7
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_pl833cmb_msiphauv",
+      "placeableId": "camping__tree",
+      "position": [
+        -10.514455428893442,
+        0,
+        -5.524243323856212
+      ],
+      "rotationY": 0,
+      "scale": 1.1
+    },
+    {
+      "id": "prop_83536rgq_msiphgke",
+      "placeableId": "rock",
+      "position": [
+        -9.5,
+        0,
+        -7.5
+      ],
+      "rotationY": 0,
+      "scale": 0.85
+    },
+    {
+      "id": "prop_96nufjaf_msipoo1m",
+      "placeableId": "tent",
+      "position": [
+        -7.5,
+        -0.1,
+        -2
+      ],
+      "rotationY": 1.5707963267948966,
+      "scale": 0.8
+    },
+    {
+      "id": "prop_ahfxl6y3_msit93kl",
+      "placeableId": "camping__fire",
+      "position": [
+        -2.97724271458353,
+        0,
+        -2.0330346025808517
+      ],
+      "rotationY": 0,
+      "scale": 0.6
+    },
+    {
+      "id": "prop_63jwxde2_msitwxd2",
+      "placeableId": "tree_stylized",
+      "position": [
+        -5,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "scale": 1.2
+    },
+    {
+      "id": "prop_7rhvrsac_msitx66y",
       "placeableId": "tree_birch",
       "position": [
-        -2.5,
+        -10,
         0,
-        7.8
+        11.95
       ],
-      "rotationY": 0.9,
-      "scale": 0.68
+      "rotationY": 0,
+      "scale": 0.25
+    },
+    {
+      "id": "prop_jsatnpsn_msitxbb8",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.5,
+        0,
+        -4.5
+      ],
+      "rotationY": 0,
+      "scale": 0.55
+    },
+    {
+      "id": "prop_jxr6j01q_msorly73",
+      "placeableId": "tree_simple",
+      "position": [
+        -11.5,
+        0,
+        6
+      ],
+      "rotationY": 0,
+      "scale": 0.9
+    },
+    {
+      "id": "prop_e41u0s6q_msoro9ks",
+      "placeableId": "food__apple_green",
+      "position": [
+        -10.052354518440225,
+        0,
+        -6.619570354412836
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_1h52i9wh_msoromea",
+      "placeableId": "food__cooking_pot_lmedeomg9l",
+      "position": [
+        -3.350605817182199,
+        0,
+        -1.0546524416143939
+      ],
+      "rotationY": 0,
+      "scale": 0.3
+    },
+    {
+      "id": "prop_u5t65j1c_msorp86m",
+      "placeableId": "food__chicken_leg",
+      "position": [
+        -2.603135500682984,
+        0,
+        -1.3698984434766197
+      ],
+      "rotationY": 0,
+      "scale": 0.3
+    },
+    {
+      "id": "prop_8ucn1l2j_msorpq40",
+      "placeableId": "food__chicken_leg",
+      "position": [
+        -2.467078841911558,
+        0,
+        -1.4537203130819205
+      ],
+      "rotationY": 0,
+      "scale": 0.3
+    },
+    {
+      "id": "prop_uks2cfdq_msorq58g",
+      "placeableId": "food__carrot",
+      "position": [
+        -11.749874311171684,
+        -0.15,
+        -2.906665179183693
+      ],
+      "rotationY": 0,
+      "scale": 1.35
+    },
+    {
+      "id": "prop_46djsjpx_msorql0i",
+      "placeableId": "food__carrot",
+      "position": [
+        -11.533663140880018,
+        -0.15,
+        -2.348058313699449
+      ],
+      "rotationY": 0,
+      "scale": 1.35
+    },
+    {
+      "id": "prop_dqx8s3be_msorqms8",
+      "placeableId": "food__carrot",
+      "position": [
+        -11.271323616064928,
+        -0.15,
+        -2.5173800113331524
+      ],
+      "rotationY": 0,
+      "scale": 1.35
+    },
+    {
+      "id": "prop_2vqhe5zd_msorr314",
+      "placeableId": "food__apple_green",
+      "position": [
+        -8.231640067605053,
+        0,
+        -10.712119659768476
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_tr93wq9l_msorrkk2",
+      "placeableId": "tree_birch",
+      "position": [
+        -9.774766869972687,
+        0,
+        4.827238423976277
+      ],
+      "rotationY": 0,
+      "scale": 0.5
+    },
+    {
+      "id": "prop_6uz9amqz_msorroa1",
+      "placeableId": "tree_pine",
+      "position": [
+        -11.375907545554679,
+        0,
+        -1.1247621025174066
+      ],
+      "rotationY": 0,
+      "scale": 0.25
+    },
+    {
+      "id": "prop_74t0wm8j_msors68i",
+      "placeableId": "rock_small",
+      "position": [
+        -11.189847766898406,
+        0,
+        0.2553634741773827
+      ],
+      "rotationY": 0,
+      "scale": 0.4
+    },
+    {
+      "id": "prop_c9o3pijt_msorsf8q",
+      "placeableId": "rock_small",
+      "position": [
+        -11.563654255330873,
+        0,
+        0.5321826619002513
+      ],
+      "rotationY": 0,
+      "scale": 0.7
+    },
+    {
+      "id": "prop_cav0k05n_msorug16",
+      "placeableId": "furniture__rug_doormat",
+      "position": [
+        -7.557737783292451,
+        0,
+        -2.10292090545269
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_y2cw684k_msorviyy",
+      "placeableId": "rug",
+      "position": [
+        -2.9364665883362036,
+        0,
+        -7.223793920927326
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1.25
+    },
+    {
+      "id": "prop_z61c4sds_msorxhpd",
+      "placeableId": "animals__turkey_vulture",
+      "position": [
+        -8.045091032379286,
+        0,
+        -8.155644552223778
+      ],
+      "rotationY": 0,
+      "scale": 0.45
+    },
+    {
+      "id": "prop_gx80ai4w_msorxpnd",
+      "placeableId": "animals__turkey_vulture",
+      "position": [
+        -9.048901870729981,
+        0,
+        -8.432161274214712
+      ],
+      "rotationY": 0,
+      "scale": 0.45
+    },
+    {
+      "id": "prop_u01j6bqd_msorzj5x",
+      "placeableId": "tree_birch",
+      "position": [
+        -11.361595406737866,
+        0,
+        3.384824734416932
+      ],
+      "rotationY": 0,
+      "scale": 0.3
+    },
+    {
+      "id": "prop_hs7zubgp_msos0lju",
+      "placeableId": "rock",
+      "position": [
+        9.641635380923747,
+        0,
+        -10.469921142577343
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_7lcso7sg_msos0mvy",
+      "placeableId": "rock_large",
+      "position": [
+        8.15521179849733,
+        0,
+        -11.434056474437607
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_te90a0ed_msos0o8b",
+      "placeableId": "rock_small",
+      "position": [
+        9.104383918723771,
+        0,
+        -9.636547176777922
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_hfspm1rf_msos1c2t",
+      "placeableId": "tree_stylized",
+      "position": [
+        9.736149256724222,
+        0,
+        -11.608681490662189
+      ],
+      "rotationY": 0,
+      "scale": 2
+    },
+    {
+      "id": "prop_j20fk2oc_msos1pe2",
+      "placeableId": "tree_pine",
+      "position": [
+        -6.859237593250637,
+        0,
+        -10.370385323453062
+      ],
+      "rotationY": 0,
+      "scale": 0.55
+    },
+    {
+      "id": "prop_2oz702bn_msos1t5a",
+      "placeableId": "tree_pine",
+      "position": [
+        -2.182592429689616,
+        0,
+        -10.452928933110778
+      ],
+      "rotationY": 0,
+      "scale": 0.25
+    },
+    {
+      "id": "prop_9d141io9_msos1wfp",
+      "placeableId": "tree_pine",
+      "position": [
+        -3.8570900921763625,
+        0,
+        -11.578612778613751
+      ],
+      "rotationY": 0,
+      "scale": 0.35
+    },
+    {
+      "id": "prop_xkh8qpgv_msos3eyi",
+      "placeableId": "tree_stylized",
+      "position": [
+        11.094911103555152,
+        0,
+        -10.072498725617868
+      ],
+      "rotationY": 0,
+      "scale": 0.65
+    },
+    {
+      "id": "prop_t9kb5xgy_msos3llb",
+      "placeableId": "tree_stylized",
+      "position": [
+        11.35224741961174,
+        0,
+        -10.882574277797033
+      ],
+      "rotationY": 0,
+      "scale": 0.25
+    },
+    {
+      "id": "prop_kr787zuv_msos482n",
+      "placeableId": "camping__tree",
+      "position": [
+        -5.440187864491374,
+        0,
+        -11.741006003735517
+      ],
+      "rotationY": 0,
+      "scale": 1
     }
   ]
 }

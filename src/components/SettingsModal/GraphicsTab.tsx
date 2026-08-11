@@ -68,7 +68,7 @@ export function GraphicsTab() {
       <label className="settings-row">
         <span>{t("settings.graphics.ambientAudio")}</span>
         <Switch
-          checked={graphics.ambientAudio !== false}
+          checked={graphics.ambientAudio === true}
           onChange={(ambientAudio) => setGraphics({ ambientAudio })}
           aria-label={t("settings.graphics.ambientAudio")}
         />
@@ -81,7 +81,7 @@ export function GraphicsTab() {
           max={1}
           step={0.05}
           value={graphics.ambientVolume ?? 0.35}
-          disabled={graphics.ambientAudio === false}
+          disabled={graphics.ambientAudio !== true}
           onChange={(ambientVolume) => setGraphics({ ambientVolume })}
           aria-label={t("settings.graphics.ambientVolume")}
         />

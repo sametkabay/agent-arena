@@ -11,7 +11,10 @@ import { uid } from "@/lib/storage";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
 import { ColorField } from "@/components/ui/ColorField";
 import { Select } from "@/components/ui/Select";
+import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
+import { clampChattiness } from "@/lib/storage";
+import { useSettingsBack } from "@/components/SettingsModal/SettingsNavContext";
 
 export function AgentsTab() {
   const { t } = useTranslation();
@@ -22,6 +25,7 @@ export function AgentsTab() {
   const showToast = useArenaStore((s) => s.showToast);
 
   const [editing, setEditing] = useState<AgentConfig | null>(null);
+  useSettingsBack(editing != null, () => setEditing(null));
 
   function startAdd() {
     if (models.length === 0) {
@@ -66,7 +70,9 @@ export function AgentsTab() {
     upsertAgent({
       ...editing,
       displayName: name,
+      enabled: editing.enabled !== false,
       thinkingEnabled: editing.thinkingEnabled === true,
+      chattiness: clampChattiness(editing.chattiness),
       skills: (editing.skills ?? [])
         .map((s) => ({
           ...s,
@@ -142,6 +148,29 @@ export function AgentsTab() {
               setEditing({ ...editing, thinkingEnabled: checked })
             }
             aria-label={t("settings.agents.thinking")}
+          />
+        </div>
+        <div className="aa-chattiness">
+          <div className="aa-chattiness__header">
+            <div>
+              <div className="aa-toggle-card__title">
+                {t("settings.agents.chattiness")}
+              </div>
+              <p className="aa-toggle-card__hint">
+                {t("settings.agents.chattinessHint")}
+              </p>
+            </div>
+            <span className="aa-chattiness__value">
+              {clampChattiness(editing.chattiness)}
+            </span>
+          </div>
+          <Slider
+            min={0}
+            max={100}
+            step={1}
+            value={clampChattiness(editing.chattiness)}
+            onChange={(chattiness) => setEditing({ ...editing, chattiness })}
+            aria-label={t("settings.agents.chattiness")}
           />
         </div>
         <label>
@@ -237,8 +266,12 @@ export function AgentsTab() {
             const model = models.find((m) => m.id === a.modelConfigId);
             const role = getPolyPreset(a.polyPresetId);
             const skillCount = a.skills?.length ?? 0;
+            const enabled = a.enabled !== false;
             return (
-              <div key={a.id} className="card-item">
+              <div
+                key={a.id}
+                className={"card-item" + (enabled ? "" : " is-disabled")}
+              >
                 <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                   <span
                     className="agent-list__swatch"
@@ -253,17 +286,33 @@ export function AgentsTab() {
                       {skillCount > 0
                         ? ` · ${t("settings.agents.skillCount", { count: skillCount })}`
                         : ""}
+                      {!enabled ? ` · ${t("settings.agents.inactive")}` : ""}
                     </div>
                   </div>
                 </div>
                 <div className="card-item__actions">
+                  <Switch
+                    checked={enabled}
+                    aria-label={t("settings.agents.enabled")}
+                    onChange={(next) =>
+                      upsertAgent({
+                        ...a,
+                        enabled: next,
+                        thinkingEnabled: a.thinkingEnabled === true,
+                        chattiness: clampChattiness(a.chattiness),
+                        skills: a.skills ?? [],
+                      })
+                    }
+                  />
                   <button
                     type="button"
                     className="btn btn--ghost"
                     onClick={() =>
                       setEditing({
                         ...a,
+                        enabled: a.enabled !== false,
                         thinkingEnabled: a.thinkingEnabled === true,
+                        chattiness: clampChattiness(a.chattiness),
                         skills: a.skills ?? [],
                       })
                     }
@@ -299,13 +348,18 @@ function SkillRow({
   const { t } = useTranslation();
   return (
     <div className="skill-row">
-      <div className="header-pair">
+      <div className="header-pair header-pair--name-action">
         <input
           placeholder={t("settings.agents.skillName")}
           value={skill.name}
           onChange={(e) => onChange({ ...skill, name: e.target.value })}
         />
-        <button type="button" className="btn btn--danger" onClick={onRemove}>
+        <button
+          type="button"
+          className="btn btn--danger btn--icon"
+          aria-label={t("settings.delete")}
+          onClick={onRemove}
+        >
           ×
         </button>
       </div>

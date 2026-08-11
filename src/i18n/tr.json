@@ -27,6 +27,13 @@
     "empty": "Henüz ajan yok. Eklemek için Ajanlar’a tıkla.",
     "talk": "Konuş"
   },
+  "mapList": {
+    "title": "Haritalar",
+    "empty": "Henüz harita yok. Eklemek için Harita ayarlarını aç.",
+    "builtin": "Yerleşik",
+    "custom": "Özel",
+    "edit": "Haritayı düzenle"
+  },
   "chat": {
     "placeholder": "{{name}} için sor…",
     "send": "Gönder",
@@ -34,11 +41,22 @@
     "noModel": "Bu ajana AI modeli bağlanmamış.",
     "thinking": "Düşünüyor…",
     "close": "Kapat",
-    "error": "Bir şeyler ters gitti"
+    "resize": "Sohbet panelini yeniden boyutlandır",
+    "error": "Bir şeyler ters gitti",
+    "arena": {
+      "placeholder": "Bir şey söyle… veya \"@etiket\"",
+      "send": "Söyle",
+      "history": "Sohbet geçmişi",
+      "closeHistory": "Geçmişi kapat",
+      "empty": "Henüz arena sohbeti yok. Örn. @Botanist merhaba",
+      "noMatch": "Eşleşen agent yok: {{names}}",
+      "noAgents": "Modeli tanımlı agent yok."
+    }
   },
   "settings": {
     "title": "Ayarlar",
     "close": "Kapat",
+    "back": "Geri",
     "save": "Kaydet",
     "cancel": "İptal",
     "add": "Ekle",
@@ -55,7 +73,14 @@
     "general": {
       "displayName": "Görünen ad",
       "language": "Dil",
-      "languageHint": "Arayüz dili. Ajanlar senin yazdığın dilde yanıt verir."
+      "languageHint": "Arayüz dili. Ajanlar senin yazdığın dilde yanıt verir.",
+      "clearChats": "Sohbet geçmişi",
+      "clearChatsHint": "Özel agent sohbetleri ve ortak arena logu bu tarayıcıda saklanır. İstediğin zaman buradan silebilirsin.",
+      "clearChatsAction": "Sohbet geçmişini temizle",
+      "clearChatsConfirmTitle": "Sohbet geçmişi temizlensin mi?",
+      "clearChatsConfirmBody": "Bu tarayıcıdaki tüm özel agent sohbetleri ve ortak arena sohbet geçmişi kalıcı olarak silinir.",
+      "clearChatsConfirm": "Temizle",
+      "clearChatsDone": "Sohbet geçmişi temizlendi"
     },
     "models": {
       "title": "AI Modelleri",
@@ -66,11 +91,13 @@
       "baseUrl": "Base URL",
       "apiKey": "API anahtarı",
       "modelId": "Model",
+      "searchModels": "Model ara…",
       "fetchModels": "Modelleri getir",
       "fetching": "Getiriliyor…",
       "test": "Bağlantıyı test et",
       "testing": "Test ediliyor…",
       "extraHeaders": "Ekstra başlıklar",
+      "extraHeadersHint": "Bu modele yapılan her istekte gönderilecek isteğe bağlı HTTP başlıkları (ör. Organization, özel auth). Sağlayıcın istemiyorsa boş bırak.",
       "addHeader": "Başlık ekle",
       "headerKey": "Başlık",
       "headerValue": "Değer",
@@ -94,6 +121,8 @@
       "thinking": "Düşünme modu",
       "thinkingHint": "Destekleyen modellerde (Ollama, Claude, Gemini, reasoning modeller) yanıt öncesi düşünür. Daha yavaş ama genelde daha iyi.",
       "thinkingOn": "düşünme açık",
+      "chattiness": "Gevezelik",
+      "chattinessHint": "Agent’ın kendi kendine, konuşma balonunda LLM ile ürettiği kısa söylenmeler. 0 = hiç, 100 ≈ dakikada 2 satır.",
       "skills": "Skill’ler",
       "skillsHint": "Sistem promptuna eklenen yeniden kullanılabilir talimatlar (dokümantasyon, kod stili, araçlar vb.).",
       "skillsEmpty": "Henüz skill yok.",
@@ -104,6 +133,8 @@
       "skillCount_other": "{{count}} skill",
       "color": "Vurgu rengi",
       "bio": "Kısa bio",
+      "enabled": "Haritada aktif",
+      "inactive": "pasif",
       "needModel": "Önce bir AI modeli ekle.",
       "rebuildNote": "Ajanlar aktif haritaya yerleşir; harita düzeni değişmez.",
       "customRole": "Özel rol",

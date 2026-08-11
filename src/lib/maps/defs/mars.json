@@ -2,7 +2,7 @@
   "version": 1,
   "id": "mars",
   "name": "Mars",
-  "description": "Martian outpost \u2014 habitat compound, crate pad, and rock ridges",
+  "description": "Martian outpost — habitat compound, crate pad, and rock ridges",
   "builtin": true,
   "floor": {
     "size": 24,
@@ -27,9 +27,9 @@
     {
       "id": "spawn_0",
       "position": [
-        -1.5,
+        -0.5,
         0,
-        -0.5
+        2.5
       ],
       "rotationY": 2.5
     },
@@ -38,16 +38,16 @@
       "position": [
         1.5,
         0,
-        -1.0
+        -1
       ],
       "rotationY": -2.2
     },
     {
       "id": "spawn_2",
       "position": [
-        -3.5,
+        -4,
         0,
-        -1.8
+        0
       ],
       "rotationY": 1.2
     },
@@ -65,8 +65,8 @@
     {
       "id": "light_hab",
       "position": [
-        -5.0,
-        3.0,
+        -5,
+        3,
         -3.5
       ],
       "color": "#66aaff",
@@ -76,7 +76,7 @@
     {
       "id": "light_pad",
       "position": [
-        0.0,
+        0,
         3.4,
         -7.5
       ],
@@ -87,9 +87,9 @@
     {
       "id": "light_ridge",
       "position": [
-        9.0,
-        3.0,
-        2.0
+        9,
+        3,
+        2
       ],
       "color": "#7ab0ff",
       "intensity": 0.3,
@@ -102,18 +102,18 @@
       "name": "Habitat",
       "kind": "camp",
       "center": [
-        -5.0,
+        -5,
         0,
         -3.5
       ],
-      "radius": 4.0
+      "radius": 4
     },
     {
       "id": "zone_pad",
       "name": "Supply pad",
       "kind": "platform",
       "center": [
-        0.0,
+        0,
         0,
         -7.2
       ],
@@ -124,11 +124,11 @@
       "name": "East ridge",
       "kind": "yard",
       "center": [
-        9.0,
+        9,
         0,
-        2.0
+        2
       ],
-      "radius": 4.0
+      "radius": 4
     }
   ],
   "placeables": [
@@ -136,7 +136,7 @@
       "id": "tent_habitat",
       "placeableId": "tent",
       "position": [
-        -5.0,
+        -5,
         0,
         -3.5
       ],
@@ -146,9 +146,9 @@
       "id": "antenna_hab",
       "placeableId": "antenna",
       "position": [
-        -7.2,
+        -7.5,
         0,
-        -4.8
+        -8
       ],
       "rotationY": 0.4
     },
@@ -156,9 +156,9 @@
       "id": "crate_h0",
       "placeableId": "supply_crate",
       "position": [
-        -3.2,
+        -3.5,
         0,
-        -4.6
+        -5.5
       ],
       "rotationY": 0.2
     },
@@ -166,9 +166,9 @@
       "id": "crate_h1",
       "placeableId": "supply_crate",
       "position": [
-        -3.2,
+        -4.5,
         0,
-        -3.5
+        -7
       ],
       "rotationY": 0.2,
       "scale": 0.95
@@ -177,12 +177,12 @@
       "id": "crate_h2",
       "placeableId": "supply_crate",
       "position": [
-        -2.1,
+        -1.5,
         0,
-        -4.2
+        -4.5
       ],
       "rotationY": -0.3,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "beacon_hab_a",
@@ -199,9 +199,9 @@
       "id": "beacon_hab_b",
       "placeableId": "beacon",
       "position": [
-        -2.4,
+        -3,
         0,
-        -1.5
+        4.5
       ],
       "rotationY": 0.2,
       "scale": 1.05
@@ -210,7 +210,7 @@
       "id": "beacon_pad",
       "placeableId": "beacon",
       "position": [
-        0.0,
+        0,
         0,
         -8.5
       ],
@@ -221,9 +221,9 @@
       "id": "antenna_pad",
       "placeableId": "antenna",
       "position": [
-        2.8,
+        5.5,
         0,
-        -9.0
+        -9
       ],
       "rotationY": -0.4
     },
@@ -285,7 +285,7 @@
         0,
         -6
       ],
-      "rotationY": 0.0,
+      "rotationY": 0,
       "scale": 0.95
     },
     {
@@ -297,7 +297,7 @@
         -3.5
       ],
       "rotationY": 0.4,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_e_s_1",
@@ -330,7 +330,7 @@
         1.5
       ],
       "rotationY": 1.2,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_e_s_3",
@@ -362,8 +362,8 @@
         0,
         6.5
       ],
-      "rotationY": 2.0,
-      "scale": 1.0
+      "rotationY": 2,
+      "scale": 1
     },
     {
       "id": "ridge_e_s_5",
@@ -373,7 +373,7 @@
         0,
         7.1
       ],
-      "rotationY": 1.0,
+      "rotationY": 1,
       "scale": 0.9
     },
     {
@@ -395,8 +395,8 @@
         0,
         9.5
       ],
-      "rotationY": 0.0,
-      "scale": 1.0
+      "rotationY": 0,
+      "scale": 1
     },
     {
       "id": "ridge_n_1",
@@ -407,7 +407,7 @@
         9.1
       ],
       "rotationY": 0.35,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_n_2",
@@ -418,7 +418,7 @@
         9.5
       ],
       "rotationY": 0.7,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_n_3",
@@ -429,7 +429,7 @@
         9.1
       ],
       "rotationY": 1.05,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_n_4",
@@ -440,7 +440,7 @@
         9.5
       ],
       "rotationY": 1.4,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_n_5",
@@ -451,7 +451,7 @@
         9.1
       ],
       "rotationY": 1.75,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "berm_sw_0",
@@ -461,7 +461,7 @@
         0,
         -7
       ],
-      "rotationY": 0.0,
+      "rotationY": 0,
       "scale": 1.05
     },
     {
@@ -483,7 +483,7 @@
         0,
         -2.5
       ],
-      "rotationY": 1.0,
+      "rotationY": 1,
       "scale": 1.05
     },
     {
@@ -505,16 +505,16 @@
         0,
         2.5
       ],
-      "rotationY": 0.0,
+      "rotationY": 0,
       "scale": 0.85
     },
     {
       "id": "scatter_1",
       "placeableId": "mars_rock",
       "position": [
-        5.0,
+        5,
         0,
-        -2.0
+        -2
       ],
       "rotationY": 0.7,
       "scale": 0.85
@@ -525,7 +525,7 @@
       "position": [
         1.5,
         0,
-        5.0
+        5
       ],
       "rotationY": 1.4,
       "scale": 0.85
@@ -534,7 +534,7 @@
       "id": "scatter_3",
       "placeableId": "mars_rock",
       "position": [
-        -1.0,
+        -1,
         0,
         6.5
       ],
@@ -547,7 +547,7 @@
       "position": [
         4.5,
         0,
-        7.0
+        7
       ],
       "rotationY": 2.8,
       "scale": 0.85
@@ -558,10 +558,10 @@
       "position": [
         8.5,
         0,
-        8.0
+        8
       ],
       "rotationY": 0.3,
-      "scale": 1.0
+      "scale": 1
     },
     {
       "id": "ridge_e2_0",
@@ -571,7 +571,7 @@
         0,
         -7.5
       ],
-      "rotationY": 0.0,
+      "rotationY": 0,
       "scale": 1.05
     },
     {

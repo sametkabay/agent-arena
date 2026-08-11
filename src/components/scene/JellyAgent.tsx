@@ -79,7 +79,6 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
   const thinking = agent.state === "thinking" || agent.thinkingIntensity > 0.35;
   const bubble = agent.speechBubble || (thinking ? THINKING_BUBBLE : undefined);
   const settingsOpen = useArenaStore((s) => s.settingsOpen);
-  const chatOpen = useArenaStore((s) => s.chatOpen);
   // Keep labels below Settings (200) / Chat (100). drei Html defaults to ~16M z-index.
   const showLabels = !settingsOpen;
 
@@ -164,7 +163,7 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
           </button>
         </Html>
       )}
-      {showLabels && bubble && !chatOpen && (
+      {showLabels && bubble && (
         <Html
           position={[0, 2.45, 0]}
           center
