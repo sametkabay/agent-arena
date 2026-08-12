@@ -18,12 +18,16 @@ function localLlmTarget(req: IncomingMessage): string {
 }
 
 /**
- * Serve pack GLBs from disk on every request.
+ * Serve pack/character GLBs from disk on every request.
  * Vite's SPA fallback returns index.html for files added after startup when
- * `server.watch.ignored` covers `public/assets/packs/**` (Windows EBUSY workaround).
+ * `server.watch.ignored` covers glb/gltf files (Windows EBUSY workaround).
  */
 function servePackAssets(): Plugin {
   const basePrefix = BASE.replace(/\/$/, "");
+  const servedRoots = [
+    path.resolve(rootDir, "public", "assets", "packs"),
+    path.resolve(rootDir, "public", "assets", "characters"),
+  ];
   return {
     name: "serve-pack-assets",
     configureServer(server) {
@@ -32,17 +36,20 @@ function servePackAssets(): Plugin {
         if (basePrefix && raw.startsWith(basePrefix + "/")) {
           raw = raw.slice(basePrefix.length);
         }
-        if (!raw.startsWith("/assets/packs/")) {
+        if (
+          !raw.startsWith("/assets/packs/") &&
+          !raw.startsWith("/assets/characters/")
+        ) {
           next();
           return;
         }
         const rel = decodeURIComponent(raw.replace(/^\/+/, ""));
         const filePath = path.resolve(rootDir, "public", rel);
-        const packsRoot = path.resolve(rootDir, "public", "assets", "packs");
-        if (
-          !filePath.startsWith(packsRoot + path.sep) &&
-          filePath !== packsRoot
-        ) {
+        const allowed = servedRoots.some(
+          (root) =>
+            filePath === root || filePath.startsWith(root + path.sep),
+        );
+        if (!allowed) {
           next();
           return;
         }
