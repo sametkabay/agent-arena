@@ -16,7 +16,12 @@ npm install
 npm run dev
 ```
 
-Dev server defaults to port **5174**. Ollama is proxied at `/ollama` → `http://127.0.0.1:11434`.
+Dev server defaults to port **5174** (base path `/agent-arena/`). Ollama is proxied at `/ollama` → `http://127.0.0.1:11434`.
+
+## Deploy (GitHub Pages)
+
+Push to `main` runs `.github/workflows/deploy.yml`. In the repo: **Settings → Pages → Source: GitHub Actions**.  
+Live URL: https://sametkabay.github.io/agent-arena/
 
 ## Maps & atmosphere
 

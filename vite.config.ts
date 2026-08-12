@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
+/** GitHub Pages project site: https://<user>.github.io/agent-arena/ */
+const BASE = "/agent-arena/";
 
 /** /local-llm/<host>/<port>/... → http://host:port/... (DEV streaming-friendly proxy). */
 function localLlmTarget(req: IncomingMessage): string {
@@ -21,11 +23,15 @@ function localLlmTarget(req: IncomingMessage): string {
  * `server.watch.ignored` covers `public/assets/packs/**` (Windows EBUSY workaround).
  */
 function servePackAssets(): Plugin {
+  const basePrefix = BASE.replace(/\/$/, "");
   return {
     name: "serve-pack-assets",
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const raw = req.url?.split("?")[0] ?? "";
+        let raw = req.url?.split("?")[0] ?? "";
+        if (basePrefix && raw.startsWith(basePrefix + "/")) {
+          raw = raw.slice(basePrefix.length);
+        }
         if (!raw.startsWith("/assets/packs/")) {
           next();
           return;
@@ -61,6 +67,7 @@ function servePackAssets(): Plugin {
 }
 
 export default defineConfig({
+  base: BASE,
   plugins: [react(), servePackAssets()],
   resolve: {
     alias: {
@@ -87,7 +94,8 @@ export default defineConfig({
       "/local-llm": {
         target: "http://127.0.0.1:3100",
         changeOrigin: true,
-        router: localLlmTarget,
+        // http-proxy `router` — not in Vite's ProxyOptions typings
+        ...({ router: localLlmTarget } as object),
         rewrite: (p) => p.replace(/^\/local-llm\/[^/]+\/\d+/, ""),
         configure: (proxy) => {
           proxy.on("proxyRes", (proxyRes) => {

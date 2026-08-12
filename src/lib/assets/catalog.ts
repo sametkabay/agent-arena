@@ -106,9 +106,10 @@ export function pickClipName(
   return undefined;
 }
 
-const FURN = "/assets/packs/furniture";
-const TREES = "/assets/packs/trees";
-const CAMP = "/assets/packs/camping";
+const ASSET_BASE = import.meta.env.BASE_URL;
+const FURN = `${ASSET_BASE}assets/packs/furniture`;
+const TREES = `${ASSET_BASE}assets/packs/trees`;
+const CAMP = `${ASSET_BASE}assets/packs/camping`;
 
 function furn(name: string): string {
   return `${FURN}/${encodeURIComponent(name)}`;
@@ -123,7 +124,7 @@ function camp(name: string): string {
 }
 
 function packUrl(pack: string, file: string): string {
-  return `/assets/packs/${pack}/${encodeURIComponent(file)}`;
+  return `${ASSET_BASE}assets/packs/${pack}/${encodeURIComponent(file)}`;
 }
 
 function slugify(file: string): string {
