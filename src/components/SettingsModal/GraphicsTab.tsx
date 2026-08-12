@@ -3,7 +3,6 @@ import type { ShadowQuality } from "@/lib/maps/types";
 import { DEFAULT_GRAPHICS } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
 import { Select } from "@/components/ui/Select";
-import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
 
 export function GraphicsTab() {
@@ -62,28 +61,6 @@ export function GraphicsTab() {
           checked={graphics.roomLights}
           onChange={(roomLights) => setGraphics({ roomLights })}
           aria-label={t("settings.graphics.roomLights")}
-        />
-      </label>
-
-      <label className="settings-row">
-        <span>{t("settings.graphics.ambientAudio")}</span>
-        <Switch
-          checked={graphics.ambientAudio === true}
-          onChange={(ambientAudio) => setGraphics({ ambientAudio })}
-          aria-label={t("settings.graphics.ambientAudio")}
-        />
-      </label>
-
-      <label className="settings-row">
-        <span>{t("settings.graphics.ambientVolume")}</span>
-        <Slider
-          min={0}
-          max={1}
-          step={0.05}
-          value={graphics.ambientVolume ?? 0.35}
-          disabled={graphics.ambientAudio !== true}
-          onChange={(ambientVolume) => setGraphics({ ambientVolume })}
-          aria-label={t("settings.graphics.ambientVolume")}
         />
       </label>
 

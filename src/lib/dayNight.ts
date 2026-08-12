@@ -50,19 +50,19 @@ export function resolveSceneLighting(
   }
 
   return {
-    background: mixHex(theme.background, "#0a1020", 0.82),
-    fog: mixHex(theme.fog, "#0c1424", 0.78),
-    ambient: mixHex(theme.ambient, "#6a7a9a", 0.55),
-    hemiSky: mixHex(theme.hemiSky, "#1a2744", 0.7),
-    hemiGround: mixHex(theme.hemiGround, "#1a1820", 0.65),
+    background: mixHex(theme.background, "#0a1020", 0.72),
+    fog: mixHex(theme.fog, "#0c1424", 0.68),
+    ambient: mixHex(theme.ambient, "#8a96b0", 0.38),
+    hemiSky: mixHex(theme.hemiSky, "#243456", 0.55),
+    hemiGround: mixHex(theme.hemiGround, "#2a2630", 0.48),
     sun: "#c5d4ff",
-    ambientIntensity: 0.22,
-    hemiIntensity: 0.28,
-    sunIntensity: 0.38,
+    ambientIntensity: 0.42,
+    hemiIntensity: 0.48,
+    sunIntensity: 0.36,
     sunPosition: [-6, 10, -8],
-    fillIntensity: 0.18,
-    fillColor: "#7a8ec4",
-    fillPosition: [4, 6, 2],
+    fillIntensity: 0.38,
+    fillColor: "#9aabd4",
+    fillPosition: [0, 7, 0],
     nightAmount: 1,
   };
 }

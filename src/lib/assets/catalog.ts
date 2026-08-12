@@ -3,6 +3,7 @@ import { PACK_GLB_INVENTORY } from "@/lib/assets/packInventory.generated";
 export type AssetCategory =
   | "furniture"
   | "nature"
+  | "space"
   | "decor"
   | "ground"
   | "camping"
@@ -36,11 +37,15 @@ export interface PlaceableSpec {
   canAnimate?: boolean;
 }
 
-/** Files with real locomotion clips (scanned from pack GLBs). */
+/** Wander-capable pack files. Clip hints apply when the GLB includes animations. */
 const WANDER_LOCOMOTION: Record<
   string,
   { walk: string[]; idle: string[] }
 > = {
+  "animals/Cat.glb": {
+    walk: ["Walk"],
+    idle: ["Idle"],
+  },
   "animals/Fish.glb": {
     walk: ["Swim"],
     idle: ["Swim"],
@@ -67,6 +72,10 @@ const WANDER_LOCOMOTION: Record<
   },
   "farm-animals/Zebra.glb": {
     walk: ["Walk", "WalkSlow", "Run"],
+    idle: ["Idle"],
+  },
+  "space/Astronaut.glb": {
+    walk: ["Walk"],
     idle: ["Idle"],
   },
 };
@@ -131,7 +140,8 @@ function labelFromFile(file: string): string {
 
 function inferCategory(pack: string, file: string): AssetCategory {
   const n = file.toLowerCase();
-  if (pack === "trees") return "nature";
+  if (pack === "space") return "space";
+  if (pack === "trees" || pack === "nature") return "nature";
   if (pack === "cars") return "vehicles";
   if (pack === "animals" || pack === "farm-animals") return "animals";
   if (pack === "food") return "food";
@@ -160,7 +170,26 @@ function defaultFootprint(category: AssetCategory, file: string): [number, numbe
   if (category === "cosmetics") return [0.4, 0.4];
   if (category === "nature") {
     if (n.includes("tree")) return [1.2, 1.2];
+    if (n.includes("grass blades")) return [0.35, 0.35];
+    if (n.includes("grass clump")) return [0.55, 0.55];
+    if (n.includes("grass")) return [0.7, 0.7];
     return [0.7, 0.7];
+  }
+  if (category === "space") {
+    if (n.includes("house pod")) return [12.5, 4.5];
+    if (n.includes("house long")) return [2.4, 4.6];
+    if (n.includes("house cylinder")) return [3.3, 3.3];
+    if (n.includes("house single support")) return [3.2, 3.2];
+    if (n.includes("house")) return [2.5, 2.3];
+    if (n.includes("base")) return [4.5, 4.5];
+    if (n.includes("rover")) return [1.5, 1.5];
+    if (n.includes("astronaut")) return [0.8, 0.7];
+    if (n.includes("rock large")) return [3.4, 3.3];
+    if (n.includes("tree")) return [1.8, 1.6];
+    if (n.includes("bush")) return [0.9, 0.6];
+    if (n.includes("grass")) return [0.45, 0.4];
+    if (n.includes("plant")) return [0.55, 0.5];
+    return [0.8, 0.8];
   }
   if (category === "camping") {
     if (n.includes("tent")) return [2.2, 2.0];
@@ -180,8 +209,29 @@ function defaultAutoFit(
 ): { autoFit: "height" | "xz"; targetSize: number } {
   const n = file.toLowerCase();
   if (category === "ground") return { autoFit: "xz", targetSize: 2.2 };
-  if (category === "nature" && n.includes("tree")) {
-    return { autoFit: "height", targetSize: 3.2 };
+  if (category === "nature") {
+    if (n.includes("tree")) return { autoFit: "height", targetSize: 3.2 };
+    if (n.includes("grass blades")) return { autoFit: "height", targetSize: 0.28 };
+    if (n.includes("grass clump")) return { autoFit: "height", targetSize: 0.4 };
+    if (n.includes("grass")) return { autoFit: "height", targetSize: 0.55 };
+  }
+  if (category === "space") {
+    if (n.includes("house single support")) return { autoFit: "xz", targetSize: 3.2 };
+    if (n.includes("house pod")) return { autoFit: "height", targetSize: 2.2 };
+    if (n.includes("house")) return { autoFit: "height", targetSize: 2.4 };
+    if (n.includes("base")) return { autoFit: "height", targetSize: 2.6 };
+    if (n.includes("rover")) return { autoFit: "height", targetSize: 1.35 };
+    if (n.includes("astronaut")) return { autoFit: "height", targetSize: 1.7 };
+    if (n.includes("rock large")) return { autoFit: "height", targetSize: 1.45 };
+    if (n.includes("rock")) return { autoFit: "height", targetSize: 0.65 };
+    if (n.includes("tree lava") || n.includes("tree light")) {
+      return { autoFit: "height", targetSize: 2.3 };
+    }
+    if (n.includes("tree")) return { autoFit: "height", targetSize: 3.2 };
+    if (n.includes("bush")) return { autoFit: "height", targetSize: 0.85 };
+    if (n.includes("grass")) return { autoFit: "height", targetSize: 0.32 };
+    if (n.includes("plant")) return { autoFit: "height", targetSize: 0.75 };
+    return { autoFit: "height", targetSize: 1.0 };
   }
   if (category === "vehicles") return { autoFit: "height", targetSize: 1.4 };
   if (category === "animals") return { autoFit: "height", targetSize: 1.0 };
@@ -211,14 +261,17 @@ function defaultAutoFit(
 /** Curated office set — stable short ids used by maps / layoutGrowth. */
 const CURATED_SPECS: Record<string, PlaceableSpec> = {
   desk: {
-    label: "Desk",
+    label: "Desk workstation",
     category: "furniture",
     pack: "furniture",
-    footprint: [1.45, 0.78],
+    // Desk by Robbobin — display floor + blue wall removed; grounded.
+    footprint: [1.6, 1.15],
     glb: furn("Desk.glb"),
-    scale: 0.74 / 0.384,
-    topY: 0.74,
-    faces: "negZ",
+    scale: 1,
+    autoFit: "height",
+    targetSize: 1.05,
+    topY: 0.67,
+    faces: "posZ",
   },
   chair: {
     label: "Desk chair",
@@ -289,6 +342,17 @@ const CURATED_SPECS: Record<string, PlaceableSpec> = {
     scale: 1.75 / 0.88,
     faces: "negZ",
   },
+  bookcase_books: {
+    label: "Office cabinet",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [1.05, 0.4],
+    glb: furn("BookcaseWithBooks.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 1.85,
+    faces: "negZ",
+  },
   table: {
     label: "Table",
     category: "furniture",
@@ -296,6 +360,26 @@ const CURATED_SPECS: Record<string, PlaceableSpec> = {
     footprint: [1.5, 0.85],
     glb: furn("Table.glb"),
     scale: 0.75 / 0.327,
+  },
+  ping_pong_table: {
+    label: "Ping pong table",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [1.55, 2.15],
+    glb: furn("PingPongTable.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.76,
+  },
+  table_large: {
+    label: "Large table",
+    category: "furniture",
+    pack: "furniture",
+    footprint: [1.2, 2.0],
+    glb: furn("TableJeremy.glb"),
+    scale: 1,
+    autoFit: "height",
+    targetSize: 0.75,
   },
   cabinet: {
     label: "Cabinet",
@@ -464,16 +548,16 @@ const CURATED_SPECS: Record<string, PlaceableSpec> = {
     glb: camp("Rock.glb"),
     scale: 1.05 / 0.35,
   },
-  mars_boulder: {
-    label: "Mars boulder",
-    category: "nature",
+  space_boulder: {
+    label: "Space boulder",
+    category: "space",
     pack: "procedural",
     footprint: [1.6, 1.4],
     scale: 1,
   },
-  mars_rock: {
-    label: "Mars rock",
-    category: "nature",
+  space_rock: {
+    label: "Space rock",
+    category: "space",
     pack: "procedural",
     footprint: [0.85, 0.75],
     scale: 1,
@@ -667,6 +751,7 @@ export const ASSET_CATEGORIES: AssetCategory[] = [
   "decor",
   "ground",
   "nature",
+  "space",
   "camping",
   "vehicles",
   "animals",
@@ -677,10 +762,12 @@ export const ASSET_CATEGORIES: AssetCategory[] = [
 export const ASSET_PACKS = [
   "furniture",
   "trees",
+  "nature",
   "camping",
   "cars",
   "animals",
   "farm-animals",
   "food",
   "cosmetics",
+  "space",
 ] as const;

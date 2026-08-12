@@ -2,77 +2,77 @@
   "version": 1,
   "id": "nature",
   "name": "Nature",
-  "description": "Temperate pine-birch forest with a camp clearing and a wildlife trail north-east",
+  "description": "Grassy forest clearing under a misty blue-green sky. Tall pines line the back edge; stylized trees with green, red, and orange canopies ring the sides among grey rocks and grass clumps. Two orange tents face a lit campfire with a picnic table and chairs nearby; a silver SUV sits parked on the grass at the clearing's edge.",
   "builtin": true,
   "floor": {
     "size": 24,
-    "style": "patches",
+    "style": "surface",
     "cells": 24,
     "color": "#6B9B4A",
     "surface": "grass"
   },
   "theme": {
     "floor": "#6B9B4A",
-    "accent": "#4A7566",
-    "background": "#a59e93",
-    "fog": "#a59e93",
-    "ambient": "#ffffff",
-    "hemiSky": "#f5f0e6",
-    "hemiGround": "#c4b8a4",
-    "sun": "#fff5e6"
+    "accent": "#3D7A5C",
+    "background": "#B4C6C2",
+    "fog": "#C2D0CA",
+    "ambient": "#F4FFF8",
+    "hemiSky": "#E8F2F0",
+    "hemiGround": "#8FA87A",
+    "sun": "#FFF6E0"
   },
   "spawnPoints": [
     {
       "id": "spawn_0",
       "position": [
-        -4.0549473320286085,
+        -6.118508342528888,
         0,
-        2.3161425659270805
+        2.7463748262827004
       ],
       "rotationY": 3.1416
     },
     {
       "id": "spawn_1",
       "position": [
-        0.41314730620157825,
+        1.2621843684585805,
         0,
-        3.374209023742292
+        7.1100197713384565
       ],
       "rotationY": 3.1416
     },
     {
       "id": "spawn_2",
       "position": [
-        2.4836834454461654,
+        7.300541104287616,
         0,
-        1.1043738211916097
+        6.186517531173833
       ],
       "rotationY": 3.1416
     },
     {
       "id": "spawn_3",
       "position": [
-        -4.629125244152379,
+        -1.873727533267067,
         0,
-        -3.7138929996763563
+        3.2333207302565166
       ],
       "rotationY": 3.1416
     },
     {
       "id": "spawn_4",
       "position": [
-        1.7213934500627328,
+        2.1372768729042457,
         0,
-        -3.5306138282987716
+        0.7229395796494782
       ],
       "rotationY": 3.1416
     },
     {
       "id": "spawn_5",
       "position": [
-        5.182439543671301,
+        6.394598700700047,
         0,
-        -1.812023204738881
+        -1.678095802049937
       ],
       "rotationY": 3.1416
     }
@@ -348,7 +348,7 @@
         -2.0330346025808517
       ],
       "rotationY": 0,
-      "scale": 0.6
+      "scale": 1
     },
     {
       "id": "prop_63jwxde2_msitwxd2",
@@ -409,9 +409,9 @@
       "id": "prop_1h52i9wh_msoromea",
       "placeableId": "food__cooking_pot_lmedeomg9l",
       "position": [
-        -3.350605817182199,
+        -5.021437944206494,
         0,
-        -1.0546524416143939
+        -3.7619440189876117
       ],
       "rotationY": 0,
       "scale": 0.3
@@ -420,9 +420,9 @@
       "id": "prop_u5t65j1c_msorp86m",
       "placeableId": "food__chicken_leg",
       "position": [
-        -2.603135500682984,
+        -3.942674132052124,
         0,
-        -1.3698984434766197
+        -3.5766972201216207
       ],
       "rotationY": 0,
       "scale": 0.3
@@ -431,9 +431,9 @@
       "id": "prop_8ucn1l2j_msorpq40",
       "placeableId": "food__chicken_leg",
       "position": [
-        -2.467078841911558,
+        -3.8066174732806983,
         0,
-        -1.4537203130819205
+        -3.6605190897269217
       ],
       "rotationY": 0,
       "scale": 0.3
@@ -689,6 +689,556 @@
         -11.741006003735517
       ],
       "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_37uxad9i_msq1j1s2",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -3.5,
+        0,
+        6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ggqtu4j8_msq1j7no",
+      "placeableId": "nature__grass_green",
+      "position": [
+        5.5,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_adr6edg0_msq1j9qx",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -0.5,
+        0,
+        -4.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_kfiutdgm_msq1jblu",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -11,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_uehcb256_msq1jddu",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -8,
+        0,
+        8
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_yocie397_msq1je83",
+      "placeableId": "nature__grass_green",
+      "position": [
+        6,
+        0,
+        8
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_p3qsdlf1_msq1jfgb",
+      "placeableId": "nature__grass_green",
+      "position": [
+        11,
+        0,
+        -3
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_dkh7ycff_msq1jhar",
+      "placeableId": "nature__grass_green",
+      "position": [
+        9,
+        0,
+        -8
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_4zdyh2yz_msq1jimg",
+      "placeableId": "nature__grass_green",
+      "position": [
+        7.5,
+        0,
+        1
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_gcumly9q_msq1jk3p",
+      "placeableId": "nature__grass_green",
+      "position": [
+        8.5,
+        0,
+        5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_tpop8fmk_msq1jmmr",
+      "placeableId": "nature__grass_green",
+      "position": [
+        10.5,
+        0,
+        9.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ix3cf1h0_msq1jo23",
+      "placeableId": "nature__grass_green",
+      "position": [
+        11.5,
+        0,
+        7.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_mw872s0z_msq1jq8z",
+      "placeableId": "nature__grass_green",
+      "position": [
+        0.5,
+        0,
+        10
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ctrrhgyu_msq1jspy",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        -2,
+        0,
+        7
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_l3cm9tzl_msq1jum5",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        -5.5,
+        0,
+        3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_2zqr3zv7_msq1jwhe",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        8,
+        0,
+        -3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_a7b3j4vo_msq1jxt0",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        5.5,
+        0,
+        -9
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_6b1qcivw_msq1jz2g",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        2,
+        0,
+        -8
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ry9hki42_msq1k0jr",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        2.5,
+        0,
+        6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_icv9yzxs_msq1k1k0",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        -4,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ycrs9b40_msq1k2j9",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        -7.5,
+        0,
+        3
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_lrbg7wns_msq1k3my",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        11.5,
+        0,
+        3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_u9rlii3c_msq1k4vb",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        5.5,
+        0,
+        6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_n0auiu6h_msq1k69f",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        3.5,
+        0,
+        -0.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_33s8snos_msq1k7s9",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        6,
+        0,
+        10.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_pr2vx49t_msq1k8ma",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        -1.5,
+        0,
+        10.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_t8y91no1_msq1k9q6",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        -8.5,
+        0,
+        6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_trzt16rh_msq1kd6c",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        -11,
+        0,
+        3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_6fpp5unl_msq1kelm",
+      "placeableId": "nature__grass_clump",
+      "position": [
+        -11.95,
+        0,
+        0
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_u8rb0s2t_msq1kgco",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -9.5,
+        0,
+        0
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_wjux3ogs_msq1ki16",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        -9.5,
+        0,
+        2
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_qdf33ed8_msq1kj6b",
+      "placeableId": "nature__grass_blades",
+      "position": [
+        -9,
+        0,
+        2.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_atahgns9_msq1nflb",
+      "placeableId": "rock_small",
+      "position": [
+        10.675187006417529,
+        0,
+        -6.485690348250685
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_7qsaf9z5_msq1nh3z",
+      "placeableId": "rock",
+      "position": [
+        10.405474547752826,
+        0,
+        -8.225685616637136
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_aps7xrhp_msq1niyh",
+      "placeableId": "rock",
+      "position": [
+        9.741240398252295,
+        0,
+        -2.5290606609286312
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_4gkdpl33_msq1nn57",
+      "placeableId": "rock_small",
+      "position": [
+        10.574813660242311,
+        0,
+        -2.0242080584259767
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_o5kjaci5_msq1nwyp",
+      "placeableId": "camping__tree",
+      "position": [
+        10.546623861815837,
+        0,
+        -3.5611751621764105
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_dnhdfvbv_msq1q6zh",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -8.303441960169057,
+        0,
+        -6.5935155863980555
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_4emj23kx_msq1q8t7",
+      "placeableId": "nature__grass_green",
+      "position": [
+        1.0409586768409493,
+        0,
+        1.623642548924039
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_292pyc8b_msq1qaao",
+      "placeableId": "nature__grass_green",
+      "position": [
+        11.229871099053295,
+        0,
+        0.2835223120544619
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_7iah6nvz_msq1qfne",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -7.448453339304602,
+        0,
+        -9.964150743940941
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_qdfb41j1_msq1qh5f",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -3.8210658357253404,
+        0,
+        -11.094114129487549
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ma63s9ze_msq1qixs",
+      "placeableId": "nature__grass_green",
+      "position": [
+        -0.9153524043204573,
+        0,
+        -11.190072542022655
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_eya5zcx8_msq1qksx",
+      "placeableId": "nature__grass_green",
+      "position": [
+        6.688768624559257,
+        0,
+        -10.921927369361477
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_woe0e2nn_msq1qwv1",
+      "placeableId": "nature__grass_green",
+      "position": [
+        8.550503874290364,
+        0,
+        -9.565360121502017
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_1y7463c2_msq1rk9i",
+      "placeableId": "tree_stylized",
+      "position": [
+        5.943705692003315,
+        0,
+        -11.132971665274535
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_xmphy3m2_msq1sixj",
+      "placeableId": "furniture__chair",
+      "position": [
+        -4.501536719936043,
+        0,
+        -4.277473794525028
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_i3cmbq70_msq1t3go",
+      "placeableId": "furniture__table_cross_cloth",
+      "position": [
+        -0.996672317056909,
+        0,
+        -3.6342202682187255
+      ],
+      "rotationY": 0,
+      "scale": 0.8
+    },
+    {
+      "id": "prop_ch4o2igm_msq1tlrh",
+      "placeableId": "furniture__chair_rounded",
+      "position": [
+        -1.0235778851704769,
+        0,
+        -2.8032280960713756
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_3cyalyr6_msq1tpal",
+      "placeableId": "furniture__chair_rounded",
+      "position": [
+        0.5113726103217999,
+        0,
+        -4.317702263946109
+      ],
+      "rotationY": 3.46,
       "scale": 1
     }
   ]

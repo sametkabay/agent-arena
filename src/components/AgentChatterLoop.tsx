@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import {
   createChatterRuntime,
   disposeChatterRuntime,
+  pauseChatterRuntime,
+  resumeChatterRuntime,
   tickAgentChatter,
 } from "@/lib/ai/chatter";
 
@@ -10,7 +12,18 @@ export function AgentChatterLoop() {
   useEffect(() => {
     const rt = createChatterRuntime();
     const id = window.setInterval(() => tickAgentChatter(rt), 1000);
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        pauseChatterRuntime(rt);
+      } else {
+        resumeChatterRuntime(rt);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
       window.clearInterval(id);
       disposeChatterRuntime(rt);
     };

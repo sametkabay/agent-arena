@@ -46,6 +46,7 @@ import { MapZones } from "@/components/scene/MapZones";
 import { NightGlow, NightSky } from "@/components/scene/NightSky";
 import { AssetPreview } from "@/components/MapEditor/AssetPreview";
 import { ColorField } from "@/components/ui/ColorField";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
@@ -57,7 +58,6 @@ import { useMapHistory } from "@/components/MapEditor/useMapHistory";
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
 import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
 import { lerpSceneLighting } from "@/lib/dayNight";
-import { AMBIENCE_IDS, type AmbienceId } from "@/lib/maps/ambience";
 import { useArenaStore } from "@/store/arenaStore";
 import { uid } from "@/lib/storage";
 
@@ -588,9 +588,11 @@ export function MapEditor() {
   const [assetQuery, setAssetQuery] = useState("");
   const [paintId, setPaintId] = useState<PlaceableId | null>(null);
   const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null);
+  const [confirmClose, setConfirmClose] = useState(false);
   const favoriteAssets = useArenaStore((s) => s.favoriteAssets ?? []);
   const toggleFavoriteAsset = useArenaStore((s) => s.toggleFavoriteAsset);
   const fileRef = useRef<HTMLInputElement>(null);
+  const baselineJson = useRef<string | null>(null);
   const viewportApi = useRef<{
     camera: THREE.Camera;
     gl: THREE.WebGLRenderer;
@@ -599,6 +601,8 @@ export function MapEditor() {
   useEffect(() => {
     if (!open || !sourceId) {
       reset(null);
+      baselineJson.current = null;
+      setConfirmClose(false);
       return;
     }
     // Read customs from the store at load time only — do NOT depend on
@@ -611,11 +615,14 @@ export function MapEditor() {
       closeMapEditor();
       return;
     }
-    reset(cloneMap(def));
+    const loaded = cloneMap(def);
+    baselineJson.current = JSON.stringify(loaded);
+    reset(loaded);
     setSelectedIds([]);
     setPaintId(null);
     setTool("select");
     setCtxMenu(null);
+    setConfirmClose(false);
   }, [open, sourceId, reset, closeMapEditor, showToast, t]);
 
   // Always export/save the latest draft (avoids stale closures).
@@ -1119,6 +1126,24 @@ export function MapEditor() {
     showToast(t("mapEditor.saved"));
   };
 
+  const isDirty = useMemo(() => {
+    if (!draft || baselineJson.current == null) return false;
+    return JSON.stringify(draft) !== baselineJson.current;
+  }, [draft]);
+
+  const requestClose = useCallback(() => {
+    if (isDirty) {
+      setConfirmClose(true);
+      return;
+    }
+    closeMapEditor();
+  }, [isDirty, closeMapEditor]);
+
+  const confirmDiscardClose = useCallback(() => {
+    setConfirmClose(false);
+    closeMapEditor();
+  }, [closeMapEditor]);
+
   const onExport = () => {
     const current = draftRef.current;
     if (!current) return;
@@ -1241,7 +1266,7 @@ export function MapEditor() {
           <button type="button" className="map-editor__primary" onClick={onSave}>
             {t("mapEditor.save")}
           </button>
-          <button type="button" onClick={closeMapEditor}>
+          <button type="button" onClick={requestClose}>
             {t("mapEditor.close")}
           </button>
         </div>
@@ -1545,6 +1570,7 @@ export function MapEditor() {
               )}
               <button
                 type="button"
+                className="map-editor__action"
                 onClick={() =>
                   duplicateTargets(selectedPlaceables.map((p) => p.id))
                 }
@@ -2098,24 +2124,6 @@ export function MapEditor() {
                 />
               </label>
 
-              <label className="map-editor__field">
-                <span>{t("mapEditor.ambience")}</span>
-                <Select
-                  variant="dark"
-                  value={draft.ambience ?? "none"}
-                  onChange={(v) =>
-                    commit({
-                      ...draft,
-                      ambience: v as AmbienceId,
-                    })
-                  }
-                  options={AMBIENCE_IDS.map((id) => ({
-                    value: id,
-                    label: t(`mapEditor.ambienceIds.${id}`),
-                  }))}
-                />
-              </label>
-
               <p className="map-editor__hint">{t("mapEditor.selectHint")}</p>
             </>
           )}
@@ -2123,6 +2131,17 @@ export function MapEditor() {
           <p className="map-editor__hint">{t("mapEditor.hotkeys")}</p>
         </aside>
       </div>
+
+      <ConfirmDialog
+        open={confirmClose}
+        title={t("mapEditor.closeUnsavedTitle")}
+        message={t("mapEditor.closeUnsavedBody")}
+        confirmLabel={t("mapEditor.closeDiscard")}
+        cancelLabel={t("settings.cancel")}
+        danger
+        onCancel={() => setConfirmClose(false)}
+        onConfirm={confirmDiscardClose}
+      />
     </div>
   );
 }

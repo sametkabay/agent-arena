@@ -9,14 +9,6 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
 import { useArenaStore } from "@/store/arenaStore";
-import {
-  unlockAmbience,
-  setAmbienceProfile,
-  setAmbienceDayNight,
-  setAmbienceEnabled,
-  setAmbienceVolume,
-} from "@/lib/audio/ambienceBus";
-import { resolveAmbienceId } from "@/lib/maps/ambience";
 
 export default function App() {
   const hydrate = useArenaStore((s) => s.hydrate);
@@ -24,8 +16,6 @@ export default function App() {
   const toast = useArenaStore((s) => s.toast);
   const mapEditorOpen = useArenaStore((s) => s.mapEditorOpen);
   const dayNight = useArenaStore((s) => s.dayNight);
-  const activeMap = useArenaStore((s) => s.activeMap);
-  const graphics = useArenaStore((s) => s.graphics);
 
   useEffect(() => {
     hydrate();
@@ -56,27 +46,6 @@ export default function App() {
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, []);
-
-  // Procedural ambience (unlocked on first pointer/key — browser autoplay policy).
-  useEffect(() => {
-    const unlock = () => {
-      void unlockAmbience();
-    };
-    window.addEventListener("pointerdown", unlock, { once: true });
-    window.addEventListener("keydown", unlock, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("keydown", unlock);
-    };
-  }, []);
-
-  useEffect(() => {
-    const profile = activeMap ? resolveAmbienceId(activeMap) : "none";
-    setAmbienceProfile(profile);
-    setAmbienceDayNight(dayNight);
-    setAmbienceEnabled(graphics.ambientAudio === true);
-    setAmbienceVolume(graphics.ambientVolume ?? 0.35);
-  }, [activeMap, dayNight, graphics.ambientAudio, graphics.ambientVolume]);
 
   if (!userName) {
     return <NameGate />;

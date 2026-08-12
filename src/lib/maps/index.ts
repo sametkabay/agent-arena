@@ -46,17 +46,13 @@ export {
   isBuiltinMapId,
 } from "@/lib/maps/runtime";
 export {
-  AMBIENCE_IDS,
-  isAmbienceId,
-  resolveAmbienceId,
   mapWantsRoomLights,
   surfaceWantsRoomLights,
-} from "@/lib/maps/ambience";
+} from "@/lib/maps/mapRegions";
 export type {
-  AmbienceId,
   MapZone,
   MapZoneKind,
   MapLightPoint,
-} from "@/lib/maps/ambience";
+} from "@/lib/maps/mapRegions";
 export { MAP_PRESETS, createMapFromPreset } from "@/lib/maps/presets";
 export type { MapPresetId, MapPresetMeta } from "@/lib/maps/presets";

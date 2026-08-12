@@ -20,10 +20,9 @@ Dev server defaults to port **5174**. Ollama is proxied at `/ollama` → `http:/
 
 ## Maps & atmosphere
 
-- Four builtin maps: **Office**, **Nature**, **Factory**, **Mars** (aamf v1 JSON)
+- Three builtin maps: **Office**, **Nature**, **Space** (aamf v1 JSON)
 - Full-screen map editor: place assets, snap grid, theme colors, zones, import/export
 - Day/night with smooth blend, night sky, practical lights (lamps / campfire / map lights)
-- Procedural ambience audio (Web Audio — no sample files / no copyrighted loops)
 - Outdoor maps skip floating “room” fill lights; indoor maps keep them
 
 ## Phase notes

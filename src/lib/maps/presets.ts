@@ -3,8 +3,7 @@ import { getBuiltinMap } from "@/lib/maps/runtime";
 
 export type MapPresetId =
   | "starter_camp"
-  | "factory_yard"
-  | "mars_outpost"
+  | "space_outpost"
   | "office_lounge"
   | "blank_concrete";
 
@@ -23,16 +22,10 @@ export const MAP_PRESETS: MapPresetMeta[] = [
     sourceBuiltin: "nature",
   },
   {
-    id: "factory_yard",
-    nameKey: "settings.map.presets.factory_yard.name",
-    descriptionKey: "settings.map.presets.factory_yard.description",
-    sourceBuiltin: "factory",
-  },
-  {
-    id: "mars_outpost",
-    nameKey: "settings.map.presets.mars_outpost.name",
-    descriptionKey: "settings.map.presets.mars_outpost.description",
-    sourceBuiltin: "mars",
+    id: "space_outpost",
+    nameKey: "settings.map.presets.space_outpost.name",
+    descriptionKey: "settings.map.presets.space_outpost.description",
+    sourceBuiltin: "space",
   },
   {
     id: "office_lounge",
@@ -58,7 +51,6 @@ export function createMapFromPreset(presetId: MapPresetId): ArenaMapDefinition {
       name: "Concrete pad",
       description: "Clean concrete slab — ready to dress up",
       builtin: false,
-      ambience: "factory",
       roomLights: true,
       floor: {
         size: 20,
@@ -106,8 +98,7 @@ export function createMapFromPreset(presetId: MapPresetId): ArenaMapDefinition {
 
   const names: Record<MapPresetId, string> = {
     starter_camp: "Starter camp",
-    factory_yard: "Factory yard",
-    mars_outpost: "Mars outpost",
+    space_outpost: "Space outpost",
     office_lounge: "Office lounge",
     blank_concrete: "Concrete pad",
   };

@@ -1,8 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { IncomingMessage } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,8 +15,53 @@ function localLlmTarget(req: IncomingMessage): string {
   return `http://${m[1]}:${m[2]}`;
 }
 
+/**
+ * Serve pack GLBs from disk on every request.
+ * Vite's SPA fallback returns index.html for files added after startup when
+ * `server.watch.ignored` covers `public/assets/packs/**` (Windows EBUSY workaround).
+ */
+function servePackAssets(): Plugin {
+  return {
+    name: "serve-pack-assets",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const raw = req.url?.split("?")[0] ?? "";
+        if (!raw.startsWith("/assets/packs/")) {
+          next();
+          return;
+        }
+        const rel = decodeURIComponent(raw.replace(/^\/+/, ""));
+        const filePath = path.resolve(rootDir, "public", rel);
+        const packsRoot = path.resolve(rootDir, "public", "assets", "packs");
+        if (
+          !filePath.startsWith(packsRoot + path.sep) &&
+          filePath !== packsRoot
+        ) {
+          next();
+          return;
+        }
+        if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+          next();
+          return;
+        }
+        const ext = path.extname(filePath).toLowerCase();
+        const type =
+          ext === ".glb"
+            ? "model/gltf-binary"
+            : ext === ".gltf"
+              ? "model/gltf+json"
+              : "application/octet-stream";
+        res.statusCode = 200;
+        res.setHeader("Content-Type", type);
+        res.setHeader("Cache-Control", "no-cache");
+        fs.createReadStream(filePath).pipe(res as ServerResponse);
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), servePackAssets()],
   resolve: {
     alias: {
       "@": path.resolve(rootDir, "src"),

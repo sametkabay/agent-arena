@@ -1,4 +1,4 @@
-import type { MapZone } from "@/lib/maps/ambience";
+import type { MapZone } from "@/lib/maps/mapRegions";
 
 /** Soft translucent zone rings — editor + subtle play hint. */
 export function MapZones({

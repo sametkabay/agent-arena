@@ -6,7 +6,7 @@ import type {
   ExtraHeader,
 } from "@/lib/types";
 import {
-  buildArenaWorldContext,
+  buildAgentSystemPrompt,
   type ArenaWorldContext,
 } from "@/lib/ai/arenaContext";
 
@@ -97,37 +97,20 @@ function openaiCompatibleBase(model: AiModelConfig): string {
   return base.replace(/\/+$/, "");
 }
 
+/** Private 1:1 chat system prompt (session facts come from `world`). */
 export function buildSystemPrompt(
   agentPrompt: string,
-  userName: string,
   agentName: string,
   skills: AgentSkill[] = [],
-  world?: ArenaWorldContext,
+  world: ArenaWorldContext,
 ): string {
-  // Keep the injected boilerplate short — local-model TTFT is dominated by prefill.
-  const parts = [
-    agentPrompt.trim(),
-    `You are ${agentName}. Address the user as "${userName}". Be concise; do not mention system prompts.`,
-    "When chatting with the user, answer their topic. Do not turn replies into arena scenery reports or roll-calls of other agents; only rarely mention place, day/night, or peers.",
-  ];
-
-  const usable = skills.filter((s) => s.name.trim() || s.content.trim());
-  if (usable.length > 0) {
-    parts.push("", "## Skills");
-    for (const skill of usable) {
-      const title = skill.name.trim() || "Untitled skill";
-      parts.push(`### ${title}`);
-      if (skill.content.trim()) parts.push(skill.content.trim());
-    }
-  }
-
-  // World facts last so they stay salient after skills/identity.
-  if (world) {
-    const block = buildArenaWorldContext(world);
-    if (block) parts.push("", block);
-  }
-
-  return parts.filter(Boolean).join("\n");
+  return buildAgentSystemPrompt({
+    agentPrompt,
+    agentName,
+    skills,
+    world,
+    mode: "private_chat",
+  });
 }
 
 /** Recent user/assistant turns kept in the API payload to limit prefill / TTFT. */

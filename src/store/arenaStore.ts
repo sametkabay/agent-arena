@@ -39,6 +39,8 @@ interface ArenaState extends AppPersisted {
   chatOpen: boolean;
   settingsOpen: boolean;
   settingsTab: "general" | "models" | "agents" | "map" | "graphics";
+  /** When set, Agents settings tab opens that agent’s editor. */
+  settingsFocusAgentId: string | null;
   mapEditorOpen: boolean;
   mapEditorSourceId: string | null;
   chats: Record<string, ChatMessage[]>;
@@ -57,6 +59,8 @@ interface ArenaState extends AppPersisted {
   setLanguage: (language: LanguageCode) => void;
   setSettingsOpen: (open: boolean) => void;
   setSettingsTab: (tab: ArenaState["settingsTab"]) => void;
+  openAgentSettings: (agentId: string) => void;
+  clearSettingsFocusAgent: () => void;
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
@@ -153,6 +157,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   chatOpen: false,
   settingsOpen: false,
   settingsTab: "general",
+  settingsFocusAgentId: null,
   mapEditorOpen: false,
   mapEditorSourceId: null,
   chats: initial.chats ?? {},
@@ -195,8 +200,20 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     get().persist();
   },
 
-  setSettingsOpen: (open) => set({ settingsOpen: open }),
+  setSettingsOpen: (open) =>
+    set(
+      open
+        ? { settingsOpen: true }
+        : { settingsOpen: false, settingsFocusAgentId: null },
+    ),
   setSettingsTab: (tab) => set({ settingsTab: tab, settingsOpen: true }),
+  openAgentSettings: (agentId) =>
+    set({
+      settingsOpen: true,
+      settingsTab: "agents",
+      settingsFocusAgentId: agentId,
+    }),
+  clearSettingsFocusAgent: () => set({ settingsFocusAgentId: null }),
 
   setGraphics: (partial) => {
     set((s) => ({ graphics: { ...s.graphics, ...partial } }));

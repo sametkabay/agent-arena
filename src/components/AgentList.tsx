@@ -13,6 +13,7 @@ export function AgentList({ collapsed, onToggle }: Props) {
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
+  const openAgentSettings = useArenaStore((s) => s.openAgentSettings);
 
   return (
     <div
@@ -42,31 +43,50 @@ export function AgentList({ collapsed, onToggle }: Props) {
               {t("agentList.empty")}
             </button>
           ) : (
-            activeAgents.map((agent) => (
-              <button
-                key={agent.id}
-                type="button"
-                className={
-                  "side-panel__item" +
-                  (selectedAgentId === agent.id
-                    ? " side-panel__item--active"
-                    : "")
-                }
-                onClick={() => selectAgent(agent.id)}
-              >
-                <span
-                  className="side-panel__swatch"
-                  style={{ background: agent.color }}
-                  aria-hidden
-                />
-                <span className="side-panel__meta">
-                  <span className="side-panel__name">{agent.displayName}</span>
-                  <span className="side-panel__bio">
-                    {agent.bio || t("agentList.talk")}
-                  </span>
-                </span>
-              </button>
-            ))
+            activeAgents.map((agent) => {
+              const active = selectedAgentId === agent.id;
+              return (
+                <div
+                  key={agent.id}
+                  className={
+                    "side-panel__item" +
+                    (active ? " side-panel__item--active" : "")
+                  }
+                >
+                  <button
+                    type="button"
+                    className="side-panel__item-main"
+                    onClick={() => selectAgent(agent.id)}
+                  >
+                    <span
+                      className="side-panel__swatch"
+                      style={{ background: agent.color }}
+                      aria-hidden
+                    />
+                    <span className="side-panel__meta">
+                      <span className="side-panel__name">{agent.displayName}</span>
+                      <span className="side-panel__bio">
+                        {agent.bio || t("agentList.talk")}
+                      </span>
+                    </span>
+                  </button>
+                  {active && (
+                    <button
+                      type="button"
+                      className="side-panel__item-edit"
+                      title={t("agentList.edit")}
+                      aria-label={t("agentList.edit")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openAgentSettings(agent.id);
+                      }}
+                    >
+                      ✎
+                    </button>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       )}

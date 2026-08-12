@@ -19,7 +19,7 @@ const FIT = 1;
 const MARGIN_DEFAULT = 1.45;
 const MARGIN_ANIMALS = 1.9;
 /** Bump to invalidate in-memory thumbs after framing changes. */
-const CACHE_VER = "framing-v2";
+const CACHE_VER = "framing-v10-pingpong-567cbf-linear";
 
 const cache = new Map<string, string>();
 const inflight = new Map<PlaceableId, Promise<string>>();
@@ -121,8 +121,10 @@ function prepareMeshes(root: Object3D) {
 }
 
 function frameMarginFor(id: PlaceableId): number {
-  const cat = PLACEABLE_SPECS[id]?.category;
+  const spec = PLACEABLE_SPECS[id];
+  const cat = spec?.category;
   if (cat === "animals") return MARGIN_ANIMALS;
+  if (id.includes("astronaut")) return MARGIN_ANIMALS;
   return MARGIN_DEFAULT;
 }
 

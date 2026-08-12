@@ -5,15 +5,13 @@ import {
   type FloorSurfaceId,
 } from "@/lib/maps/floorSurfaces";
 import {
-  isAmbienceId,
   isMapLightPoint,
   isMapZone,
-  type AmbienceId,
   type MapLightPoint,
   type MapZone,
-} from "@/lib/maps/ambience";
+} from "@/lib/maps/mapRegions";
 
-export type { AmbienceId, MapLightPoint, MapZone } from "@/lib/maps/ambience";
+export type { MapLightPoint, MapZone } from "@/lib/maps/mapRegions";
 
 export interface MapTheme {
   floor: string;
@@ -92,8 +90,6 @@ export interface ArenaMapDefinition {
   theme: MapTheme;
   spawnPoints: MapSpawnPoint[];
   placeables: PlaceableInstance[];
-  /** Procedural ambience profile (optional; inferred from id/surface). */
-  ambience?: AmbienceId;
   /** Soft atmosphere / platform regions. */
   zones?: MapZone[];
   /** Extra practical point lights authored in the map. */
@@ -127,7 +123,6 @@ export function isArenaMapDefinition(v: unknown): v is ArenaMapDefinition {
   if (floor.surface != null && !isFloorSurfaceId(floor.surface)) return false;
   if (!m.theme || typeof m.theme !== "object") return false;
   if (!Array.isArray(m.spawnPoints) || !Array.isArray(m.placeables)) return false;
-  if (m.ambience != null && !isAmbienceId(m.ambience)) return false;
   if (m.zones != null && (!Array.isArray(m.zones) || !m.zones.every(isMapZone))) {
     return false;
   }
@@ -170,17 +165,35 @@ export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinit
       { id: "spawn_0", position: [0, 0, 2], rotationY: Math.PI },
     ],
     placeables: partial?.placeables ?? [],
-    ambience: partial?.ambience,
     zones: partial?.zones ? structuredClone(partial.zones) : undefined,
     lights: partial?.lights ? structuredClone(partial.lights) : undefined,
     roomLights: partial?.roomLights,
   };
 }
 
+const LEGACY_PLACEABLE_IDS: Record<string, string> = {
+  mars_boulder: "space_boulder",
+  mars_rock: "space_rock",
+};
+
+export function migratePlaceableId(id: string): string {
+  return LEGACY_PLACEABLE_IDS[id] ?? id;
+}
+
+function migratePlaceables(placeables: PlaceableInstance[]): PlaceableInstance[] {
+  return placeables.map((p) => {
+    const next = migratePlaceableId(p.placeableId);
+    return next === p.placeableId ? p : { ...p, placeableId: next };
+  });
+}
+
 export function cloneMap(
   def: ArenaMapDefinition,
   overrides?: Partial<ArenaMapDefinition>,
 ): ArenaMapDefinition {
+  const placeables = overrides?.placeables
+    ? structuredClone(overrides.placeables)
+    : structuredClone(def.placeables);
   return {
     ...structuredClone(def),
     ...overrides,
@@ -189,9 +202,7 @@ export function cloneMap(
     spawnPoints: overrides?.spawnPoints
       ? structuredClone(overrides.spawnPoints)
       : structuredClone(def.spawnPoints),
-    placeables: overrides?.placeables
-      ? structuredClone(overrides.placeables)
-      : structuredClone(def.placeables),
+    placeables: migratePlaceables(placeables),
     zones: overrides?.zones
       ? structuredClone(overrides.zones)
       : def.zones
@@ -202,7 +213,6 @@ export function cloneMap(
       : def.lights
         ? structuredClone(def.lights)
         : undefined,
-    ambience: overrides?.ambience ?? def.ambience,
     roomLights: overrides?.roomLights ?? def.roomLights,
   };
 }

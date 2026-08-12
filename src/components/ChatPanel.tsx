@@ -78,7 +78,6 @@ export function ChatPanel() {
   const chatOpen = useArenaStore((s) => s.chatOpen);
   const agents = useArenaStore((s) => s.agents);
   const models = useArenaStore((s) => s.models);
-  const userName = useArenaStore((s) => s.userName);
   const chats = useArenaStore((s) => s.chats);
   const chatBusyById = useArenaStore((s) => s.chatBusyById);
   const appendChat = useArenaStore((s) => s.appendChat);
@@ -202,7 +201,6 @@ export function ChatPanel() {
 
     const system = buildSystemPrompt(
       agent.systemPrompt,
-      userName,
       agent.displayName,
       agent.skills ?? [],
       getArenaWorldContext(agent.id),
@@ -236,7 +234,7 @@ export function ChatPanel() {
         messages: [
           { role: "system", content: system },
           ...prior,
-          { role: "user", content: withSituationUserMessage(agent.id, text) },
+          { role: "user", content: withSituationUserMessage(agent.id, text, "private_chat") },
         ],
         onToken: (chunk) => {
           assembled += chunk;

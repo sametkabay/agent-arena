@@ -9,7 +9,7 @@ import type {
   MapId,
 } from "@/lib/types";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
-import { isArenaMapDefinition, migrateLegacyMapFloorStyles } from "@/lib/maps/schema";
+import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId } from "@/lib/maps/schema";
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 
@@ -25,9 +25,43 @@ export const DEFAULT_GRAPHICS: GraphicsSettings = {
   roomLights: true,
   antialias: true,
   maxDpr: 1.5,
-  ambientAudio: false,
-  ambientVolume: 0.35,
 };
+
+function sanitizeGraphics(raw: unknown): GraphicsSettings {
+  const g =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  return {
+    castShadows:
+      typeof g.castShadows === "boolean"
+        ? g.castShadows
+        : DEFAULT_GRAPHICS.castShadows,
+    shadowQuality:
+      g.shadowQuality === "off" ||
+      g.shadowQuality === "low" ||
+      g.shadowQuality === "medium" ||
+      g.shadowQuality === "high"
+        ? g.shadowQuality
+        : DEFAULT_GRAPHICS.shadowQuality,
+    contactShadows:
+      typeof g.contactShadows === "boolean"
+        ? g.contactShadows
+        : DEFAULT_GRAPHICS.contactShadows,
+    lampLights:
+      typeof g.lampLights === "boolean"
+        ? g.lampLights
+        : DEFAULT_GRAPHICS.lampLights,
+    roomLights:
+      typeof g.roomLights === "boolean"
+        ? g.roomLights
+        : DEFAULT_GRAPHICS.roomLights,
+    antialias:
+      typeof g.antialias === "boolean" ? g.antialias : DEFAULT_GRAPHICS.antialias,
+    maxDpr:
+      typeof g.maxDpr === "number" && Number.isFinite(g.maxDpr)
+        ? Math.min(3, Math.max(0.5, g.maxDpr))
+        : DEFAULT_GRAPHICS.maxDpr,
+  };
+}
 
 export function defaultPersisted(): AppPersisted {
   return {
@@ -94,6 +128,10 @@ function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
     ...m,
     builtin: false,
     version: 1 as const,
+    placeables: m.placeables.map((p) => ({
+      ...p,
+      placeableId: migratePlaceableId(p.placeableId),
+    })),
   }));
   // Legacy "checker" meant surface default — migrate once so explicit checker works later.
   if (typeof localStorage !== "undefined" && !localStorage.getItem(FLOOR_STYLE_MIGRATE_KEY)) {
@@ -103,10 +141,17 @@ function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
   return maps;
 }
 
+const LEGACY_MAP_IDS: Record<string, string> = { mars: "space" };
+
+function migrateMapId(id: string): string {
+  return LEGACY_MAP_IDS[id] ?? id;
+}
+
 function sanitizeMapId(v: unknown, customMaps: ArenaMapDefinition[]): MapId {
   if (typeof v !== "string" || !v) return "office";
-  if (isBuiltinMapId(v)) return v;
-  if (customMaps.some((m) => m.id === v)) return v;
+  const id = migrateMapId(v);
+  if (isBuiltinMapId(id)) return id;
+  if (customMaps.some((m) => m.id === id)) return id;
   return "office";
 }
 
@@ -153,10 +198,12 @@ export function loadPersisted(): AppPersisted {
       agents: sanitizeAgents(parsed.agents),
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
-      graphics: { ...DEFAULT_GRAPHICS, ...(parsed.graphics ?? {}) },
+      graphics: sanitizeGraphics(parsed.graphics),
       dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : "day",
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
-        ? parsed.favoriteAssets.filter((x): x is string => typeof x === "string")
+        ? parsed.favoriteAssets
+            .filter((x): x is string => typeof x === "string")
+            .map(migratePlaceableId)
         : [],
       chats: sanitizeChats(parsed.chats),
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),

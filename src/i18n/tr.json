@@ -25,7 +25,8 @@
   "agentList": {
     "title": "Ajanlar",
     "empty": "Henüz ajan yok. Eklemek için Ajanlar’a tıkla.",
-    "talk": "Konuş"
+    "talk": "Konuş",
+    "edit": "Ajanı düzenle"
   },
   "mapList": {
     "title": "Haritalar",
@@ -160,13 +161,9 @@
           "name": "Kamp başlangıcı",
           "description": "Doğa kampı kopyası"
         },
-        "factory_yard": {
-          "name": "Fabrika sahası",
-          "description": "Endüstriyel sahne kopyası"
-        },
-        "mars_outpost": {
-          "name": "Mars üssü",
-          "description": "Mars üssü kopyası"
+        "space_outpost": {
+          "name": "Space üssü",
+          "description": "Space üssü kopyası"
         },
         "office_lounge": {
           "name": "Ofis lounge",
@@ -191,9 +188,7 @@
       "reset": "Varsayılanlara dön",
       "low": "Düşük",
       "medium": "Orta",
-      "high": "Yüksek",
-      "ambientAudio": "Ortam sesi",
-      "ambientVolume": "Ses seviyesi"
+      "high": "Yüksek"
     }
   },
   "poly": {
@@ -237,19 +232,15 @@
   "maps": {
     "office": {
       "name": "Ofis",
-      "description": "Açık ofis — masa sıraları, toplantı ve lounge"
+      "description": "Sıcak krem karo zeminde yumuşak gün ışığında açık ofis. Monitörlü masa sıraları ve saksı bitkileri, kırmızı sandalyeli uzun toplantı masası ve kitaplıklara bakıyor. Mutfak köşesinde buzdolabı, ocak, lavabo ve yemek masası var; mavi kanepeler ile kırmızı lounge ping-pong masasının yanında. Uzun yer lambaları sıcak ışık havuzları oluşturuyor; küçük bir siyah kedi dolaşıyor."
     },
     "nature": {
       "name": "Doğa",
-      "description": "Kamp alanı ve yaban patikası olan orman açıklığı"
+      "description": "Sisli mavi-yeşil gökyüzü altında çimenli orman açıklığı. Arka kenarda uzun çamlar; yanlarda yeşil, kırmızı ve turuncu tepeli stilize ağaçlar, gri kayalar ve çimen kümeleri arasında. İki turuncu çadır yanan kamp ateşine bakıyor; yanında piknik masası ve sandalyeler, açıklığın kenarında gümüş bir SUV park etmiş."
     },
-    "factory": {
-      "name": "Fabrika",
-      "description": "Raf duvarları, kasa dock ve mola köşeli depo"
-    },
-    "mars": {
-      "name": "Mars",
-      "description": "Habitat, ikmal pad’i ve kaya sırtları"
+    "space": {
+      "name": "Space",
+      "description": "Şeftali tonlu pus altında tozlu kırmızımsı-turuncu gezegen üssü. Gri habitat kubbesi ve küçük pod modülleri, istiflenmiş ikmal sandıkları, çanak antenler ve mavi parlayan beacon lambaları arasında. Uzaylı bitkiler ve kıvrık koyu ağaçlar kaya sırtları ile kayalar arasında büyüyor; altı tekerlekli bir rover ve büyük dairesel bir üs halkası avluyu belirliyor."
     }
   },
   "mapEditor": {
@@ -261,6 +252,9 @@
     "import": "İçe aktar",
     "save": "Haritayı kaydet",
     "close": "Kapat",
+    "closeUnsavedTitle": "Kaydedilmemiş değişiklikler",
+    "closeUnsavedBody": "Kaydedilmemiş düzenlemeleriniz var. Kaydetmeden kapatmak istiyor musunuz?",
+    "closeDiscard": "Kaydetmeden kapat",
     "library": "Asset kütüphanesi",
     "searchAssets": "Asset ara…",
     "searchEmpty": "Aramanızla eşleşen asset yok.",
@@ -268,6 +262,7 @@
     "cat": {
       "furniture": "Mobilya",
       "nature": "Doğa",
+      "space": "Space",
       "camping": "Kamp",
       "decor": "Dekor",
       "ground": "Zemin",
@@ -357,23 +352,17 @@
     "themeHemiGround": "Hemi zemin",
     "themeSun": "Güneş",
     "themeAccent": "Vurgu",
-    "ambience": "Ambiyans profili",
-    "ambienceIds": {
-      "office": "Ofis",
-      "nature": "Doğa",
-      "factory": "Fabrika",
-      "mars": "Mars",
-      "none": "Yok"
-    },
     "packs": {
       "furniture": "Mobilya",
       "trees": "Ağaçlar",
+      "nature": "Doğa",
       "camping": "Kamp",
       "cars": "Araçlar",
       "animals": "Hayvanlar",
       "farm-animals": "Çiftlik",
       "food": "Yiyecek",
-      "cosmetics": "Kozmetik"
+      "cosmetics": "Kozmetik",
+      "space": "Space"
     }
   }
 }

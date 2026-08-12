@@ -1,21 +1,6 @@
 import type { FloorSurfaceId } from "@/lib/maps/floorSurfaces";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 
-/** Procedural ambience profile — no external audio assets. */
-export type AmbienceId = "office" | "nature" | "factory" | "mars" | "none";
-
-export const AMBIENCE_IDS: readonly AmbienceId[] = [
-  "office",
-  "nature",
-  "factory",
-  "mars",
-  "none",
-] as const;
-
-export function isAmbienceId(v: unknown): v is AmbienceId {
-  return typeof v === "string" && (AMBIENCE_IDS as readonly string[]).includes(v);
-}
-
 /** Soft region for atmosphere / future FX triggers (aamf optional). */
 export type MapZoneKind = "camp" | "yard" | "indoor" | "path" | "platform" | "custom";
 
@@ -69,20 +54,6 @@ export function isMapLightPoint(v: unknown): v is MapLightPoint {
 /** Indoor surfaces get floating room fill lights; outdoor maps rely on practicals. */
 export function surfaceWantsRoomLights(surface: FloorSurfaceId | undefined): boolean {
   return surface === "office" || surface === "concrete" || surface === "factory";
-}
-
-export function resolveAmbienceId(def: ArenaMapDefinition): AmbienceId {
-  if (def.ambience && isAmbienceId(def.ambience)) return def.ambience;
-  if (def.id === "office" || def.id === "nature" || def.id === "factory" || def.id === "mars") {
-    return def.id;
-  }
-  const surface = def.floor.surface;
-  if (surface === "grass") return "nature";
-  if (surface === "dirt") return "mars";
-  if (surface === "factory") return "factory";
-  if (surface === "concrete") return "factory";
-  if (surface === "office") return "office";
-  return "none";
 }
 
 export function mapWantsRoomLights(def: ArenaMapDefinition): boolean {

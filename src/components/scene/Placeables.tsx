@@ -1,10 +1,12 @@
-import { Suspense, useEffect, useMemo, Component, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useRef, Component, type ReactNode } from "react";
 import { useAnimations, useGLTF } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import {
   Box3,
   Color,
   Vector3,
   type AnimationClip,
+  type Group,
   type Mesh,
   type MeshStandardMaterial,
   type Object3D,
@@ -35,6 +37,32 @@ const WALL_SOLID_PALETTE = {
   trimLight: new Color("#D2C8B8"),
   glass: new Color("#C5D0C8"),
 };
+
+/** Step bounce for wander animals whose GLB has no walk/idle clips (e.g. Cat). */
+function ProceduralWalk({
+  active,
+  children,
+}: {
+  active: boolean;
+  children: ReactNode;
+}) {
+  const ref = useRef<Group>(null);
+  useFrame(({ clock }) => {
+    const g = ref.current;
+    if (!g) return;
+    if (!active) {
+      g.position.y = 0;
+      g.rotation.x = 0;
+      g.rotation.z = 0;
+      return;
+    }
+    const t = clock.elapsedTime * 11;
+    g.position.y = Math.abs(Math.sin(t)) * 0.035;
+    g.rotation.z = Math.sin(t) * 0.1;
+    g.rotation.x = Math.sin(t * 2) * 0.035;
+  });
+  return <group ref={ref}>{children}</group>;
+}
 
 function isKenneyWallLikeGlb(path: string): boolean {
   const n = decodeURIComponent(path).toLowerCase();
@@ -234,9 +262,16 @@ function KenneyGlb({
     };
   }, [spec.canWander, actions, names, locomotion, walkName, idleName]);
 
+  const useProceduralWalk = Boolean(spec.canWander) && names.length === 0;
+  const mesh = <primitive object={clone} />;
+
   return (
     <group scale={scale}>
-      <primitive object={clone} />
+      {useProceduralWalk ? (
+        <ProceduralWalk active={locomotion === "walk"}>{mesh}</ProceduralWalk>
+      ) : (
+        mesh
+      )}
       <FireMeshTicker meshes={fireMeshes} />
     </group>
   );

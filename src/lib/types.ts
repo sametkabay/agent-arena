@@ -66,9 +66,6 @@ export interface GraphicsSettings {
   roomLights: boolean;
   antialias: boolean;
   maxDpr: number;
-  /** Procedural map ambience (Web Audio — no sample files). */
-  ambientAudio: boolean;
-  ambientVolume: number;
 }
 
 export interface AppPersisted {

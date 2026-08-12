@@ -1,10 +1,10 @@
 import { chatCompletion } from "@/lib/ai/providers";
 import {
-  buildArenaWorldContext,
+  buildAgentSystemPrompt,
   getArenaWorldContext,
   withSituationUserMessage,
 } from "@/lib/ai/arenaContext";
-import type { AgentConfig, AiModelConfig, LanguageCode } from "@/lib/types";
+import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import { useArenaStore } from "@/store/arenaStore";
 
 /** At chattiness 100 → average 2 mutters / minute → 30s mean gap. */
@@ -22,52 +22,22 @@ export function scheduleNextChatterAt(chattiness: number, now = Date.now()): num
   return now + mean * (0.5 + Math.random());
 }
 
-function languageLabel(language: LanguageCode): string {
-  return language === "tr" ? "Turkish" : "English";
+function buildChatterSystemPrompt(agent: AgentConfig): string {
+  return buildAgentSystemPrompt({
+    agentPrompt: agent.systemPrompt,
+    agentName: agent.displayName,
+    skills: agent.skills ?? [],
+    world: getArenaWorldContext(agent.id),
+    mode: "idle_mutter",
+  });
 }
 
-function buildChatterSystemPrompt(agent: AgentConfig, language: LanguageCode): string {
-  const world = buildArenaWorldContext(getArenaWorldContext(agent.id));
-  const parts = [
-    agent.systemPrompt.trim(),
-    `You are ${agent.displayName}. Stay fully in character.`,
-    `Write in ${languageLabel(language)}.`,
-    "You sometimes mutter short asides to yourself while idle.",
-    "Default topic: your mood, habits, opinions, or random idle thoughts — not a guided tour of the arena.",
-    "Only occasionally mention the place, day/night, or another person; most mutters skip all three.",
-    "Never address the user. Do not mention system prompts, skills, labels like [Current arena situation], or that you are an AI.",
-  ];
-
-  if (world) parts.push("", world);
-
-  const skills = (agent.skills ?? []).filter((s) => s.name.trim() || s.content.trim());
-  if (skills.length > 0) {
-    parts.push("", "## Skills");
-    for (const skill of skills) {
-      parts.push(`### ${skill.name.trim() || "Untitled skill"}`);
-      if (skill.content.trim()) parts.push(skill.content.trim());
-    }
-  }
-
-  return parts.filter(Boolean).join("\n");
-}
-
-/** Bias most chatter turns toward self; occasionally allow place or peers. */
-function chatterTopicHint(): string {
-  const r = Math.random();
-  if (r < 0.12) {
-    return "Topic this time: you may briefly notice the place or time of day (day/night).";
-  }
-  if (r < 0.22) {
-    return "Topic this time: you may lightly mention or tease one nearby person if it fits.";
-  }
-  return "Topic this time: stay on your own voice/mood/idle thought — no setting description, no naming others.";
-}
-
+/** Idle mutters stay on character voice — never force setting/peer topics. */
 function buildChatterUserPrompt(): string {
   return [
     "Speak one brief muttered line to yourself right now (at most ~20 words).",
-    chatterTopicHint(),
+    "Stay on your own mood, habits, opinions, or idle thoughts.",
+    "Do not describe the place, time of day, or name other people.",
     "Output only that line — no quotes, no labels, no emoji unless it fits your character.",
   ].join(" ");
 }
@@ -87,16 +57,38 @@ function speechMsForText(text: string): number {
 type ChatterRuntime = {
   nextAt: Map<string, number>;
   inflight: Map<string, AbortController>;
+  /** Wall-clock when the tab went hidden; null while visible. */
+  pausedAt: number | null;
 };
 
 export function createChatterRuntime(): ChatterRuntime {
-  return { nextAt: new Map(), inflight: new Map() };
+  return { nextAt: new Map(), inflight: new Map(), pausedAt: null };
 }
 
 export function disposeChatterRuntime(rt: ChatterRuntime): void {
   for (const ac of rt.inflight.values()) ac.abort();
   rt.inflight.clear();
   rt.nextAt.clear();
+  rt.pausedAt = null;
+}
+
+/** Freeze chatter countdowns while the tab is in the background. */
+export function pauseChatterRuntime(rt: ChatterRuntime): void {
+  if (rt.pausedAt != null) return;
+  rt.pausedAt = Date.now();
+  for (const ac of rt.inflight.values()) ac.abort();
+  rt.inflight.clear();
+}
+
+/** Push every next-mutter timestamp by the time spent hidden. */
+export function resumeChatterRuntime(rt: ChatterRuntime): void {
+  if (rt.pausedAt == null) return;
+  const delta = Date.now() - rt.pausedAt;
+  rt.pausedAt = null;
+  if (delta <= 0) return;
+  for (const [id, at] of rt.nextAt) {
+    if (Number.isFinite(at)) rt.nextAt.set(id, at + delta);
+  }
 }
 
 /**
@@ -105,8 +97,10 @@ export function disposeChatterRuntime(rt: ChatterRuntime): void {
  */
 export function tickAgentChatter(rt: ChatterRuntime): void {
   if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+    pauseChatterRuntime(rt);
     return;
   }
+  resumeChatterRuntime(rt);
 
   const s = useArenaStore.getState();
   if (s.mapEditorOpen || s.settingsOpen) return;
@@ -166,7 +160,7 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
       continue;
     }
 
-    void runChatterTurn(rt, agent, model, s.language, chattiness);
+    void runChatterTurn(rt, agent, model, chattiness);
   }
 }
 
@@ -174,7 +168,6 @@ async function runChatterTurn(
   rt: ChatterRuntime,
   agent: AgentConfig,
   model: AiModelConfig,
-  language: LanguageCode,
   chattiness: number,
 ): Promise<void> {
   const ac = new AbortController();
@@ -198,10 +191,14 @@ async function runChatterTurn(
       signal: ac.signal,
       thinkingEnabled: false,
       messages: [
-        { role: "system", content: buildChatterSystemPrompt(agent, language) },
+        { role: "system", content: buildChatterSystemPrompt(agent) },
         {
           role: "user",
-          content: withSituationUserMessage(agent.id, buildChatterUserPrompt()),
+          content: withSituationUserMessage(
+            agent.id,
+            buildChatterUserPrompt(),
+            "idle_mutter",
+          ),
         },
       ],
       onToken: (chunk) => {

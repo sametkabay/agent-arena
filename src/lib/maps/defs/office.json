@@ -1,80 +1,79 @@
 {
   "version": 1,
-  "id": "custom_vhw08ziq",
+  "id": "office",
   "name": "Office",
-  "description": "Open office — desk rows, south meeting table, north lounge",
-  "builtin": false,
+  "description": "Open-plan office on warm cream tile under soft daylight. Desk rows with monitors and potted plants face a long conference table with red chairs and bookcases. A kitchen corner has a fridge, stove, sink, and dining table; blue sofas and a red lounge sit near a ping-pong table. Tall floor lamps cast warm light pools; a small black cat wanders the floor.",
+  "builtin": true,
   "floor": {
     "size": 24,
-    "style": "surface",
+    "style": "patches",
     "cells": 24,
-    "color": "#D2C9BB",
+    "color": "#D8CFC0",
     "surface": "office"
   },
   "theme": {
-    "floor": "#D2C9BB",
+    "floor": "#D8CFC0",
     "accent": "#4A7566",
-    "background": "#9b8869",
-    "fog": "#9b8869",
-    "ambient": "#ffffff",
-    "hemiSky": "#f5f0e6",
-    "hemiGround": "#c4b8a4",
-    "sun": "#fff5e6"
+    "background": "#C5C2B8",
+    "fog": "#CFCCC4",
+    "ambient": "#FFF8F0",
+    "hemiSky": "#F2EDE4",
+    "hemiGround": "#C4B8A4",
+    "sun": "#FFF4E0"
   },
-  "ambience": "office",
   "roomLights": true,
   "spawnPoints": [
     {
       "id": "spawn_0",
       "position": [
-        -5.5,
+        -1.5,
         0,
-        -0.3
+        1.5
       ],
       "rotationY": 0
     },
     {
       "id": "spawn_1",
       "position": [
+        -0.5,
         0,
-        0,
-        -0.3
+        -7
       ],
       "rotationY": 0
     },
     {
       "id": "spawn_2",
       "position": [
-        5.5,
+        3,
         0,
-        -0.3
+        2.5
       ],
       "rotationY": 0
     },
     {
       "id": "spawn_3",
       "position": [
-        -5.5,
+        -3.5,
         0,
-        4.2
+        6.5
       ],
       "rotationY": 0
     },
     {
       "id": "spawn_4",
       "position": [
+        4,
         0,
-        0,
-        4.2
+        8
       ],
       "rotationY": 0
     },
     {
       "id": "spawn_5",
       "position": [
-        5.5,
         0,
-        4.2
+        0,
+        -1.5
       ],
       "rotationY": 0
     }
@@ -151,806 +150,1102 @@
   ],
   "placeables": [
     {
-      "id": "desk_0_0",
-      "placeableId": "desk",
-      "position": [
-        -5.5,
-        0,
-        -1.5
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "chair_0_0",
-      "placeableId": "chair",
-      "position": [
-        -5.5,
-        0,
-        -0.44999999999999996
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "mon_0_0",
-      "placeableId": "monitor",
-      "position": [
-        -5.5,
-        0.74,
-        -1.62
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "lamp_0_0",
-      "placeableId": "desk_lamp",
-      "position": [
-        -5,
-        0.74,
-        -1.55
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "desk_0_1",
-      "placeableId": "desk",
-      "position": [
-        0,
-        0,
-        -1.5
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "chair_0_1",
-      "placeableId": "chair",
-      "position": [
-        0,
-        0,
-        -0.44999999999999996
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "mon_0_1",
-      "placeableId": "monitor",
-      "position": [
-        0,
-        0.74,
-        -1.62
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "lamp_0_1",
-      "placeableId": "desk_lamp",
-      "position": [
-        0.5,
-        0.74,
-        -1.55
-      ],
-      "rotationY": 3.1416
-    },
-    {
       "id": "desk_0_2",
       "placeableId": "desk",
       "position": [
-        5.5,
+        10,
         0,
-        -1.5
+        -10
       ],
-      "rotationY": 3.1416
+      "rotationY": 3.1416,
+      "scale": 1.25
     },
     {
-      "id": "chair_0_2",
-      "placeableId": "chair",
+      "id": "prop_s91myle1_msps6hsg",
+      "placeableId": "desk",
       "position": [
-        5.5,
+        7,
         0,
-        -0.44999999999999996
+        -10
       ],
-      "rotationY": 0
+      "rotationY": 3.1416,
+      "scale": 1.25
     },
     {
-      "id": "mon_0_2",
-      "placeableId": "monitor",
+      "id": "prop_tsz6tljk_msps6rgy",
+      "placeableId": "desk",
       "position": [
-        5.5,
-        0.74,
-        -1.62
+        4,
+        0,
+        -10
       ],
-      "rotationY": 3.1416
+      "rotationY": 3.1416,
+      "scale": 1.25
     },
     {
-      "id": "lamp_0_2",
-      "placeableId": "desk_lamp",
+      "id": "prop_81bsluiz_msps7eay",
+      "placeableId": "desk",
+      "position": [
+        10,
+        0,
+        -6.5
+      ],
+      "rotationY": 0.000007346410207276222,
+      "scale": 1.25
+    },
+    {
+      "id": "prop_gacf4cft_msps81np",
+      "placeableId": "desk",
+      "position": [
+        7,
+        0,
+        -6.5
+      ],
+      "rotationY": 0.000007346410207276222,
+      "scale": 1.25
+    },
+    {
+      "id": "prop_gkshblf0_msps88t4",
+      "placeableId": "desk",
+      "position": [
+        4,
+        0,
+        -6.5
+      ],
+      "rotationY": 0.000007346410207276222,
+      "scale": 1.25
+    },
+    {
+      "id": "prop_ows3tkdu_mspssygo",
+      "placeableId": "plant",
       "position": [
         6,
-        0.74,
-        -1.55
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "trash_desk",
-      "placeableId": "trash",
-      "position": [
-        6.65,
         0,
-        -0.9
+        -4.5
       ],
-      "rotationY": 0.2
+      "rotationY": 0,
+      "scale": 1
     },
     {
-      "id": "desk_1_0",
-      "placeableId": "desk",
+      "id": "prop_25zp2dhh_mspst2fo",
+      "placeableId": "plant",
       "position": [
-        -5.5,
+        -2.5,
         0,
-        3
+        -11.5
       ],
-      "rotationY": 3.1416
+      "rotationY": 0,
+      "scale": 1.5
     },
     {
-      "id": "chair_1_0",
-      "placeableId": "chair",
+      "id": "prop_k8cwig5a_mspst91p",
+      "placeableId": "plant",
       "position": [
-        -5.5,
+        11,
         0,
-        4.05
+        -4.5
       ],
-      "rotationY": 0
+      "rotationY": 0,
+      "scale": 1
     },
     {
-      "id": "mon_1_0",
-      "placeableId": "monitor",
-      "position": [
-        -5.5,
-        0.74,
-        2.88
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "lamp_1_0",
-      "placeableId": "desk_lamp",
-      "position": [
-        -5,
-        0.74,
-        2.95
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "desk_1_1",
-      "placeableId": "desk",
-      "position": [
-        0,
-        0,
-        3
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "chair_1_1",
-      "placeableId": "chair",
-      "position": [
-        0,
-        0,
-        4.05
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "mon_1_1",
-      "placeableId": "monitor",
-      "position": [
-        0,
-        0.74,
-        2.88
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "lamp_1_1",
-      "placeableId": "desk_lamp",
-      "position": [
-        0.5,
-        0.74,
-        2.95
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "desk_1_2",
-      "placeableId": "desk",
-      "position": [
-        5.5,
-        0,
-        3
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "chair_1_2",
-      "placeableId": "chair",
-      "position": [
-        5.5,
-        0,
-        4.05
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "mon_1_2",
-      "placeableId": "monitor",
-      "position": [
-        5.5,
-        0.74,
-        2.88
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "lamp_1_2",
-      "placeableId": "desk_lamp",
-      "position": [
-        6,
-        0.74,
-        2.95
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "meet_table",
-      "placeableId": "table",
-      "position": [
-        0,
-        0,
-        -7.5
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "meet_c0",
-      "placeableId": "chair",
-      "position": [
-        -0.85,
-        0,
-        -6.55
-      ],
-      "rotationY": 0.000007346410207276222
-    },
-    {
-      "id": "meet_c1",
-      "placeableId": "chair",
-      "position": [
-        0.85,
-        0,
-        -6.55
-      ],
-      "rotationY": 0.000007346410207276222
-    },
-    {
-      "id": "meet_c2",
-      "placeableId": "chair",
-      "position": [
-        -0.85,
-        0,
-        -8.45
-      ],
-      "rotationY": 3.141592653589793
-    },
-    {
-      "id": "meet_c3",
-      "placeableId": "chair",
-      "position": [
-        0.85,
-        0,
-        -8.45
-      ],
-      "rotationY": 3.141592653589793
-    },
-    {
-      "id": "plant_meet_w",
+      "id": "prop_sktkibss_mspsu9vv",
       "placeableId": "plant_small",
       "position": [
-        -2,
+        8.5,
         0,
-        -7.5
+        -4.5
       ],
-      "rotationY": 0.3
+      "rotationY": 0,
+      "scale": 1
     },
     {
-      "id": "plant_meet_e",
+      "id": "prop_1wd0fg4s_mspsurao",
       "placeableId": "plant_small",
-      "position": [
-        2,
-        0,
-        -7.5
-      ],
-      "rotationY": -0.3
-    },
-    {
-      "id": "lamp_meet",
-      "placeableId": "floor_lamp",
-      "position": [
-        -3.2,
-        0,
-        -7.5
-      ],
-      "rotationY": 0.4
-    },
-    {
-      "id": "rug_lounge",
-      "placeableId": "rug",
-      "position": [
-        0,
-        0,
-        8.4
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "coffee_lounge",
-      "placeableId": "coffee_table",
-      "position": [
-        0,
-        0,
-        8.4
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "couch_lounge",
-      "placeableId": "couch",
-      "position": [
-        0,
-        0,
-        9.85
-      ],
-      "rotationY": 0.000007346410207276222
-    },
-    {
-      "id": "lounge_w",
-      "placeableId": "lounge_chair",
-      "position": [
-        -2.6,
-        0,
-        8.5
-      ],
-      "rotationY": 4.241592653589793
-    },
-    {
-      "id": "lounge_e",
-      "placeableId": "lounge_chair",
-      "position": [
-        2.6,
-        0,
-        8.5
-      ],
-      "rotationY": 2.0415926535897935
-    },
-    {
-      "id": "ottoman_l",
-      "placeableId": "ottoman",
-      "position": [
-        -1.5054547821626258,
-        0,
-        7.0832620869235985
-      ],
-      "rotationY": 0.2
-    },
-    {
-      "id": "side_w",
-      "placeableId": "side_table",
-      "position": [
-        -3.5,
-        0,
-        9.6
-      ],
-      "rotationY": 0.3
-    },
-    {
-      "id": "side_e",
-      "placeableId": "side_table",
       "position": [
         3.5,
         0,
-        9.6
+        -4.5
       ],
-      "rotationY": -0.3
+      "rotationY": 0,
+      "scale": 1
     },
     {
-      "id": "lamp_lw",
+      "id": "prop_og43dhaa_mspsv4xi",
       "placeableId": "floor_lamp",
-      "position": [
-        -4.2,
-        0,
-        9.5
-      ],
-      "rotationY": 0.2
-    },
-    {
-      "id": "lamp_le",
-      "placeableId": "floor_lamp",
-      "position": [
-        4.2,
-        0,
-        9.5
-      ],
-      "rotationY": -0.2
-    },
-    {
-      "id": "plant_lw",
-      "placeableId": "plant",
-      "position": [
-        -5,
-        0,
-        8
-      ],
-      "rotationY": 0.4
-    },
-    {
-      "id": "plant_le",
-      "placeableId": "plant",
       "position": [
         5,
         0,
-        8
-      ],
-      "rotationY": -0.4
-    },
-    {
-      "id": "shelf_w_0",
-      "placeableId": "bookshelf",
-      "position": [
-        -9.2,
-        0,
-        -5.5
-      ],
-      "rotationY": 1.5708
-    },
-    {
-      "id": "shelf_e_0",
-      "placeableId": "bookshelf",
-      "position": [
-        9.2,
-        0,
-        -5.5
-      ],
-      "rotationY": -1.5708
-    },
-    {
-      "id": "shelf_w_1",
-      "placeableId": "bookshelf",
-      "position": [
-        -9.2,
-        0,
-        -2
-      ],
-      "rotationY": 1.5708
-    },
-    {
-      "id": "shelf_e_1",
-      "placeableId": "bookshelf",
-      "position": [
-        9.2,
-        0,
-        -2
-      ],
-      "rotationY": -1.5708
-    },
-    {
-      "id": "shelf_w_2",
-      "placeableId": "bookshelf",
-      "position": [
-        -9.2,
-        0,
-        1.5
-      ],
-      "rotationY": 1.5708
-    },
-    {
-      "id": "shelf_e_2",
-      "placeableId": "bookshelf",
-      "position": [
-        9.2,
-        0,
-        1.5
-      ],
-      "rotationY": -1.5708
-    },
-    {
-      "id": "shelf_w_3",
-      "placeableId": "bookshelf",
-      "position": [
-        -9.2,
-        0,
-        5
-      ],
-      "rotationY": 1.5708
-    },
-    {
-      "id": "shelf_e_3",
-      "placeableId": "bookshelf",
-      "position": [
-        9.2,
-        0,
-        5
-      ],
-      "rotationY": -1.5708
-    },
-    {
-      "id": "cab_nw",
-      "placeableId": "cabinet",
-      "position": [
-        -9.2,
-        0,
-        -8.5
-      ],
-      "rotationY": 1.5708
-    },
-    {
-      "id": "cab_ne",
-      "placeableId": "cabinet",
-      "position": [
-        9.2,
-        0,
-        -8.5
-      ],
-      "rotationY": -1.5708
-    },
-    {
-      "id": "coat",
-      "placeableId": "coat_rack",
-      "position": [
-        -3.8,
-        0,
-        10.5
-      ],
-      "rotationY": 0.2
-    },
-    {
-      "id": "trash_lounge",
-      "placeableId": "trash",
-      "position": [
-        4.8,
-        0,
-        7.2
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "plant_nw",
-      "placeableId": "plant_small",
-      "position": [
-        -9,
-        0,
-        -9.5
-      ],
-      "rotationY": 0.5
-    },
-    {
-      "id": "plant_ne",
-      "placeableId": "plant_small",
-      "position": [
-        9,
-        0,
-        -9.5
-      ],
-      "rotationY": -0.5
-    },
-    {
-      "id": "lamp_sq_sw",
-      "placeableId": "lamp_square",
-      "position": [
-        -9.5,
-        0,
-        10
-      ],
-      "rotationY": 0.3
-    },
-    {
-      "id": "lamp_sq_se",
-      "placeableId": "lamp_square",
-      "position": [
-        9.5,
-        0,
-        10
-      ],
-      "rotationY": -0.3
-    },
-    {
-      "id": "prop_1czz1msb_mskua8ez",
-      "placeableId": "furniture__table_cross_cloth",
-      "position": [
-        6.725882883430316,
-        0,
-        -8.47048183900009
-      ],
-      "rotationY": 1.5707963267948966,
-      "scale": 1
-    },
-    {
-      "id": "prop_t92tbaiz_mskuaj19",
-      "placeableId": "furniture__table_cross_cloth",
-      "position": [
-        6.7246956202133905,
-        0,
-        -6.400807617209011
-      ],
-      "rotationY": 1.5707963267948966,
-      "scale": 1
-    },
-    {
-      "id": "prop_8mk2e225_mskuauwz",
-      "placeableId": "furniture__stool_bar_square",
-      "position": [
-        7.685965684351022,
-        0,
-        -5.917992655440365
-      ],
-      "rotationY": 0,
-      "scale": 0.75
-    },
-    {
-      "id": "prop_e330rck0_mskubhr9",
-      "placeableId": "furniture__stool_bar_square",
-      "position": [
-        7.717532721953841,
-        0,
-        -6.686559451612395
-      ],
-      "rotationY": 0,
-      "scale": 0.75
-    },
-    {
-      "id": "prop_fj0eewj2_mskubv56",
-      "placeableId": "furniture__stool_bar_square",
-      "position": [
-        7.642185358888437,
-        0,
-        -8.310519589298707
-      ],
-      "rotationY": 0,
-      "scale": 0.75
-    },
-    {
-      "id": "prop_2vfcd4bc_mskuefvc",
-      "placeableId": "furniture__stool_bar_square",
-      "position": [
-        7.7028477688034265,
-        0,
-        -8.95947609255617
-      ],
-      "rotationY": 0,
-      "scale": 0.75
-    },
-    {
-      "id": "prop_que7r04o_mskuf1db",
-      "placeableId": "furniture__desk_corner",
-      "position": [
-        -6.723695563411999,
-        0,
-        -6.691179103003382
+        -4.5
       ],
       "rotationY": 0,
       "scale": 1
     },
     {
-      "id": "prop_jmyezppk_mskufgdh",
-      "placeableId": "furniture__desk_corner",
+      "id": "prop_kbsbei3f_mspsvhte",
+      "placeableId": "floor_lamp",
       "position": [
-        -6.700508963199496,
+        7,
         0,
-        -4.4909347644265765
+        -4.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_o2ljsei9_mspsvwzc",
+      "placeableId": "floor_lamp",
+      "position": [
+        10,
+        0,
+        -4.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_xtlut1ao_mspswm6c",
+      "placeableId": "floor_lamp",
+      "position": [
+        -4.5,
+        0,
+        -3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_t80d7sv5_mspt7bwp",
+      "placeableId": "bookcase_books",
+      "position": [
+        -1,
+        0,
+        -11.95
+      ],
+      "rotationY": 0,
+      "scale": 1.7
+    },
+    {
+      "id": "prop_12vqo7ti_mspt8brn",
+      "placeableId": "bookcase_books",
+      "position": [
+        1,
+        0,
+        -11.95
+      ],
+      "rotationY": 0,
+      "scale": 1.7
+    },
+    {
+      "id": "prop_d1z68c4z_mspttvnf",
+      "placeableId": "furniture__lounge_design_sofa_corn",
+      "position": [
+        -9.138249073050517,
+        0,
+        9.451253364113999
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_7gzmbe6p_mspttyfx",
+      "placeableId": "furniture__lounge_design_chair",
+      "position": [
+        -7.801484674073748,
+        0,
+        6.163807529435897
       ],
       "rotationY": 3.141592653589793,
       "scale": 1
     },
     {
-      "id": "prop_ngwmfkte_mskugkf8",
-      "placeableId": "chair",
+      "id": "prop_j4o1z0np_msptu3lq",
+      "placeableId": "furniture__lounge_design_sofa",
       "position": [
-        -7.35024073476513,
+        -5.137590262724368,
         0,
-        -4.055893195273513
-      ],
-      "rotationY": 0
-    },
-    {
-      "id": "prop_ywcquv4n_mskugsid",
-      "placeableId": "chair",
-      "position": [
-        -6.307058978702829,
-        0,
-        -7.269593019525956
-      ],
-      "rotationY": 3.141592653589793
-    },
-    {
-      "id": "prop_tfq0cw5n_mskuhmzk",
-      "placeableId": "monitor",
-      "position": [
-        -7.176705727673913,
-        0.85,
-        -5.166187497968586
-      ],
-      "rotationY": 3.1416
-    },
-    {
-      "id": "prop_hkedjdl6_mskuidi7",
-      "placeableId": "monitor",
-      "position": [
-        -6.0493224628646365,
-        0.85,
-        -5.942378520050485
-      ],
-      "rotationY": 0.09
-    },
-    {
-      "id": "prop_kfhyl94x_mskujwl5",
-      "placeableId": "furniture__laptop",
-      "position": [
-        -6.058602789609921,
-        0.9,
-        -4.094750008310698
+        8.192011256107177
       ],
       "rotationY": 1.5707963267948966,
-      "scale": 0.3
+      "scale": 1
     },
     {
-      "id": "prop_b8ldig2d_mskukgmt",
-      "placeableId": "furniture__laptop",
+      "id": "prop_0h2hqxgw_msptueq3",
+      "placeableId": "furniture__lounge_sofa_corner",
       "position": [
-        -7.277580789495447,
-        0.9,
-        -6.895957361755698
+        9.985155602930753,
+        0,
+        -1.425595342757985
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_eb4r039v_msptumgg",
+      "placeableId": "furniture__lounge_chair_pimrvmqw1o",
+      "position": [
+        10.45808697850204,
+        0,
+        1.3209184415466915
+      ],
+      "rotationY": 1.5707963267948966,
+      "scale": 1.25
+    },
+    {
+      "id": "prop_yh3kxcp7_msptuxrz",
+      "placeableId": "furniture__lounge_sofa_long",
+      "position": [
+        5.485155602930753,
+        0,
+        -1.925595342757985
       ],
       "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_nqpggdu8_msptvlx2",
+      "placeableId": "couch",
+      "position": [
+        5.982846574281195,
+        0,
+        1.8480483637669836
+      ],
+      "rotationY": 0,
+      "scale": 1.2
+    },
+    {
+      "id": "prop_lqa5iji1_msptw9gs",
+      "placeableId": "ottoman",
+      "position": [
+        8.985155602930753,
+        0,
+        -0.42559534275798505
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_m9n4g71z_msptx52g",
+      "placeableId": "fridge",
+      "position": [
+        -10.5,
+        0,
+        -1.5196672924805192
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_8cqa9niy_msptyf9c",
+      "placeableId": "furniture__chair_modern_cushion",
+      "position": [
+        -7.5,
+        0,
+        -0.5
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_exdso7c0_msptyjv3",
+      "placeableId": "furniture__chair_modern_cushion",
+      "position": [
+        -6.838695441235833,
+        0,
+        -0.4878837768469406
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_2219ayow_msptzd93",
+      "placeableId": "furniture__table_coffee_glass",
+      "position": [
+        -7.165446008582148,
+        0,
+        0.8004878721285786
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_m2gpaezl_mspu0qlt",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -10.5,
+        0,
+        -0.638654088874814
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_onjw2fsa_mspu11d0",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -10.5,
+        0,
+        -2.3985345483766425
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_sspepdgf_mspu2u26",
+      "placeableId": "furniture__kitchen_blender",
+      "position": [
+        -10.24974921476285,
+        0.85,
+        -3.2846877850932983
+      ],
+      "rotationY": 0,
+      "scale": 0.45
+    },
+    {
+      "id": "prop_s386tmkz_mspu3er5",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -10.504011742483009,
+        0,
+        0.226568858269391
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_5cbj56v7_mspu4ago",
+      "placeableId": "furniture__kitchen_coffee_machine",
+      "position": [
+        -10.486270765087859,
+        0.85,
+        -0.30577912038611466
+      ],
+      "rotationY": 0,
+      "scale": 0.35
+    },
+    {
+      "id": "prop_l6ppyefv_mspu4u0c",
+      "placeableId": "furniture__kitchen_stove_electric",
+      "position": [
+        -10.5,
+        0,
+        1.0415295714569157
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_xn8t2zjf_mspu5l81",
+      "placeableId": "furniture__kitchen_sink",
+      "position": [
+        -10.5,
+        0,
+        2.71
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1.15
+    },
+    {
+      "id": "prop_bbbx7te8_mspu5pee",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -10.5,
+        0,
+        1.85
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_ui902eos_mspu9uau",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -10.5,
+        0,
+        3.532509004745671
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_v7ir9rsg_mspuah87",
+      "placeableId": "furniture__kitchen_cabinet_corner",
+      "position": [
+        -10.254389792704638,
+        0,
+        4.42010125935128
+      ],
+      "rotationY": 0,
+      "scale": 1.05
+    },
+    {
+      "id": "prop_krs4woap_mspubjy4",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -9.355302363793772,
+        0,
+        4.65093111521947
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_brao12j9_mspuc2bh",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -8.500822728037432,
+        0,
+        4.65
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_xdnggctn_mspuctwo",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -7.6623624135759325,
+        0,
+        4.647158932850675
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_8kfasgok_mspugga9",
+      "placeableId": "furniture__chair_modern_cushion",
+      "position": [
+        -7.513574684233221,
+        0,
+        1.9867098578354905
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_7a91kki3_mspuhnzr",
+      "placeableId": "furniture__chair_modern_cushion",
+      "position": [
+        -6.893127320744727,
+        0,
+        1.9819592238695032
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_xx1qej71_mspuikw1",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -9.4053372261358,
+        0,
+        -3.52555580643236
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_2sezd3ci_mspuiw8q",
+      "placeableId": "furniture__kitchen_cabinet_corner",
+      "position": [
+        -10.251064316212464,
+        0,
+        -3.2807359079255782
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1.05
+    },
+    {
+      "id": "prop_beotwlru_mspul5om",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -8.566082546285934,
+        0,
+        -3.527580152006674
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_cryagyzr_mspulejl",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -7.712020366888857,
+        0,
+        -3.53
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_5pntr5yy_mspumpjw",
+      "placeableId": "coffee_table",
+      "position": [
+        -7.466841682843528,
+        0,
+        8.27911359323754
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_hm3djrb1_mspunh9t",
+      "placeableId": "furniture__toaster",
+      "position": [
+        -10.256172376348351,
+        0.8,
+        4.359487542807932
+      ],
+      "rotationY": 0,
       "scale": 0.3
     },
     {
-      "id": "prop_2oy774t0_mskum1v5",
-      "placeableId": "furniture__lamp_square_table",
+      "id": "prop_42lws0ho_mspuoh9d",
+      "placeableId": "furniture__kitchen_bar",
       "position": [
-        -6.019912495004345,
-        0.95,
-        -5.148863387529605
+        -6.846031398421231,
+        0,
+        -3.5280266543575256
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_b16jjnk2_mspup4je",
+      "placeableId": "furniture__chair_modern_frame_cush",
+      "position": [
+        -4.6018888491178735,
+        0,
+        -2.499004316565024
+      ],
+      "rotationY": 3.75,
+      "scale": 1
+    },
+    {
+      "id": "prop_w1rwten1_mspupuuj",
+      "placeableId": "round_table",
+      "position": [
+        -3.9517179968443097,
+        0,
+        -1.3036675858941855
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_5aobbw3r_mspuqcux",
+      "placeableId": "furniture__chair_modern_frame_cush",
+      "position": [
+        -3.245756464435786,
+        0,
+        -2.3725926584484927
+      ],
+      "rotationY": 2.22,
+      "scale": 1
+    },
+    {
+      "id": "prop_3wwans53_mspuqm0p",
+      "placeableId": "furniture__chair_modern_frame_cush",
+      "position": [
+        -2.683006266518137,
+        0,
+        -1.1526450235781178
+      ],
+      "rotationY": 1.61,
+      "scale": 1
+    },
+    {
+      "id": "prop_59kbs10u_mspuscr9",
+      "placeableId": "desk_lamp",
+      "position": [
+        -3.9134213357047294,
+        0.75,
+        -1.346987615304494
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_z3pegv3r_msput202",
+      "placeableId": "plant",
+      "position": [
+        -7.78,
+        0.85,
+        4.6
       ],
       "rotationY": 0,
       "scale": 0.5
     },
     {
-      "id": "prop_dc9zg7tw_mskumqkt",
+      "id": "prop_0q0zbkip_mspuvb5z",
+      "placeableId": "furniture__kitchen_bar",
+      "position": [
+        -5.981190244999199,
+        0,
+        -3.53
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_li7mcmfk_mspuxnuf",
+      "placeableId": "trash",
+      "position": [
+        -6.237624741100269,
+        0,
+        10.561232710020672
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_jlcbocwo_mspuxtht",
+      "placeableId": "trash",
+      "position": [
+        -6.883190708699356,
+        0,
+        4.133132905497819
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_y440nspy_mspuyepm",
+      "placeableId": "lamp_square",
+      "position": [
+        -10.567715680301331,
+        0,
+        6.139198795681302
+      ],
+      "rotationY": 0,
+      "scale": 1.2
+    },
+    {
+      "id": "prop_c6bcuk1h_mspuznss",
+      "placeableId": "furniture__books",
+      "position": [
+        -1,
+        0,
+        -10.5
+      ],
+      "rotationY": 0.55,
+      "scale": 0.5
+    },
+    {
+      "id": "prop_vspfvnd2_mspv03o3",
+      "placeableId": "furniture__books",
+      "position": [
+        1,
+        0,
+        -9.5
+      ],
+      "rotationY": 1.64,
+      "scale": 0.5
+    },
+    {
+      "id": "prop_x1ftqyyh_mspv0ghr",
+      "placeableId": "coat_rack",
+      "position": [
+        -5.092316433362027,
+        0,
+        10.6178939295703
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_6jtb3p9g_mspv0nhg",
+      "placeableId": "coat_rack",
+      "position": [
+        10.618178704974365,
+        0,
+        2.655888686761781
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_k6y7p91c_mspv19sf",
+      "placeableId": "furniture__laptop",
+      "position": [
+        -7.589538629662018,
+        0.45,
+        8.291582171565231
+      ],
+      "rotationY": 4.09,
+      "scale": 0.25
+    },
+    {
+      "id": "prop_pfjm3a8q_mspv26v2",
       "placeableId": "furniture__lamp_square_table",
       "position": [
-        -7.197260570790943,
-        0.95,
-        -5.845276876270852
+        -9.08,
+        0.85,
+        4.64
       ],
       "rotationY": 0,
       "scale": 0.5
     },
     {
-      "id": "prop_senlkwaz_mskune1p",
-      "placeableId": "monitor",
+      "id": "prop_ab0cua78_mspv3fm7",
+      "placeableId": "furniture__radio",
       "position": [
-        -6.684386086761521,
-        0.85,
-        -5.094091542939262
+        -4.27738027284105,
+        0.75,
+        -1.07
       ],
-      "rotationY": 2.84
+      "rotationY": 4.44,
+      "scale": 0.25
     },
     {
-      "id": "prop_i7so5muz_mskuoqeh",
-      "placeableId": "monitor",
+      "id": "prop_dz9a1pta_mspv4fwi",
+      "placeableId": "box_open",
       "position": [
-        -6.543236340376486,
-        0.85,
-        -5.966564267957093
+        10.309242231314597,
+        0,
+        6.295621778375943
       ],
-      "rotationY": 6.09
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ah12q3mu_mspv4jb3",
+      "placeableId": "cardboard_box",
+      "position": [
+        9.950961643593478,
+        0,
+        6.9510748657396
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_bej58c8k_mspv4l7m",
+      "placeableId": "box_open",
+      "position": [
+        10.73651924826198,
+        0,
+        6.890332346417826
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_w35lei5x_mspv5ckp",
+      "placeableId": "furniture__rug_square",
+      "position": [
+        7.2248163945786565,
+        0,
+        -0.33684348380748474
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_0m99su1i_mspv6o2e",
+      "placeableId": "animals__cat",
+      "position": [
+        -5,
+        0,
+        4
+      ],
+      "rotationY": 5.55,
+      "scale": 0.6,
+      "behavior": "wander",
+      "homePosition": [
+        -5,
+        0,
+        4
+      ],
+      "moveSpeed": 1.1,
+      "wanderRadius": 3.4,
+      "locomotion": "idle"
+    },
+    {
+      "id": "prop_mqylsplr_mspv92k8",
+      "placeableId": "food__bottle",
+      "position": [
+        -6.5,
+        0.85,
+        -3.47
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_qoum0wpp_mspv9ya4",
+      "placeableId": "food__burger",
+      "position": [
+        -6.65,
+        0.85,
+        0.6017811220660065
+      ],
+      "rotationY": 0,
+      "scale": 0.35
+    },
+    {
+      "id": "prop_wxprtdda_mspvadj8",
+      "placeableId": "food__burger",
+      "position": [
+        -6.841113858997829,
+        0.85,
+        0.497086325305252
+      ],
+      "rotationY": 0,
+      "scale": 0.35
+    },
+    {
+      "id": "prop_gl8oernn_mspvaqsg",
+      "placeableId": "food__cooking_pot",
+      "position": [
+        -10.5,
+        0.85,
+        2.15
+      ],
+      "rotationY": 0,
+      "scale": 0.5
+    },
+    {
+      "id": "prop_kr434obm_mspvbmpd",
+      "placeableId": "food__cooking_pot_lmedeomg9l",
+      "position": [
+        -10.46,
+        0.85,
+        1.78
+      ],
+      "rotationY": 0,
+      "scale": 0.3
+    },
+    {
+      "id": "prop_bd5ygvyl_mspvjcp1",
+      "placeableId": "lamp_square",
+      "position": [
+        10.817442072425672,
+        0,
+        4.487442086776672
+      ],
+      "rotationY": 0,
+      "scale": 1.2
+    },
+    {
+      "id": "prop_k3350sgq_mspxu9vc",
+      "placeableId": "ping_pong_table",
+      "position": [
+        7,
+        0,
+        6.5
+      ],
+      "rotationY": 0,
+      "scale": 1.35
+    },
+    {
+      "id": "prop_ehds3mcj_mspxwtzf",
+      "placeableId": "table_large",
+      "position": [
+        -8.5,
+        0,
+        -8
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1.2
+    },
+    {
+      "id": "prop_lmafw8rb_mspxzues",
+      "placeableId": "chair",
+      "position": [
+        -7,
+        0,
+        -9.5
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_m64xfvi3_mspy00by",
+      "placeableId": "chair",
+      "position": [
+        -8,
+        0,
+        -9.5
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_hhjac0po_mspy0gg5",
+      "placeableId": "table_large",
+      "position": [
+        -6.5,
+        0,
+        -8
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1.2
+    },
+    {
+      "id": "prop_sysztywl_mspy0zk9",
+      "placeableId": "chair",
+      "position": [
+        -6,
+        0,
+        -9.5
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_uplah1cp_mspy162h",
+      "placeableId": "chair",
+      "position": [
+        -9,
+        0,
+        -9.5
+      ],
+      "rotationY": 3.141592653589793,
+      "scale": 1
+    },
+    {
+      "id": "prop_0510gc6f_mspy1fjc",
+      "placeableId": "chair",
+      "position": [
+        -8,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_viyatfd4_mspy1fjc",
+      "placeableId": "chair",
+      "position": [
+        -7,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_ckxuj08s_mspy1fjc",
+      "placeableId": "chair",
+      "position": [
+        -9,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_3r2mxje0_mspy1fjc",
+      "placeableId": "chair",
+      "position": [
+        -6,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_4tbf78we_mspy1uko",
+      "placeableId": "chair",
+      "position": [
+        -10.5,
+        0,
+        -8
+      ],
+      "rotationY": 4.71238898038469,
+      "scale": 1
+    },
+    {
+      "id": "prop_47zyl5va_mspy27sx",
+      "placeableId": "trash",
+      "position": [
+        -5,
+        0,
+        -7.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_3nj6k9zc_mspy2azi",
+      "placeableId": "trash",
+      "position": [
+        -10,
+        0,
+        -11
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_nrpkb9zi_mspy2d22",
+      "placeableId": "lamp_square",
+      "position": [
+        -11,
+        0,
+        -6
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_dq1ksnm2_mspy2ff5",
+      "placeableId": "lamp_square",
+      "position": [
+        -11,
+        0,
+        -11
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_kkih7p2g_mspy2zgd",
+      "placeableId": "plant",
+      "position": [
+        -11,
+        0,
+        -10.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_idvek4k9_mspy33ua",
+      "placeableId": "plant",
+      "position": [
+        -11,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_b92mcvb7_mspyqg0l",
+      "placeableId": "furniture__lamp_square_table",
+      "position": [
+        -8,
+        0.85,
+        -3.5
+      ],
+      "rotationY": 0,
+      "scale": 0.5
+    },
+    {
+      "id": "prop_lmabtrpt_mspz1uu5",
+      "placeableId": "lamp_square",
+      "position": [
+        -3,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "scale": 1.2
     }
   ]
 }

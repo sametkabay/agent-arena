@@ -240,7 +240,7 @@ export function PropBookshelf() {
   );
 }
 
-const MARS = {
+const SPACE = {
   rock: "#B06A48",
   rockDark: "#8A4E32",
   rockLite: "#C8845C",
@@ -275,37 +275,37 @@ function RockMesh({
   );
 }
 
-/** Irregular Martian boulder — no vegetation, warm oxidized stone. */
-export function PropMarsBoulder() {
+/** Irregular space boulder — no vegetation, warm oxidized stone. */
+export function PropSpaceBoulder() {
   return (
     <group>
-      <RockMesh args={[0.72, 0]} position={[0, 0.48, 0]} color={MARS.rock} rotation={[0.2, 0.4, 0.1]} />
-      <RockMesh args={[0.42, 0]} position={[0.45, 0.28, 0.15]} color={MARS.rockDark} rotation={[0.5, -0.3, 0.2]} />
-      <RockMesh args={[0.34, 0]} position={[-0.4, 0.22, -0.2]} color={MARS.rockLite} rotation={[-0.2, 0.6, 0.15]} />
-      <RockMesh args={[0.22, 0]} position={[0.1, 0.78, -0.25]} color={MARS.rockDark} rotation={[0.3, 0.1, -0.4]} />
+      <RockMesh args={[0.72, 0]} position={[0, 0.48, 0]} color={SPACE.rock} rotation={[0.2, 0.4, 0.1]} />
+      <RockMesh args={[0.42, 0]} position={[0.45, 0.28, 0.15]} color={SPACE.rockDark} rotation={[0.5, -0.3, 0.2]} />
+      <RockMesh args={[0.34, 0]} position={[-0.4, 0.22, -0.2]} color={SPACE.rockLite} rotation={[-0.2, 0.6, 0.15]} />
+      <RockMesh args={[0.22, 0]} position={[0.1, 0.78, -0.25]} color={SPACE.rockDark} rotation={[0.3, 0.1, -0.4]} />
     </group>
   );
 }
 
-export function PropMarsRock() {
+export function PropSpaceRock() {
   return (
     <group>
-      <RockMesh args={[0.38, 0]} position={[0, 0.26, 0]} color={MARS.rock} rotation={[0.15, 0.5, 0.08]} />
-      <RockMesh args={[0.2, 0]} position={[0.22, 0.14, 0.1]} color={MARS.rockDark} rotation={[0.4, -0.2, 0.3]} />
-      <RockMesh args={[0.16, 0]} position={[-0.18, 0.12, -0.12]} color={MARS.rockLite} rotation={[-0.3, 0.4, 0.1]} />
+      <RockMesh args={[0.38, 0]} position={[0, 0.26, 0]} color={SPACE.rock} rotation={[0.15, 0.5, 0.08]} />
+      <RockMesh args={[0.2, 0]} position={[0.22, 0.14, 0.1]} color={SPACE.rockDark} rotation={[0.4, -0.2, 0.3]} />
+      <RockMesh args={[0.16, 0]} position={[-0.18, 0.12, -0.12]} color={SPACE.rockLite} rotation={[-0.3, 0.4, 0.1]} />
     </group>
   );
 }
 
-/** Metal supply crate — fits factory floors and Mars outposts. */
+/** Metal supply crate — fits factory floors and space outposts. */
 export function PropSupplyCrate() {
   return (
     <group>
-      <Box args={[0.78, 0.52, 0.58]} position={[0, 0.26, 0]} color={MARS.metal} />
-      <Box args={[0.82, 0.06, 0.62]} position={[0, 0.52, 0]} color={MARS.metalDark} />
-      <Box args={[0.82, 0.04, 0.62]} position={[0, 0.04, 0]} color={MARS.metalDark} />
-      <Box args={[0.78, 0.08, 0.04]} position={[0, 0.3, 0.3]} color={MARS.stripe} />
-      <Box args={[0.06, 0.1, 0.04]} position={[0.28, 0.38, 0.3]} color={MARS.metalDark} />
+      <Box args={[0.78, 0.52, 0.58]} position={[0, 0.26, 0]} color={SPACE.metal} />
+      <Box args={[0.82, 0.06, 0.62]} position={[0, 0.52, 0]} color={SPACE.metalDark} />
+      <Box args={[0.82, 0.04, 0.62]} position={[0, 0.04, 0]} color={SPACE.metalDark} />
+      <Box args={[0.78, 0.08, 0.04]} position={[0, 0.3, 0.3]} color={SPACE.stripe} />
+      <Box args={[0.06, 0.1, 0.04]} position={[0.28, 0.38, 0.3]} color={SPACE.metalDark} />
     </group>
   );
 }
@@ -314,23 +314,23 @@ export function PropSupplyCrate() {
 export function PropBeacon() {
   return (
     <group>
-      <Cylinder args={[0.22, 0.26, 0.1, 6]} position={[0, 0.05, 0]} color={MARS.metalDark} />
-      <Cylinder args={[0.1, 0.14, 0.35, 6]} position={[0, 0.28, 0]} color={MARS.metal} />
-      <Cylinder args={[0.06, 0.08, 1.15, 6]} position={[0, 1.0, 0]} color={MARS.metal} />
-      <Cylinder args={[0.14, 0.08, 0.22, 6]} position={[0, 1.68, 0]} color={MARS.metalDark} />
+      <Cylinder args={[0.22, 0.26, 0.1, 6]} position={[0, 0.05, 0]} color={SPACE.metalDark} />
+      <Cylinder args={[0.1, 0.14, 0.35, 6]} position={[0, 0.28, 0]} color={SPACE.metal} />
+      <Cylinder args={[0.06, 0.08, 1.15, 6]} position={[0, 1.0, 0]} color={SPACE.metal} />
+      <Cylinder args={[0.14, 0.08, 0.22, 6]} position={[0, 1.68, 0]} color={SPACE.metalDark} />
       <mesh position={[0, 1.92, 0]} castShadow>
         <octahedronGeometry args={[0.2, 0]} />
         <meshStandardMaterial
-          color={MARS.glow}
-          emissive={MARS.glow}
+          color={SPACE.glow}
+          emissive={SPACE.glow}
           emissiveIntensity={1.05}
           roughness={0.28}
           metalness={0.15}
           toneMapped={false}
         />
       </mesh>
-      <Box args={[0.28, 0.025, 0.035]} position={[0, 1.35, 0]} color={MARS.glow} />
-      <Box args={[0.035, 0.025, 0.28]} position={[0, 1.35, 0]} color={MARS.glow} />
+      <Box args={[0.28, 0.025, 0.035]} position={[0, 1.35, 0]} color={SPACE.glow} />
+      <Box args={[0.035, 0.025, 0.28]} position={[0, 1.35, 0]} color={SPACE.glow} />
     </group>
   );
 }
@@ -339,13 +339,13 @@ export function PropBeacon() {
 export function PropAntenna() {
   return (
     <group>
-      <Cylinder args={[0.14, 0.16, 0.06, 8]} position={[0, 0.03, 0]} color={MARS.metalDark} />
-      <Cylinder args={[0.04, 0.045, 1.4, 6]} position={[0, 0.72, 0]} color={MARS.metal} />
+      <Cylinder args={[0.14, 0.16, 0.06, 8]} position={[0, 0.03, 0]} color={SPACE.metalDark} />
+      <Cylinder args={[0.04, 0.045, 1.4, 6]} position={[0, 0.72, 0]} color={SPACE.metal} />
       <mesh position={[0.05, 1.55, 0]} rotation={[0.55, 0.35, 0]} castShadow>
         <cylinderGeometry args={[0.42, 0.42, 0.05, 16]} />
-        <meshStandardMaterial color={MARS.dish} roughness={0.45} metalness={0.35} />
+        <meshStandardMaterial color={SPACE.dish} roughness={0.45} metalness={0.35} />
       </mesh>
-      <Cylinder args={[0.02, 0.02, 0.35, 6]} position={[0.18, 1.72, 0.12]} color={MARS.metalDark} />
+      <Cylinder args={[0.02, 0.02, 0.35, 6]} position={[0.18, 1.72, 0.12]} color={SPACE.metalDark} />
     </group>
   );
 }
@@ -404,10 +404,10 @@ export function PolyProp({ id }: { id: PlaceableId }) {
       return <PropTrash />;
     case "side_table":
       return <PropSideTable />;
-    case "mars_boulder":
-      return <PropMarsBoulder />;
-    case "mars_rock":
-      return <PropMarsRock />;
+    case "space_boulder":
+      return <PropSpaceBoulder />;
+    case "space_rock":
+      return <PropSpaceRock />;
     case "supply_crate":
       return <PropSupplyCrate />;
     case "beacon":

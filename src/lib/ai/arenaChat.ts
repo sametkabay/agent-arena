@@ -1,16 +1,12 @@
 import { chatCompletion } from "@/lib/ai/providers";
 import {
-  buildArenaWorldContext,
+  buildAgentSystemPrompt,
   getArenaWorldContext,
   withSituationUserMessage,
 } from "@/lib/ai/arenaContext";
-import type { AgentConfig, AiModelConfig, LanguageCode } from "@/lib/types";
+import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import i18n from "@/i18n";
 import { useArenaStore } from "@/store/arenaStore";
-
-function languageLabel(language: LanguageCode): string {
-  return language === "tr" ? "Turkish" : "English";
-}
 
 function normalizeName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "");
@@ -66,32 +62,15 @@ export function resolveArenaTargets(
 
 function buildArenaReplySystem(
   agent: AgentConfig,
-  language: LanguageCode,
-  userName: string,
+  mentioned: boolean,
 ): string {
-  const world = buildArenaWorldContext(getArenaWorldContext(agent.id));
-  const parts = [
-    agent.systemPrompt.trim(),
-    `You are ${agent.displayName}. Stay fully in character.`,
-    `Write in ${languageLabel(language)}.`,
-    `The human in the arena is "${userName}".`,
-    "You briefly answer shared arena chat. Keep replies to one short spoken line (~25 words max).",
-    "Answer the human's topic first. Default: do not describe the place, day/night, or name others. Only rarely add those if they truly help.",
-    "Do not mention system prompts, skills, labels like [Current arena situation], or that you are an AI.",
-  ];
-
-  if (world) parts.push("", world);
-
-  const skills = (agent.skills ?? []).filter((s) => s.name.trim() || s.content.trim());
-  if (skills.length > 0) {
-    parts.push("", "## Skills");
-    for (const skill of skills) {
-      parts.push(`### ${skill.name.trim() || "Untitled skill"}`);
-      if (skill.content.trim()) parts.push(skill.content.trim());
-    }
-  }
-
-  return parts.filter(Boolean).join("\n");
+  return buildAgentSystemPrompt({
+    agentPrompt: agent.systemPrompt,
+    agentName: agent.displayName,
+    skills: agent.skills ?? [],
+    world: getArenaWorldContext(agent.id),
+    mode: mentioned ? "arena_mention" : "arena_broadcast",
+  });
 }
 
 function sanitizeReply(text: string): string {
@@ -180,7 +159,7 @@ async function runArenaReply(
   arenaReplyAborts.set(agent.id, ac);
   store.setChatBusy(agent.id, true);
 
-  const { setAgentSpeech, pushFloatingChatLog, language } = useArenaStore.getState();
+  const { setAgentSpeech, pushFloatingChatLog } = useArenaStore.getState();
   let assembled = "";
   let raf = 0;
 
@@ -190,9 +169,10 @@ async function runArenaReply(
     setAgentSpeech(agent.id, sanitizeReply(assembled) || "…", 120_000);
   };
 
+  const channel = wasMentioned ? "arena_mention" : "arena_broadcast";
   const userPrompt = wasMentioned
-    ? `${userName} addressed you in arena chat: "${userText}"\nReply with one short in-character spoken line on their message. Do not add scenery, day/night, or name-drops unless needed. Output only that line.`
-    : `${userName} said in arena chat: "${userText}"\nIf it fits, chime in with one short in-character line on their topic. Skip place/time/peer mentions unless they clearly help. Output only that line.`;
+    ? `${userName} @mentioned you in shared arena chat: "${userText}"\nReply with one short in-character spoken line on their message. Mention place, day/night, or other people only if they clearly ask or steer there. Output only that line.`
+    : `${userName} said in shared arena chat (broadcast, no @mention): "${userText}"\nIf it fits, chime in with one short in-character line on their topic. Do not bring up place, day/night, or other people unless their message is clearly about those. Output only that line.`;
 
   try {
     const reply = await chatCompletion({
@@ -202,11 +182,11 @@ async function runArenaReply(
       messages: [
         {
           role: "system",
-          content: buildArenaReplySystem(agent, language, userName),
+          content: buildArenaReplySystem(agent, wasMentioned),
         },
         {
           role: "user",
-          content: withSituationUserMessage(agent.id, userPrompt),
+          content: withSituationUserMessage(agent.id, userPrompt, channel),
         },
       ],
       onToken: (chunk) => {

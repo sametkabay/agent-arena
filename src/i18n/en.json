@@ -25,7 +25,8 @@
   "agentList": {
     "title": "Agents",
     "empty": "No agents yet. Open Agents to add one.",
-    "talk": "Talk"
+    "talk": "Talk",
+    "edit": "Edit agent"
   },
   "mapList": {
     "title": "Maps",
@@ -160,13 +161,9 @@
           "name": "Starter camp",
           "description": "Nature camp layout copy"
         },
-        "factory_yard": {
-          "name": "Factory yard",
-          "description": "Industrial bay layout copy"
-        },
-        "mars_outpost": {
-          "name": "Mars outpost",
-          "description": "Martian outpost layout copy"
+        "space_outpost": {
+          "name": "Space outpost",
+          "description": "Space outpost layout copy"
         },
         "office_lounge": {
           "name": "Office lounge",
@@ -191,9 +188,7 @@
       "reset": "Reset to defaults",
       "low": "Low",
       "medium": "Medium",
-      "high": "High",
-      "ambientAudio": "Ambient audio",
-      "ambientVolume": "Ambience volume"
+      "high": "High"
     }
   },
   "poly": {
@@ -237,19 +232,15 @@
   "maps": {
     "office": {
       "name": "Office",
-      "description": "Open office with desk rows, meeting table, and lounge"
+      "description": "Open-plan office on warm cream tile under soft daylight. Desk rows with monitors and potted plants face a long conference table with red chairs and bookcases. A kitchen corner has a fridge, stove, sink, and dining table; blue sofas and a red lounge sit near a ping-pong table. Tall floor lamps cast warm light pools; a small black cat wanders the floor."
     },
     "nature": {
       "name": "Nature",
-      "description": "Forest clearing with camp ring and a wildlife trail"
+      "description": "Grassy forest clearing under a misty blue-green sky. Tall pines line the back edge; stylized trees with green, red, and orange canopies ring the sides among grey rocks and grass clumps. Two orange tents face a lit campfire with a picnic table and chairs nearby; a silver SUV sits parked on the grass at the clearing's edge."
     },
-    "factory": {
-      "name": "Factory",
-      "description": "Warehouse aisle with rack walls, crate docks, and break corner"
-    },
-    "mars": {
-      "name": "Mars",
-      "description": "Habitat compound, supply pad, and rock ridges"
+    "space": {
+      "name": "Space",
+      "description": "Dusty reddish-orange planetary outpost under a peach haze. A grey habitat dome and smaller pod modules sit among stacked supply crates, dish antennas, and glowing blue beacon lamps. Alien plants and twisted dark trees grow between rock ridges and boulders; a six-wheeled rover and a large circular base ring mark the yard."
     }
   },
   "mapEditor": {
@@ -261,6 +252,9 @@
     "import": "Import",
     "save": "Save map",
     "close": "Close",
+    "closeUnsavedTitle": "Unsaved changes",
+    "closeUnsavedBody": "You have unsaved edits. Close without saving?",
+    "closeDiscard": "Close without saving",
     "library": "Asset library",
     "searchAssets": "Search assets…",
     "searchEmpty": "No assets match your search.",
@@ -268,6 +262,7 @@
     "cat": {
       "furniture": "Furniture",
       "nature": "Nature",
+      "space": "Space",
       "camping": "Camping",
       "decor": "Decor",
       "ground": "Ground",
@@ -357,23 +352,17 @@
     "themeHemiGround": "Hemi ground",
     "themeSun": "Sun",
     "themeAccent": "Accent",
-    "ambience": "Ambience profile",
-    "ambienceIds": {
-      "office": "Office",
-      "nature": "Nature",
-      "factory": "Factory",
-      "mars": "Mars",
-      "none": "None"
-    },
     "packs": {
       "furniture": "Furniture",
       "trees": "Trees",
+      "nature": "Nature",
       "camping": "Camping",
       "cars": "Cars",
       "animals": "Animals",
       "farm-animals": "Farm animals",
       "food": "Food",
-      "cosmetics": "Cosmetics"
+      "cosmetics": "Cosmetics",
+      "space": "Space"
     }
   }
 }

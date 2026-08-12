@@ -3,17 +3,15 @@ import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { blankMap, clampFloorSize, cloneMap, isArenaMapDefinition } from "@/lib/maps/schema";
 import officeDef from "@/lib/maps/defs/office.json";
 import natureDef from "@/lib/maps/defs/nature.json";
-import factoryDef from "@/lib/maps/defs/factory.json";
-import marsDef from "@/lib/maps/defs/mars.json";
+import spaceDef from "@/lib/maps/defs/space.json";
 
-export const BUILTIN_MAP_IDS = ["office", "nature", "factory", "mars"] as const;
+export const BUILTIN_MAP_IDS = ["office", "nature", "space"] as const;
 export type BuiltinMapId = (typeof BUILTIN_MAP_IDS)[number];
 
 const BUILTIN_RAW: Record<BuiltinMapId, ArenaMapDefinition> = {
   office: officeDef as ArenaMapDefinition,
   nature: natureDef as ArenaMapDefinition,
-  factory: factoryDef as ArenaMapDefinition,
-  mars: marsDef as ArenaMapDefinition,
+  space: spaceDef as ArenaMapDefinition,
 };
 
 export function isBuiltinMapId(id: string): id is BuiltinMapId {

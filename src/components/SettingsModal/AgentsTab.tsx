@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AgentConfig, AgentSkill } from "@/lib/types";
 import {
@@ -23,9 +23,25 @@ export function AgentsTab() {
   const upsertAgent = useArenaStore((s) => s.upsertAgent);
   const deleteAgent = useArenaStore((s) => s.deleteAgent);
   const showToast = useArenaStore((s) => s.showToast);
+  const settingsFocusAgentId = useArenaStore((s) => s.settingsFocusAgentId);
+  const clearSettingsFocusAgent = useArenaStore((s) => s.clearSettingsFocusAgent);
 
   const [editing, setEditing] = useState<AgentConfig | null>(null);
   useSettingsBack(editing != null, () => setEditing(null));
+
+  useEffect(() => {
+    if (!settingsFocusAgentId) return;
+    const agent = agents.find((a) => a.id === settingsFocusAgentId);
+    clearSettingsFocusAgent();
+    if (!agent) return;
+    setEditing({
+      ...agent,
+      enabled: agent.enabled !== false,
+      thinkingEnabled: agent.thinkingEnabled === true,
+      chattiness: clampChattiness(agent.chattiness),
+      skills: agent.skills ?? [],
+    });
+  }, [settingsFocusAgentId, agents, clearSettingsFocusAgent]);
 
   function startAdd() {
     if (models.length === 0) {

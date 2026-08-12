@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { shadowMapSize } from "@/lib/maps";
-import { mapWantsRoomLights } from "@/lib/maps/ambience";
+import { mapWantsRoomLights } from "@/lib/maps/mapRegions";
 import { lerpSceneLighting } from "@/lib/dayNight";
 import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
 import {
@@ -207,25 +207,32 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
           position={lighting.fillPosition}
           intensity={lighting.fillIntensity}
           color={lighting.fillColor}
-          distance={floorSize * 1.8}
-          decay={2}
+          distance={floorSize * 2.6}
+          decay={1}
         />
       )}
       {showRoomLights && (
         <>
           <pointLight
-            position={[-4 * roomScale, 3, -3 * roomScale]}
-            intensity={0.28 + nightAmount * 0.22}
-            color={nightAmount > 0.5 ? "#ffcc88" : "#fff2dd"}
-            distance={14 * roomScale}
-            decay={2}
+            position={[-5 * roomScale, 3.6, -4 * roomScale]}
+            intensity={0.22 + nightAmount * 0.14}
+            color={nightAmount > 0.5 ? "#ffd8b0" : "#fff6ea"}
+            distance={20 * roomScale}
+            decay={1}
           />
           <pointLight
-            position={[5 * roomScale, 3, 4 * roomScale]}
-            intensity={0.22 + nightAmount * 0.18}
-            color={nightAmount > 0.5 ? "#a8c0ff" : "#e8f0ff"}
-            distance={14 * roomScale}
-            decay={2}
+            position={[5 * roomScale, 3.6, 4 * roomScale]}
+            intensity={0.18 + nightAmount * 0.12}
+            color={nightAmount > 0.5 ? "#b8c8f0" : "#eef3ff"}
+            distance={20 * roomScale}
+            decay={1}
+          />
+          <pointLight
+            position={[0, 4.2, 0]}
+            intensity={0.16 + nightAmount * 0.12}
+            color={nightAmount > 0.5 ? "#e8d6c0" : "#fff8f0"}
+            distance={24 * roomScale}
+            decay={1}
           />
         </>
       )}
@@ -234,10 +241,10 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
         <pointLight
           key={L.id}
           position={L.position}
-          intensity={L.intensity * (0.7 + nightAmount * 0.5)}
+          intensity={L.intensity * (0.55 + nightAmount * 0.35)}
           color={L.color}
-          distance={L.distance}
-          decay={2}
+          distance={L.distance * 1.35}
+          decay={1}
         />
       ))}
 

@@ -1,0 +1,1081 @@
+{
+  "version": 1,
+  "id": "space",
+  "name": "Space",
+  "description": "Dusty reddish-orange planetary outpost under a peach haze. A grey habitat dome and smaller pod modules sit among stacked supply crates, dish antennas, and glowing blue beacon lamps. Alien plants and twisted dark trees grow between rock ridges and boulders; a six-wheeled rover and a large circular base ring mark the yard.",
+  "builtin": true,
+  "floor": {
+    "size": 24,
+    "style": "solid",
+    "cells": 24,
+    "color": "#B87858",
+    "surface": "dirt"
+  },
+  "theme": {
+    "floor": "#B87858",
+    "accent": "#C46840",
+    "background": "#D4A888",
+    "fog": "#D8B090",
+    "ambient": "#FFE8D8",
+    "hemiSky": "#F5D8C4",
+    "hemiGround": "#8A5038",
+    "sun": "#FFD8B0"
+  },
+  "roomLights": false,
+  "spawnPoints": [
+    {
+      "id": "spawn_0",
+      "position": [
+        0,
+        0,
+        3
+      ],
+      "rotationY": 2.5
+    },
+    {
+      "id": "spawn_1",
+      "position": [
+        3,
+        0,
+        0
+      ],
+      "rotationY": -2.2
+    },
+    {
+      "id": "spawn_2",
+      "position": [
+        -3.5,
+        0,
+        0
+      ],
+      "rotationY": 1.2
+    },
+    {
+      "id": "spawn_3",
+      "position": [
+        0,
+        0,
+        -3
+      ],
+      "rotationY": 0
+    }
+  ],
+  "lights": [
+    {
+      "id": "light_hab",
+      "position": [
+        -5,
+        3,
+        -3.5
+      ],
+      "color": "#66aaff",
+      "intensity": 0.55,
+      "distance": 12
+    },
+    {
+      "id": "light_pad",
+      "position": [
+        0,
+        3.4,
+        -7.5
+      ],
+      "color": "#88aaff",
+      "intensity": 0.45,
+      "distance": 11
+    },
+    {
+      "id": "light_ridge",
+      "position": [
+        9,
+        3,
+        2
+      ],
+      "color": "#7ab0ff",
+      "intensity": 0.3,
+      "distance": 10
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone_habitat",
+      "name": "Habitat",
+      "kind": "camp",
+      "center": [
+        -5,
+        0,
+        -3.5
+      ],
+      "radius": 4
+    },
+    {
+      "id": "zone_pad",
+      "name": "Supply pad",
+      "kind": "platform",
+      "center": [
+        0,
+        0,
+        -7.2
+      ],
+      "radius": 3.5
+    },
+    {
+      "id": "zone_ridge",
+      "name": "East ridge",
+      "kind": "yard",
+      "center": [
+        9,
+        0,
+        2
+      ],
+      "radius": 4
+    }
+  ],
+  "placeables": [
+    {
+      "id": "antenna_hab",
+      "placeableId": "antenna",
+      "position": [
+        -3.5,
+        0,
+        -10.5
+      ],
+      "rotationY": 0.4
+    },
+    {
+      "id": "crate_h0",
+      "placeableId": "supply_crate",
+      "position": [
+        -4,
+        0,
+        -8.5
+      ],
+      "rotationY": 0.2
+    },
+    {
+      "id": "crate_h1",
+      "placeableId": "supply_crate",
+      "position": [
+        -5.5,
+        0,
+        -9.5
+      ],
+      "rotationY": 0.2,
+      "scale": 0.95
+    },
+    {
+      "id": "crate_h2",
+      "placeableId": "supply_crate",
+      "position": [
+        -8,
+        0,
+        -11
+      ],
+      "rotationY": -0.3,
+      "scale": 1
+    },
+    {
+      "id": "beacon_hab_a",
+      "placeableId": "beacon",
+      "position": [
+        -7.8,
+        0,
+        -2.2
+      ],
+      "rotationY": 0.1,
+      "scale": 1.1
+    },
+    {
+      "id": "beacon_hab_b",
+      "placeableId": "beacon",
+      "position": [
+        -5,
+        0,
+        8.5
+      ],
+      "rotationY": 0.2,
+      "scale": 1.05
+    },
+    {
+      "id": "beacon_pad",
+      "placeableId": "beacon",
+      "position": [
+        0,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1.15
+    },
+    {
+      "id": "antenna_pad",
+      "placeableId": "antenna",
+      "position": [
+        5.5,
+        0,
+        -9
+      ],
+      "rotationY": -0.4
+    },
+    {
+      "id": "crate_p0",
+      "placeableId": "supply_crate",
+      "position": [
+        -2,
+        0,
+        -7.5
+      ],
+      "rotationY": 0.1
+    },
+    {
+      "id": "crate_p1",
+      "placeableId": "supply_crate",
+      "position": [
+        -0.3,
+        0,
+        -7.2
+      ],
+      "rotationY": 0.1
+    },
+    {
+      "id": "crate_p2",
+      "placeableId": "supply_crate",
+      "position": [
+        0.9,
+        0,
+        -7.2
+      ],
+      "rotationY": 0.1
+    },
+    {
+      "id": "crate_p3",
+      "placeableId": "supply_crate",
+      "position": [
+        -1.5,
+        0,
+        -6.1
+      ],
+      "rotationY": 0.15
+    },
+    {
+      "id": "crate_p4",
+      "placeableId": "supply_crate",
+      "position": [
+        0.9,
+        0,
+        -6.1
+      ],
+      "rotationY": -0.1
+    },
+    {
+      "id": "ridge_e_0",
+      "placeableId": "space_boulder",
+      "position": [
+        9.2,
+        0,
+        -6
+      ],
+      "rotationY": 0,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_e_1",
+      "placeableId": "space_rock",
+      "position": [
+        9.55,
+        0,
+        -3.5
+      ],
+      "rotationY": 0.4,
+      "scale": 1
+    },
+    {
+      "id": "ridge_e_s_1",
+      "placeableId": "space_rock",
+      "position": [
+        8.2,
+        0,
+        -2.9
+      ],
+      "rotationY": 0.2,
+      "scale": 0.9
+    },
+    {
+      "id": "ridge_e_2",
+      "placeableId": "space_boulder",
+      "position": [
+        9.9,
+        0,
+        -1
+      ],
+      "rotationY": 0.8,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_e_3",
+      "placeableId": "space_rock",
+      "position": [
+        9.2,
+        0,
+        1.5
+      ],
+      "rotationY": 1.2,
+      "scale": 1
+    },
+    {
+      "id": "ridge_e_s_3",
+      "placeableId": "space_rock",
+      "position": [
+        8.5,
+        0,
+        -10.5
+      ],
+      "rotationY": 0.6,
+      "scale": 0.9
+    },
+    {
+      "id": "ridge_e_4",
+      "placeableId": "space_boulder",
+      "position": [
+        8.5,
+        0,
+        -11
+      ],
+      "rotationY": 1.6,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_e_5",
+      "placeableId": "space_rock",
+      "position": [
+        9.9,
+        0,
+        6.5
+      ],
+      "rotationY": 2,
+      "scale": 1
+    },
+    {
+      "id": "ridge_e_s_5",
+      "placeableId": "space_rock",
+      "position": [
+        8.2,
+        0,
+        7.1
+      ],
+      "rotationY": 1,
+      "scale": 0.9
+    },
+    {
+      "id": "ridge_e_6",
+      "placeableId": "space_boulder",
+      "position": [
+        9.2,
+        0,
+        9
+      ],
+      "rotationY": 2.4,
+      "scale": 0.95
+    },
+    {
+      "id": "ridge_n_0",
+      "placeableId": "space_rock",
+      "position": [
+        -9,
+        0,
+        9.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "ridge_n_1",
+      "placeableId": "space_boulder",
+      "position": [
+        -6.5,
+        0,
+        9.1
+      ],
+      "rotationY": 0.35,
+      "scale": 1
+    },
+    {
+      "id": "ridge_n_2",
+      "placeableId": "space_rock",
+      "position": [
+        -3.5,
+        0,
+        9.5
+      ],
+      "rotationY": 0.7,
+      "scale": 1
+    },
+    {
+      "id": "ridge_n_3",
+      "placeableId": "space_boulder",
+      "position": [
+        3.5,
+        0,
+        11
+      ],
+      "rotationY": 1.05,
+      "scale": 1
+    },
+    {
+      "id": "ridge_n_4",
+      "placeableId": "space_rock",
+      "position": [
+        3,
+        0,
+        9.5
+      ],
+      "rotationY": 1.4,
+      "scale": 1
+    },
+    {
+      "id": "ridge_n_5",
+      "placeableId": "space_boulder",
+      "position": [
+        4,
+        0,
+        -10.5
+      ],
+      "rotationY": 1.75,
+      "scale": 1
+    },
+    {
+      "id": "berm_sw_0",
+      "placeableId": "space_boulder",
+      "position": [
+        -7.5,
+        0,
+        1.5
+      ],
+      "rotationY": 0,
+      "scale": 1.05
+    },
+    {
+      "id": "berm_sw_1",
+      "placeableId": "space_rock",
+      "position": [
+        -10.2,
+        0,
+        -5
+      ],
+      "rotationY": 0.5,
+      "scale": 1.05
+    },
+    {
+      "id": "berm_sw_2",
+      "placeableId": "space_boulder",
+      "position": [
+        -9.8,
+        0,
+        -2.5
+      ],
+      "rotationY": 1,
+      "scale": 1.05
+    },
+    {
+      "id": "berm_sw_3",
+      "placeableId": "space_rock",
+      "position": [
+        -10.5,
+        0,
+        0.5
+      ],
+      "rotationY": 1.5,
+      "scale": 1.05
+    },
+    {
+      "id": "scatter_0",
+      "placeableId": "space_rock",
+      "position": [
+        6.5,
+        0,
+        -9.5
+      ],
+      "rotationY": 0,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_1",
+      "placeableId": "space_rock",
+      "position": [
+        8,
+        0,
+        -0.5
+      ],
+      "rotationY": 0.7,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_2",
+      "placeableId": "space_rock",
+      "position": [
+        1.5,
+        0,
+        5
+      ],
+      "rotationY": 1.4,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_3",
+      "placeableId": "space_rock",
+      "position": [
+        -1,
+        0,
+        6.5
+      ],
+      "rotationY": 2.1,
+      "scale": 0.85
+    },
+    {
+      "id": "scatter_4",
+      "placeableId": "space_rock",
+      "position": [
+        4.5,
+        0,
+        7
+      ],
+      "rotationY": 2.8,
+      "scale": 0.85
+    },
+    {
+      "id": "beacon_ne",
+      "placeableId": "beacon",
+      "position": [
+        8.5,
+        0,
+        8
+      ],
+      "rotationY": 0.3,
+      "scale": 1
+    },
+    {
+      "id": "ridge_e2_0",
+      "placeableId": "space_boulder",
+      "position": [
+        10.2,
+        0,
+        -7.5
+      ],
+      "rotationY": 0,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_1",
+      "placeableId": "space_rock",
+      "position": [
+        10.2,
+        0,
+        -5
+      ],
+      "rotationY": 0.55,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_2",
+      "placeableId": "space_boulder",
+      "position": [
+        6,
+        0,
+        -6
+      ],
+      "rotationY": 1.1,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_3",
+      "placeableId": "space_rock",
+      "position": [
+        10.2,
+        0,
+        0.5
+      ],
+      "rotationY": 1.6500000000000001,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_4",
+      "placeableId": "space_boulder",
+      "position": [
+        10.2,
+        0,
+        3
+      ],
+      "rotationY": 2.2,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_5",
+      "placeableId": "space_rock",
+      "position": [
+        10.2,
+        0,
+        5.5
+      ],
+      "rotationY": 2.75,
+      "scale": 1.05
+    },
+    {
+      "id": "ridge_e2_6",
+      "placeableId": "space_boulder",
+      "position": [
+        6,
+        0,
+        -11.5
+      ],
+      "rotationY": 3.3000000000000003,
+      "scale": 1.05
+    },
+    {
+      "id": "prop_0x58ugr6_msq03nip",
+      "placeableId": "space__base_large",
+      "position": [
+        -8.5,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_t4k90jda_msq03swu",
+      "placeableId": "space__grass",
+      "position": [
+        2,
+        0,
+        11
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_vrumbjc1_msq03vo4",
+      "placeableId": "space__grass",
+      "position": [
+        6,
+        0,
+        5.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_1zwt4h5c_msq03wx5",
+      "placeableId": "space__grass",
+      "position": [
+        8,
+        0,
+        -4
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_0a5qpbtv_msq03ybl",
+      "placeableId": "space__grass",
+      "position": [
+        9,
+        0,
+        -10
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_v2a92vni_msq043ko",
+      "placeableId": "space__plant",
+      "position": [
+        11,
+        0,
+        0.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_bbubvbyu_msq04ak5",
+      "placeableId": "space__tree_lava",
+      "position": [
+        -11.5,
+        0,
+        11.5
+      ],
+      "rotationY": 0,
+      "scale": 1.55
+    },
+    {
+      "id": "prop_2fr96cya_msq04o7z",
+      "placeableId": "space__tree_blob",
+      "position": [
+        -10.5,
+        0,
+        3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_bges7q9q_msq05g9z",
+      "placeableId": "space__tree_spiral",
+      "position": [
+        -11,
+        0,
+        8.5
+      ],
+      "rotationY": 0,
+      "scale": 0.45
+    },
+    {
+      "id": "prop_gqz4jfgl_msq05pcp",
+      "placeableId": "space__tree_swirl",
+      "position": [
+        11.95,
+        0,
+        -6
+      ],
+      "rotationY": 0,
+      "scale": 0.65
+    },
+    {
+      "id": "prop_leuaypgp_msq05vob",
+      "placeableId": "space__tree_spikes",
+      "position": [
+        -1.5,
+        0,
+        -11
+      ],
+      "rotationY": 0,
+      "scale": 0.75
+    },
+    {
+      "id": "prop_tzwrfwpc_msq0676f",
+      "placeableId": "space__rover",
+      "position": [
+        -7.5,
+        0,
+        -4.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_locuvbtc_msq06evt",
+      "placeableId": "space__house_single_support",
+      "position": [
+        -1,
+        0,
+        10
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_32u2zn46_msq07pva",
+      "placeableId": "space__house_pod",
+      "position": [
+        -9,
+        0,
+        6.5
+      ],
+      "rotationY": 1.5707963267948966,
+      "scale": 0.25
+    },
+    {
+      "id": "prop_9dk0fkqr_msq08o55",
+      "placeableId": "space__astronaut",
+      "position": [
+        8,
+        0,
+        11
+      ],
+      "rotationY": 4.33,
+      "scale": 0.5,
+      "behavior": "wander",
+      "homePosition": [
+        8,
+        0,
+        11
+      ],
+      "moveSpeed": 1.1,
+      "locomotion": "idle"
+    },
+    {
+      "id": "prop_ai1srmj9_msq0bqis",
+      "placeableId": "space__rock",
+      "position": [
+        11.5,
+        0,
+        -11
+      ],
+      "rotationY": 0,
+      "scale": 3
+    },
+    {
+      "id": "prop_cemiwgi0_msq0c1ga",
+      "placeableId": "space__rock_large",
+      "position": [
+        11,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_wrcsqpxn_msq0ctkb",
+      "placeableId": "space__tree_lava",
+      "position": [
+        -11.95,
+        0,
+        -11.95
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_b6dqodb7_msq0d1oe",
+      "placeableId": "space__tree_spiral",
+      "position": [
+        -11,
+        0,
+        -5.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_vwahz71q_msq0fugk",
+      "placeableId": "space__grass",
+      "position": [
+        7.5,
+        0,
+        -8.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_zw8wz0y3_msq0fvuj",
+      "placeableId": "space__grass",
+      "position": [
+        11.5,
+        0,
+        -3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_hlfznlcc_msq0fx6b",
+      "placeableId": "space__grass",
+      "position": [
+        11.5,
+        0,
+        3
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_68c5iu01_msq0fyfh",
+      "placeableId": "space__grass",
+      "position": [
+        7.5,
+        0,
+        4.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_u3iwrcws_msq0fzqd",
+      "placeableId": "space__grass",
+      "position": [
+        -1,
+        0,
+        -3
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_sqlbl1yb_msq0g0re",
+      "placeableId": "space__grass",
+      "position": [
+        -1.5,
+        0,
+        6
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_agt3qqj2_msq0g1qv",
+      "placeableId": "space__grass",
+      "position": [
+        -5,
+        0,
+        2.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_jzbu1jnm_msq0g2s7",
+      "placeableId": "space__grass",
+      "position": [
+        3.5,
+        0,
+        2
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_744mh69q_msq0g435",
+      "placeableId": "space__grass",
+      "position": [
+        4,
+        0,
+        -3.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_hrk7bnfc_msq0g7rb",
+      "placeableId": "space__grass",
+      "position": [
+        -9,
+        0,
+        -2
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_yxh2wpos_msq0g8yi",
+      "placeableId": "space__grass",
+      "position": [
+        -5.5,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_yp9ri8qv_msq0gce7",
+      "placeableId": "space__bush",
+      "position": [
+        -7,
+        0,
+        7.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_scgai4lb_msq0gnvs",
+      "placeableId": "space__plant_2",
+      "position": [
+        10.5,
+        0,
+        -2.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_selcr7qo_msq0gpfl",
+      "placeableId": "space__plant_2",
+      "position": [
+        8.5,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_qodh36go_msq0gqu7",
+      "placeableId": "space__plant_2",
+      "position": [
+        6.5,
+        0,
+        -6.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_w6fqngt7_msq0h2lr",
+      "placeableId": "space__grass",
+      "position": [
+        9.5,
+        0,
+        10
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_cq7eyqwz_msq0h40g",
+      "placeableId": "space__grass",
+      "position": [
+        5,
+        0,
+        8.5
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_x112k9y3_msq0h7rl",
+      "placeableId": "space__grass",
+      "position": [
+        -6,
+        0,
+        -11.95
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_447xf0q8_msq0h97r",
+      "placeableId": "space__grass",
+      "position": [
+        -11.95,
+        0,
+        -2
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_5hn11nk5_msq0hap5",
+      "placeableId": "space__grass",
+      "position": [
+        -6,
+        0,
+        -2
+      ],
+      "rotationY": 0,
+      "scale": 1
+    },
+    {
+      "id": "prop_nfsvsgqj_msq0hpoj",
+      "placeableId": "space__rock",
+      "position": [
+        7,
+        0,
+        -11.95
+      ],
+      "rotationY": 0,
+      "scale": 1
+    }
+  ]
+}

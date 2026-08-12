@@ -651,6 +651,10 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "furniture",
+    "file": "BookcaseWithBooks.glb"
+  },
+  {
+    "pack": "furniture",
     "file": "Books.glb"
   },
   {
@@ -728,6 +732,10 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "furniture",
     "file": "Desk Corner.glb"
+  },
+  {
+    "pack": "furniture",
+    "file": "Desk_Kenney_backup.glb"
   },
   {
     "pack": "furniture",
@@ -903,6 +911,10 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "furniture",
+    "file": "PingPongTable.glb"
+  },
+  {
+    "pack": "furniture",
     "file": "Plant Small.glb"
   },
   {
@@ -1003,6 +1015,10 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "furniture",
+    "file": "TableJeremy.glb"
+  },
+  {
+    "pack": "furniture",
     "file": "Television Vintage.glb"
   },
   {
@@ -1040,6 +1056,106 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "furniture",
     "file": "Washer.glb"
+  },
+  {
+    "pack": "nature",
+    "file": "Grass Blades.glb"
+  },
+  {
+    "pack": "nature",
+    "file": "Grass Clump.glb"
+  },
+  {
+    "pack": "nature",
+    "file": "Grass Green.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Astronaut.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Base Large.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Bush.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Grass.glb"
+  },
+  {
+    "pack": "space",
+    "file": "House Cylinder.glb"
+  },
+  {
+    "pack": "space",
+    "file": "House Long.glb"
+  },
+  {
+    "pack": "space",
+    "file": "House Open.glb"
+  },
+  {
+    "pack": "space",
+    "file": "House Pod.glb"
+  },
+  {
+    "pack": "space",
+    "file": "House Single Support.glb"
+  },
+  {
+    "pack": "space",
+    "file": "House Single.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Plant 2.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Plant.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Rock Large.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Rock.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Rover.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Blob.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Floating.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Lava.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Light.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Spikes.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Spiral.glb"
+  },
+  {
+    "pack": "space",
+    "file": "Tree Swirl.glb"
   },
   {
     "pack": "trees",
