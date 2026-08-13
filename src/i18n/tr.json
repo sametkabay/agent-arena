@@ -102,22 +102,31 @@
       "addHeader": "Başlık ekle",
       "headerKey": "Başlık",
       "headerValue": "Değer",
-      "corsNote": "Tarayıcı istekleri CORS yüzünden engellenebilir. Geliştirmede Ollama /ollama üzerinden proxylenır. Diğer sağlayıcılar için özel gateway genellikle en iyi seçenektir.",
       "providers": {
         "openai": "OpenAI uyumlu bulut API",
         "gemini": "Google Gemini API",
         "claude": "Anthropic Claude API",
         "ollama": "Yerel Ollama sunucusu",
-        "custom": "Özel gateway (OpenAI uyumlu)"
-      }
+        "custom": "Özel API"
+      },
+      "providerNames": {
+        "openai": "OpenAI",
+        "gemini": "Gemini",
+        "claude": "Claude",
+        "ollama": "Ollama",
+        "custom": "Özel"
+      },
+      "addLlm": "Model ekle",
+      "addLlmHint": "Aynı {{provider}} bağlantısı ({{host}}) kullanılıyor. Başka bir LLM seç — kimlik bilgileri aynı kalır."
     },
     "agents": {
       "title": "Ajanlar",
-      "hint": "Her ajan bir AI modeli ve özelleştirebileceğin düşük poligonlu bir karakter preset’i kullanır.",
+      "hint": "Her ajan bir AI modeli, harita karakteri ve özelleştirebileceğin bir rol preset’i kullanır.",
       "empty": "Henüz ajan yok.",
       "displayName": "Görünen ad",
       "model": "AI modeli",
       "poly": "Rol",
+      "character": "Görünüm",
       "systemPrompt": "Sistem promptu",
       "thinking": "Düşünme modu",
       "thinkingHint": "Destekleyen modellerde (Ollama, Claude, Gemini, reasoning modeller) yanıt öncesi düşünür. Daha yavaş ama genelde daha iyi.",
@@ -125,15 +134,34 @@
       "chattiness": "Gevezelik",
       "chattinessHint": "Agent’ın kendi kendine, konuşma balonunda LLM ile ürettiği kısa söylenmeler. 0 = hiç, 100 ≈ dakikada 2 satır.",
       "skills": "Skill’ler",
-      "skillsHint": "Sistem promptuna eklenen yeniden kullanılabilir talimatlar (dokümantasyon, kod stili, araçlar vb.).",
+      "skillsHint": "Sistem promptuna eklenen yeniden kullanılabilir talimatlar (kod stili, dokümantasyon, araçlar vb.).",
       "skillsEmpty": "Henüz skill yok.",
+      "skillsEmptyHint": "Bir şablon seç veya boş skill ekle. Her skill, modelin her yanıtta uyduğu adlı bir talimat bloğudur.",
       "addSkill": "Skill ekle",
       "skillName": "Skill adı",
-      "skillContent": "Skill talimatları…",
+      "skillNamePlaceholder": "ör. Kod stili",
+      "skillBody": "Talimatlar",
+      "skillContent": "Bu skill geçerliyken ajan her zaman ne yapsın?",
       "skillCount_one": "{{count}} skill",
       "skillCount_other": "{{count}} skill",
+      "skillTemplates": {
+        "coding": {
+          "name": "Kod stili",
+          "content": "Şu kod kurallarına uy:\n- Anlaşılır isimler ve küçük fonksiyonlar tercih et\n- Mevcut kod tabanının stiline uy\n- Ödünleşimleri kısaca belirt"
+        },
+        "docs": {
+          "name": "Dokümantasyon",
+          "content": "Dokümantasyon veya yorum yazarken:\n- Sadece ne yaptığını değil, nedenini de anlat\n- Örnekleri kopyalanabilir tut\n- Varsayımları ve uç durumları işaretle"
+        },
+        "tools": {
+          "name": "Araçlar",
+          "content": "Kullanabileceğin araçlar ve nasıl:\n- İşe yarayan en basit aracı tercih et\n- Ne kullandığını ve nedenini söyle\n- Araç yoksa sonuç uydurma, eksik olduğunu söyle"
+        }
+      },
       "color": "Vurgu rengi",
       "bio": "Kısa bio",
+      "bioHint": "Diğer ajanların bu ajanı tanıması için önemli. Arena’da kim olduğu bu kısa metinden okunur.",
+      "bioPlaceholder": "ör. Somut adımları teoriden yeğleyen pratik bir mühendis.",
       "enabled": "Haritada aktif",
       "inactive": "pasif",
       "needModel": "Önce bir AI modeli ekle.",
@@ -153,7 +181,6 @@
       "custom": "Özel",
       "export": "Dışa aktar",
       "exported": "Harita dışa aktarıldı",
-      "presetsTitle": "Hazır sahneler",
       "mapsTitle": "Haritalar",
       "presetApplied": "{{name}} eklendi",
       "presets": {
@@ -162,8 +189,8 @@
           "description": "Doğa kampı kopyası"
         },
         "space_outpost": {
-          "name": "Space üssü",
-          "description": "Space üssü kopyası"
+          "name": "Uzay üssü",
+          "description": "Uzay üssü kopyası"
         },
         "office_lounge": {
           "name": "Ofis lounge",
@@ -229,18 +256,37 @@
       "blurb": "Kendi rol adın ve prompt’un"
     }
   },
+  "characters": {
+    "generic-male": "Alex",
+    "generic-female": "Maya",
+    "citizen-1": "Sam",
+    "citizen-2": "Leo",
+    "citizen-3": "Nora",
+    "retail-worker": "Nina",
+    "food-worker": "Marco",
+    "male-officer": "Cole",
+    "female-officer": "Ada",
+    "crypto-bro": "Dex",
+    "prisoner": "Vince",
+    "chicken-guy": "Pip",
+    "rubber-duck": "Goldie"
+  },
   "maps": {
     "office": {
       "name": "Ofis",
-      "description": "Sıcak krem karo zeminde yumuşak gün ışığında açık ofis. Monitörlü masa sıraları ve saksı bitkileri, kırmızı sandalyeli uzun toplantı masası ve kitaplıklara bakıyor. Mutfak köşesinde buzdolabı, ocak, lavabo ve yemek masası var; mavi kanepeler ile kırmızı lounge ping-pong masasının yanında. Uzun yer lambaları sıcak ışık havuzları oluşturuyor; küçük bir siyah kedi dolaşıyor."
+      "description": "Sıcak meşe karo zeminde yumuşak iç mekân gün ışığında açık ofis. Monitörlü masa sıraları ve saksı bitkileri, kırmızı sandalyeli uzun toplantı masası ve kitaplıklara bakıyor. Mutfak köşesinde buzdolabı, ocak, lavabo ve yemek masası var; mavi kanepeler ile kırmızı lounge ping-pong masasının yanında. Uzun yer lambaları sıcak ışık havuzları oluşturuyor; küçük bir siyah kedi dolaşıyor."
     },
     "nature": {
       "name": "Doğa",
       "description": "Sisli mavi-yeşil gökyüzü altında çimenli orman açıklığı. Arka kenarda uzun çamlar; yanlarda yeşil, kırmızı ve turuncu tepeli stilize ağaçlar, gri kayalar ve çimen kümeleri arasında. İki turuncu çadır yanan kamp ateşine bakıyor; yanında piknik masası ve sandalyeler, açıklığın kenarında gümüş bir SUV park etmiş."
     },
     "space": {
-      "name": "Space",
+      "name": "Uzay",
       "description": "Şeftali tonlu pus altında tozlu kırmızımsı-turuncu gezegen üssü. Gri habitat kubbesi ve küçük pod modülleri, istiflenmiş ikmal sandıkları, çanak antenler ve mavi parlayan beacon lambaları arasında. Uzaylı bitkiler ve kıvrık koyu ağaçlar kaya sırtları ile kayalar arasında büyüyor; altı tekerlekli bir rover ve büyük dairesel bir üs halkası avluyu belirliyor."
+    },
+    "empty": {
+      "name": "Boş",
+      "description": "Hiç asset olmayan boş beton zemin. Harita editöründen dilediğin gibi doldur."
     }
   },
   "mapEditor": {
@@ -262,7 +308,7 @@
     "cat": {
       "furniture": "Mobilya",
       "nature": "Doğa",
-      "space": "Space",
+      "space": "Uzay",
       "camping": "Kamp",
       "decor": "Dekor",
       "ground": "Zemin",
@@ -362,7 +408,7 @@
       "farm-animals": "Çiftlik",
       "food": "Yiyecek",
       "cosmetics": "Kozmetik",
-      "space": "Space"
+      "space": "Uzay"
     }
   }
 }

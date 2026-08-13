@@ -18,7 +18,7 @@ function SettingsModalChrome() {
   const tab = useArenaStore((s) => s.settingsTab);
   const setSettingsOpen = useArenaStore((s) => s.setSettingsOpen);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
-  const { canGoBack, goBack } = useSettingsNav();
+  const { canGoBack, goBack, saveVisible, saveDisabled, save } = useSettingsNav();
 
   if (!open) return null;
 
@@ -58,13 +58,25 @@ function SettingsModalChrome() {
               )}
               <h2>{t(`settings.tabs.${tab}`)}</h2>
             </div>
-            <button
-              type="button"
-              className="settings-modal__close"
-              onClick={() => setSettingsOpen(false)}
-            >
-              {t("settings.close")}
-            </button>
+            <div className="settings-modal__header-actions">
+              {saveVisible && (
+                <button
+                  type="button"
+                  className="btn btn--primary settings-modal__save"
+                  disabled={saveDisabled}
+                  onClick={save}
+                >
+                  {t("settings.save")}
+                </button>
+              )}
+              <button
+                type="button"
+                className="settings-modal__close"
+                onClick={() => setSettingsOpen(false)}
+              >
+                {t("settings.close")}
+              </button>
+            </div>
           </header>
           <div className="settings-modal__content">
             {tab === "general" && <GeneralTab />}

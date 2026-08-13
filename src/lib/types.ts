@@ -41,6 +41,8 @@ export interface AgentConfig {
   displayName: string;
   modelConfigId: string;
   polyPresetId: string;
+  /** GLB look from `public/assets/characters`. */
+  characterId: string;
   systemPrompt: string;
   /** When false, agent is kept in settings but not placed on the map. Default true. */
   enabled: boolean;
@@ -136,6 +138,7 @@ export interface ArenaAgent {
   displayName: string;
   modelConfigId: string;
   polyPresetId: string;
+  characterId: string;
   systemPrompt: string;
   color: string;
   bio?: string;

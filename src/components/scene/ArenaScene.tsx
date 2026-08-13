@@ -119,7 +119,7 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
     size: floorSize,
     style: "checker" as const,
     cells: 8,
-    color: "#D2C9BB",
+    color: "#C0B4A0",
   };
 
   const showRoomLights =
@@ -215,22 +215,22 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
         <>
           <pointLight
             position={[-5 * roomScale, 3.6, -4 * roomScale]}
-            intensity={0.22 + nightAmount * 0.14}
-            color={nightAmount > 0.5 ? "#ffd8b0" : "#fff6ea"}
+            intensity={0.12 + nightAmount * 0.22}
+            color={nightAmount > 0.5 ? "#ffd8b0" : "#e8dcc8"}
             distance={20 * roomScale}
             decay={1}
           />
           <pointLight
             position={[5 * roomScale, 3.6, 4 * roomScale]}
-            intensity={0.18 + nightAmount * 0.12}
-            color={nightAmount > 0.5 ? "#b8c8f0" : "#eef3ff"}
+            intensity={0.1 + nightAmount * 0.18}
+            color={nightAmount > 0.5 ? "#b8c8f0" : "#d4dce8"}
             distance={20 * roomScale}
             decay={1}
           />
           <pointLight
             position={[0, 4.2, 0]}
-            intensity={0.16 + nightAmount * 0.12}
-            color={nightAmount > 0.5 ? "#e8d6c0" : "#fff8f0"}
+            intensity={0.08 + nightAmount * 0.18}
+            color={nightAmount > 0.5 ? "#e8d6c0" : "#e6ddd0"}
             distance={24 * roomScale}
             decay={1}
           />

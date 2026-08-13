@@ -1678,14 +1678,14 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .agent-label {
   display: inline-block;
   margin: 0;
-  padding: 0.2rem 0.55rem;
+  padding: 0.28rem 0.7rem;
   border-radius: 999px;
   background: rgba(242, 237, 228, 0.92);
   border: 1px solid rgba(196, 164, 132, 0.55);
   /* Fixed dark ink — do not use --ink (night mode lightens it). */
   color: #2c2620;
   font: inherit;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(60, 45, 30, 0.12);
@@ -1883,6 +1883,17 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.88rem;
 }
 
+.settings-modal__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.settings-modal__save {
+  padding: 0.45rem 0.9rem;
+}
+
 .settings-modal__close {
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -1894,7 +1905,9 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .settings-modal__content {
   flex: 1;
-  overflow: auto;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 8px 18px 18px;
 }
 
@@ -1940,7 +1953,9 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .form-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
+  min-width: 0;
 }
 
 .form-grid label {
@@ -1967,18 +1982,105 @@ body.is-chat-panel-dragging .chat-popup__resize {
   resize: vertical;
 }
 
+.form-grid textarea.form-textarea--short {
+  min-height: 0;
+}
+
 .form-grid .skill-row {
   display: grid;
   gap: 8px;
   margin-top: 8px;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid var(--border-strong);
   border-radius: 12px;
   background: var(--surface-input);
 }
 
 .form-grid .skill-row textarea {
-  min-height: 72px;
+  min-height: 88px;
+}
+
+.form-grid .skill-row__field {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.skill-row .header-pair--name-action {
+  align-items: end;
+}
+
+.skill-empty {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  background: var(--surface-chip);
+}
+
+.skill-empty__title {
+  margin: 0;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.skill-empty__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.skill-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-template {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.skill-template:hover {
+  border-color: var(--sage);
+  background: var(--surface-soft-hover);
+}
+
+.skill-add {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+  border-radius: 12px;
+  padding: 0.7rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.skill-add:hover {
+  border-style: solid;
+  border-color: var(--sage);
+  color: var(--ink);
+  background: var(--surface-chip);
+}
+
+.skill-empty .skill-add {
+  margin-top: 2px;
+}
+
+.settings-hint--inline {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.8rem;
 }
 
 .form-grid input:focus,
@@ -2072,6 +2174,79 @@ body.is-chat-panel-dragging .chat-popup__resize {
   margin-bottom: 14px;
 }
 
+.provider-group {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-chip);
+  overflow: hidden;
+}
+
+.provider-group__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.provider-group__title {
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.provider-group__sub {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.provider-group__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.provider-group__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 18px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.provider-group__item:first-child {
+  border-top: none;
+}
+
+.provider-group__item-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.provider-group__item-main::before {
+  content: "";
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-right: 2px;
+  border-left: 2px solid var(--border-strong);
+  border-bottom: 2px solid var(--border-strong);
+  border-bottom-left-radius: 3px;
+  align-self: flex-start;
+  margin-top: 0.45em;
+}
+
+.provider-group__item .card-item__title {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
 .card-item {
   display: flex;
   justify-content: space-between;
@@ -2099,6 +2274,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .card-item__actions {
   display: flex;
+  align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
@@ -2112,12 +2288,14 @@ body.is-chat-panel-dragging .chat-popup__resize {
 }
 
 .poly-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 10px;
 }
 
 .poly-card {
+  flex: 0 0 132px;
+  width: 132px;
   border: 2px solid var(--border);
   border-radius: 14px;
   padding: 10px;
@@ -2148,6 +2326,47 @@ body.is-chat-panel-dragging .chat-popup__resize {
   color: var(--ink-soft);
   margin-top: 2px;
   line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.character-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.character-card {
+  flex: 0 0 108px;
+  width: 108px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  background: var(--surface);
+  text-align: left;
+  color: var(--ink);
+}
+
+.character-card.is-selected {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.2);
+}
+
+.character-card .asset-preview,
+.character-preview {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  padding: 6px;
+}
+
+.character-card__name {
+  font-weight: 800;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .map-grid {
@@ -2688,26 +2907,51 @@ body.is-chat-panel-dragging .chat-popup__resize {
   opacity: 0.75;
 }
 
-.map-preset-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
-  margin-bottom: 0.5rem;
+.h-scroll {
+  margin-top: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.map-preset-card {
-  text-align: left;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  padding: 0.7rem 0.75rem;
-  background: rgba(255, 255, 255, 0.35);
-  color: inherit;
-  cursor: pointer;
+.h-scroll__track {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(166, 124, 82, 0.45) transparent;
 }
 
-.map-preset-card:hover {
-  border-style: solid;
-  border-color: var(--accent, #4a7566);
+.h-scroll__track::-webkit-scrollbar {
+  height: 5px;
+}
+
+.h-scroll__track::-webkit-scrollbar-thumb {
+  background: rgba(166, 124, 82, 0.42);
+  border-radius: 999px;
+}
+
+.h-scroll__track::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:root[data-day-night="night"] .h-scroll__track {
+  scrollbar-color: rgba(168, 162, 150, 0.38) transparent;
+}
+
+:root[data-day-night="night"] .h-scroll__track::-webkit-scrollbar-thumb {
+  background: rgba(168, 162, 150, 0.34);
+}
+
+.h-scroll__track > * {
+  scroll-snap-align: start;
 }
 
 .map-editor__filter-row {

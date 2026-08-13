@@ -6,8 +6,6 @@ import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
-/** GitHub Pages project site: https://<user>.github.io/agent-arena/ */
-const BASE = "/agent-arena/";
 
 /** /local-llm/<host>/<port>/... → http://host:port/... (DEV streaming-friendly proxy). */
 function localLlmTarget(req: IncomingMessage): string {
@@ -22,8 +20,8 @@ function localLlmTarget(req: IncomingMessage): string {
  * Vite's SPA fallback returns index.html for files added after startup when
  * `server.watch.ignored` covers glb/gltf files (Windows EBUSY workaround).
  */
-function servePackAssets(): Plugin {
-  const basePrefix = BASE.replace(/\/$/, "");
+function servePackAssets(base: string): Plugin {
+  const basePrefix = base.replace(/\/$/, "");
   const servedRoots = [
     path.resolve(rootDir, "public", "assets", "packs"),
     path.resolve(rootDir, "public", "assets", "characters"),
@@ -73,45 +71,50 @@ function servePackAssets(): Plugin {
   };
 }
 
-export default defineConfig({
-  base: BASE,
-  plugins: [react(), servePackAssets()],
-  resolve: {
-    alias: {
-      "@": path.resolve(rootDir, "src"),
-    },
-  },
-  server: {
-    port: 5174,
-    // Binary GLB packs lock frequently on Windows; don't chokidar-watch them.
-    watch: {
-      ignored: [
-        "**/public/assets/packs/**",
-        "**/*.glb",
-        "**/*.gltf",
-        "**/*.bin",
-      ],
-    },
-    proxy: {
-      "/ollama": {
-        target: "http://127.0.0.1:11434",
-        changeOrigin: true,
-        rewrite: (p) => p.replace(/^\/ollama/, ""),
+export default defineConfig(({ command }) => {
+  // Dev serves at `/`. Production keeps `/agent-arena/` for GitHub Pages.
+  const base = command === "build" ? "/agent-arena/" : "/";
+
+  return {
+    base,
+    plugins: [react(), servePackAssets(base)],
+    resolve: {
+      alias: {
+        "@": path.resolve(rootDir, "src"),
       },
-      "/local-llm": {
-        target: "http://127.0.0.1:3100",
-        changeOrigin: true,
-        // http-proxy `router` — not in Vite's ProxyOptions typings
-        ...({ router: localLlmTarget } as object),
-        rewrite: (p) => p.replace(/^\/local-llm\/[^/]+\/\d+/, ""),
-        configure: (proxy) => {
-          proxy.on("proxyRes", (proxyRes) => {
-            // Discourage intermediary buffering of SSE/NDJSON streams.
-            proxyRes.headers["cache-control"] = "no-cache, no-transform";
-            proxyRes.headers["x-accel-buffering"] = "no";
-          });
+    },
+    server: {
+      port: 5174,
+      // Binary GLB packs lock frequently on Windows; don't chokidar-watch them.
+      watch: {
+        ignored: [
+          "**/public/assets/packs/**",
+          "**/*.glb",
+          "**/*.gltf",
+          "**/*.bin",
+        ],
+      },
+      proxy: {
+        "/ollama": {
+          target: "http://127.0.0.1:11434",
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/ollama/, ""),
+        },
+        "/local-llm": {
+          target: "http://127.0.0.1:3100",
+          changeOrigin: true,
+          // http-proxy `router` — not in Vite's ProxyOptions typings
+          ...({ router: localLlmTarget } as object),
+          rewrite: (p) => p.replace(/^\/local-llm\/[^/]+\/\d+/, ""),
+          configure: (proxy) => {
+            proxy.on("proxyRes", (proxyRes) => {
+              // Discourage intermediary buffering of SSE/NDJSON streams.
+              proxyRes.headers["cache-control"] = "no-cache, no-transform";
+              proxyRes.headers["x-accel-buffering"] = "no";
+            });
+          },
         },
       },
     },
-  },
+  };
 });

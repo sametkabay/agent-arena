@@ -119,7 +119,7 @@ npm install
 npm run dev
 ```
 
-Dev server: **http://localhost:5174/agent-arena/**
+Dev server: **http://localhost:5174/**
 
 #### First 60 seconds
 
@@ -217,7 +217,7 @@ Push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.ym
 2. Push to `main` (or run the workflow manually)
 3. Site: **https://sametkabay.github.io/agent-arena/**
 
-Vite `base` is `/agent-arena/` so asset URLs match the project Pages path.
+Vite `base` is `/` in dev and `/agent-arena/` on production builds so asset URLs match the project Pages path.
 
 ---
 
@@ -225,7 +225,7 @@ Vite `base` is `/agent-arena/` so asset URLs match the project Pages path.
 
 | Problem | What to try |
 |---------|-------------|
-| Blank page / missing assets | Open the app under the **base path** (`/agent-arena/`), not the host root |
+| Blank page / missing assets on Pages | Open the deployed app under `/agent-arena/`; local dev uses `/` |
 | Ollama fails on GitHub Pages | Expected — use `npm run dev` (proxies are **dev-only**) |
 | CORS errors on custom gateway | Enable CORS on the gateway, or call it through a local proxy |
 | Claude browser calls rejected | Needs Anthropic browser/CORS-allowed setup + the direct-browser-access header the app sends; use a restricted key |

@@ -12,6 +12,7 @@ import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId } from "@/lib/maps/schema";
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
+import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
 
 export const STORAGE_KEY = "agent-arena-data";
 /** One-shot: rewrite legacy floor.style "checker" → "surface". */
@@ -176,6 +177,9 @@ function sanitizeAgents(raw: unknown): AgentConfig[] {
       thinkingEnabled: a.thinkingEnabled === true,
       chattiness: clampChattiness(a.chattiness),
       skills: sanitizeSkills(a.skills),
+      characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
+        ? (a.characterId as string)
+        : DEFAULT_CHARACTER_ID,
     }));
 }
 

@@ -102,22 +102,31 @@
       "addHeader": "Add header",
       "headerKey": "Header",
       "headerValue": "Value",
-      "corsNote": "Browser requests may be blocked by CORS. In development, Ollama is proxied via /ollama. For other providers, a custom gateway often works best.",
       "providers": {
         "openai": "OpenAI-compatible cloud API",
         "gemini": "Google Gemini API",
         "claude": "Anthropic Claude API",
         "ollama": "Local Ollama server",
-        "custom": "Custom gateway (OpenAI-compatible)"
-      }
+        "custom": "Custom API"
+      },
+      "providerNames": {
+        "openai": "OpenAI",
+        "gemini": "Gemini",
+        "claude": "Claude",
+        "ollama": "Ollama",
+        "custom": "Custom"
+      },
+      "addLlm": "Add model",
+      "addLlmHint": "Using the same {{provider}} connection ({{host}}). Pick another LLM — credentials stay as they are."
     },
     "agents": {
       "title": "Agents",
-      "hint": "Each agent uses one AI model and a low-poly character preset you can customize.",
+      "hint": "Each agent uses one AI model, a character look, and a role preset you can customize.",
       "empty": "No agents yet.",
       "displayName": "Display name",
       "model": "AI model",
       "poly": "Role",
+      "character": "Look",
       "systemPrompt": "System prompt",
       "thinking": "Thinking mode",
       "thinkingHint": "When supported (Ollama, Claude, Gemini, reasoning models), the model reasons before answering. Slower but often smarter.",
@@ -125,15 +134,34 @@
       "chattiness": "Chattiness",
       "chattinessHint": "How often the agent mutters to itself in a speech bubble (LLM-generated, not scripted). 0 = never, 100 ≈ 2 lines per minute.",
       "skills": "Skills",
-      "skillsHint": "Reusable instructions injected into the system prompt (docs, coding style, tools, etc.).",
+      "skillsHint": "Reusable instructions injected into the system prompt (coding style, docs, tools, etc.).",
       "skillsEmpty": "No skills yet.",
+      "skillsEmptyHint": "Pick a starter or add a blank skill. Each one is a named block the model follows on every reply.",
       "addSkill": "Add skill",
       "skillName": "Skill name",
-      "skillContent": "Skill instructions…",
+      "skillNamePlaceholder": "e.g. Coding style",
+      "skillBody": "Instructions",
+      "skillContent": "What should this agent always do when this skill applies?",
       "skillCount_one": "{{count}} skill",
       "skillCount_other": "{{count}} skills",
+      "skillTemplates": {
+        "coding": {
+          "name": "Coding style",
+          "content": "Follow these coding conventions:\n- Prefer clear names and small functions\n- Match the existing codebase style\n- Call out trade-offs briefly"
+        },
+        "docs": {
+          "name": "Documentation",
+          "content": "When writing docs or comments:\n- Explain why, not only what\n- Keep examples copy-pasteable\n- Flag assumptions and edge cases"
+        },
+        "tools": {
+          "name": "Tools",
+          "content": "Tools you can use and how:\n- Prefer the simplest tool that works\n- State what you used and why\n- If a tool is missing, say so instead of inventing results"
+        }
+      },
       "color": "Accent color",
       "bio": "Short bio",
+      "bioHint": "Other agents use this to recognize who this agent is. Keep it short and distinctive.",
+      "bioPlaceholder": "e.g. Practical engineer who prefers concrete steps over theory.",
       "enabled": "Active on map",
       "inactive": "inactive",
       "needModel": "Add an AI model first.",
@@ -153,7 +181,6 @@
       "custom": "Custom",
       "export": "Export JSON",
       "exported": "Map exported",
-      "presetsTitle": "Starter presets",
       "mapsTitle": "Maps",
       "presetApplied": "Added {{name}}",
       "presets": {
@@ -229,10 +256,25 @@
       "blurb": "Your own role name and prompt"
     }
   },
+  "characters": {
+    "generic-male": "Alex",
+    "generic-female": "Maya",
+    "citizen-1": "Sam",
+    "citizen-2": "Leo",
+    "citizen-3": "Nora",
+    "retail-worker": "Nina",
+    "food-worker": "Marco",
+    "male-officer": "Cole",
+    "female-officer": "Ada",
+    "crypto-bro": "Dex",
+    "prisoner": "Vince",
+    "chicken-guy": "Pip",
+    "rubber-duck": "Goldie"
+  },
   "maps": {
     "office": {
       "name": "Office",
-      "description": "Open-plan office on warm cream tile under soft daylight. Desk rows with monitors and potted plants face a long conference table with red chairs and bookcases. A kitchen corner has a fridge, stove, sink, and dining table; blue sofas and a red lounge sit near a ping-pong table. Tall floor lamps cast warm light pools; a small black cat wanders the floor."
+      "description": "Open-plan office on warm oak tile under soft indoor daylight. Desk rows with monitors and potted plants face a long conference table with red chairs and bookcases. A kitchen corner has a fridge, stove, sink, and dining table; blue sofas and a red lounge sit near a ping-pong table. Tall floor lamps cast warm light pools; a small black cat wanders the floor."
     },
     "nature": {
       "name": "Nature",
@@ -241,6 +283,10 @@
     "space": {
       "name": "Space",
       "description": "Dusty reddish-orange planetary outpost under a peach haze. A grey habitat dome and smaller pod modules sit among stacked supply crates, dish antennas, and glowing blue beacon lamps. Alien plants and twisted dark trees grow between rock ridges and boulders; a six-wheeled rover and a large circular base ring mark the yard."
+    },
+    "empty": {
+      "name": "Empty",
+      "description": "Bare concrete floor with no props. Dress it up in the map editor."
     }
   },
   "mapEditor": {

@@ -2,24 +2,24 @@
   "version": 1,
   "id": "office",
   "name": "Office",
-  "description": "Open-plan office on warm cream tile under soft daylight. Desk rows with monitors and potted plants face a long conference table with red chairs and bookcases. A kitchen corner has a fridge, stove, sink, and dining table; blue sofas and a red lounge sit near a ping-pong table. Tall floor lamps cast warm light pools; a small black cat wanders the floor.",
+  "description": "Open-plan office on warm oak tile under soft indoor daylight. Desk rows with monitors and potted plants face a long conference table with red chairs and bookcases. A kitchen corner has a fridge, stove, sink, and dining table; blue sofas and a red lounge sit near a ping-pong table. Tall floor lamps cast warm light pools; a small black cat wanders the floor.",
   "builtin": true,
   "floor": {
     "size": 24,
     "style": "patches",
     "cells": 24,
-    "color": "#D8CFC0",
+    "color": "#C0B4A0",
     "surface": "office"
   },
   "theme": {
-    "floor": "#D8CFC0",
+    "floor": "#C0B4A0",
     "accent": "#4A7566",
-    "background": "#C5C2B8",
-    "fog": "#CFCCC4",
-    "ambient": "#FFF8F0",
-    "hemiSky": "#F2EDE4",
-    "hemiGround": "#C4B8A4",
-    "sun": "#FFF4E0"
+    "background": "#A8A59E",
+    "fog": "#B2AEA6",
+    "ambient": "#E4DDD2",
+    "hemiSky": "#D2D6DA",
+    "hemiGround": "#A89478",
+    "sun": "#EEDDC0"
   },
   "roomLights": true,
   "spawnPoints": [
@@ -86,8 +86,8 @@
         4.2,
         -2
       ],
-      "color": "#fff2dd",
-      "intensity": 0.42,
+      "color": "#edd4b0",
+      "intensity": 0.26,
       "distance": 14
     },
     {
@@ -97,8 +97,8 @@
         4.2,
         2
       ],
-      "color": "#e8f0ff",
-      "intensity": 0.38,
+      "color": "#c8d2e0",
+      "intensity": 0.22,
       "distance": 14
     },
     {
@@ -108,8 +108,8 @@
         3.2,
         8.5
       ],
-      "color": "#ffe8c8",
-      "intensity": 0.35,
+      "color": "#e4c89a",
+      "intensity": 0.22,
       "distance": 10
     }
   ],

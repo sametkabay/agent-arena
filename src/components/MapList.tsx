@@ -70,7 +70,11 @@ export function MapList({ collapsed, onToggle }: Props) {
                       aria-hidden
                     />
                     <span className="side-panel__meta">
-                      <span className="side-panel__name">{map.name}</span>
+                      <span className="side-panel__name">
+                        {map.builtin
+                          ? t(`maps.${map.id}.name`, { defaultValue: map.name })
+                          : map.name}
+                      </span>
                       <span className="side-panel__bio">
                         {map.builtin
                           ? t("mapList.builtin")

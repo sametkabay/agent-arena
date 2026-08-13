@@ -4,14 +4,16 @@ import { blankMap, clampFloorSize, cloneMap, isArenaMapDefinition } from "@/lib/
 import officeDef from "@/lib/maps/defs/office.json";
 import natureDef from "@/lib/maps/defs/nature.json";
 import spaceDef from "@/lib/maps/defs/space.json";
+import emptyDef from "@/lib/maps/defs/empty.json";
 
-export const BUILTIN_MAP_IDS = ["office", "nature", "space"] as const;
+export const BUILTIN_MAP_IDS = ["office", "nature", "space", "empty"] as const;
 export type BuiltinMapId = (typeof BUILTIN_MAP_IDS)[number];
 
 const BUILTIN_RAW: Record<BuiltinMapId, ArenaMapDefinition> = {
   office: officeDef as ArenaMapDefinition,
   nature: natureDef as ArenaMapDefinition,
   space: spaceDef as ArenaMapDefinition,
+  empty: emptyDef as unknown as ArenaMapDefinition,
 };
 
 export function isBuiltinMapId(id: string): id is BuiltinMapId {
@@ -83,6 +85,7 @@ export function placeAgentsOnMap(
         displayName: cfg.displayName,
         modelConfigId: cfg.modelConfigId,
         polyPresetId: cfg.polyPresetId,
+        characterId: cfg.characterId,
         systemPrompt: cfg.systemPrompt,
         color: cfg.color,
         bio: cfg.bio,
@@ -112,6 +115,7 @@ export function syncRuntimeAgents(
         displayName: cfg.displayName,
         modelConfigId: cfg.modelConfigId,
         polyPresetId: cfg.polyPresetId,
+        characterId: cfg.characterId,
         systemPrompt: cfg.systemPrompt,
         color: cfg.color,
         bio: cfg.bio,

@@ -107,7 +107,7 @@ export const CUSTOM_PRESET: PolyPreset = {
     "You are a helpful agent in Agent Arena. Be clear, friendly, and concise. Address the user by name when it fits.",
 };
 
-export const ALL_POLY_PRESETS: PolyPreset[] = [...POLY_PRESETS, CUSTOM_PRESET];
+export const ALL_POLY_PRESETS: PolyPreset[] = [CUSTOM_PRESET, ...POLY_PRESETS];
 
 export function getPolyPreset(id: string): PolyPreset {
   if (id === CUSTOM_PRESET.id) return CUSTOM_PRESET;

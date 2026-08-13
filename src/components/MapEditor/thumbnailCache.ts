@@ -3,6 +3,7 @@ import {
   DirectionalLight,
   AmbientLight,
   HemisphereLight,
+  Matrix4,
   OrthographicCamera,
   Scene,
   Vector3,
@@ -11,25 +12,38 @@ import {
   type Mesh,
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { PLACEABLE_SPECS, type PlaceableId } from "@/lib/assets/catalog";
+import { PLACEABLE_SPECS } from "@/lib/assets/catalog";
+import { getCharacter, isCharacterId } from "@/lib/assets/characters";
+import { skinnedWorldBox } from "@/lib/three/glbFit";
+import {
+  applyCharacterProportions,
+  poseCharacterIdle,
+  scaleHeadAnimationTracks,
+} from "@/lib/three/characterRig";
+import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
+import type { AnimationClip } from "three";
 
 const SIZE = 128;
+const CHAR_W = 120;
+const CHAR_H = 160;
 /** Frame size after normalize; higher margin = more padding in thumb. */
 const FIT = 1;
 const MARGIN_DEFAULT = 1.45;
 const MARGIN_ANIMALS = 1.9;
+/** Extra padding so feet/head aren't clipped in the 3:4 portrait. */
+const MARGIN_CHARACTER = 1.16;
 /** Bump to invalidate in-memory thumbs after framing changes. */
-const CACHE_VER = "framing-v10-pingpong-567cbf-linear";
+const CACHE_VER = "framing-v34-hands-up";
 
 const cache = new Map<string, string>();
-const inflight = new Map<PlaceableId, Promise<string>>();
-const waiters = new Map<PlaceableId, Set<() => void>>();
+const inflight = new Map<string, Promise<string>>();
+const waiters = new Map<string, Set<() => void>>();
 
 let renderer: WebGLRenderer | null = null;
 let loader: GLTFLoader | null = null;
 let renderChain: Promise<void> = Promise.resolve();
 
-function cacheKey(id: PlaceableId): string {
+function cacheKey(id: string): string {
   return `${CACHE_VER}:${id}`;
 }
 
@@ -120,7 +134,7 @@ function prepareMeshes(root: Object3D) {
   });
 }
 
-function frameMarginFor(id: PlaceableId): number {
+function frameMarginFor(id: string): number {
   const spec = PLACEABLE_SPECS[id];
   const cat = spec?.category;
   if (cat === "animals") return MARGIN_ANIMALS;
@@ -159,7 +173,94 @@ function buildScene(
 
 function renderToDataUrl(model: Object3D, margin: number): string {
   const gl = getRenderer();
+  gl.setSize(SIZE, SIZE, false);
   const { scene, camera } = buildScene(model, margin);
+  gl.clear();
+  gl.render(scene, camera);
+  return gl.domElement.toDataURL("image/png");
+}
+
+function normalizeCharacterToBox(root: Object3D, target = FIT): boolean {
+  const box = skinnedWorldBox(root);
+  if (box.isEmpty()) return false;
+  const size = new Vector3();
+  const center = new Vector3();
+  box.getSize(size);
+  box.getCenter(center);
+  const h = size.y;
+  if (!Number.isFinite(h) || h < 1e-8) return false;
+  const s = target / h;
+  root.position.set(-center.x * s, -center.y * s, -center.z * s);
+  root.scale.setScalar(s);
+  root.updateMatrixWorld(true);
+  return true;
+}
+
+function frameOrthoToBox(
+  camera: OrthographicCamera,
+  box: Box3,
+  aspect: number,
+  margin: number,
+) {
+  camera.updateMatrixWorld(true);
+  const inv = new Matrix4().copy(camera.matrixWorld).invert();
+  const min = box.min;
+  const max = box.max;
+  const corners = [
+    min.x, min.y, min.z, max.x, min.y, min.z, min.x, max.y, min.z, max.x, max.y, min.z,
+    min.x, min.y, max.z, max.x, min.y, max.z, min.x, max.y, max.z, max.x, max.y, max.z,
+  ];
+  const v = new Vector3();
+  let minCx = Infinity;
+  let maxCx = -Infinity;
+  let minCy = Infinity;
+  let maxCy = -Infinity;
+  for (let i = 0; i < corners.length; i += 3) {
+    v.set(corners[i], corners[i + 1], corners[i + 2]).applyMatrix4(inv);
+    minCx = Math.min(minCx, v.x);
+    maxCx = Math.max(maxCx, v.x);
+    minCy = Math.min(minCy, v.y);
+    maxCy = Math.max(maxCy, v.y);
+  }
+  let halfW = Math.max(Math.abs(minCx), Math.abs(maxCx), 0.01);
+  let halfH = Math.max(Math.abs(minCy), Math.abs(maxCy), 0.01);
+  if (halfW / halfH > aspect) halfH = halfW / aspect;
+  else halfW = halfH * aspect;
+  camera.left = -halfW * margin;
+  camera.right = halfW * margin;
+  camera.top = halfH * margin;
+  camera.bottom = -halfH * margin;
+  camera.updateProjectionMatrix();
+}
+
+function buildCharacterScene(
+  model: Object3D,
+  margin: number,
+): { scene: Scene; camera: OrthographicCamera } {
+  const scene = new Scene();
+  const box = skinnedWorldBox(model);
+  const aspect = CHAR_W / CHAR_H;
+  const camera = new OrthographicCamera(-1, 1, 1, -1, -40, 80);
+  camera.position.set(0.45, 0.35, 2.2);
+  camera.lookAt(0, 0, 0);
+  frameOrthoToBox(camera, box, aspect, margin);
+
+  scene.add(new AmbientLight(0xffffff, 0.9));
+  const key = new DirectionalLight(0xffffff, 1.2);
+  key.position.set(2.2, 3.6, 2.4);
+  scene.add(key);
+  const fill = new DirectionalLight(0xffffff, 0.4);
+  fill.position.set(-2, 2, -1);
+  scene.add(fill);
+  scene.add(new HemisphereLight(0xfff8ee, 0x8a7e6e, 0.5));
+  scene.add(model);
+  return { scene, camera };
+}
+
+function renderCharacterToDataUrl(model: Object3D): string {
+  const gl = getRenderer();
+  gl.setSize(CHAR_W, CHAR_H, false);
+  const { scene, camera } = buildCharacterScene(model, MARGIN_CHARACTER);
   gl.clear();
   gl.render(scene, camera);
   return gl.domElement.toDataURL("image/png");
@@ -173,6 +274,25 @@ async function renderGlb(path: string, margin: number): Promise<string> {
     root.scale.setScalar(0.01);
   }
   return enqueueRender(() => renderToDataUrl(root, margin));
+}
+
+async function renderCharacterGlb(
+  path: string,
+  headScale: number,
+): Promise<string> {
+  const gltf = await getLoader().loadAsync(path);
+  const root = cloneSkinned(gltf.scene);
+  prepareMeshes(root);
+  const clips = ((gltf.animations ?? []) as AnimationClip[]).map((c) =>
+    c.clone(),
+  );
+  scaleHeadAnimationTracks(clips, headScale);
+  poseCharacterIdle(root, clips);
+  applyCharacterProportions(root, headScale);
+  if (!normalizeCharacterToBox(root, FIT)) {
+    root.scale.setScalar(0.01);
+  }
+  return enqueueRender(() => renderCharacterToDataUrl(root));
 }
 
 /** Solid placeholder when GLB fails — keeps grid from looking empty. */
@@ -196,17 +316,17 @@ function renderPlaceholder(label: string): string {
   return c.toDataURL("image/png");
 }
 
-function notify(id: PlaceableId) {
+function notify(id: string) {
   const set = waiters.get(id);
   if (!set) return;
   set.forEach((fn) => fn());
 }
 
-export function getCachedThumb(id: PlaceableId): string | null {
+export function getCachedThumb(id: string): string | null {
   return cache.get(cacheKey(id)) ?? null;
 }
 
-export function subscribeThumb(id: PlaceableId, fn: () => void): () => void {
+export function subscribeThumb(id: string, fn: () => void): () => void {
   let set = waiters.get(id);
   if (!set) {
     set = new Set();
@@ -244,7 +364,7 @@ function releaseLoadSlot() {
 }
 
 /** Load+render one thumbnail (cached). Safe to call from many React thumbs. */
-export function requestThumb(id: PlaceableId): Promise<string> {
+export function requestThumb(id: string): Promise<string> {
   const key = cacheKey(id);
   const hit = cache.get(key);
   if (hit) return Promise.resolve(hit);
@@ -252,22 +372,28 @@ export function requestThumb(id: PlaceableId): Promise<string> {
   const pending = inflight.get(id);
   if (pending) return pending;
 
-  const spec = PLACEABLE_SPECS[id];
+  const placeable = PLACEABLE_SPECS[id];
+  const character = isCharacterId(id) ? getCharacter(id) : null;
+  const glb = placeable?.glb ?? character?.glb;
+  const label = placeable?.label ?? character?.id ?? id;
+
   const job = (async () => {
     await acquireLoadSlot();
     try {
       let url: string;
-      if (spec?.glb) {
-        url = await renderGlb(spec.glb, frameMarginFor(id));
+      if (glb) {
+        url = character
+          ? await renderCharacterGlb(glb, character.headScale ?? 1)
+          : await renderGlb(glb, frameMarginFor(id));
       } else {
-        url = renderPlaceholder(spec?.label ?? id);
+        url = renderPlaceholder(label);
       }
       cache.set(key, url);
       notify(id);
       return url;
     } catch (err) {
       console.warn(`[thumb] failed ${id}`, err);
-      const url = renderPlaceholder(spec?.label ?? id);
+      const url = renderPlaceholder(label);
       cache.set(key, url);
       notify(id);
       return url;
@@ -296,7 +422,7 @@ export function disposeThumbRenderer(): void {
 }
 
 /** Warm a list sequentially to avoid GLTF/GPU spikes. */
-export function warmThumbs(ids: PlaceableId[]): void {
+export function warmThumbs(ids: string[]): void {
   void (async () => {
     for (const id of ids) {
       if (!cache.has(cacheKey(id))) await requestThumb(id);

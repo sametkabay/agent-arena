@@ -1993,7 +1993,7 @@ export function MapEditor() {
                               ? "linear-gradient(135deg,#A8A9AB,#96989A)"
                               : id === "factory"
                                 ? "linear-gradient(135deg,#3A3D42,#2E3136)"
-                                : "linear-gradient(135deg,#D2C9BB,#C4B8A6)",
+                                : "linear-gradient(135deg,#C0B4A0,#B0A288)",
                     }}
                     onClick={() => updateFloor({ surface: id })}
                   />

@@ -153,12 +153,12 @@ export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinit
     theme: {
       floor: surfaceFloor.color,
       accent: "#4A7566",
-      background: "#E4DDD2",
-      fog: "#E4DDD2",
-      ambient: "#ffffff",
-      hemiSky: "#f5f0e6",
-      hemiGround: "#c4b8a4",
-      sun: "#fff5e6",
+      background: "#A8A59E",
+      fog: "#B2AEA6",
+      ambient: "#E4DDD2",
+      hemiSky: "#D2D6DA",
+      hemiGround: "#A89478",
+      sun: "#EEDDC0",
       ...partial?.theme,
     },
     spawnPoints: partial?.spawnPoints ?? [

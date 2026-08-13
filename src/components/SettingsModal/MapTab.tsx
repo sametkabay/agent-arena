@@ -1,15 +1,19 @@
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  MAP_PRESETS,
-  createMapFromPreset,
   mapsToMeta,
   resolveMapDefinition,
   exportMapJson,
-  type MapPresetId,
 } from "@/lib/maps";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import { useArenaStore } from "@/store/arenaStore";
+
+const MAP_DESCRIPTION_MAX = 80;
+
+function clipMapDescription(text: string): string {
+  if (text.length <= MAP_DESCRIPTION_MAX) return text;
+  return `${text.slice(0, MAP_DESCRIPTION_MAX - 1).trimEnd()}…`;
+}
 
 export function MapTab() {
   const { t } = useTranslation();
@@ -23,7 +27,6 @@ export function MapTab() {
   const duplicateActiveMap = useArenaStore((s) => s.duplicateActiveMap);
   const deleteCustomMap = useArenaStore((s) => s.deleteCustomMap);
   const importMapJson = useArenaStore((s) => s.importMapJson);
-  const upsertCustomMap = useArenaStore((s) => s.upsertCustomMap);
   const showToast = useArenaStore((s) => s.showToast);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -46,19 +49,18 @@ export function MapTab() {
     }
   };
 
-  const applyPreset = (presetId: MapPresetId) => {
-    const def = createMapFromPreset(presetId);
-    upsertCustomMap(def);
-    setMapId(def.id);
-    showToast(t("settings.map.presetApplied", { name: def.name }));
-  };
-
   return (
     <div>
       <p className="settings-hint">{t("settings.map.hint")}</p>
       <p className="settings-hint">
         {t("settings.map.active")}:{" "}
-        <strong>{activeMap?.name ?? mapId}</strong> · {floorSize}m ·{" "}
+        <strong>
+          {activeMap
+            ? activeMap.builtin
+              ? t(`maps.${activeMap.id}.name`, { defaultValue: activeMap.name })
+              : activeMap.name
+            : mapId}
+        </strong> · {floorSize}m ·{" "}
         {activeMap?.placeables.length ?? 0} props
       </p>
 
@@ -99,27 +101,15 @@ export function MapTab() {
         />
       </div>
 
-      <h4 className="map-tab__section-title">{t("settings.map.presetsTitle")}</h4>
-      <div className="map-preset-grid">
-        {MAP_PRESETS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className="map-preset-card"
-            onClick={() => applyPreset(p.id)}
-          >
-            <div className="card-item__title">{t(p.nameKey)}</div>
-            <div className="card-item__sub">{t(p.descriptionKey)}</div>
-          </button>
-        ))}
-      </div>
-
       <h4 className="map-tab__section-title">{t("settings.map.mapsTitle")}</h4>
       <div className="map-grid">
         {maps.map((m) => {
           const def = resolveMapDefinition(m.id, customMaps);
           const surface = def.floor.surface ?? "office";
           const swatch = FLOOR_SURFACES[surface];
+          const description = m.builtin
+            ? t(`maps.${m.id}.description`, { defaultValue: m.description })
+            : m.description || t("settings.map.custom");
           return (
             <div
               key={m.id}
@@ -150,13 +140,13 @@ export function MapTab() {
                     {def.floor.size}m · {def.placeables.length}
                   </span>
                 </div>
-                <div className="card-item__title">{m.name}</div>
-                <div className="card-item__sub">
+                <div className="card-item__title">
                   {m.builtin
-                    ? t(`maps.${m.id}.description`, {
-                        defaultValue: m.description,
-                      })
-                    : m.description || t("settings.map.custom")}
+                    ? t(`maps.${m.id}.name`, { defaultValue: m.name })
+                    : m.name}
+                </div>
+                <div className="card-item__sub" title={description}>
+                  {clipMapDescription(description)}
                 </div>
                 {!m.builtin && (
                   <span className="map-card__badge">{t("settings.map.custom")}</span>

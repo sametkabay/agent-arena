@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AgentConfig, AgentSkill } from "@/lib/types";
 import {
@@ -7,6 +7,11 @@ import {
   getPolyPreset,
   isCustomPreset,
 } from "@/lib/poly/presets";
+import {
+  ALL_CHARACTERS,
+  DEFAULT_CHARACTER_ID,
+  getCharacter,
+} from "@/lib/assets/characters";
 import { uid } from "@/lib/storage";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
 import { ColorField } from "@/components/ui/ColorField";
@@ -14,7 +19,59 @@ import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import { Switch } from "@/components/ui/Switch";
 import { clampChattiness } from "@/lib/storage";
-import { useSettingsBack } from "@/components/SettingsModal/SettingsNavContext";
+import {
+  useSettingsBack,
+  useSettingsHeaderSave,
+} from "@/components/SettingsModal/SettingsNavContext";
+import { CharacterPreview } from "@/components/SettingsModal/CharacterPreview";
+
+const SKILL_TEMPLATES = [
+  {
+    id: "coding",
+    nameKey: "settings.agents.skillTemplates.coding.name",
+    contentKey: "settings.agents.skillTemplates.coding.content",
+  },
+  {
+    id: "docs",
+    nameKey: "settings.agents.skillTemplates.docs.name",
+    contentKey: "settings.agents.skillTemplates.docs.content",
+  },
+  {
+    id: "tools",
+    nameKey: "settings.agents.skillTemplates.tools.name",
+    contentKey: "settings.agents.skillTemplates.tools.content",
+  },
+] as const;
+
+function agentFormKey(agent: AgentConfig): string {
+  return JSON.stringify({
+    displayName: agent.displayName,
+    modelConfigId: agent.modelConfigId,
+    polyPresetId: agent.polyPresetId,
+    characterId: agent.characterId || DEFAULT_CHARACTER_ID,
+    systemPrompt: agent.systemPrompt,
+    enabled: agent.enabled !== false,
+    thinkingEnabled: agent.thinkingEnabled === true,
+    chattiness: clampChattiness(agent.chattiness),
+    skills: (agent.skills ?? []).map((s) => ({
+      name: s.name,
+      content: s.content,
+    })),
+    color: agent.color,
+    bio: agent.bio ?? "",
+  });
+}
+
+function normalizeAgentForm(agent: AgentConfig): AgentConfig {
+  return {
+    ...agent,
+    enabled: agent.enabled !== false,
+    thinkingEnabled: agent.thinkingEnabled === true,
+    chattiness: clampChattiness(agent.chattiness),
+    skills: agent.skills ?? [],
+    characterId: agent.characterId || DEFAULT_CHARACTER_ID,
+  };
+}
 
 export function AgentsTab() {
   const { t } = useTranslation();
@@ -27,20 +84,21 @@ export function AgentsTab() {
   const clearSettingsFocusAgent = useArenaStore((s) => s.clearSettingsFocusAgent);
 
   const [editing, setEditing] = useState<AgentConfig | null>(null);
+  const baselineKeyRef = useRef<string | null>(null);
   useSettingsBack(editing != null, () => setEditing(null));
+
+  function openEditor(agent: AgentConfig, isNew: boolean) {
+    const next = normalizeAgentForm(agent);
+    baselineKeyRef.current = isNew ? null : agentFormKey(next);
+    setEditing(next);
+  }
 
   useEffect(() => {
     if (!settingsFocusAgentId) return;
     const agent = agents.find((a) => a.id === settingsFocusAgentId);
     clearSettingsFocusAgent();
     if (!agent) return;
-    setEditing({
-      ...agent,
-      enabled: agent.enabled !== false,
-      thinkingEnabled: agent.thinkingEnabled === true,
-      chattiness: clampChattiness(agent.chattiness),
-      skills: agent.skills ?? [],
-    });
+    openEditor(agent, false);
   }, [settingsFocusAgentId, agents, clearSettingsFocusAgent]);
 
   function startAdd() {
@@ -49,15 +107,17 @@ export function AgentsTab() {
       return;
     }
     const preset = getPolyPreset("explorer");
-    setEditing(
+    openEditor(
       createAgentDraft({
         displayName: t(preset.nameKey),
         modelConfigId: models[0].id,
         polyPresetId: preset.id,
+        characterId: DEFAULT_CHARACTER_ID,
         systemPrompt: preset.defaultSystemPrompt,
         color: preset.defaultColor,
         thinkingEnabled: false,
       }),
+      true,
     );
   }
 
@@ -66,16 +126,39 @@ export function AgentsTab() {
     const preset = getPolyPreset(presetId);
     const roleName = t(preset.nameKey);
     const custom = isCustomPreset(presetId);
+    const prevRoleName = t(getPolyPreset(editing.polyPresetId).nameKey);
+    const nameIsFromRole =
+      !editing.displayName.trim() || editing.displayName.trim() === prevRoleName;
 
     setEditing({
       ...editing,
       polyPresetId: presetId,
-      // Built-in role → display name becomes the role. Custom → clear for typing.
-      displayName: custom ? "" : roleName,
+      displayName: custom
+        ? nameIsFromRole
+          ? ""
+          : editing.displayName
+        : nameIsFromRole
+          ? roleName
+          : editing.displayName,
       systemPrompt: custom
         ? editing.systemPrompt || CUSTOM_PRESET.defaultSystemPrompt
         : preset.defaultSystemPrompt,
       color: custom ? editing.color || preset.defaultColor : preset.defaultColor,
+    });
+  }
+
+  function addSkill(seed?: { name: string; content: string }) {
+    if (!editing) return;
+    setEditing({
+      ...editing,
+      skills: [
+        ...(editing.skills ?? []),
+        {
+          id: uid("skill"),
+          name: seed?.name ?? "",
+          content: seed?.content ?? "",
+        },
+      ],
     });
   }
 
@@ -102,36 +185,17 @@ export function AgentsTab() {
     showToast(t("settings.saved"));
   }
 
+  const dirty =
+    editing != null &&
+    (baselineKeyRef.current === null ||
+      agentFormKey(editing) !== baselineKeyRef.current);
+  const saveDisabled = !editing?.displayName.trim() || !editing.modelConfigId;
+  useSettingsHeaderSave(editing != null, dirty, save, saveDisabled);
+
   if (editing) {
     const skills = editing.skills ?? [];
     return (
       <div className="form-grid">
-        <p className="settings-hint">{t("settings.agents.rebuildNote")}</p>
-        <p className="settings-hint">{t("settings.agents.customRoleHint")}</p>
-        <div>
-          <strong>{t("settings.agents.poly")}</strong>
-          <div className="poly-grid" style={{ marginTop: 8 }}>
-            {ALL_POLY_PRESETS.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                className={
-                  "poly-card" + (editing.polyPresetId === p.id ? " is-selected" : "")
-                }
-                onClick={() => applyPreset(p.id)}
-              >
-                <div
-                  className="poly-card__swatch"
-                  style={{
-                    background: `linear-gradient(145deg, ${p.defaultColor}, ${p.defaultColor}99)`,
-                  }}
-                />
-                <div className="poly-card__name">{t(p.nameKey)}</div>
-                <div className="poly-card__blurb">{t(p.blurbKey)}</div>
-              </button>
-            ))}
-          </div>
-        </div>
         <label>
           {t("settings.agents.displayName")}
           <input
@@ -142,7 +206,7 @@ export function AgentsTab() {
                 ? t("settings.agents.customRole")
                 : undefined
             }
-            autoFocus={isCustomPreset(editing.polyPresetId)}
+            autoFocus
           />
         </label>
         <label>
@@ -153,6 +217,59 @@ export function AgentsTab() {
             options={models.map((m) => ({ value: m.id, label: m.name }))}
           />
         </label>
+        <p className="settings-hint settings-hint--inline">
+          {t("settings.agents.rebuildNote")}
+        </p>
+        <div>
+          <strong>{t("settings.agents.character")}</strong>
+          <div className="h-scroll">
+            <div className="h-scroll__track character-grid">
+              {ALL_CHARACTERS.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={
+                    "character-card" +
+                    (editing.characterId === c.id ? " is-selected" : "")
+                  }
+                  onClick={() => setEditing({ ...editing, characterId: c.id })}
+                >
+                  <CharacterPreview characterId={c.id} />
+                  <div className="character-card__name">{t(c.nameKey)}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div>
+          <strong>{t("settings.agents.poly")}</strong>
+          <div className="h-scroll">
+            <div className="h-scroll__track poly-grid">
+              {ALL_POLY_PRESETS.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={
+                    "poly-card" + (editing.polyPresetId === p.id ? " is-selected" : "")
+                  }
+                  onClick={() => applyPreset(p.id)}
+                >
+                  <div
+                    className="poly-card__swatch"
+                    style={{
+                      background: `linear-gradient(145deg, ${p.defaultColor}, ${p.defaultColor}99)`,
+                    }}
+                  />
+                  <div className="poly-card__name">{t(p.nameKey)}</div>
+                  <div className="poly-card__blurb">{t(p.blurbKey)}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="settings-hint" style={{ marginTop: 8, marginBottom: 0 }}>
+            {t("settings.agents.customRoleHint")}
+          </p>
+        </div>
         <div className="aa-toggle-card">
           <div className="aa-toggle-card__body">
             <div className="aa-toggle-card__title">{t("settings.agents.thinking")}</div>
@@ -197,44 +314,63 @@ export function AgentsTab() {
           />
         </label>
         <div>
-          <div className="header-row">
-            <strong>{t("settings.agents.skills")}</strong>
-            <button
-              type="button"
-              className="btn btn--ghost"
-              onClick={() =>
-                setEditing({
-                  ...editing,
-                  skills: [
-                    ...skills,
-                    { id: uid("skill"), name: "", content: "" },
-                  ],
-                })
-              }
-            >
-              {t("settings.agents.addSkill")}
-            </button>
-          </div>
-          <p className="settings-hint">{t("settings.agents.skillsHint")}</p>
+          <strong>{t("settings.agents.skills")}</strong>
+          <p className="settings-hint" style={{ marginTop: 4, marginBottom: 8 }}>
+            {t("settings.agents.skillsHint")}
+          </p>
           {skills.length === 0 ? (
-            <p className="settings-hint">{t("settings.agents.skillsEmpty")}</p>
+            <div className="skill-empty">
+              <p className="skill-empty__title">{t("settings.agents.skillsEmpty")}</p>
+              <p className="skill-empty__hint">{t("settings.agents.skillsEmptyHint")}</p>
+              <div className="skill-templates">
+                {SKILL_TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    className="skill-template"
+                    onClick={() =>
+                      addSkill({ name: t(tpl.nameKey), content: t(tpl.contentKey) })
+                    }
+                  >
+                    {t(tpl.nameKey)}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="skill-add"
+                onClick={() => addSkill()}
+              >
+                {t("settings.agents.addSkill")}
+              </button>
+            </div>
           ) : (
-            skills.map((skill, i) => (
-              <SkillRow
-                key={skill.id}
-                skill={skill}
-                onChange={(next) => {
-                  const nextSkills = skills.map((s, idx) => (idx === i ? next : s));
-                  setEditing({ ...editing, skills: nextSkills });
-                }}
-                onRemove={() =>
-                  setEditing({
-                    ...editing,
-                    skills: skills.filter((_, idx) => idx !== i),
-                  })
-                }
-              />
-            ))
+            <>
+              {skills.map((skill, i) => (
+                <SkillRow
+                  key={skill.id}
+                  skill={skill}
+                  autoFocus={i === skills.length - 1 && !skill.name && !skill.content}
+                  onChange={(next) => {
+                    const nextSkills = skills.map((s, idx) => (idx === i ? next : s));
+                    setEditing({ ...editing, skills: nextSkills });
+                  }}
+                  onRemove={() =>
+                    setEditing({
+                      ...editing,
+                      skills: skills.filter((_, idx) => idx !== i),
+                    })
+                  }
+                />
+              ))}
+              <button
+                type="button"
+                className="skill-add"
+                onClick={() => addSkill()}
+              >
+                {t("settings.agents.addSkill")}
+              </button>
+            </>
           )}
         </div>
         <label>
@@ -247,19 +383,17 @@ export function AgentsTab() {
         </label>
         <label>
           {t("settings.agents.bio")}
-          <input
+          <span className="settings-hint settings-hint--inline">
+            {t("settings.agents.bioHint")}
+          </span>
+          <textarea
+            className="form-textarea--short"
+            rows={3}
             value={editing.bio ?? ""}
             onChange={(e) => setEditing({ ...editing, bio: e.target.value })}
+            placeholder={t("settings.agents.bioPlaceholder")}
           />
         </label>
-        <div className="form-actions">
-          <button type="button" className="btn btn--primary" onClick={save}>
-            {t("settings.save")}
-          </button>
-          <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
-            {t("settings.cancel")}
-          </button>
-        </div>
       </div>
     );
   }
@@ -281,6 +415,7 @@ export function AgentsTab() {
           {agents.map((a) => {
             const model = models.find((m) => m.id === a.modelConfigId);
             const role = getPolyPreset(a.polyPresetId);
+            const look = getCharacter(a.characterId);
             const skillCount = a.skills?.length ?? 0;
             const enabled = a.enabled !== false;
             return (
@@ -297,7 +432,7 @@ export function AgentsTab() {
                   <div>
                     <div className="card-item__title">{a.displayName}</div>
                     <div className="card-item__sub">
-                      {model?.name ?? "—"} · {t(role.nameKey)}
+                      {model?.name ?? "—"} · {t(look.nameKey)} · {t(role.nameKey)}
                       {a.thinkingEnabled ? ` · ${t("settings.agents.thinkingOn")}` : ""}
                       {skillCount > 0
                         ? ` · ${t("settings.agents.skillCount", { count: skillCount })}`
@@ -317,21 +452,14 @@ export function AgentsTab() {
                         thinkingEnabled: a.thinkingEnabled === true,
                         chattiness: clampChattiness(a.chattiness),
                         skills: a.skills ?? [],
+                        characterId: a.characterId || DEFAULT_CHARACTER_ID,
                       })
                     }
                   />
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    onClick={() =>
-                      setEditing({
-                        ...a,
-                        enabled: a.enabled !== false,
-                        thinkingEnabled: a.thinkingEnabled === true,
-                        chattiness: clampChattiness(a.chattiness),
-                        skills: a.skills ?? [],
-                      })
-                    }
+                    onClick={() => openEditor(a, false)}
                   >
                     {t("settings.edit")}
                   </button>
@@ -354,10 +482,12 @@ export function AgentsTab() {
 
 function SkillRow({
   skill,
+  autoFocus,
   onChange,
   onRemove,
 }: {
   skill: AgentSkill;
+  autoFocus?: boolean;
   onChange: (s: AgentSkill) => void;
   onRemove: () => void;
 }) {
@@ -365,11 +495,15 @@ function SkillRow({
   return (
     <div className="skill-row">
       <div className="header-pair header-pair--name-action">
-        <input
-          placeholder={t("settings.agents.skillName")}
-          value={skill.name}
-          onChange={(e) => onChange({ ...skill, name: e.target.value })}
-        />
+        <label className="skill-row__field">
+          {t("settings.agents.skillName")}
+          <input
+            autoFocus={autoFocus}
+            placeholder={t("settings.agents.skillNamePlaceholder")}
+            value={skill.name}
+            onChange={(e) => onChange({ ...skill, name: e.target.value })}
+          />
+        </label>
         <button
           type="button"
           className="btn btn--danger btn--icon"
@@ -379,11 +513,14 @@ function SkillRow({
           ×
         </button>
       </div>
-      <textarea
-        placeholder={t("settings.agents.skillContent")}
-        value={skill.content}
-        onChange={(e) => onChange({ ...skill, content: e.target.value })}
-      />
+      <label className="skill-row__field">
+        {t("settings.agents.skillBody")}
+        <textarea
+          placeholder={t("settings.agents.skillContent")}
+          value={skill.content}
+          onChange={(e) => onChange({ ...skill, content: e.target.value })}
+        />
+      </label>
     </div>
   );
 }

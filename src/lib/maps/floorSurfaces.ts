@@ -31,12 +31,12 @@ export interface FloorSurfaceSpec {
 export const FLOOR_SURFACES: Record<FloorSurfaceId, FloorSurfaceSpec> = {
   office: {
     id: "office",
-    color: "#D2C9BB",
-    alt: "#D0C8BA",
-    border: "#B5A894",
+    color: "#C0B4A0",
+    alt: "#B8AC98",
+    border: "#9A8B74",
     pattern: "checker",
     tileMeters: 1,
-    roughness: 0.92,
+    roughness: 0.96,
     metalness: 0.02,
     style: "surface",
   },

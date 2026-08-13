@@ -23,6 +23,7 @@ import {
   placeAgentsOnMap,
 } from "@/lib/maps";
 import { DEFAULT_GRAPHICS, loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
+import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { placeableCanWander } from "@/lib/assets/catalog";
 import { formatSpeechBubble } from "@/lib/speechBubble";
 import i18n from "@/i18n";
@@ -569,6 +570,9 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       const half = s.floorSize / 2 - 1.2;
       const agents = s.runtimeAgents.map((agent) => {
         let next = { ...agent };
+        const radius = getCharacter(agent.characterId).radius;
+        const pad = Math.max(0.8, radius + 0.55);
+        const inner = s.floorSize / 2 - pad;
 
         if (next.speechBubbleUntil && now > next.speechBubbleUntil) {
           next.speechBubble = undefined;
@@ -590,8 +594,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
             const dist = 1.5 + Math.random() * 2.5;
             const hx = next.homePosition[0];
             const hz = next.homePosition[2];
-            const tx = Math.max(-half, Math.min(half, hx + Math.cos(angle) * dist));
-            const tz = Math.max(-half, Math.min(half, hz + Math.sin(angle) * dist));
+            const tx = Math.max(-inner, Math.min(inner, hx + Math.cos(angle) * dist));
+            const tz = Math.max(-inner, Math.min(inner, hz + Math.sin(angle) * dist));
             next.target = [tx, 0, tz];
             next.state = "wander";
           } else if (next.state === "wander") {
@@ -613,8 +617,14 @@ export const useArenaStore = create<ArenaState>((set, get) => {
             const speed =
               next.moveSpeed * (next.commandTarget ? 2 : 1);
             const step = Math.min(dist, speed * dt);
-            const nx = next.position[0] + (dx / dist) * step;
-            const nz = next.position[2] + (dz / dist) * step;
+            const nx = Math.max(
+              -inner,
+              Math.min(inner, next.position[0] + (dx / dist) * step),
+            );
+            const nz = Math.max(
+              -inner,
+              Math.min(inner, next.position[2] + (dz / dist) * step),
+            );
             next.position = [nx, 0, nz];
             next.rotationY = Math.atan2(dx, dz);
             next.state = next.commandTarget ? "walk" : "wander";
@@ -725,6 +735,7 @@ export function createAgentDraft(
     displayName: "New agent",
     modelConfigId: "",
     polyPresetId: "explorer",
+    characterId: DEFAULT_CHARACTER_ID,
     systemPrompt: "",
     enabled: true,
     thinkingEnabled: false,

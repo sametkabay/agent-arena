@@ -113,25 +113,20 @@ export function isLampPlaceable(placeableId: string): boolean {
 /** Warm point lights + soft shade glow for floor / desk / wall / ceiling lamps. */
 export function LampFx({ kind }: { kind: LampKind }) {
   const lampLights = useArenaStore((s) => s.graphics.lampLights);
-  const dayNight = useArenaStore((s) => s.dayNight);
+  const dayNightBlend = useArenaStore((s) => s.dayNightBlend);
   const profile = PROFILES[kind];
 
   const { nightBoost, strength, glowOpacity, distMul } = useMemo(() => {
-    const night = dayNight === "night";
+    const night = dayNightBlend;
     return {
-      nightBoost: night ? 1.28 : 1,
+      // Day keeps a soft pool; night brings lamps up so they read as practicals.
+      nightBoost: 0.55 + night * 0.73,
       // Setting off still keeps a dim practical glow (same idea as campfire).
       strength: lampLights ? 1 : 0.55,
-      glowOpacity: night
-        ? lampLights
-          ? 0.38
-          : 0.28
-        : lampLights
-          ? 0.3
-          : 0.22,
+      glowOpacity: (lampLights ? 0.22 : 0.16) + night * (lampLights ? 0.16 : 0.12),
       distMul: lampLights ? 1.12 : 0.85,
     };
-  }, [dayNight, lampLights]);
+  }, [dayNightBlend, lampLights]);
 
   const mainI = profile.intensity * strength * nightBoost;
   const fillI = profile.fillIntensity * strength * nightBoost;
