@@ -311,8 +311,7 @@
       "ground": "Chão",
       "vehicles": "Veículos",
       "animals": "Animais",
-      "food": "Comida",
-      "cosmetics": "Cosméticos"
+      "food": "Comida"
     },
     "libraryHint": "Escolha uma categoria, clique em um objeto e depois no chão para colocar. Clique em um objeto colocado para selecionar — gire, redimensione ou exclua em Propriedades.",
     "inspector": "Propriedades",
@@ -404,7 +403,6 @@
       "animals": "Animais",
       "farm-animals": "Animais de fazenda",
       "food": "Comida",
-      "cosmetics": "Cosméticos",
       "space": "Espaço"
     }
   }

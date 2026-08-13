@@ -170,6 +170,8 @@ export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinit
 const LEGACY_PLACEABLE_IDS: Record<string, string> = {
   mars_boulder: "space_boulder",
   mars_rock: "space_rock",
+  food__cooking_pot_lmedeomg9l: "food__cooking_pot",
+  lounge_chair: "furniture__lounge_chair_pimrvmqw1o",
 };
 
 export function migratePlaceableId(id: string): string {

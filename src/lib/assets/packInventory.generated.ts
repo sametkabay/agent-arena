@@ -7,30 +7,6 @@ export interface PackGlbEntry {
 export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "animals",
-    "file": "Ant.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Anteater.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Antelope.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Arabian wildcat.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Baboon.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Badger.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Bear.glb"
   },
   {
@@ -43,31 +19,11 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "animals",
-    "file": "BUFFALO.SUNRISE.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Butterfly.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Capybara.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Cat.glb"
   },
   {
     "pack": "animals",
     "file": "Chicken.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Cow.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Coyote.glb"
   },
   {
     "pack": "animals",
@@ -79,23 +35,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "animals",
-    "file": "Dolphin.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Dragonfly.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Duck.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Elephant.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Emu.glb"
   },
   {
     "pack": "animals",
@@ -103,79 +43,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "animals",
-    "file": "Fox.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Frog.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Giraffe.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Goat.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Hamster.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Horse.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Jellyfish.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Kangaroo.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Koala.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Lion.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Lizard.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Macaw.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Manatee.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "monkey.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Moose antlers.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Narwhal.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Octopus.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Ostrich.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Parrot.glb"
   },
   {
     "pack": "animals",
@@ -183,43 +51,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "animals",
-    "file": "Porcupine.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Rabbit.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Raccoon.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Rhino.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Salamander.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Scorpion.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Seal.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Sheep.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Skunk.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Sloth.glb"
   },
   {
     "pack": "animals",
@@ -231,14 +63,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "animals",
-    "file": "Starfish.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Tiger.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Turkey vulture.glb"
   },
   {
@@ -247,19 +71,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "animals",
-    "file": "Walrus.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Whale.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Wolf.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Zebra.glb"
   },
   {
     "pack": "camping",
@@ -268,10 +80,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "camping",
     "file": "Fire.glb"
-  },
-  {
-    "pack": "camping",
-    "file": "Island.glb"
   },
   {
     "pack": "camping",
@@ -291,19 +99,11 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "cars",
-    "file": "Car-unqqkULtRU.glb"
-  },
-  {
-    "pack": "cars",
     "file": "Car.glb"
   },
   {
     "pack": "cars",
     "file": "Police Car.glb"
-  },
-  {
-    "pack": "cars",
-    "file": "Sports Car-1mkmFkAz5v.glb"
   },
   {
     "pack": "cars",
@@ -318,42 +118,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
     "file": "Taxi.glb"
   },
   {
-    "pack": "cosmetics",
-    "file": "Cap.glb"
-  },
-  {
-    "pack": "cosmetics",
-    "file": "Clown Mask.glb"
-  },
-  {
-    "pack": "cosmetics",
-    "file": "Cowboy Hat.glb"
-  },
-  {
-    "pack": "cosmetics",
-    "file": "Fox Hat.glb"
-  },
-  {
-    "pack": "cosmetics",
-    "file": "Hat Stand.glb"
-  },
-  {
-    "pack": "cosmetics",
-    "file": "Heart Glasses.glb"
-  },
-  {
-    "pack": "cosmetics",
-    "file": "Witch Hat.glb"
-  },
-  {
-    "pack": "farm-animals",
-    "file": "Cow.glb"
-  },
-  {
-    "pack": "farm-animals",
-    "file": "Horse.glb"
-  },
-  {
     "pack": "farm-animals",
     "file": "Llama.glb"
   },
@@ -366,24 +130,8 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
     "file": "Pug.glb"
   },
   {
-    "pack": "farm-animals",
-    "file": "Sheep.glb"
-  },
-  {
-    "pack": "farm-animals",
-    "file": "Zebra.glb"
-  },
-  {
     "pack": "food",
     "file": "Apple Green.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Avocado.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Bacon.glb"
   },
   {
     "pack": "food",
@@ -391,23 +139,11 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "food",
-    "file": "Bottle-Pc8dM9Ja4V.glb"
-  },
-  {
-    "pack": "food",
     "file": "Bottle.glb"
   },
   {
     "pack": "food",
-    "file": "Bread Slice.glb"
-  },
-  {
-    "pack": "food",
     "file": "Bread.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Broccoli.glb"
   },
   {
     "pack": "food",
@@ -419,35 +155,11 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "food",
-    "file": "Cheeseburger.glb"
-  },
-  {
-    "pack": "food",
     "file": "Chicken Leg.glb"
   },
   {
     "pack": "food",
-    "file": "Chocolate Bar.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Chopsticks.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Cooking Pot-lMEdEOMg9L.glb"
-  },
-  {
-    "pack": "food",
     "file": "Cooking Pot.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Corndog.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Croissant.glb"
   },
   {
     "pack": "food",
@@ -459,19 +171,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "food",
-    "file": "Double Cheeseburger.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Egg Fried.glb"
-  },
-  {
-    "pack": "food",
     "file": "Egg.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Eggplant.glb"
   },
   {
     "pack": "food",
@@ -491,27 +191,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "food",
-    "file": "Ketchup Bottle.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Lettuce.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Mushroom Sliced.glb"
-  },
-  {
-    "pack": "food",
     "file": "Pancakes Stack.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Pepper Green.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Pizza Slice.glb"
   },
   {
     "pack": "food",
@@ -519,27 +199,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "food",
-    "file": "Plate Square.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Popsicle Chocolate.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Popsicle.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Pumpkin.glb"
-  },
-  {
-    "pack": "food",
     "file": "Soda.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Spoon.glb"
   },
   {
     "pack": "food",
@@ -547,31 +207,7 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "food",
-    "file": "Sushi Nigiri.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Sushi.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Tentacle.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Tomato Slice.glb"
-  },
-  {
-    "pack": "food",
     "file": "Tomato.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Turnip.glb"
-  },
-  {
-    "pack": "food",
-    "file": "Waffle.glb"
   },
   {
     "pack": "furniture",
@@ -735,10 +371,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "furniture",
-    "file": "Desk_Kenney_backup.glb"
-  },
-  {
-    "pack": "furniture",
     "file": "Desk.glb"
   },
   {
@@ -767,10 +399,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   },
   {
     "pack": "furniture",
-    "file": "Kitchen Cabinet Corner-t2IJurty30.glb"
-  },
-  {
-    "pack": "furniture",
     "file": "Kitchen Cabinet Corner.glb"
   },
   {
@@ -788,10 +416,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "furniture",
     "file": "Kitchen Cabinet Upperl.glb"
-  },
-  {
-    "pack": "furniture",
-    "file": "Kitchen Cabinet-jRPnkxtk8s.glb"
   },
   {
     "pack": "furniture",
@@ -872,10 +496,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "furniture",
     "file": "Lounge Chair-PImRvMqW1O.glb"
-  },
-  {
-    "pack": "furniture",
-    "file": "Lounge Chair.glb"
   },
   {
     "pack": "furniture",

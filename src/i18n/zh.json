@@ -311,8 +311,7 @@
       "ground": "地面",
       "vehicles": "载具",
       "animals": "动物",
-      "food": "食物",
-      "cosmetics": "化妆品"
+      "food": "食物"
     },
     "libraryHint": "选择分类，点击物体，再点击地面放置。点击已放置的物体可选中 — 在属性里旋转、缩放或删除。",
     "inspector": "属性",
@@ -404,7 +403,6 @@
       "animals": "动物",
       "farm-animals": "农场动物",
       "food": "食物",
-      "cosmetics": "化妆品",
       "space": "太空"
     }
   }

@@ -311,8 +311,7 @@
       "ground": "Zemin",
       "vehicles": "Araçlar",
       "animals": "Hayvanlar",
-      "food": "Yiyecek",
-      "cosmetics": "Kozmetik"
+      "food": "Yiyecek"
     },
     "libraryHint": "Kategori seç, bir nesneye tıkla, sonra zemine tıklayarak yerleştir. Yerleştirilmiş bir nesneye tıklayınca seçilir — Özellikler’den döndür, boyutlandır veya sil.",
     "inspector": "Özellikler",
@@ -404,7 +403,6 @@
       "animals": "Hayvanlar",
       "farm-animals": "Çiftlik hayvanları",
       "food": "Yiyecek",
-      "cosmetics": "Kozmetik",
       "space": "Uzay"
     }
   }

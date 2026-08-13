@@ -311,8 +311,7 @@
       "ground": "Ground",
       "vehicles": "Vehicles",
       "animals": "Animals",
-      "food": "Food",
-      "cosmetics": "Cosmetics"
+      "food": "Food"
     },
     "libraryHint": "Pick a category, click an object, then click the floor to place it. Click a placed object to select — rotate, scale, or delete in Properties.",
     "inspector": "Properties",
@@ -404,7 +403,6 @@
       "animals": "Animals",
       "farm-animals": "Farm animals",
       "food": "Food",
-      "cosmetics": "Cosmetics",
       "space": "Space"
     }
   }

@@ -311,8 +311,7 @@
       "ground": "Suelo",
       "vehicles": "Vehículos",
       "animals": "Animales",
-      "food": "Comida",
-      "cosmetics": "Cosméticos"
+      "food": "Comida"
     },
     "libraryHint": "Elige una categoría, haz clic en un objeto y luego en el suelo para colocarlo. Haz clic en un objeto colocado para seleccionarlo: rota, escala o elimínalo en Propiedades.",
     "inspector": "Propiedades",
@@ -404,7 +403,6 @@
       "animals": "Animales",
       "farm-animals": "Animales de granja",
       "food": "Comida",
-      "cosmetics": "Cosméticos",
       "space": "Espacio"
     }
   }

@@ -10,8 +10,7 @@ export type AssetCategory =
   | "camping"
   | "vehicles"
   | "animals"
-  | "food"
-  | "cosmetics";
+  | "food";
 
 /** Stable placeable id — curated short ids + `pack__slug` for pack fills. */
 export type PlaceableId = string;
@@ -130,7 +129,6 @@ function inferCategory(pack: string, file: string): AssetCategory {
   if (pack === "cars") return "vehicles";
   if (pack === "animals" || pack === "farm-animals") return "animals";
   if (pack === "food") return "food";
-  if (pack === "cosmetics") return "cosmetics";
   if (pack === "camping") {
     if (n.includes("tree") || n === "rock.glb") return "nature";
     return "camping";
@@ -152,7 +150,6 @@ function defaultFootprint(category: AssetCategory, file: string): [number, numbe
   if (category === "vehicles") return [2.2, 1.1];
   if (category === "animals") return [1.0, 0.7];
   if (category === "food") return [0.35, 0.35];
-  if (category === "cosmetics") return [0.4, 0.4];
   if (category === "nature") {
     if (n.includes("tree")) return [1.2, 1.2];
     if (n.includes("grass blades")) return [0.35, 0.35];
@@ -221,7 +218,6 @@ function defaultAutoFit(
   if (category === "vehicles") return { autoFit: "height", targetSize: 1.4 };
   if (category === "animals") return { autoFit: "height", targetSize: 1.0 };
   if (category === "food") return { autoFit: "height", targetSize: 0.28 };
-  if (category === "cosmetics") return { autoFit: "height", targetSize: 0.45 };
   if (category === "camping") {
     if (n.includes("tent")) return { autoFit: "height", targetSize: 2.0 };
     if (n.includes("island")) return { autoFit: "xz", targetSize: 3.4 };
@@ -356,7 +352,6 @@ export const ASSET_CATEGORIES: AssetCategory[] = [
   "vehicles",
   "animals",
   "food",
-  "cosmetics",
 ];
 
 export const ASSET_PACKS = [
@@ -368,6 +363,5 @@ export const ASSET_PACKS = [
   "animals",
   "farm-animals",
   "food",
-  "cosmetics",
   "space",
 ] as const;

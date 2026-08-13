@@ -311,8 +311,7 @@
       "ground": "바닥",
       "vehicles": "탈것",
       "animals": "동물",
-      "food": "음식",
-      "cosmetics": "화장품"
+      "food": "음식"
     },
     "libraryHint": "분류를 고르고 오브젝트를 클릭한 뒤 바닥을 클릭해 놓습니다. 놓은 오브젝트를 클릭해 선택 — 속성에서 회전, 크기, 삭제.",
     "inspector": "속성",
@@ -404,7 +403,6 @@
       "animals": "동물",
       "farm-animals": "농장 동물",
       "food": "음식",
-      "cosmetics": "화장품",
       "space": "우주"
     }
   }

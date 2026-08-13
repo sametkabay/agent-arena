@@ -311,8 +311,7 @@
       "ground": "Boden",
       "vehicles": "Fahrzeuge",
       "animals": "Tiere",
-      "food": "Essen",
-      "cosmetics": "Kosmetik"
+      "food": "Essen"
     },
     "libraryHint": "Wähle eine Kategorie, klicke ein Objekt an und dann auf den Boden, um es zu platzieren. Klicke ein platziertes Objekt an — drehen, skalieren oder löschen unter Eigenschaften.",
     "inspector": "Eigenschaften",
@@ -404,7 +403,6 @@
       "animals": "Tiere",
       "farm-animals": "Hoftiere",
       "food": "Essen",
-      "cosmetics": "Kosmetik",
       "space": "Weltraum"
     }
   }
