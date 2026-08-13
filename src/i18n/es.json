@@ -284,10 +284,6 @@
     "space": {
       "name": "Espacio",
       "description": "Puesto planetario de tono naranja rojizo bajo una bruma melocotón. Una cúpula gris y módulos más pequeños entre cajas de suministros, antenas de plato y lámparas baliza azules. Plantas alienígenas y árboles oscuros retorcidos crecen entre crestas y rocas; un rover de seis ruedas y un anillo de base grande marcan el patio."
-    },
-    "empty": {
-      "name": "Vacío",
-      "description": "Suelo de hormigón sin objetos. Decóralo en el editor de mapas."
     }
   },
   "mapEditor": {

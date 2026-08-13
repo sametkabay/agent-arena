@@ -1,32 +1,51 @@
 import type { AgentConfig, ArenaAgent, PlaceableInstance } from "@/lib/types";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { blankMap, clampFloorSize, cloneMap, isArenaMapDefinition } from "@/lib/maps/schema";
-import officeDef from "@/lib/maps/defs/office.json";
-import natureDef from "@/lib/maps/defs/nature.json";
-import spaceDef from "@/lib/maps/defs/space.json";
-import emptyDef from "@/lib/maps/defs/empty.json";
+import { appConfig } from "@/lib/config";
 
-export const BUILTIN_MAP_IDS = ["office", "nature", "space", "empty"] as const;
-export type BuiltinMapId = (typeof BUILTIN_MAP_IDS)[number];
+const builtinMapModules = import.meta.glob("../../../data/maps/*.json", {
+  eager: true,
+  import: "default",
+}) as Record<string, ArenaMapDefinition>;
 
-const BUILTIN_RAW: Record<BuiltinMapId, ArenaMapDefinition> = {
-  office: officeDef as ArenaMapDefinition,
-  nature: natureDef as ArenaMapDefinition,
-  space: spaceDef as ArenaMapDefinition,
-  empty: emptyDef as unknown as ArenaMapDefinition,
-};
+function loadBuiltinRaw(): Record<string, ArenaMapDefinition> {
+  const out: Record<string, ArenaMapDefinition> = {};
+  for (const def of Object.values(builtinMapModules)) {
+    if (def && typeof def === "object" && typeof def.id === "string") {
+      out[def.id] = def;
+    }
+  }
+  return out;
+}
+
+const BUILTIN_RAW = loadBuiltinRaw();
+
+export const BUILTIN_MAP_IDS = Object.keys(BUILTIN_RAW);
+export type BuiltinMapId = string;
 
 export function isBuiltinMapId(id: string): id is BuiltinMapId {
-  return (BUILTIN_MAP_IDS as readonly string[]).includes(id);
+  return id in BUILTIN_RAW;
 }
 
 export function listBuiltinMaps(): ArenaMapDefinition[] {
-  return BUILTIN_MAP_IDS.map((id) => cloneMap(BUILTIN_RAW[id], { builtin: true }));
+  return BUILTIN_MAP_IDS.map((id) => cloneMap(BUILTIN_RAW[id]!, { builtin: true }));
 }
 
 export function getBuiltinMap(id: string): ArenaMapDefinition | null {
   if (!isBuiltinMapId(id)) return null;
-  return cloneMap(BUILTIN_RAW[id], { builtin: true });
+  return cloneMap(BUILTIN_RAW[id]!, { builtin: true });
+}
+
+function fallbackBuiltin(): ArenaMapDefinition {
+  return (
+    getBuiltinMap(appConfig.defaults.mapId) ??
+    getBuiltinMap(BUILTIN_MAP_IDS[0] ?? "") ??
+    blankMap({
+      id: "fallback",
+      name: appConfig.maps.defaultBlankName,
+      builtin: true,
+    })
+  );
 }
 
 export function resolveMapDefinition(
@@ -37,7 +56,7 @@ export function resolveMapDefinition(
   if (custom) return cloneMap(custom, { builtin: false });
   const builtin = getBuiltinMap(mapId);
   if (builtin) return builtin;
-  return getBuiltinMap("office")!;
+  return fallbackBuiltin();
 }
 
 export function buildMapRuntime(def: ArenaMapDefinition): {
@@ -58,10 +77,10 @@ function spawnPosition(
   if (!spawns.length) {
     return { position: [0, 0, 0], rotationY: Math.PI };
   }
-  const base = spawns[index % spawns.length];
+  const base = spawns[index % spawns.length]!;
   const ring = Math.floor(index / spawns.length);
-  const angle = ring * 0.85;
-  const offset = ring * 0.65;
+  const angle = ring * appConfig.maps.spawnRingAngle;
+  const offset = ring * appConfig.maps.spawnRingOffset;
   return {
     position: [
       base.position[0] + Math.cos(angle) * offset,
@@ -94,7 +113,7 @@ export function placeAgentsOnMap(
         rotationY: spawn.rotationY,
         state: "idle" as const,
         thinkingIntensity: 0,
-        moveSpeed: 1.6,
+        moveSpeed: appConfig.maps.agentMoveSpeed,
       };
     });
 }
@@ -121,8 +140,7 @@ export function syncRuntimeAgents(
         bio: cfg.bio,
       };
     }
-    const placed = placeAgentsOnMap([cfg], def)[0];
-    // Prefer index-based spawn for brand-new agents when possible
+    const placed = placeAgentsOnMap([cfg], def)[0]!;
     const spawn = spawnPosition(def, i);
     return {
       ...placed,
@@ -168,7 +186,7 @@ export function createCustomMapFromBuiltin(
   const id = `custom_${Math.random().toString(36).slice(2, 10)}`;
   return cloneMap(source, {
     id,
-    name: `${source.name} (copy)`,
+    name: `${source.name}${appConfig.maps.copySuffix}`,
     builtin: false,
     description: source.description,
   });
@@ -177,7 +195,7 @@ export function createCustomMapFromBuiltin(
 export function createBlankCustomMap(): ArenaMapDefinition {
   return blankMap({
     id: `custom_${Math.random().toString(36).slice(2, 10)}`,
-    name: "My map",
+    name: appConfig.maps.defaultCustomName,
     builtin: false,
   });
 }

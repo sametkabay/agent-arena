@@ -14,20 +14,13 @@ import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId }
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 
-export const STORAGE_KEY = "agent-arena-data";
+export { DEFAULT_GRAPHICS };
+
+export const STORAGE_KEY = appConfig.storage.key;
 /** One-shot: rewrite legacy floor.style "checker" → "surface". */
-const FLOOR_STYLE_MIGRATE_KEY = "agent-arena-floor-style-v2";
-
-export const DEFAULT_GRAPHICS: GraphicsSettings = {
-  castShadows: true,
-  shadowQuality: "medium",
-  contactShadows: true,
-  lampLights: true,
-  roomLights: true,
-  antialias: true,
-  maxDpr: 1.5,
-};
+const FLOOR_STYLE_MIGRATE_KEY = appConfig.storage.floorStyleMigrateKey;
 
 function sanitizeGraphics(raw: unknown): GraphicsSettings {
   const g =
@@ -68,13 +61,13 @@ function sanitizeGraphics(raw: unknown): GraphicsSettings {
 export function defaultPersisted(): AppPersisted {
   return {
     userName: "",
-    language: "en",
+    language: appConfig.defaults.language,
     models: [],
     agents: [],
-    mapId: "office",
+    mapId: appConfig.defaults.mapId,
     customMaps: [],
     graphics: { ...DEFAULT_GRAPHICS },
-    dayNight: "day",
+    dayNight: appConfig.defaults.dayNight,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -83,8 +76,8 @@ export function defaultPersisted(): AppPersisted {
 
 const CHAT_ROLES = new Set(["user", "assistant", "system"]);
 /** Cap stored messages per agent to protect localStorage quota. */
-const MAX_CHAT_MESSAGES_PER_AGENT = 100;
-export const MAX_ARENA_CHAT_HISTORY = 100;
+const MAX_CHAT_MESSAGES_PER_AGENT = appConfig.storage.maxChatMessagesPerAgent;
+export const MAX_ARENA_CHAT_HISTORY = appConfig.storage.maxArenaChatHistory;
 const ARENA_LINE_KINDS = new Set(["user", "agent", "system"]);
 
 export function sanitizeChats(raw: unknown): Record<string, ChatMessage[]> {
@@ -115,7 +108,7 @@ export function sanitizeArenaChatHistory(raw: unknown): FloatingChatLine[] {
       id: typeof m.id === "string" && m.id ? m.id : uid("flog"),
       agentId: typeof m.agentId === "string" ? m.agentId : undefined,
       agentName: typeof m.agentName === "string" ? m.agentName : "?",
-      color: typeof m.color === "string" && m.color ? m.color : "#7a9e7e",
+      color: typeof m.color === "string" && m.color ? m.color : appConfig.defaults.fallbackAgentColor,
       text: typeof m.text === "string" ? m.text : "",
       createdAt: typeof m.createdAt === "number" ? m.createdAt : Date.now(),
       kind: m.kind as FloatingChatLine["kind"],
@@ -143,18 +136,18 @@ function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
   return maps;
 }
 
-const LEGACY_MAP_IDS: Record<string, string> = { mars: "space" };
+const LEGACY_MAP_IDS: Record<string, string> = { mars: "space", empty: "office" };
 
 function migrateMapId(id: string): string {
   return LEGACY_MAP_IDS[id] ?? id;
 }
 
 function sanitizeMapId(v: unknown, customMaps: ArenaMapDefinition[]): MapId {
-  if (typeof v !== "string" || !v) return "office";
+  if (typeof v !== "string" || !v) return appConfig.defaults.mapId;
   const id = migrateMapId(v);
   if (isBuiltinMapId(id)) return id;
   if (customMaps.some((m) => m.id === id)) return id;
-  return "office";
+  return appConfig.defaults.mapId;
 }
 
 function sanitizeSkills(raw: unknown): AgentSkill[] {
@@ -198,13 +191,13 @@ export function loadPersisted(): AppPersisted {
     const customMaps = sanitizeCustomMaps(parsed.customMaps);
     return {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
-      language: isLanguageCode(parsed.language) ? parsed.language : "en",
+      language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
       models: Array.isArray(parsed.models) ? parsed.models : [],
       agents: sanitizeAgents(parsed.agents),
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
-      dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : "day",
+      dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : appConfig.defaults.dayNight,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")

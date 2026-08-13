@@ -107,6 +107,7 @@ export function AgentsTab() {
       return;
     }
     const preset = getPolyPreset("explorer");
+    const look = getCharacter(DEFAULT_CHARACTER_ID);
     openEditor(
       createAgentDraft({
         displayName: t(preset.nameKey),
@@ -115,10 +116,19 @@ export function AgentsTab() {
         characterId: DEFAULT_CHARACTER_ID,
         systemPrompt: preset.defaultSystemPrompt,
         color: preset.defaultColor,
+        bio: look.defaultBio || preset.defaultBio || "",
         thinkingEnabled: false,
       }),
       true,
     );
+  }
+
+  function isStockBio(bio: string | undefined, characterId: string, roleId: string) {
+    const trimmed = bio?.trim() ?? "";
+    if (!trimmed) return true;
+    const lookBio = getCharacter(characterId).defaultBio ?? "";
+    const roleBio = getPolyPreset(roleId).defaultBio ?? "";
+    return trimmed === lookBio || trimmed === roleBio;
   }
 
   function applyPreset(presetId: string) {
@@ -129,6 +139,11 @@ export function AgentsTab() {
     const prevRoleName = t(getPolyPreset(editing.polyPresetId).nameKey);
     const nameIsFromRole =
       !editing.displayName.trim() || editing.displayName.trim() === prevRoleName;
+    const nextBio = custom
+      ? editing.bio
+      : isStockBio(editing.bio, editing.characterId, editing.polyPresetId)
+        ? preset.defaultBio || editing.bio
+        : editing.bio;
 
     setEditing({
       ...editing,
@@ -144,6 +159,20 @@ export function AgentsTab() {
         ? editing.systemPrompt || CUSTOM_PRESET.defaultSystemPrompt
         : preset.defaultSystemPrompt,
       color: custom ? editing.color || preset.defaultColor : preset.defaultColor,
+      bio: nextBio,
+    });
+  }
+
+  function applyCharacter(characterId: string) {
+    if (!editing) return;
+    const nextLook = getCharacter(characterId);
+    const nextBio = isStockBio(editing.bio, editing.characterId, editing.polyPresetId)
+      ? nextLook.defaultBio || editing.bio
+      : editing.bio;
+    setEditing({
+      ...editing,
+      characterId,
+      bio: nextBio,
     });
   }
 
@@ -232,7 +261,7 @@ export function AgentsTab() {
                     "character-card" +
                     (editing.characterId === c.id ? " is-selected" : "")
                   }
-                  onClick={() => setEditing({ ...editing, characterId: c.id })}
+                  onClick={() => applyCharacter(c.id)}
                 >
                   <CharacterPreview characterId={c.id} />
                   <div className="character-card__name">{t(c.nameKey)}</div>
@@ -270,6 +299,19 @@ export function AgentsTab() {
             {t("settings.agents.customRoleHint")}
           </p>
         </div>
+        <label>
+          {t("settings.agents.bio")}
+          <span className="settings-hint settings-hint--inline">
+            {t("settings.agents.bioHint")}
+          </span>
+          <textarea
+            className="form-textarea--short"
+            rows={3}
+            value={editing.bio ?? ""}
+            onChange={(e) => setEditing({ ...editing, bio: e.target.value })}
+            placeholder={t("settings.agents.bioPlaceholder")}
+          />
+        </label>
         <div className="aa-toggle-card">
           <div className="aa-toggle-card__body">
             <div className="aa-toggle-card__title">{t("settings.agents.thinking")}</div>
@@ -379,19 +421,6 @@ export function AgentsTab() {
             value={editing.color}
             onChange={(color) => setEditing({ ...editing, color })}
             aria-label={t("settings.agents.color")}
-          />
-        </label>
-        <label>
-          {t("settings.agents.bio")}
-          <span className="settings-hint settings-hint--inline">
-            {t("settings.agents.bioHint")}
-          </span>
-          <textarea
-            className="form-textarea--short"
-            rows={3}
-            value={editing.bio ?? ""}
-            onChange={(e) => setEditing({ ...editing, bio: e.target.value })}
-            placeholder={t("settings.agents.bioPlaceholder")}
           />
         </label>
       </div>

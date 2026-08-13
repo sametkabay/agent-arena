@@ -1,0 +1,53 @@
+# Gallery presets shown in Settings → Map.
+# `sourceBuiltin` clones a shipped map; omit it and supply `map` for a from-scratch preset.
+
+presets:
+  - id: starter_camp
+    nameKey: settings.map.presets.starter_camp.name
+    descriptionKey: settings.map.presets.starter_camp.description
+    sourceBuiltin: nature
+    name: Starter camp
+  - id: space_outpost
+    nameKey: settings.map.presets.space_outpost.name
+    descriptionKey: settings.map.presets.space_outpost.description
+    sourceBuiltin: space
+    name: Space outpost
+  - id: office_lounge
+    nameKey: settings.map.presets.office_lounge.name
+    descriptionKey: settings.map.presets.office_lounge.description
+    sourceBuiltin: office
+    name: Office lounge
+  - id: blank_concrete
+    nameKey: settings.map.presets.blank_concrete.name
+    descriptionKey: settings.map.presets.blank_concrete.description
+    name: Concrete pad
+    map:
+      description: Clean concrete slab — ready to dress up
+      roomLights: true
+      floor:
+        size: 20
+        style: surface
+        cells: 20
+        color: "#A8A9AB"
+        surface: concrete
+      theme:
+        floor: "#A8A9AB"
+        accent: "#6A7A8A"
+        background: "#D0D2D6"
+        fog: "#D0D2D6"
+        ambient: "#ffffff"
+        hemiSky: "#e8eaee"
+        hemiGround: "#9a9ca0"
+        sun: "#fff4e8"
+      zones:
+        - id: zone_pad
+          name: Pad
+          kind: yard
+          center: [0, 0, 0]
+          radius: 6
+      lights:
+        - id: light_center
+          position: [0, 4.2, 0]
+          color: "#ffe8cc"
+          intensity: 0.55
+          distance: 16

@@ -9,38 +9,16 @@ import {
   buildAgentSystemPrompt,
   type ArenaWorldContext,
 } from "@/lib/ai/arenaContext";
+import { appConfig, prompts } from "@/lib/config";
 
-const OLLAMA_DEFAULT_HOST = "localhost";
-const OLLAMA_DEFAULT_PORT = 11434;
-const OLLAMA_DEFAULT_URL = `http://${OLLAMA_DEFAULT_HOST}:${OLLAMA_DEFAULT_PORT}`;
+const OLLAMA_DEFAULT_HOST = appConfig.providers.ollama.host ?? "localhost";
+const OLLAMA_DEFAULT_PORT = appConfig.providers.ollama.port ?? 11434;
 
 export function providerDefaults(
   provider: AiProviderKind,
 ): { name: string; baseUrl: string; modelId: string } {
-  switch (provider) {
-    case "openai":
-      return { name: "OpenAI", baseUrl: "https://api.openai.com/v1", modelId: "gpt-4o-mini" };
-    case "gemini":
-      return {
-        name: "Gemini",
-        baseUrl: "https://generativelanguage.googleapis.com/v1beta",
-        modelId: "gemini-2.0-flash",
-      };
-    case "claude":
-      return {
-        name: "Claude",
-        baseUrl: "https://api.anthropic.com",
-        modelId: "claude-3-5-sonnet-latest",
-      };
-    case "ollama":
-      return {
-        name: `${OLLAMA_DEFAULT_HOST}:${OLLAMA_DEFAULT_PORT}`,
-        baseUrl: OLLAMA_DEFAULT_URL,
-        modelId: "llama3.2",
-      };
-    case "custom":
-      return { name: "Custom", baseUrl: "http://localhost:8080/v1", modelId: "default" };
-  }
+  const d = appConfig.providers[provider];
+  return { name: d.name, baseUrl: d.baseUrl, modelId: d.modelId };
 }
 
 /** In Vite DEV, rewrite local LLM URLs to same-origin proxies (CORS + less SSE buffering). */
@@ -114,7 +92,7 @@ export function buildSystemPrompt(
 }
 
 /** Recent user/assistant turns kept in the API payload to limit prefill / TTFT. */
-export const MAX_CHAT_HISTORY_MESSAGES = 12;
+export const MAX_CHAT_HISTORY_MESSAGES = appConfig.storage.maxApiChatHistory;
 
 export function truncateChatHistory(
   messages: ChatMessage[],
@@ -332,7 +310,7 @@ function geminiGenerationConfig(
   return {
     thinkingConfig: {
       // 2.5+ may think by default; 0 disables, 1024 enables a budget.
-      thinkingBudget: wantsThinking ? 1024 : 0,
+      thinkingBudget: wantsThinking ? (appConfig.providers.gemini.thinkingBudget ?? 1024) : 0,
     },
   };
 }
@@ -436,21 +414,22 @@ async function chatClaude(req: ChatRequest): Promise<string> {
   const system = messages.find((m) => m.role === "system")?.content;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "anthropic-version": "2023-06-01",
+    "anthropic-version": appConfig.providers.claude.anthropicVersion ?? "2023-06-01",
     "anthropic-dangerous-direct-browser-access": "true",
     ...headersToRecord(model.extraHeaders),
   };
   if (model.apiKey) headers["x-api-key"] = model.apiKey;
 
   const thinkingOn = thinkingEnabled === true;
-  const thinkingBudget = 2048;
+  const thinkingBudget = appConfig.providers.claude.thinkingBudget ?? 2048;
+  const maxTokens = appConfig.providers.claude.maxTokens ?? 2048;
   const res = await fetch(url, {
     method: "POST",
     headers,
     signal,
     body: JSON.stringify({
       model: model.modelId,
-      max_tokens: thinkingOn ? thinkingBudget + 2048 : 2048,
+      max_tokens: thinkingOn ? thinkingBudget + maxTokens : maxTokens,
       system: system || undefined,
       messages: messages
         .filter((m) => m.role !== "system")
@@ -569,8 +548,8 @@ export async function testConnection(
       model,
       signal,
       messages: [
-        { role: "system", content: "Reply with exactly: OK" },
-        { role: "user", content: "ping" },
+        { role: "system", content: prompts.connectionTest.system },
+        { role: "user", content: prompts.connectionTest.user },
       ],
     });
     return { ok: true, detail: reply.slice(0, 80) || "Connected" };

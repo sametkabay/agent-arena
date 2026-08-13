@@ -1,4 +1,5 @@
 import type { MapTheme } from "@/lib/maps/schema";
+import { appConfig } from "@/lib/config";
 
 export type DayNightMode = "day" | "night";
 
@@ -30,6 +31,9 @@ export function resolveSceneLighting(
   theme: MapTheme,
   mode: DayNightMode,
 ): SceneLighting {
+  const day = appConfig.dayNight.day;
+  const night = appConfig.dayNight.night;
+
   if (mode === "day") {
     return {
       background: theme.background,
@@ -38,31 +42,31 @@ export function resolveSceneLighting(
       hemiSky: theme.hemiSky,
       hemiGround: theme.hemiGround,
       sun: theme.sun,
-      ambientIntensity: 0.55,
-      hemiIntensity: 0.55,
-      sunIntensity: 1.15,
-      sunPosition: [8, 14, 6],
-      fillIntensity: 0,
-      fillColor: "#ffffff",
-      fillPosition: [0, 8, 0],
+      ambientIntensity: day.ambientIntensity,
+      hemiIntensity: day.hemiIntensity,
+      sunIntensity: day.sunIntensity,
+      sunPosition: [...day.sunPosition] as [number, number, number],
+      fillIntensity: day.fillIntensity,
+      fillColor: day.fillColor,
+      fillPosition: [...day.fillPosition] as [number, number, number],
       nightAmount: 0,
     };
   }
 
   return {
-    background: mixHex(theme.background, "#0a1020", 0.72),
-    fog: mixHex(theme.fog, "#0c1424", 0.68),
-    ambient: mixHex(theme.ambient, "#8a96b0", 0.38),
-    hemiSky: mixHex(theme.hemiSky, "#243456", 0.55),
-    hemiGround: mixHex(theme.hemiGround, "#2a2630", 0.48),
-    sun: "#c5d4ff",
-    ambientIntensity: 0.42,
-    hemiIntensity: 0.48,
-    sunIntensity: 0.36,
-    sunPosition: [-6, 10, -8],
-    fillIntensity: 0.38,
-    fillColor: "#9aabd4",
-    fillPosition: [0, 7, 0],
+    background: mixHex(theme.background, night.mixBackground, night.mixBackgroundAmount),
+    fog: mixHex(theme.fog, night.mixFog, night.mixFogAmount),
+    ambient: mixHex(theme.ambient, night.mixAmbient, night.mixAmbientAmount),
+    hemiSky: mixHex(theme.hemiSky, night.mixHemiSky, night.mixHemiSkyAmount),
+    hemiGround: mixHex(theme.hemiGround, night.mixHemiGround, night.mixHemiGroundAmount),
+    sun: night.sun,
+    ambientIntensity: night.ambientIntensity,
+    hemiIntensity: night.hemiIntensity,
+    sunIntensity: night.sunIntensity,
+    sunPosition: [...night.sunPosition] as [number, number, number],
+    fillIntensity: night.fillIntensity,
+    fillColor: night.fillColor,
+    fillPosition: [...night.fillPosition] as [number, number, number],
     nightAmount: 1,
   };
 }

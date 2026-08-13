@@ -1,0 +1,48 @@
+# Procedural floor looks (no textures required).
+
+surfaces:
+  office:
+    color: "#C0B4A0"
+    alt: "#B8AC98"
+    border: "#9A8B74"
+    pattern: checker
+    tileMeters: 1
+    roughness: 0.96
+    metalness: 0.02
+    style: surface
+  grass:
+    color: "#6B9B4A"
+    alt: "#638F46"
+    border: "#4A7034"
+    pattern: patches
+    tileMeters: 1
+    roughness: 0.98
+    metalness: 0
+    style: surface
+  dirt:
+    color: "#8B6A4A"
+    alt: "#826244"
+    border: "#5C4030"
+    pattern: patches
+    tileMeters: 1
+    roughness: 1
+    metalness: 0
+    style: surface
+  concrete:
+    color: "#A8A9AB"
+    alt: "#96989A"
+    border: "#7A7C80"
+    pattern: slabs
+    tileMeters: 1
+    roughness: 0.88
+    metalness: 0.06
+    style: surface
+  factory:
+    color: "#3A3D42"
+    alt: "#2E3136"
+    border: "#1E2024"
+    pattern: slabs
+    tileMeters: 1
+    roughness: 0.75
+    metalness: 0.18
+    style: surface

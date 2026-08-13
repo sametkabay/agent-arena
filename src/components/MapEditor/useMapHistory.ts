@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from "react";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { cloneMap } from "@/lib/maps";
+import { appConfig } from "@/lib/config";
 
-const MAX_HISTORY = 80;
+const MAX_HISTORY = appConfig.ui.editorMaxHistory;
 
 /**
  * Map-editor undo/redo stack.

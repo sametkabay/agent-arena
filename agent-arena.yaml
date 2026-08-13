@@ -1,0 +1,215 @@
+# Agent Arena — app configuration
+# Edit this file after cloning to customize defaults, providers, and runtime knobs.
+# Related files:
+#   prompts.yaml              LLM prompt templates ({{variable}} placeholders)
+#   data/characters.yaml      playable character looks
+#   data/roles.yaml           agent role presets
+#   data/maps/*.json          builtin worlds (drop a new aamf v1 JSON to ship a map)
+#   data/map-presets.yaml     Settings → Map gallery
+#   data/floor-surfaces.yaml  procedural ground looks
+#   data/placeables.yaml      curated props + wander clips
+# Restart `npm run dev` (or rebuild) after changes.
+
+app:
+  name: Agent Arena
+  title: Agent Arena
+  description: A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them.
+  themeColor: "#7a9e7e"
+
+defaults:
+  language: en
+  mapId: office
+  dayNight: day
+  characterId: generic-male
+  roleId: explorer
+  agentName: New agent
+  agentColor: "#4A90A4"
+  agentChattiness: 10
+  agentEnabled: true
+  agentThinking: false
+  modelName: New model
+  modelProvider: openai
+  thinkingBubble: "🤔"
+  unknownUser: You
+  unknownMap: Unknown map
+  unknownAgent: Agent
+  fallbackAgentColor: "#7a9e7e"
+
+storage:
+  key: agent-arena-data
+  floorStyleMigrateKey: agent-arena-floor-style-v2
+  chatPanelKey: agent-arena-chat-panel
+  sidePanelsKey: agent-arena-side-panels
+  maxChatMessagesPerAgent: 100
+  maxArenaChatHistory: 100
+  maxApiChatHistory: 12
+
+graphics:
+  castShadows: true
+  shadowQuality: medium
+  contactShadows: true
+  lampLights: true
+  roomLights: true
+  antialias: true
+  maxDpr: 1.5
+  shadowMapSizes:
+    high: 2048
+    medium: 1024
+    low: 512
+    off: 256
+
+chatter:
+  maxMuttersPerMinute: 2
+
+speech:
+  maxChars: 256
+  msPerChar: 45
+  minMs: 3500
+  maxMs: 12000
+  streamingHoldMs: 120000
+
+chat:
+  userColor: "#e8c07a"
+  systemColor: "#a09080"
+  systemName: System
+  panel:
+    minWidth: 280
+    minHeight: 240
+    margin: 8
+    defaultWidth: 380
+    defaultHeight: 460
+  toastMs: 2200
+
+ui:
+  dayNightBlendSpeed: 0.55
+  editorMaxHistory: 80
+
+maps:
+  floorSizeMin: 10
+  floorSizeMax: 48
+  floorBorderMeters: 0.5
+  floorTopY: -0.01
+  defaultBlankName: Untitled map
+  defaultBlankSize: 18
+  defaultBlankSurface: office
+  defaultCustomName: My map
+  copySuffix: " (copy)"
+  agentMoveSpeed: 1.6
+  spawnRingAngle: 0.85
+  spawnRingOffset: 0.65
+  indoorSurfaces:
+    - office
+    - concrete
+    - factory
+  defaultTheme:
+    accent: "#4A7566"
+    background: "#A8A59E"
+    fog: "#B2AEA6"
+    ambient: "#E4DDD2"
+    hemiSky: "#D2D6DA"
+    hemiGround: "#A89478"
+    sun: "#EEDDC0"
+  defaultSpawn:
+    id: spawn_0
+    position: [0, 0, 2]
+    rotationY: 3.141592653589793
+
+character:
+  defaultHeadScale: 0.62
+  defaultHandScale: 0.72
+  handInset: 0.22
+  handLift: 0.14
+
+dayNight:
+  day:
+    ambientIntensity: 0.55
+    hemiIntensity: 0.55
+    sunIntensity: 1.15
+    sunPosition: [8, 14, 6]
+    fillIntensity: 0
+    fillColor: "#ffffff"
+    fillPosition: [0, 8, 0]
+  night:
+    mixBackground: "#0a1020"
+    mixBackgroundAmount: 0.72
+    mixFog: "#0c1424"
+    mixFogAmount: 0.68
+    mixAmbient: "#8a96b0"
+    mixAmbientAmount: 0.38
+    mixHemiSky: "#243456"
+    mixHemiSkyAmount: 0.55
+    mixHemiGround: "#2a2630"
+    mixHemiGroundAmount: 0.48
+    sun: "#c5d4ff"
+    ambientIntensity: 0.42
+    hemiIntensity: 0.48
+    sunIntensity: 0.36
+    sunPosition: [-6, 10, -8]
+    fillIntensity: 0.38
+    fillColor: "#9aabd4"
+    fillPosition: [0, 7, 0]
+
+providers:
+  openai:
+    name: OpenAI
+    baseUrl: https://api.openai.com/v1
+    modelId: gpt-4o-mini
+  gemini:
+    name: Gemini
+    baseUrl: https://generativelanguage.googleapis.com/v1beta
+    modelId: gemini-2.0-flash
+    thinkingBudget: 1024
+  claude:
+    name: Claude
+    baseUrl: https://api.anthropic.com
+    modelId: claude-3-5-sonnet-latest
+    anthropicVersion: "2023-06-01"
+    maxTokens: 2048
+    thinkingBudget: 2048
+  ollama:
+    name: localhost:11434
+    host: localhost
+    port: 11434
+    baseUrl: http://localhost:11434
+    modelId: llama3.2
+  custom:
+    name: Custom
+    baseUrl: http://localhost:8080/v1
+    modelId: default
+
+dev:
+  port: 5174
+  ollamaProxy: http://127.0.0.1:11434
+  localLlmFallback: http://127.0.0.1:3100
+
+languages:
+  - code: en
+    label: English
+    englishName: English
+  - code: tr
+    label: Türkçe
+    englishName: Turkish
+  - code: es
+    label: Español
+    englishName: Spanish
+  - code: zh
+    label: 简体中文
+    englishName: Chinese
+  - code: pt
+    label: Português
+    englishName: Portuguese
+  - code: fr
+    label: Français
+    englishName: French
+  - code: de
+    label: Deutsch
+    englishName: German
+  - code: ja
+    label: 日本語
+    englishName: Japanese
+  - code: ko
+    label: 한국어
+    englishName: Korean
+  - code: ru
+    label: Русский
+    englishName: Russian

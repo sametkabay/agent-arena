@@ -93,7 +93,7 @@ Each agent includes display name, color, **poly role preset** (explorer, enginee
 Connection test, model list fetch, optional extra headers, per-agent model binding.
 
 ### Polish
-- English & Turkish UI
+- UI languages from `agent-arena.yaml` (EN, TR, and others) + custom favicon
 - Graphics settings (shadows, quality, contact shadows, lamp / room lights, antialias, max DPR)
 - First-visit name gate
 - Static deploy (GitHub Pages)
@@ -119,7 +119,7 @@ npm install
 npm run dev
 ```
 
-Dev server: **http://localhost:5174/**
+Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.port`)
 
 #### First 60 seconds
 
@@ -144,9 +144,26 @@ Dev server: **http://localhost:5174/**
 
 ---
 
+## Customize after clone
+
+All shipped defaults live in YAML / JSON at the repo root so you can fork the playground without hunting through source:
+
+| File | What to edit |
+|------|----------------|
+| [`agent-arena.yaml`](./agent-arena.yaml) | App name, defaults, storage keys, graphics, providers, chatter, lighting, languages, dev port / proxies |
+| [`prompts.yaml`](./prompts.yaml) | System / situation / idle-mutter / arena-chat prompt templates (`{{variable}}` placeholders) |
+| [`data/characters.yaml`](./data/characters.yaml) | Playable character looks |
+| [`data/roles.yaml`](./data/roles.yaml) | Agent role presets + default persona prompts |
+| [`data/maps/*.json`](./data/maps/) | Builtin worlds (aamf v1) — drop another JSON here to ship a new map |
+| [`data/map-presets.yaml`](./data/map-presets.yaml) | Settings → Map gallery presets |
+| [`data/floor-surfaces.yaml`](./data/floor-surfaces.yaml) | Procedural ground looks |
+| [`data/placeables.yaml`](./data/placeables.yaml) | Curated prop ids + wander clips |
+
+Restart `npm run dev` (or rebuild) after editing. UI copy stays in `src/i18n/*.json`; add a language by creating `src/i18n/xx.json` and listing it under `languages` in `agent-arena.yaml`.
+
 ## Configuration & privacy
 
-- **No `.env` required.** Keys and settings are entered in the UI and stored in `localStorage` (`agent-arena-data`).
+- **No `.env` required.** Keys and settings are entered in the UI and stored in `localStorage` (key from `agent-arena.yaml` → `storage.key`).
 - Keys leave your machine only when **your browser** calls the provider you configured — there is no Agent Arena backend holding secrets.
 - Prefer restricted / rotatable API keys. Clear site data if you share the machine.
 - **Claude from the browser** uses Anthropic’s `anthropic-dangerous-direct-browser-access` header; treat that key as **origin-exposed** (not a server secret) and prefer a restricted / rotatable key.
@@ -164,7 +181,7 @@ Dev server: **http://localhost:5174/**
 │    · Character agents · placeables · lights · day/night │
 │                      ↕                                   │
 │  AI layer (providers → chat / arena / idle mutter)      │
-│  Maps (aamf v1 JSON) · Asset catalog (GLB packs)        │
+│  Maps (aamf v1 JSON in data/maps) · YAML config / prompts · Asset catalog        │
 │  Persistence → localStorage                             │
 └─────────────────────────────────────────────────────────┘
          ▲
@@ -181,7 +198,7 @@ Dev server: **http://localhost:5174/**
 
 ### Map format (`aamf` v1)
 
-Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones and lights. Builtins: `src/lib/maps/defs/`. Custom maps and exports use the same schema (`.aamf.json`).
+Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones and lights. Builtins: `data/maps/`. Custom maps and exports use the same schema (`.aamf.json`).
 
 ### Assets
 
@@ -192,16 +209,20 @@ Low-poly GLB packs under `public/assets/packs/`. Catalog + generated inventory e
 ## Project structure
 
 ```text
+agent-arena.yaml  # App / provider / runtime defaults
+prompts.yaml      # LLM prompt templates
+data/             # Characters, roles, maps, placeables, surfaces
 src/
   components/     # UI, SettingsModal, MapEditor, scene/
   lib/
     ai/           # providers, arena chat, chatter, prompt context
-    maps/         # aamf schema, builtins, runtime, presets
+    config/       # YAML loaders + {{var}} interpolation
+    maps/         # aamf schema, runtime, presets
     assets/       # catalog + generated pack inventory
-    poly/         # agent body / role presets
+    poly/         # role preset loader
   store/          # Zustand arena store
-  i18n/           # en.json, tr.json
-public/assets/    # GLB packs + ATTRIBUTION.md
+  i18n/           # locale JSON (en, tr, …)
+public/           # favicon + GLB packs + ATTRIBUTION.md
 docs/             # README screenshots
 scripts/          # pack inventory generator
 .github/workflows # GitHub Pages deploy

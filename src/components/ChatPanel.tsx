@@ -8,11 +8,12 @@ import {
 import { getArenaWorldContext, withSituationUserMessage } from "@/lib/ai/arenaContext";
 import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
+import { appConfig } from "@/lib/config";
 
-const STORAGE_KEY = "agent-arena-chat-panel";
-const MIN_W = 280;
-const MIN_H = 240;
-const MARGIN = 8;
+const STORAGE_KEY = appConfig.storage.chatPanelKey;
+const MIN_W = appConfig.chat.panel.minWidth;
+const MIN_H = appConfig.chat.panel.minHeight;
+const MARGIN = appConfig.chat.panel.margin;
 
 type ChatLayout = {
   left: number;
@@ -22,8 +23,8 @@ type ChatLayout = {
 };
 
 function defaultLayout(): ChatLayout {
-  const width = Math.min(380, Math.max(MIN_W, window.innerWidth - 24));
-  const height = Math.min(460, Math.max(MIN_H, window.innerHeight - 100));
+  const width = Math.min(appConfig.chat.panel.defaultWidth, Math.max(MIN_W, window.innerWidth - 24));
+  const height = Math.min(appConfig.chat.panel.defaultHeight, Math.max(MIN_H, window.innerHeight - 100));
   return {
     width,
     height,

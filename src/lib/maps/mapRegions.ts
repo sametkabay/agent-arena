@@ -1,5 +1,6 @@
 import type { FloorSurfaceId } from "@/lib/maps/floorSurfaces";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
+import { appConfig } from "@/lib/config";
 
 /** Soft region for atmosphere / future FX triggers (aamf optional). */
 export type MapZoneKind = "camp" | "yard" | "indoor" | "path" | "platform" | "custom";
@@ -53,7 +54,8 @@ export function isMapLightPoint(v: unknown): v is MapLightPoint {
 
 /** Indoor surfaces get floating room fill lights; outdoor maps rely on practicals. */
 export function surfaceWantsRoomLights(surface: FloorSurfaceId | undefined): boolean {
-  return surface === "office" || surface === "concrete" || surface === "factory";
+  if (!surface) return false;
+  return appConfig.maps.indoorSurfaces.includes(surface);
 }
 
 export function mapWantsRoomLights(def: ArenaMapDefinition): boolean {

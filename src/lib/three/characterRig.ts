@@ -7,18 +7,19 @@ import {
   type Object3D,
   type SkinnedMesh,
 } from "three";
+import { appConfig } from "@/lib/config";
 
 /**
  * Authored cube-heads are oversized. Scale the Head bone only — do not
  * refit overall height afterwards, or the body inflates.
  */
-export const DEFAULT_HEAD_SCALE = 0.62;
+export const DEFAULT_HEAD_SCALE = appConfig.character.defaultHeadScale;
 /** Authored fists are large cubes; a modest shrink. */
-export const DEFAULT_HAND_SCALE = 0.72;
+export const DEFAULT_HAND_SCALE = appConfig.character.defaultHandScale;
 /** Pull each fist this fraction of the way toward the Body bone. */
-const HAND_INSET = 0.22;
+const HAND_INSET = appConfig.character.handInset;
 /** Extra lift as a fraction of body–hand distance. */
-const HAND_LIFT = 0.14;
+const HAND_LIFT = appConfig.character.handLift;
 
 const _body = new Vector3();
 const _hand = new Vector3();
@@ -70,8 +71,9 @@ function insetHands(root: Object3D): void {
     if (isHandNode(obj)) hands.push(obj);
   });
   if (!body || hands.length === 0) return;
-  body.updateWorldMatrix(true, false);
-  body.getWorldPosition(_body);
+  const bodyNode = body as Object3D;
+  bodyNode.updateWorldMatrix(true, false);
+  bodyNode.getWorldPosition(_body);
   for (const hand of hands) {
     const parent = hand.parent;
     if (!parent) continue;

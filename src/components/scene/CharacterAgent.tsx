@@ -115,7 +115,6 @@ function AgentLabels({
         <Html
           position={[0, height + 0.62, 0]}
           center
-          distanceFactor={10}
           zIndexRange={[45, 10]}
           style={{ pointerEvents: "none" }}
           className="agent-html-overlay"
@@ -195,7 +194,11 @@ function GlbCharacter({ agent, selected, onPick }: CharacterAgentProps) {
   }, [mixer, clone, headScale]);
 
   useEffect(() => {
-    const playable = [...new Set([idleName, walkName, sprintName].filter(Boolean))];
+    const playable = [
+      ...new Set(
+        [idleName, walkName, sprintName].filter((n): n is string => Boolean(n)),
+      ),
+    ];
     if (playable.length === 0) return;
     const want = moving
       ? commanded

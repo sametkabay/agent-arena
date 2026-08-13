@@ -6,9 +6,10 @@ import {
 } from "@/lib/ai/arenaContext";
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import { useArenaStore } from "@/store/arenaStore";
+import { appConfig, prompts, speechMsForText } from "@/lib/config";
 
-/** At chattiness 100 → average 2 mutters / minute → 30s mean gap. */
-const MAX_MUTTERS_PER_MINUTE = 2;
+/** At chattiness 100 → average N mutters / minute. */
+const MAX_MUTTERS_PER_MINUTE = appConfig.chatter.maxMuttersPerMinute;
 
 export function meanChatterIntervalMs(chattiness: number): number {
   if (chattiness <= 0) return Number.POSITIVE_INFINITY;
@@ -34,12 +35,7 @@ function buildChatterSystemPrompt(agent: AgentConfig): string {
 
 /** Idle mutters stay on character voice — never force setting/peer topics. */
 function buildChatterUserPrompt(): string {
-  return [
-    "Speak one brief muttered line to yourself right now (at most ~20 words).",
-    "Stay on your own mood, habits, opinions, or idle thoughts.",
-    "Do not describe the place, time of day, or name other people.",
-    "Output only that line — no quotes, no labels, no emoji unless it fits your character.",
-  ].join(" ");
+  return prompts.user.idleMutter.replace(/\s+/g, " ").trim();
 }
 
 function sanitizeMutter(text: string): string {
@@ -47,11 +43,6 @@ function sanitizeMutter(text: string): string {
     .replace(/^["'«»‘’“”]+|["'«»‘’“”]+$/g, "")
     .replace(/^\s*(mutter|aside|line)\s*:\s*/i, "")
     .trim();
-}
-
-function speechMsForText(text: string): number {
-  // ~45ms per character, clamped so short lines linger and long ones expire.
-  return Math.min(12_000, Math.max(3500, Math.round(text.length * 45)));
 }
 
 type ChatterRuntime = {
@@ -182,7 +173,7 @@ async function runChatterTurn(
   const flushBubble = () => {
     raf = 0;
     if (!assembled.trim()) return;
-    setAgentSpeech(agent.id, sanitizeMutter(assembled) || "…", 120_000);
+    setAgentSpeech(agent.id, sanitizeMutter(assembled) || "…", appConfig.speech.streamingHoldMs);
   };
 
   try {

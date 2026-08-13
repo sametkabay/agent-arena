@@ -284,10 +284,6 @@
     "space": {
       "name": "Espace",
       "description": "Avant-poste planétaire rouge-orangé sous une brume pêche. Un dôme gris et de plus petits modules parmi des caisses de ravitaillement, des antennes paraboliques et des balises bleues. Des plantes alien et des arbres sombres tordus poussent entre crêtes et rochers ; un rover à six roues et un grand anneau de base marquent la cour."
-    },
-    "empty": {
-      "name": "Vide",
-      "description": "Sol de béton sans objets. Aménage-le dans l’éditeur de cartes."
     }
   },
   "mapEditor": {

@@ -284,10 +284,6 @@
     "space": {
       "name": "Uzay",
       "description": "Şeftali tonlu pus altında tozlu kırmızımsı-turuncu gezegen üssü. Gri habitat kubbesi ve küçük kapsüller, istiflenmiş ikmal sandıkları, çanak antenler ve mavi parlayan işaret lambaları arasında. Uzaylı bitkiler ve kıvrık koyu ağaçlar kaya sırtları ile kayalar arasında büyüyor; altı tekerlekli bir gezgin ve büyük dairesel bir üs halkası avluyu belirliyor."
-    },
-    "empty": {
-      "name": "Boş",
-      "description": "Hiç nesne olmayan boş beton zemin. Harita editöründen dilediğin gibi doldur."
     }
   },
   "mapEditor": {

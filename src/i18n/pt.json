@@ -284,10 +284,6 @@
     "space": {
       "name": "Espaço",
       "description": "Posto planetário alaranjado-avermelhado sob uma névoa pêssego. Uma cúpula cinza e módulos menores entre caixas de suprimento, antenas de prato e lâmpadas-baliza azuis. Plantas alienígenas e árvores escuras retorcidas crescem entre cristas e pedras; um rover de seis rodas e um anel de base grande marcam o pátio."
-    },
-    "empty": {
-      "name": "Vazio",
-      "description": "Chão de concreto sem objetos. Decore no editor de mapas."
     }
   },
   "mapEditor": {

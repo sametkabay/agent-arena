@@ -284,10 +284,6 @@
     "space": {
       "name": "Space",
       "description": "Dusty reddish-orange planetary outpost under a peach haze. A grey habitat dome and smaller pod modules sit among stacked supply crates, dish antennas, and glowing blue beacon lamps. Alien plants and twisted dark trees grow between rock ridges and boulders; a six-wheeled rover and a large circular base ring mark the yard."
-    },
-    "empty": {
-      "name": "Empty",
-      "description": "Bare concrete floor with no props. Dress it up in the map editor."
     }
   },
   "mapEditor": {

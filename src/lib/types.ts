@@ -78,7 +78,7 @@ export interface AppPersisted {
   models: AiModelConfig[];
   agents: AgentConfig[];
   mapId: MapId;
-  /** User-authored aamf v1 maps (builtins live in src/lib/maps/defs). */
+  /** User-authored aamf v1 maps (builtins live in data/maps). */
   customMaps: ArenaMapDefinition[];
   graphics: GraphicsSettings;
   /** Arena + UI day/night preference (persisted). */

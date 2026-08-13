@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import { load as loadYaml } from "js-yaml";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,11 +8,42 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
+interface DevYaml {
+  dev?: {
+    port?: number;
+    ollamaProxy?: string;
+    localLlmFallback?: string;
+  };
+}
+
+const appYaml = loadYaml(
+  fs.readFileSync(path.resolve(rootDir, "agent-arena.yaml"), "utf8"),
+) as DevYaml;
+
+const DEV_PORT = appYaml.dev?.port ?? 5174;
+const OLLAMA_PROXY = appYaml.dev?.ollamaProxy ?? "http://127.0.0.1:11434";
+const LOCAL_LLM_FALLBACK = appYaml.dev?.localLlmFallback ?? "http://127.0.0.1:3100";
+
+function yamlPlugin(): Plugin {
+  return {
+    name: "yaml-import",
+    transform(src, id) {
+      const file = id.split("?")[0] ?? id;
+      if (!file.endsWith(".yaml") && !file.endsWith(".yml")) return null;
+      const data = loadYaml(src);
+      return {
+        code: `export default ${JSON.stringify(data)};`,
+        map: null,
+      };
+    },
+  };
+}
+
 /** /local-llm/<host>/<port>/... → http://host:port/... (DEV streaming-friendly proxy). */
 function localLlmTarget(req: IncomingMessage): string {
   const url = req.url ?? "";
   const m = url.match(/^\/local-llm\/([^/]+)\/(\d+)/);
-  if (!m) return "http://127.0.0.1:3100";
+  if (!m) return LOCAL_LLM_FALLBACK;
   return `http://${m[1]}:${m[2]}`;
 }
 
@@ -77,14 +109,15 @@ export default defineConfig(({ command }) => {
 
   return {
     base,
-    plugins: [react(), servePackAssets(base)],
+    plugins: [react(), yamlPlugin(), servePackAssets(base)],
     resolve: {
       alias: {
         "@": path.resolve(rootDir, "src"),
+        "@data": path.resolve(rootDir, "data"),
       },
     },
     server: {
-      port: 5174,
+      port: DEV_PORT,
       // Binary GLB packs lock frequently on Windows; don't chokidar-watch them.
       watch: {
         ignored: [
@@ -96,12 +129,12 @@ export default defineConfig(({ command }) => {
       },
       proxy: {
         "/ollama": {
-          target: "http://127.0.0.1:11434",
+          target: OLLAMA_PROXY,
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/ollama/, ""),
         },
         "/local-llm": {
-          target: "http://127.0.0.1:3100",
+          target: LOCAL_LLM_FALLBACK,
           changeOrigin: true,
           // http-proxy `router` — not in Vite's ProxyOptions typings
           ...({ router: localLlmTarget } as object),

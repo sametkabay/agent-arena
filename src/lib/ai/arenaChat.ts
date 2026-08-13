@@ -7,6 +7,7 @@ import {
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import i18n from "@/i18n";
 import { useArenaStore } from "@/store/arenaStore";
+import { appConfig, fillPrompt, prompts, speechMsForText } from "@/lib/config";
 
 function normalizeName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, "");
@@ -80,10 +81,6 @@ function sanitizeReply(text: string): string {
     .trim();
 }
 
-function speechMsForText(text: string): number {
-  return Math.min(12_000, Math.max(3500, Math.round(text.length * 45)));
-}
-
 const arenaReplyAborts = new Map<string, AbortController>();
 
 export function abortArenaReplies(): void {
@@ -99,20 +96,20 @@ export async function sendArenaChatMessage(rawText: string): Promise<void> {
   if (!text) return;
 
   const store = useArenaStore.getState();
-  const userName = store.userName.trim() || "You";
+  const userName = store.userName.trim() || appConfig.defaults.unknownUser;
   const { targets, mentioned, unmatched } = resolveArenaTargets(text, store.agents);
 
   store.pushFloatingChatLog({
     agentName: userName,
-    color: "#e8c07a",
+    color: appConfig.chat.userColor,
     text,
     kind: "user",
   });
 
   if (mentioned && targets.length === 0) {
     store.pushFloatingChatLog({
-      agentName: "System",
-      color: "#a09080",
+      agentName: appConfig.chat.systemName,
+      color: appConfig.chat.systemColor,
       text:
         unmatched.length > 0
           ? i18n.t("chat.arena.noMatch", {
@@ -126,8 +123,8 @@ export async function sendArenaChatMessage(rawText: string): Promise<void> {
 
   if (targets.length === 0) {
     store.pushFloatingChatLog({
-      agentName: "System",
-      color: "#a09080",
+      agentName: appConfig.chat.systemName,
+      color: appConfig.chat.systemColor,
       text: i18n.t("chat.arena.noAgents"),
       kind: "system",
     });
@@ -166,13 +163,14 @@ async function runArenaReply(
   const flushBubble = () => {
     raf = 0;
     if (!assembled.trim()) return;
-    setAgentSpeech(agent.id, sanitizeReply(assembled) || "…", 120_000);
+    setAgentSpeech(agent.id, sanitizeReply(assembled) || "…", appConfig.speech.streamingHoldMs);
   };
 
   const channel = wasMentioned ? "arena_mention" : "arena_broadcast";
-  const userPrompt = wasMentioned
-    ? `${userName} @mentioned you in shared arena chat: "${userText}"\nReply with one short in-character spoken line on their message. Mention place, day/night, or other people only if they clearly ask or steer there. Output only that line.`
-    : `${userName} said in shared arena chat (broadcast, no @mention): "${userText}"\nIf it fits, chime in with one short in-character line on their topic. Do not bring up place, day/night, or other people unless their message is clearly about those. Output only that line.`;
+  const userPrompt = fillPrompt(
+    wasMentioned ? prompts.user.arenaMention : prompts.user.arenaBroadcast,
+    { userName, userText },
+  ).trim();
 
   try {
     const reply = await chatCompletion({

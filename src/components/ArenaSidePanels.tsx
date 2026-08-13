@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { AgentList } from "@/components/AgentList";
 import { MapList } from "@/components/MapList";
+import { appConfig } from "@/lib/config";
 
-const STORAGE_KEY = "agent-arena-side-panels";
+const STORAGE_KEY = appConfig.storage.sidePanelsKey;
 
 type SidePanelOpenState = {
   agents: boolean;

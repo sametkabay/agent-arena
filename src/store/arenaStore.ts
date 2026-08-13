@@ -22,14 +22,15 @@ import {
   syncRuntimeAgents,
   placeAgentsOnMap,
 } from "@/lib/maps";
-import { DEFAULT_GRAPHICS, loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
+import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
+import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { placeableCanWander } from "@/lib/assets/catalog";
 import { formatSpeechBubble } from "@/lib/speechBubble";
 import i18n from "@/i18n";
 import { applyDocumentLang } from "@/i18n/languages";
 
-export const THINKING_BUBBLE = "🤔";
+export const THINKING_BUBBLE = appConfig.defaults.thinkingBubble;
 
 interface ArenaState extends AppPersisted {
   // runtime
@@ -709,7 +710,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     set({ toast: msg });
     window.setTimeout(() => {
       if (get().toast === msg) set({ toast: null });
-    }, 2200);
+    }, appConfig.chat.toastMs);
   },
   };
 });
@@ -717,13 +718,15 @@ export const useArenaStore = create<ArenaState>((set, get) => {
 export function createModelDraft(
   partial?: Partial<AiModelConfig>,
 ): AiModelConfig {
+  const provider = partial?.provider ?? appConfig.defaults.modelProvider;
+  const defaults = appConfig.providers[provider];
   return {
     id: uid("model"),
-    name: "New model",
-    provider: "openai",
-    baseUrl: "https://api.openai.com/v1",
+    name: appConfig.defaults.modelName,
+    provider,
+    baseUrl: defaults.baseUrl,
     apiKey: "",
-    modelId: "gpt-4o-mini",
+    modelId: defaults.modelId,
     extraHeaders: [],
     createdAt: Date.now(),
     ...partial,
@@ -735,16 +738,16 @@ export function createAgentDraft(
 ): AgentConfig {
   return {
     id: uid("agent"),
-    displayName: "New agent",
+    displayName: appConfig.defaults.agentName,
     modelConfigId: "",
-    polyPresetId: "explorer",
+    polyPresetId: appConfig.defaults.roleId,
     characterId: DEFAULT_CHARACTER_ID,
     systemPrompt: "",
-    enabled: true,
-    thinkingEnabled: false,
-    chattiness: 10,
+    enabled: appConfig.defaults.agentEnabled,
+    thinkingEnabled: appConfig.defaults.agentThinking,
+    chattiness: appConfig.defaults.agentChattiness,
     skills: [],
-    color: "#4A90A4",
+    color: appConfig.defaults.agentColor,
     bio: "",
     createdAt: Date.now(),
     ...partial,

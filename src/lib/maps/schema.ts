@@ -10,6 +10,7 @@ import {
   type MapLightPoint,
   type MapZone,
 } from "@/lib/maps/mapRegions";
+import { appConfig } from "@/lib/config";
 
 export type { MapLightPoint, MapZone } from "@/lib/maps/mapRegions";
 
@@ -103,8 +104,8 @@ export interface ArenaMapDefinition {
 
 export const AAMF_VERSION = 1 as const;
 
-export const FLOOR_SIZE_MIN = 10;
-export const FLOOR_SIZE_MAX = 48;
+export const FLOOR_SIZE_MIN = appConfig.maps.floorSizeMin;
+export const FLOOR_SIZE_MAX = appConfig.maps.floorSizeMax;
 
 export function clampFloorSize(n: number): number {
   return Math.min(FLOOR_SIZE_MAX, Math.max(FLOOR_SIZE_MIN, Math.round(n * 10) / 10));
@@ -137,12 +138,15 @@ export function isArenaMapDefinition(v: unknown): v is ArenaMapDefinition {
 }
 
 export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinition {
-  const surface = partial?.floor?.surface ?? "office";
-  const surfaceFloor = applyFloorSurface(partial?.floor?.size ?? 18, surface);
+  const surface = partial?.floor?.surface ?? appConfig.maps.defaultBlankSurface;
+  const surfaceFloor = applyFloorSurface(
+    partial?.floor?.size ?? appConfig.maps.defaultBlankSize,
+    surface,
+  );
   return {
     version: 1,
     id: partial?.id ?? `custom_${Date.now().toString(36)}`,
-    name: partial?.name ?? "Untitled map",
+    name: partial?.name ?? appConfig.maps.defaultBlankName,
     description: partial?.description ?? "",
     builtin: false,
     floor: {
@@ -152,18 +156,10 @@ export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinit
     },
     theme: {
       floor: surfaceFloor.color,
-      accent: "#4A7566",
-      background: "#A8A59E",
-      fog: "#B2AEA6",
-      ambient: "#E4DDD2",
-      hemiSky: "#D2D6DA",
-      hemiGround: "#A89478",
-      sun: "#EEDDC0",
+      ...appConfig.maps.defaultTheme,
       ...partial?.theme,
     },
-    spawnPoints: partial?.spawnPoints ?? [
-      { id: "spawn_0", position: [0, 0, 2], rotationY: Math.PI },
-    ],
+    spawnPoints: partial?.spawnPoints ?? [appConfig.maps.defaultSpawn],
     placeables: partial?.placeables ?? [],
     zones: partial?.zones ? structuredClone(partial.zones) : undefined,
     lights: partial?.lights ? structuredClone(partial.lights) : undefined,

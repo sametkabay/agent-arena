@@ -1,12 +1,9 @@
+import raw from "@data/floor-surfaces.yaml";
+import { appConfig } from "@/lib/config";
 import type { FloorStyle } from "@/lib/maps/schema";
 
 /** Built-in ground looks — procedural colors/patterns (no textures required). */
-export type FloorSurfaceId =
-  | "office"
-  | "grass"
-  | "dirt"
-  | "concrete"
-  | "factory";
+export type FloorSurfaceId = string;
 
 export type FloorPattern = "solid" | "checker" | "patches" | "slabs";
 
@@ -28,63 +25,19 @@ export interface FloorSurfaceSpec {
   style: FloorStyle;
 }
 
-export const FLOOR_SURFACES: Record<FloorSurfaceId, FloorSurfaceSpec> = {
-  office: {
-    id: "office",
-    color: "#C0B4A0",
-    alt: "#B8AC98",
-    border: "#9A8B74",
-    pattern: "checker",
-    tileMeters: 1,
-    roughness: 0.96,
-    metalness: 0.02,
-    style: "surface",
-  },
-  grass: {
-    id: "grass",
-    color: "#6B9B4A",
-    alt: "#638F46",
-    border: "#4A7034",
-    pattern: "patches",
-    tileMeters: 1,
-    roughness: 0.98,
-    metalness: 0,
-    style: "surface",
-  },
-  dirt: {
-    id: "dirt",
-    color: "#8B6A4A",
-    alt: "#826244",
-    border: "#5C4030",
-    pattern: "patches",
-    tileMeters: 1,
-    roughness: 1,
-    metalness: 0,
-    style: "surface",
-  },
-  concrete: {
-    id: "concrete",
-    color: "#A8A9AB",
-    alt: "#96989A",
-    border: "#7A7C80",
-    pattern: "slabs",
-    tileMeters: 1,
-    roughness: 0.88,
-    metalness: 0.06,
-    style: "surface",
-  },
-  factory: {
-    id: "factory",
-    color: "#3A3D42",
-    alt: "#2E3136",
-    border: "#1E2024",
-    pattern: "slabs",
-    tileMeters: 1,
-    roughness: 0.75,
-    metalness: 0.18,
-    style: "surface",
-  },
-};
+interface FloorSurfacesYaml {
+  surfaces: Record<
+    string,
+    Omit<FloorSurfaceSpec, "id">
+  >;
+}
+
+const yaml = raw as FloorSurfacesYaml;
+
+export const FLOOR_SURFACES: Record<FloorSurfaceId, FloorSurfaceSpec> =
+  Object.fromEntries(
+    Object.entries(yaml.surfaces).map(([id, spec]) => [id, { id, ...spec }]),
+  );
 
 export const FLOOR_SURFACE_IDS = Object.keys(FLOOR_SURFACES) as FloorSurfaceId[];
 
@@ -94,17 +47,20 @@ export function isFloorSurfaceId(v: unknown): v is FloorSurfaceId {
 
 export function getFloorSurface(id: FloorSurfaceId | undefined): FloorSurfaceSpec {
   if (id && isFloorSurfaceId(id)) return FLOOR_SURFACES[id];
-  return FLOOR_SURFACES.office;
+  const fallback =
+    FLOOR_SURFACES[appConfig.maps.defaultBlankSurface] ??
+    FLOOR_SURFACES[FLOOR_SURFACE_IDS[0]];
+  return fallback;
 }
 
 /** Floor edge frame width in meters (each side, outside the playable grid). */
-export const FLOOR_BORDER_METERS = 0.5;
+export const FLOOR_BORDER_METERS = appConfig.maps.floorBorderMeters;
 
 /**
  * World Y of the floor’s top surface.
  * Slightly below 0 so rugs / flat props at y≈0 sit on top instead of z-fighting or sinking.
  */
-export const FLOOR_TOP_Y = -0.01;
+export const FLOOR_TOP_Y = appConfig.maps.floorTopY;
 
 /** Grid count: floor size N meters → N×N cells of 1×1 m. */
 export function cellsForFloorSize(
@@ -125,12 +81,12 @@ export function applyFloorSurface(
   color: string;
   surface: FloorSurfaceId;
 } {
-  const spec = FLOOR_SURFACES[surface];
+  const spec = getFloorSurface(surface);
   return {
     size,
     style: spec.style,
     cells: cellsForFloorSize(size, surface),
     color: spec.color,
-    surface,
+    surface: spec.id,
   };
 }

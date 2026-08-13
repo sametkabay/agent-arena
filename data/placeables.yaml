@@ -1,0 +1,397 @@
+# Curated placeable ids (stable short names used by builtin maps).
+# Pack-fill GLBs are still discovered from the generated inventory.
+# `file` is resolved against public/assets/packs/<pack>/.
+
+wander:
+  animals/Cat.glb:
+    walk: [Walk]
+    idle: [Idle]
+  animals/Fish.glb:
+    walk: [Swim]
+    idle: [Swim]
+  animals/Snake.glb:
+    walk: [Snake_Walk, Walk]
+    idle: [Snake_Idle, Idle]
+  animals/Spider.glb:
+    walk: [Spider_Walk, Walk]
+    idle: [Spider_Idle, Idle]
+  animals/Wolf.glb:
+    walk: [Walk, Gallop]
+    idle: [Idle]
+  farm-animals/Cow.glb:
+    walk: [Walk, WalkSlow, Run]
+    idle: [Idle]
+  farm-animals/Horse.glb:
+    walk: [Walk, WalkSlow, Run]
+    idle: [Idle]
+  farm-animals/Zebra.glb:
+    walk: [Walk, WalkSlow, Run]
+    idle: [Idle]
+  space/Astronaut.glb:
+    walk: [Walk]
+    idle: [Idle]
+
+curated:
+  desk:
+    label: Desk workstation
+    category: furniture
+    pack: furniture
+    file: Desk.glb
+    footprint: [1.6, 1.15]
+    scale: 1
+    autoFit: height
+    targetSize: 1.05
+    topY: 0.67
+    faces: posZ
+  chair:
+    label: Desk chair
+    category: furniture
+    pack: furniture
+    file: Chair Desk.glb
+    footprint: [0.6, 0.6]
+    scale: 1.727
+    faces: negZ
+  lounge_chair:
+    label: Lounge chair
+    category: furniture
+    pack: furniture
+    file: Lounge Chair.glb
+    footprint: [0.85, 0.75]
+    scale: 2.0652
+    faces: negZ
+  coffee_table:
+    label: Coffee table
+    category: furniture
+    pack: furniture
+    file: Table Coffee.glb
+    footprint: [1.15, 0.7]
+    scale: 1.8261
+  couch:
+    label: Couch
+    category: furniture
+    pack: furniture
+    file: Lounge Sofa.glb
+    footprint: [1.9, 0.8]
+    scale: 1.9565
+    faces: negZ
+  plant:
+    label: Potted plant
+    category: decor
+    pack: furniture
+    file: Potted Plant.glb
+    footprint: [0.5, 0.5]
+    scale: 1.6055
+  plant_small:
+    label: Small plant
+    category: decor
+    pack: furniture
+    file: Plant Small.glb
+    footprint: [0.45, 0.45]
+    scale: 6.0714
+  monitor:
+    label: Monitor
+    category: furniture
+    pack: furniture
+    file: Computer Screen.glb
+    footprint: [0.55, 0.2]
+    scale: 1.2925
+    faces: negZ
+  bookshelf:
+    label: Bookshelf
+    category: furniture
+    pack: furniture
+    file: Bookcase Open.glb
+    footprint: [1.05, 0.5]
+    scale: 1.9886
+    faces: negZ
+  bookcase_books:
+    label: Office cabinet
+    category: furniture
+    pack: furniture
+    file: BookcaseWithBooks.glb
+    footprint: [1.05, 0.4]
+    scale: 1
+    autoFit: height
+    targetSize: 1.85
+    faces: negZ
+  table:
+    label: Table
+    category: furniture
+    pack: furniture
+    file: Table.glb
+    footprint: [1.5, 0.85]
+    scale: 2.2936
+  ping_pong_table:
+    label: Ping pong table
+    category: furniture
+    pack: furniture
+    file: PingPongTable.glb
+    footprint: [1.55, 2.15]
+    scale: 1
+    autoFit: height
+    targetSize: 0.76
+  table_large:
+    label: Large table
+    category: furniture
+    pack: furniture
+    file: TableJeremy.glb
+    footprint: [1.2, 2.0]
+    scale: 1
+    autoFit: height
+    targetSize: 0.75
+  cabinet:
+    label: Cabinet
+    category: furniture
+    pack: furniture
+    file: Cabinet Bed Drawer.glb
+    footprint: [0.7, 0.6]
+    scale: 3.2319
+    faces: negZ
+  rug:
+    label: Rug
+    category: ground
+    pack: furniture
+    file: Rug Rectangle.glb
+    footprint: [2.4, 1.4]
+    scale: 1.5287
+  floor_lamp:
+    label: Floor lamp
+    category: decor
+    pack: furniture
+    file: Lamp Round Floor.glb
+    footprint: [0.35, 0.35]
+    scale: 1.8023
+  desk_lamp:
+    label: Desk lamp
+    category: decor
+    pack: furniture
+    file: Lamp Round Table.glb
+    footprint: [0.25, 0.25]
+    scale: 1.3376
+  trash:
+    label: Trash can
+    category: decor
+    pack: furniture
+    file: Trashcan.glb
+    footprint: [0.35, 0.35]
+    scale: 1.285
+  side_table:
+    label: Side table
+    category: furniture
+    pack: furniture
+    file: Side Table.glb
+    footprint: [0.7, 0.4]
+    scale: 1.5625
+  tree_birch:
+    label: Birch tree
+    category: nature
+    pack: trees
+    file: Birch Tree.glb
+    footprint: [1.2, 1.2]
+    scale: 3.2
+  tree_pine:
+    label: Pine tree
+    category: nature
+    pack: trees
+    file: Pine Tree.glb
+    footprint: [1.4, 1.4]
+    scale: 3.6
+  tree_simple:
+    label: Simple tree
+    category: nature
+    pack: trees
+    file: Simple Tree.glb
+    footprint: [1.1, 1.1]
+    scale: 3.0
+  tree_stylized:
+    label: Stylized tree
+    category: nature
+    pack: trees
+    file: Stylized Tree.glb
+    footprint: [1.3, 1.3]
+    scale: 3.4
+  tent:
+    label: Tent
+    category: camping
+    pack: camping
+    file: Tent.glb
+    footprint: [2.2, 2.0]
+    scale: 2.0
+    faces: negZ
+  campfire:
+    label: Campfire
+    category: camping
+    pack: camping
+    file: Campfire.glb
+    footprint: [0.8, 0.8]
+    scale: 1.75
+  fire:
+    label: Fire
+    category: camping
+    pack: camping
+    file: Fire.glb
+    footprint: [0.55, 0.55]
+    scale: 1
+    autoFit: height
+    targetSize: 0.85
+    canAnimate: true
+  island:
+    label: Island
+    category: ground
+    pack: camping
+    file: Island.glb
+    footprint: [3.0, 3.0]
+    scale: 1
+    autoFit: xz
+    targetSize: 3.2
+  log:
+    label: Log
+    category: camping
+    pack: camping
+    file: Log.glb
+    footprint: [1.2, 0.4]
+    scale: 1.8
+  rock:
+    label: Rock
+    category: nature
+    pack: camping
+    file: Rock.glb
+    footprint: [0.7, 0.7]
+    scale: 1.5714
+  bench:
+    label: Bench
+    category: furniture
+    pack: furniture
+    file: Bench.glb
+    footprint: [1.4, 0.5]
+    scale: 1.5714
+  cardboard_box:
+    label: Cardboard box
+    category: decor
+    pack: furniture
+    file: Cardboard Box Closed.glb
+    footprint: [0.5, 0.5]
+    scale: 1.5
+  rock_small:
+    label: Small rock
+    category: nature
+    pack: camping
+    file: Rock.glb
+    footprint: [0.4, 0.4]
+    scale: 0.9143
+  rock_large:
+    label: Large rock
+    category: nature
+    pack: camping
+    file: Rock.glb
+    footprint: [1.35, 1.35]
+    scale: 3.0
+  space_boulder:
+    label: Space boulder
+    category: space
+    pack: procedural
+    footprint: [1.6, 1.4]
+    scale: 1
+  space_rock:
+    label: Space rock
+    category: space
+    pack: procedural
+    footprint: [0.85, 0.75]
+    scale: 1
+  supply_crate:
+    label: Supply crate
+    category: decor
+    pack: procedural
+    footprint: [0.85, 0.65]
+    scale: 1
+  beacon:
+    label: Beacon light
+    category: decor
+    pack: procedural
+    footprint: [0.4, 0.4]
+    scale: 1
+  antenna:
+    label: Antenna
+    category: decor
+    pack: procedural
+    footprint: [0.55, 0.55]
+    scale: 1
+  wall_solid:
+    label: Wall
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.22]
+    scale: 1
+  door:
+    label: Door
+    category: furniture
+    pack: furniture
+    file: Doorway.glb
+    footprint: [2.0, 0.35]
+    scale: 1
+    autoFit: height
+    targetSize: 2.6
+    faces: posZ
+  work_stool:
+    label: Work stool
+    category: furniture
+    pack: furniture
+    file: Bar Stool.glb
+    footprint: [0.45, 0.45]
+    scale: 1
+    autoFit: height
+    targetSize: 0.85
+  box_open:
+    label: Open box
+    category: decor
+    pack: furniture
+    file: Cardboard Box Open.glb
+    footprint: [0.5, 0.5]
+    scale: 1
+    autoFit: height
+    targetSize: 0.45
+  lamp_square:
+    label: Square floor lamp
+    category: decor
+    pack: furniture
+    file: Lamp Square Floor.glb
+    footprint: [0.35, 0.35]
+    scale: 1
+    autoFit: height
+    targetSize: 1.55
+  fridge:
+    label: Fridge
+    category: furniture
+    pack: furniture
+    file: Kitchen Fridge.glb
+    footprint: [0.7, 0.7]
+    scale: 1
+    autoFit: height
+    targetSize: 1.85
+  coat_rack:
+    label: Coat rack
+    category: decor
+    pack: furniture
+    file: Coat Rack Standing.glb
+    footprint: [0.4, 0.4]
+    scale: 1
+    autoFit: height
+    targetSize: 1.7
+  ottoman:
+    label: Ottoman
+    category: furniture
+    pack: furniture
+    file: Lounge Sofa Ottoman.glb
+    footprint: [0.7, 0.7]
+    scale: 1
+    autoFit: height
+    targetSize: 0.42
+  round_table:
+    label: Round table
+    category: furniture
+    pack: furniture
+    file: Round Table.glb
+    footprint: [1.2, 1.2]
+    scale: 1
+    autoFit: height
+    targetSize: 0.75

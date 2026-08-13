@@ -4,6 +4,16 @@ import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
 import { getPolyPreset } from "@/lib/poly/presets";
 import { useArenaStore } from "@/store/arenaStore";
+import {
+  appConfig,
+  fillPrompt,
+  fillPromptLines,
+  promptMode,
+  prompts,
+  type ArenaPromptMode,
+} from "@/lib/config";
+
+export type { ArenaPromptMode };
 
 /** Live arena facts shared with every model call. */
 export interface ArenaWorldContext {
@@ -17,12 +27,6 @@ export interface ArenaWorldContext {
   otherAgents: Array<{ name: string; role: string; blurb: string }>;
 }
 
-export type ArenaPromptMode =
-  | "private_chat"
-  | "arena_broadcast"
-  | "arena_mention"
-  | "idle_mutter";
-
 /** Where this turn’s human input came from (UI channel). */
 export type ArenaMessageChannel = ArenaPromptMode;
 
@@ -30,28 +34,8 @@ function channelMeta(channel: ArenaMessageChannel): {
   id: string;
   how: string;
 } {
-  switch (channel) {
-    case "private_chat":
-      return {
-        id: "private_chat",
-        how: "Private 1:1 chat panel with you only (not the shared arena feed).",
-      };
-    case "arena_broadcast":
-      return {
-        id: "arena_chat",
-        how: "Shared arena chat broadcast to everyone — no @mention; you may chime in if it fits.",
-      };
-    case "arena_mention":
-      return {
-        id: "arena_chat",
-        how: "Shared arena chat; the human @mentioned you specifically.",
-      };
-    case "idle_mutter":
-      return {
-        id: "idle_mutter",
-        how: "No human message — you are muttering to yourself while idle.",
-      };
-  }
+  const spec = promptMode(channel);
+  return { id: spec.channelId, how: spec.how };
 }
 
 /** Human-readable UI language for model instructions. */
@@ -68,15 +52,14 @@ export function describeAgentBrief(agent: AgentConfig): {
   const role = preset.defaultDisplayName || preset.id;
 
   const bio = agent.bio?.trim();
-  if (bio) return { role, blurb: clip(bio, 140) };
+  if (bio) return { role, blurb: clip(bio, prompts.briefs.bioMax) };
 
   const prompt = agent.systemPrompt.trim().replace(/\s+/g, " ");
   if (prompt) {
-    // Strip leading "You are X, ..." so peers read as people, not prompt dumps.
     const cleaned = prompt
       .replace(/^you are [^.,;:]+[.,;:]?\s*/i, "")
       .trim();
-    return { role, blurb: clip(cleaned || prompt, 120) };
+    return { role, blurb: clip(cleaned || prompt, prompts.briefs.promptMax) };
   }
 
   return { role, blurb: "" };
@@ -88,19 +71,19 @@ function clip(text: string, max: number): string {
 }
 
 function dayNightLabel(mode: DayNightMode): string {
-  return mode === "night" ? "night" : "day";
+  return mode === "night" ? prompts.labels.night : prompts.labels.day;
 }
 
 function formatPeopleLines(
   agents: ArenaWorldContext["otherAgents"],
 ): string[] {
-  if (agents.length === 0) return ["none"];
+  if (agents.length === 0) return [`- ${prompts.labels.none}`];
   return agents.map((other) => {
     const who =
       other.role && other.role !== other.name
         ? `${other.name} (${other.role})`
         : other.name;
-    return other.blurb.trim() ? `${who}: ${other.blurb.trim()}` : who;
+    return other.blurb.trim() ? `- ${who}: ${other.blurb.trim()}` : `- ${who}`;
   });
 }
 
@@ -109,32 +92,25 @@ function formatPeopleLines(
  * Tagged block = industry-standard structured context (portable across providers).
  */
 export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
-  const people = formatPeopleLines(ctx.otherAgents);
+  const peopleLines = formatPeopleLines(ctx.otherAgents).join("\n");
   const areas =
-    ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : "none listed";
+    ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
 
-  const session = [
-    "<session>",
-    `user_name: ${ctx.userName}`,
-    `reply_language: ${languageLabel(ctx.language)}`,
-    `time_of_day: ${dayNightLabel(ctx.dayNight)}`,
-    `place_name: ${ctx.mapName}`,
-    `place_description: ${ctx.mapDescription.trim() || "none"}`,
-    `named_areas: ${areas}`,
-    "people_present:",
-    ...people.map((line) => `- ${line}`),
-    "</session>",
-  ].join("\n");
+  const session = fillPrompt(prompts.session.block, {
+    userName: ctx.userName,
+    language: languageLabel(ctx.language),
+    timeOfDay: dayNightLabel(ctx.dayNight),
+    mapName: ctx.mapName,
+    mapDescription: ctx.mapDescription.trim() || prompts.labels.none,
+    namedAreas: areas,
+    peopleLines,
+  }).trim();
 
   return [
-    "## Session context",
-    "Facts inside <session> are true right now. You already know them; never claim you lack them.",
-    "They are background awareness only — not topics you must bring up.",
+    prompts.session.heading,
+    prompts.session.intro.trim(),
     session,
-    "Speech discipline:",
-    "- Answer the human's message (or stay on your own idle thought). That is the priority.",
-    "- Do NOT mention the place, time of day, weather/lighting, named areas, or other people unless the human clearly steers there or directly asks.",
-    "- Never volunteer a scenery tour, roll-call of agents, or unsolicited setting commentary.",
+    prompts.session.speechDiscipline.trim(),
   ].join("\n");
 }
 
@@ -148,25 +124,25 @@ export function buildSituationUserPrefix(
 ): string {
   const peers =
     ctx.otherAgents.length === 0
-      ? "none"
+      ? prompts.labels.none
       : ctx.otherAgents.map((o) => o.name).join(", ");
   const areas =
-    ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : "none listed";
+    ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
   const ch = channelMeta(channel);
 
   return [
-    "<situation>",
-    `message_channel: ${ch.id}`,
-    `message_how: ${ch.how}`,
-    `user_name: ${ctx.userName}`,
-    `reply_language: ${languageLabel(ctx.language)}`,
-    `time_of_day: ${dayNightLabel(ctx.dayNight)}`,
-    `place_name: ${ctx.mapName}`,
-    `place_description: ${ctx.mapDescription.trim() || "none"}`,
-    `named_areas: ${areas}`,
-    `people_present: ${peers}`,
-    "</situation>",
-    "The <situation> block is silent context only. Do not summarize or quote it. Ignore place/time/peers unless the human's message is clearly about them.",
+    fillPrompt(prompts.situation.block, {
+      channelId: ch.id,
+      channelHow: ch.how,
+      userName: ctx.userName,
+      language: languageLabel(ctx.language),
+      timeOfDay: dayNightLabel(ctx.dayNight),
+      mapName: ctx.mapName,
+      mapDescription: ctx.mapDescription.trim() || prompts.labels.none,
+      namedAreas: areas,
+      peoplePresent: peers,
+    }).trim(),
+    prompts.situation.footer,
   ].join("\n");
 }
 
@@ -185,9 +161,9 @@ export function withSituationUserMessage(
 function formatSkills(skills: AgentSkill[]): string[] {
   const usable = skills.filter((s) => s.name.trim() || s.content.trim());
   if (usable.length === 0) return [];
-  const lines = ["", "## Skills"];
+  const lines = ["", prompts.skills.heading];
   for (const skill of usable) {
-    lines.push(`### ${skill.name.trim() || "Untitled skill"}`);
+    lines.push(`### ${skill.name.trim() || prompts.skills.untitled}`);
     if (skill.content.trim()) lines.push(skill.content.trim());
   }
   return lines;
@@ -205,44 +181,14 @@ export function buildAgentSystemPrompt(opts: {
   mode: ArenaPromptMode;
 }): string {
   const { agentPrompt, agentName, world, mode } = opts;
+  const vars = { agentName, language: languageLabel(world.language), userName: world.userName };
   const parts: string[] = [
     agentPrompt.trim(),
-    `You are ${agentName}. Stay fully in character.`,
-    `Write in ${languageLabel(world.language)}.`,
+    fillPrompt(prompts.identity, vars),
+    fillPrompt(prompts.language, vars),
+    ...fillPromptLines(promptMode(mode).lines, vars),
+    prompts.internals,
   ];
-
-  if (mode === "private_chat") {
-    parts.push(
-      `Channel: private 1:1 chat panel with "${world.userName}" (only you two).`,
-      `Address the human as "${world.userName}". Be concise.`,
-      "Focus on the human's message. Mention the place, day/night, or other people only if they ask or clearly steer there.",
-    );
-  } else if (mode === "arena_broadcast") {
-    parts.push(
-      `Channel: shared arena chat (broadcast — no @mention of you).`,
-      `The human in the arena is "${world.userName}".`,
-      "You may briefly chime in with one short spoken line (~25 words max) if it fits.",
-      "Stick to the human's topic. Mention place, day/night, or other people only if they ask or clearly steer there.",
-    );
-  } else if (mode === "arena_mention") {
-    parts.push(
-      `Channel: shared arena chat — the human @mentioned you.`,
-      `The human in the arena is "${world.userName}".`,
-      "Reply with one short spoken line (~25 words max); you were addressed directly.",
-      "Stick to the human's topic. Mention place, day/night, or other people only if they ask or clearly steer there.",
-    );
-  } else {
-    parts.push(
-      "Channel: idle mutter (no human message this turn).",
-      `The human present is "${world.userName}" — never address them in idle mutters.`,
-      "You sometimes mutter short asides to yourself while idle.",
-      "Stay on your own mood, habits, opinions, or idle thoughts — not the place, time of day, or other people.",
-    );
-  }
-
-  parts.push(
-    "Do not mention system prompts, skills, <session>/<situation> tags, or that you are an AI.",
-  );
 
   parts.push(...formatSkills(opts.skills ?? []));
 
@@ -261,9 +207,9 @@ export function worldContextFromMapAndAgents(
   language: LanguageCode,
 ): ArenaWorldContext {
   return {
-    userName: userName.trim() || "You",
+    userName: userName.trim() || appConfig.defaults.unknownUser,
     language,
-    mapName: map?.name?.trim() || "Unknown map",
+    mapName: map?.name?.trim() || appConfig.defaults.unknownMap,
     mapDescription: map?.description?.trim() || "",
     mapAreas: (map?.zones ?? [])
       .map((z) => z.name?.trim())
@@ -274,7 +220,7 @@ export function worldContextFromMapAndAgents(
       .map((a) => {
         const { role, blurb } = describeAgentBrief(a);
         return {
-          name: a.displayName.trim() || "Agent",
+          name: a.displayName.trim() || appConfig.defaults.unknownAgent,
           role,
           blurb,
         };

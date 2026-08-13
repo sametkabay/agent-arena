@@ -166,7 +166,6 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
         <Html
           position={[0, 2.45, 0]}
           center
-          distanceFactor={10}
           zIndexRange={[45, 10]}
           style={{ pointerEvents: "none" }}
           className="agent-html-overlay"

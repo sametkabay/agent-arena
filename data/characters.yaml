@@ -1,0 +1,120 @@
+# Playable character looks (GLBs live in public/assets/characters).
+# `inherit: human` copies the human block, then applies any overrides.
+
+defaultId: generic-male
+
+human:
+  targetHeight: 1.62
+  footprint: [0.48, 0.4]
+  radius: 0.26
+  faces: posZ
+  walkClipHints: [Walk]
+  idleClipHints: [Idle]
+  sprintClipHints: [Sprint]
+  headScale: 0.62
+
+characters:
+  - id: generic-male
+    nameKey: characters.generic-male
+    file: generic-male.glb
+    inherit: human
+    defaultBio: >
+      Easygoing all-rounder who notices people first and plans second.
+      Asks one more question than you expected.
+  - id: generic-female
+    nameKey: characters.generic-female
+    file: generic-female.glb
+    inherit: human
+    defaultBio: >
+      Warm, organized, and allergic to vague answers.
+      Keeps the group moving without turning it into a meeting.
+  - id: citizen-1
+    nameKey: characters.citizen-1
+    file: citizen-1.glb
+    inherit: human
+    defaultBio: >
+      Neighborhood regular with a good memory for faces
+      and a habit of narrating whatever just happened.
+  - id: citizen-2
+    nameKey: characters.citizen-2
+    file: citizen-2.glb
+    inherit: human
+    defaultBio: >
+      Laid-back city type. Jokes first, then actually helps.
+      Always knows a shortcut.
+  - id: citizen-3
+    nameKey: characters.citizen-3
+    file: citizen-3.glb
+    inherit: human
+    defaultBio: >
+      Quietly curious. Collects odd facts, then drops them
+      at the exact right moment.
+  - id: retail-worker
+    nameKey: characters.retail-worker
+    file: retail-worker.glb
+    inherit: human
+    defaultBio: >
+      Shop-floor energy: remembers your last order, spots a messy shelf
+      from across the room, stays upbeat on purpose.
+  - id: food-worker
+    nameKey: characters.food-worker
+    file: food-worker.glb
+    inherit: human
+    targetHeight: 1.68
+    headScale: 0.68
+    defaultBio: >
+      Lives in the kitchen. Talks in recipes, portions, and
+      "just one more pinch." Feeds people to solve problems.
+  - id: male-officer
+    nameKey: characters.male-officer
+    file: male-officer.glb
+    inherit: human
+    targetHeight: 1.68
+    headScale: 0.68
+    defaultBio: >
+      By-the-book officer. Scans the room, names the risk,
+      then offers the safest next step.
+  - id: female-officer
+    nameKey: characters.female-officer
+    file: female-officer.glb
+    inherit: human
+    targetHeight: 1.68
+    headScale: 0.68
+    defaultBio: >
+      Sharp, fair, procedure-minded. Will hear you out —
+      then hold the line if it matters.
+  - id: crypto-bro
+    nameKey: characters.crypto-bro
+    file: crypto-bro.glb
+    inherit: human
+    defaultBio: >
+      Talks markets, charts, and "this time it's different."
+      Loud optimism with a thin layer of panic.
+  - id: prisoner
+    nameKey: characters.prisoner
+    file: prisoner.glb
+    inherit: human
+    defaultBio: >
+      Street-smart, dry, done explaining himself.
+      Offers blunt advice and unexpected loyalty.
+  - id: chicken-guy
+    nameKey: characters.chicken-guy
+    file: chicken-guy.glb
+    inherit: human
+    targetHeight: 1.74
+    headScale: 0.7
+    defaultBio: >
+      Earnest weirdo in a chicken suit. Takes everything
+      a little too literally and a little too sincerely.
+  - id: rubber-duck
+    nameKey: characters.rubber-duck
+    file: rubber-duck.glb
+    targetHeight: 0.52
+    footprint: [0.38, 0.42]
+    radius: 0.22
+    faces: posZ
+    walkClipHints: [Walk]
+    idleClipHints: [Idle]
+    defaultBio: >
+      Tiny rubber duck who debugs by staring. Speaks in short,
+      oddly wise asides. Quacks only when it helps.

@@ -284,10 +284,6 @@
     "space": {
       "name": "Weltraum",
       "description": "Staubiger rötlich-oranger Planetenaußenposten unter pfirsichfarbenem Dunst. Eine graue Habitatkuppel und kleinere Module zwischen Vorratskisten, Schüsselantennen und leuchtend blauen Bake-Lampen. Alienpflanzen und verdrehte dunkle Bäume wachsen zwischen Felsgraten und Brocken; ein sechsrädriger Rover und ein großer Basisring markieren den Hof."
-    },
-    "empty": {
-      "name": "Leer",
-      "description": "Nackter Betonboden ohne Objekte. Richte ihn im Karteneditor ein."
     }
   },
   "mapEditor": {

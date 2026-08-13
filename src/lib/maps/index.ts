@@ -1,6 +1,6 @@
 export { MAPS, getMap, mapsToMeta, shadowMapSize } from "@/lib/maps/types";
 export type { MapId, MapMeta, MapTheme, ShadowQuality } from "@/lib/maps/types";
-export { DEFAULT_GRAPHICS } from "@/lib/storage";
+export { DEFAULT_GRAPHICS } from "@/lib/config";
 export type {
   ArenaMapDefinition,
   MapFloor,

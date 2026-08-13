@@ -1,5 +1,6 @@
 import type { ArenaMapDefinition, MapTheme } from "@/lib/maps/schema";
 import { listBuiltinMaps, resolveMapDefinition } from "@/lib/maps/runtime";
+import { appConfig } from "@/lib/config";
 
 export type { MapTheme } from "@/lib/maps/schema";
 export type ShadowQuality = "off" | "low" | "medium" | "high";
@@ -58,14 +59,5 @@ export function getMap(
 export const MAPS: MapMeta[] = mapsToMeta([]);
 
 export function shadowMapSize(quality: ShadowQuality): number {
-  switch (quality) {
-    case "high":
-      return 2048;
-    case "medium":
-      return 1024;
-    case "low":
-      return 512;
-    default:
-      return 256;
-  }
+  return appConfig.graphics.shadowMapSizes[quality] ?? appConfig.graphics.shadowMapSizes.off;
 }

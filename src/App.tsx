@@ -9,6 +9,7 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
 import { useArenaStore } from "@/store/arenaStore";
+import { appConfig } from "@/lib/config";
 
 export default function App() {
   const hydrate = useArenaStore((s) => s.hydrate);
@@ -36,7 +37,7 @@ export default function App() {
       const target = s.dayNight === "night" ? 1 : 0;
       if (Math.abs(s.dayNightBlend - target) > 0.001) {
         const dir = target > s.dayNightBlend ? 1 : -1;
-        let next = s.dayNightBlend + dir * 0.55 * dt;
+        let next = s.dayNightBlend + dir * appConfig.ui.dayNightBlendSpeed * dt;
         next = Math.min(1, Math.max(0, next));
         if (Math.abs(next - target) < 0.01) next = target;
         useArenaStore.setState({ dayNightBlend: next });
