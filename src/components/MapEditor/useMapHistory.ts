@@ -3,6 +3,10 @@ import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { cloneMap } from "@/lib/maps";
 import { appConfig } from "@/lib/config";
 
+export type MapDraftUpdater =
+  | ArenaMapDefinition
+  | ((d: ArenaMapDefinition) => ArenaMapDefinition);
+
 const MAX_HISTORY = appConfig.ui.editorMaxHistory;
 
 /**
