@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { LanguageCode } from "@/lib/types";
+import { LANGUAGES } from "@/i18n/languages";
 import { useArenaStore } from "@/store/arenaStore";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Select } from "@/components/ui/Select";
@@ -32,10 +33,7 @@ export function GeneralTab() {
         <Select
           value={language}
           onChange={(v) => setLanguage(v as LanguageCode)}
-          options={[
-            { value: "en", label: "English" },
-            { value: "tr", label: "Türkçe" },
-          ]}
+          options={LANGUAGES.map((l) => ({ value: l.code, label: l.label }))}
         />
       </label>
       <div className="settings-row settings-row--stack">

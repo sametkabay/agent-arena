@@ -27,6 +27,7 @@ import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { placeableCanWander } from "@/lib/assets/catalog";
 import { formatSpeechBubble } from "@/lib/speechBubble";
 import i18n from "@/i18n";
+import { applyDocumentLang } from "@/i18n/languages";
 
 export const THINKING_BUBBLE = "🤔";
 
@@ -184,6 +185,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       dayNightBlend: data.dayNight === "night" ? 1 : 0,
     });
     void i18n.changeLanguage(data.language);
+    applyDocumentLang(data.language);
   },
 
   persist: () => {
@@ -198,6 +200,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   setLanguage: (language) => {
     set({ language });
     void i18n.changeLanguage(language);
+    applyDocumentLang(language);
     get().persist();
   },
 

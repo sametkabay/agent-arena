@@ -5,7 +5,9 @@ export type { DayNightMode } from "@/lib/dayNight";
 
 export type AiProviderKind = "openai" | "gemini" | "claude" | "ollama" | "custom";
 
-export type LanguageCode = "en" | "tr";
+import type { LanguageCode } from "@/i18n/languages";
+
+export type { LanguageCode };
 
 /** Builtin id or custom_* user map id. */
 export type MapId = string;

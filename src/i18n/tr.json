@@ -1,14 +1,15 @@
 {
   "app": {
     "title": "Agent Arena",
-    "tagline": "Yerel çoklu ajan oyun alanın"
+    "tagline": "Kendi bilgisayarındaki çoklu ajan alanı"
   },
   "nameGate": {
     "badge": "Hoş geldin",
     "heading": "Sana nasıl hitap edelim?",
     "blurb": "Ajanlar bu isimle sana hitap eder. Daha sonra Ayarlar’dan değiştirebilirsin.",
     "placeholder": "Adın",
-    "continue": "Arenaya Gir"
+    "appearance": "Gündüz veya gece",
+    "continue": "Arenaya gir"
   },
   "hud": {
     "agents": "Ajanlar",
@@ -36,22 +37,22 @@
     "edit": "Haritayı düzenle"
   },
   "chat": {
-    "placeholder": "{{name}} için sor…",
+    "placeholder": "{{name}}’e sor…",
     "send": "Gönder",
-    "empty": "Sohbete başlamak için yaz.",
-    "noModel": "Bu ajana AI modeli bağlanmamış.",
+    "empty": "Sohbete başlamak için merhaba de.",
+    "noModel": "Bu ajanın henüz AI modeli yok.",
     "thinking": "Düşünüyor…",
     "close": "Kapat",
     "resize": "Sohbet panelini yeniden boyutlandır",
     "error": "Bir şeyler ters gitti",
     "arena": {
-      "placeholder": "Bir şey söyle… veya \"@etiket\"",
+      "placeholder": "Bir şey söyle… veya @bir ajan",
       "send": "Söyle",
       "history": "Sohbet geçmişi",
       "closeHistory": "Geçmişi kapat",
-      "empty": "Henüz arena sohbeti yok. Örn. @Botanist merhaba",
-      "noMatch": "Eşleşen agent yok: {{names}}",
-      "noAgents": "Modeli tanımlı agent yok."
+      "empty": "Henüz arena sohbeti yok. Dene: @AjanAdı merhaba",
+      "noMatch": "Eşleşen ajan yok: {{names}}",
+      "noAgents": "Modeli olan ajan yok."
     }
   },
   "settings": {
@@ -69,36 +70,36 @@
       "models": "AI Modelleri",
       "agents": "Ajanlar",
       "map": "Harita",
-      "graphics": "Grafik"
+      "graphics": "Grafikler"
     },
     "general": {
       "displayName": "Görünen ad",
       "language": "Dil",
       "languageHint": "Arayüz dili. Ajanlar senin yazdığın dilde yanıt verir.",
       "clearChats": "Sohbet geçmişi",
-      "clearChatsHint": "Özel agent sohbetleri ve ortak arena logu bu tarayıcıda saklanır. İstediğin zaman buradan silebilirsin.",
+      "clearChatsHint": "Özel sohbetler ve ortak arena sohbeti bu tarayıcıda saklanır. İstediğin zaman buradan silebilirsin.",
       "clearChatsAction": "Sohbet geçmişini temizle",
       "clearChatsConfirmTitle": "Sohbet geçmişi temizlensin mi?",
-      "clearChatsConfirmBody": "Bu tarayıcıdaki tüm özel agent sohbetleri ve ortak arena sohbet geçmişi kalıcı olarak silinir.",
+      "clearChatsConfirmBody": "Bu tarayıcıdaki tüm özel ajan sohbetleri ve ortak arena sohbeti kalıcı olarak silinir.",
       "clearChatsConfirm": "Temizle",
       "clearChatsDone": "Sohbet geçmişi temizlendi"
     },
     "models": {
       "title": "AI Modelleri",
-      "hint": "OpenAI, Gemini, Claude, Ollama veya özel OpenAI uyumlu gateway ekle.",
+      "hint": "OpenAI, Gemini, Claude, Ollama veya uyumlu başka bir API ekle.",
       "empty": "Henüz model yok.",
       "name": "Görünen ad",
       "provider": "Sağlayıcı",
-      "baseUrl": "Base URL",
+      "baseUrl": "Sunucu adresi",
       "apiKey": "API anahtarı",
       "modelId": "Model",
       "searchModels": "Model ara…",
-      "fetchModels": "Modelleri getir",
-      "fetching": "Getiriliyor…",
-      "test": "Bağlantıyı test et",
-      "testing": "Test ediliyor…",
-      "extraHeaders": "Ekstra başlıklar",
-      "extraHeadersHint": "Bu modele yapılan her istekte gönderilecek isteğe bağlı HTTP başlıkları (ör. Organization, özel auth). Sağlayıcın istemiyorsa boş bırak.",
+      "fetchModels": "Modelleri yükle",
+      "fetching": "Yükleniyor…",
+      "test": "Bağlantıyı dene",
+      "testing": "Deneniyor…",
+      "extraHeaders": "Ek başlıklar",
+      "extraHeadersHint": "Sağlayıcın ek başlık istiyorsa ekle (ör. Organization). Değilse boş bırak.",
       "addHeader": "Başlık ekle",
       "headerKey": "Başlık",
       "headerValue": "Değer",
@@ -117,33 +118,33 @@
         "custom": "Özel"
       },
       "addLlm": "Model ekle",
-      "addLlmHint": "Aynı {{provider}} bağlantısı ({{host}}) kullanılıyor. Başka bir LLM seç — kimlik bilgileri aynı kalır."
+      "addLlmHint": "Aynı {{provider}} hesabı ({{host}}). Başka bir model seç — anahtarın aynı kalır."
     },
     "agents": {
       "title": "Ajanlar",
-      "hint": "Her ajan bir AI modeli, harita karakteri ve özelleştirebileceğin bir rol preset’i kullanır.",
+      "hint": "Her ajanın bir AI modeli, bir görünümü ve özelleştirebileceğin bir rolü vardır.",
       "empty": "Henüz ajan yok.",
       "displayName": "Görünen ad",
       "model": "AI modeli",
       "poly": "Rol",
       "character": "Görünüm",
-      "systemPrompt": "Sistem promptu",
+      "systemPrompt": "Ajan talimatları",
       "thinking": "Düşünme modu",
-      "thinkingHint": "Destekleyen modellerde (Ollama, Claude, Gemini, reasoning modeller) yanıt öncesi düşünür. Daha yavaş ama genelde daha iyi.",
+      "thinkingHint": "Destekliyorsa model yanıtı önce düşünür. Daha yavaş, ama genelde daha iyi.",
       "thinkingOn": "düşünme açık",
       "chattiness": "Gevezelik",
-      "chattinessHint": "Agent’ın kendi kendine, konuşma balonunda LLM ile ürettiği kısa söylenmeler. 0 = hiç, 100 ≈ dakikada 2 satır.",
-      "skills": "Skill’ler",
-      "skillsHint": "Sistem promptuna eklenen yeniden kullanılabilir talimatlar (kod stili, dokümantasyon, araçlar vb.).",
-      "skillsEmpty": "Henüz skill yok.",
-      "skillsEmptyHint": "Bir şablon seç veya boş skill ekle. Her skill, modelin her yanıtta uyduğu adlı bir talimat bloğudur.",
-      "addSkill": "Skill ekle",
-      "skillName": "Skill adı",
+      "chattinessHint": "Ajanın konuşma balonunda kendi kendine ne sıklıkla konuşacağı. 0 = hiç, 100 ≈ dakikada iki kez.",
+      "skills": "Beceriler",
+      "skillsHint": "Bu ajanın her zaman uyduğu kalıcı talimatlar — kod stili, dokümantasyon, araçlar vb.",
+      "skillsEmpty": "Henüz beceri yok.",
+      "skillsEmptyHint": "Bir şablon seç veya kendin yaz. Ajan her yanıtta bunlara uyar.",
+      "addSkill": "Beceri ekle",
+      "skillName": "Beceri adı",
       "skillNamePlaceholder": "ör. Kod stili",
       "skillBody": "Talimatlar",
-      "skillContent": "Bu skill geçerliyken ajan her zaman ne yapsın?",
-      "skillCount_one": "{{count}} skill",
-      "skillCount_other": "{{count}} skill",
+      "skillContent": "Bu beceri geçerliyken ajan her zaman ne yapsın?",
+      "skillCount_one": "{{count}} beceri",
+      "skillCount_other": "{{count}} beceri",
       "skillTemplates": {
         "coding": {
           "name": "Kod stili",
@@ -159,19 +160,19 @@
         }
       },
       "color": "Vurgu rengi",
-      "bio": "Kısa bio",
-      "bioHint": "Diğer ajanların bu ajanı tanıması için önemli. Arena’da kim olduğu bu kısa metinden okunur.",
+      "bio": "Kısa tanıtım",
+      "bioHint": "Diğer ajanlar bu ajanı buradan tanır. Kısa ve ayırt edici tut.",
       "bioPlaceholder": "ör. Somut adımları teoriden yeğleyen pratik bir mühendis.",
       "enabled": "Haritada aktif",
       "inactive": "pasif",
       "needModel": "Önce bir AI modeli ekle.",
-      "rebuildNote": "Ajanlar aktif haritaya yerleşir; harita düzeni değişmez.",
+      "rebuildNote": "Ajanlar mevcut haritada görünür. Haritanın kendisi değişmez.",
       "customRole": "Özel rol",
       "customRoleHint": "Rol seçince görünen ad otomatik dolar; Özel’de kendi adını yazabilirsin."
     },
     "map": {
       "title": "Harita",
-      "hint": "Haritalar JSON düzenlerdir (aamf v1). Ajan eklemek zemini büyütmez — harita editöründen düzenle.",
+      "hint": "Bir harita seç veya zemini ve nesneleri değiştirmek için editörü aç. Ajan eklemek haritayı büyütmez.",
       "comingSoon": "Yakında",
       "active": "Aktif harita",
       "edit": "Düzenle",
@@ -179,39 +180,39 @@
       "duplicate": "Kopyala",
       "import": "JSON içe aktar",
       "custom": "Özel",
-      "export": "Dışa aktar",
+      "export": "JSON dışa aktar",
       "exported": "Harita dışa aktarıldı",
       "mapsTitle": "Haritalar",
       "presetApplied": "{{name}} eklendi",
       "presets": {
         "starter_camp": {
-          "name": "Kamp başlangıcı",
-          "description": "Doğa kampı kopyası"
+          "name": "Başlangıç kampı",
+          "description": "Doğa kampının bir kopyası"
         },
         "space_outpost": {
           "name": "Uzay üssü",
-          "description": "Uzay üssü kopyası"
+          "description": "Uzay üssünün bir kopyası"
         },
         "office_lounge": {
-          "name": "Ofis lounge",
-          "description": "Ofis düzeni kopyası"
+          "name": "Ofis salonu",
+          "description": "Ofisin bir kopyası"
         },
         "blank_concrete": {
-          "name": "Beton pad",
-          "description": "Boş beton zemin"
+          "name": "Beton zemin",
+          "description": "Dilediğin gibi düzenleyeceğin boş beton zemin"
         }
       }
     },
     "graphics": {
-      "title": "Grafik",
+      "title": "Grafikler",
       "hint": "Cihazına göre performansı ayarla. Ayarlar bu tarayıcıda saklanır.",
       "castShadows": "Dinamik gölgeler",
       "shadowQuality": "Gölge kalitesi",
       "contactShadows": "Yumuşak zemin gölgesi",
       "lampLights": "Lamba ışıkları",
-      "roomLights": "Nokta ışıklar",
-      "antialias": "Antialias",
-      "maxDpr": "Maks. piksel oranı",
+      "roomLights": "Oda ışıkları",
+      "antialias": "Kenar yumuşatma",
+      "maxDpr": "Görüntü netliği",
       "reset": "Varsayılanlara dön",
       "low": "Düşük",
       "medium": "Orta",
@@ -221,11 +222,11 @@
   "poly": {
     "explorer": {
       "name": "Kaşif",
-      "blurb": "Meraklı keşif rehberi"
+      "blurb": "Keşfetmeyi seven meraklı rehber"
     },
     "engineer": {
       "name": "Mühendis",
-      "blurb": "Pratik ve yapılandırılmış çözümcü"
+      "blurb": "Pratik ve düzenli bir problem çözücü"
     },
     "botanist": {
       "name": "Botanikçi",
@@ -233,27 +234,27 @@
     },
     "scholar": {
       "name": "Bilgin",
-      "blurb": "Düşünceli ve net açıklayıcı"
+      "blurb": "Düşünceli ve net anlatır"
     },
     "artisan": {
       "name": "Zanaatkâr",
-      "blurb": "Yaratıcı ve el işçiliğine odaklı"
+      "blurb": "Zanaata odaklı yaratıcı üretici"
     },
     "guardian": {
       "name": "Koruyucu",
-      "blurb": "Sakin ve güven veren danışman"
+      "blurb": "Sakin, koruyucu bir danışman"
     },
     "scout": {
       "name": "İzci",
-      "blurb": "Hızlı özet ve net sonraki adım"
+      "blurb": "Hızlı özetler ve net sonraki adımlar"
     },
     "muse": {
       "name": "İlham",
-      "blurb": "Hayal gücünü açan ortak"
+      "blurb": "Hayal gücü yüksek fikir ortağı"
     },
     "custom": {
       "name": "Özel",
-      "blurb": "Kendi rol adın ve prompt’un"
+      "blurb": "Kendi rol adın ve talimatların"
     }
   },
   "characters": {
@@ -274,36 +275,36 @@
   "maps": {
     "office": {
       "name": "Ofis",
-      "description": "Sıcak meşe karo zeminde yumuşak iç mekân gün ışığında açık ofis. Monitörlü masa sıraları ve saksı bitkileri, kırmızı sandalyeli uzun toplantı masası ve kitaplıklara bakıyor. Mutfak köşesinde buzdolabı, ocak, lavabo ve yemek masası var; mavi kanepeler ile kırmızı lounge ping-pong masasının yanında. Uzun yer lambaları sıcak ışık havuzları oluşturuyor; küçük bir siyah kedi dolaşıyor."
+      "description": "Sıcak meşe karo zeminde, yumuşak iç mekân gün ışığında açık ofis. Monitörlü masa sıraları ve saksı bitkileri, kırmızı sandalyeli uzun toplantı masası ile kitaplıklara bakıyor. Mutfak köşesinde buzdolabı, ocak, lavabo ve yemek masası var; mavi kanepeler ve kırmızı oturma grubu pinpon masasının yanında. Uzun yer lambaları sıcak ışık halkaları oluşturuyor; küçük bir siyah kedi dolaşıyor."
     },
     "nature": {
       "name": "Doğa",
-      "description": "Sisli mavi-yeşil gökyüzü altında çimenli orman açıklığı. Arka kenarda uzun çamlar; yanlarda yeşil, kırmızı ve turuncu tepeli stilize ağaçlar, gri kayalar ve çimen kümeleri arasında. İki turuncu çadır yanan kamp ateşine bakıyor; yanında piknik masası ve sandalyeler, açıklığın kenarında gümüş bir SUV park etmiş."
+      "description": "Sisli mavi-yeşil gökyüzü altında çimenli orman açıklığı. Arkada uzun çamlar; yanlarda yeşil, kırmızı ve turuncu tepeli stilize ağaçlar, gri kayalar ve çimen kümeleri arasında. İki turuncu çadır yanan kamp ateşine bakıyor; yanında piknik masası ve sandalyeler, açıklığın kenarında gümüş bir SUV park etmiş."
     },
     "space": {
       "name": "Uzay",
-      "description": "Şeftali tonlu pus altında tozlu kırmızımsı-turuncu gezegen üssü. Gri habitat kubbesi ve küçük pod modülleri, istiflenmiş ikmal sandıkları, çanak antenler ve mavi parlayan beacon lambaları arasında. Uzaylı bitkiler ve kıvrık koyu ağaçlar kaya sırtları ile kayalar arasında büyüyor; altı tekerlekli bir rover ve büyük dairesel bir üs halkası avluyu belirliyor."
+      "description": "Şeftali tonlu pus altında tozlu kırmızımsı-turuncu gezegen üssü. Gri habitat kubbesi ve küçük kapsüller, istiflenmiş ikmal sandıkları, çanak antenler ve mavi parlayan işaret lambaları arasında. Uzaylı bitkiler ve kıvrık koyu ağaçlar kaya sırtları ile kayalar arasında büyüyor; altı tekerlekli bir gezgin ve büyük dairesel bir üs halkası avluyu belirliyor."
     },
     "empty": {
       "name": "Boş",
-      "description": "Hiç asset olmayan boş beton zemin. Harita editöründen dilediğin gibi doldur."
+      "description": "Hiç nesne olmayan boş beton zemin. Harita editöründen dilediğin gibi doldur."
     }
   },
   "mapEditor": {
     "title": "Harita editörü",
-    "builtinHint": "Sistem haritası — kaydetmek özel kopya oluşturur",
+    "builtinHint": "Yerleşik — kaydetmek kendi kopyanı oluşturur",
     "toolSelect": "Seç",
-    "toolSpawn": "Spawn",
+    "toolSpawn": "Başlangıç",
     "export": "JSON dışa aktar",
     "import": "İçe aktar",
     "save": "Haritayı kaydet",
     "close": "Kapat",
     "closeUnsavedTitle": "Kaydedilmemiş değişiklikler",
-    "closeUnsavedBody": "Kaydedilmemiş düzenlemeleriniz var. Kaydetmeden kapatmak istiyor musunuz?",
+    "closeUnsavedBody": "Kaydedilmemiş düzenlemelerin var. Kaydetmeden kapatmak istiyor musun?",
     "closeDiscard": "Kaydetmeden kapat",
-    "library": "Asset kütüphanesi",
-    "searchAssets": "Asset ara…",
-    "searchEmpty": "Aramanızla eşleşen asset yok.",
+    "library": "Nesne kütüphanesi",
+    "searchAssets": "Nesne ara…",
+    "searchEmpty": "Aramanla eşleşen nesne yok.",
     "catAll": "Tümü",
     "cat": {
       "furniture": "Mobilya",
@@ -317,8 +318,8 @@
       "food": "Yiyecek",
       "cosmetics": "Kozmetik"
     },
-    "libraryHint": "Kategori seç, asset’e tıkla, zemine yerleştir. Yerleşik objeye tıklayınca seçilir — denetçiden döndür, boyutlandır veya sil.",
-    "inspector": "Denetçi",
+    "libraryHint": "Kategori seç, bir nesneye tıkla, sonra zemine tıklayarak yerleştir. Yerleştirilmiş bir nesneye tıklayınca seçilir — Özellikler’den döndür, boyutlandır veya sil.",
+    "inspector": "Özellikler",
     "mapName": "Harita adı",
     "untitled": "Adsız harita",
     "description": "Açıklama",
@@ -326,10 +327,10 @@
     "floorSurface": "Zemin türü",
     "floorStyle": "Desen",
     "styleChecker": "Damalı",
-    "stylePattern": "Surface",
+    "stylePattern": "Yüzey",
     "styleSolid": "Düz",
     "styles": {
-      "surface": "Surface",
+      "surface": "Yüzey",
       "solid": "Düz",
       "checker": "Damalı",
       "patches": "Yamalı",
@@ -344,18 +345,18 @@
       "factory": "Koyu fabrika"
     },
     "bgColor": "Gökyüzü / sis",
-    "rotation": "Rotasyon",
+    "rotation": "Döndürme",
     "scale": "Boyut",
     "behavior": "Hareket",
     "behaviorStatic": "Sabit",
     "behaviorWander": "Dolaş (rastgele)",
     "behaviorAnimated": "Hareketli",
     "axisUp": "yukarı",
-    "deleteObject": "Objeyi sil",
-    "deleteSpawn": "Spawn sil",
-    "spawnPoint": "Spawn noktası",
-    "selectHint": "Düzenlemek için zemindeki bir objeyi seç. Shift+tık ile çoklu seç. Üst üste binmiş objelerde tekrar tıklayınca arkadaki seçilir.",
-    "hotkeys": "Kısayollar: Shift+tık çoklu seçim, Ctrl/⌘Z geri al, Ctrl/⌘⇧Z ileri al, R döndür, Delete sil, Ctrl/⌘D kopyala, Esc temizle. Asset’e sağ tık menü.",
+    "deleteObject": "Nesneyi sil",
+    "deleteSpawn": "Başlangıç noktasını sil",
+    "spawnPoint": "Başlangıç noktası",
+    "selectHint": "Düzenlemek için zemindeki bir nesneyi seç. Shift+tık ile çoklu seç. Üst üste binmiş nesnelerde tekrar tıklayınca arkadaki seçilir.",
+    "hotkeys": "Kısayollar: Shift+tık çoklu seçim, Ctrl/⌘Z geri al, Ctrl/⌘⇧Z ileri al, R döndür, Delete sil, Ctrl/⌘D kopyala, Esc temizle. Nesneye sağ tık menü.",
     "undo": "Geri al",
     "redo": "İleri al",
     "ctx": {
@@ -365,22 +366,22 @@
       "scaleDown": "Küçült",
       "duplicate": "Çoğalt"
     },
-    "spawnMode": "Spawn eklemek için zemine tıkla",
+    "spawnMode": "Başlangıç noktası eklemek için zemine tıkla",
     "paintMode": "{{name}} yerleştirmek için zemine tıkla",
     "selectedBanner": "Seçili: {{name}} — sürükle taşı, R ile döndür",
     "multiSelectedBanner": "{{count}} seçili — birlikte sürükle, R döndür, Delete sil",
-    "multiSelected": "{{count}} obje seçili",
+    "multiSelected": "{{count}} nesne seçili",
     "multiHint": "Taşıma, döndürme, ölçek, çoğaltma ve silme tüm seçime uygulanır.",
-    "deleteSelected": "{{count}} objeyi sil",
+    "deleteSelected": "{{count}} nesneyi sil",
     "saved": "Harita kaydedildi",
     "imported": "Harita içe aktarıldı",
-    "importError": "Harita JSON’u okunamadı",
+    "importError": "Harita dosyası okunamadı",
     "loadError": "Harita yüklenemedi (silinmiş olabilir)",
-    "placed": "Asset yerleştirildi",
-    "placedCenter": "Asset merkeze kondu — sürükleyerek taşı",
-    "snapOff": "Snap kapalı",
-    "snap05": "Snap 0.5m",
-    "snap1": "Snap 1m",
+    "placed": "Nesne yerleştirildi",
+    "placedCenter": "Nesne merkeze kondu — sürükleyerek taşı",
+    "snapOff": "Yapışma kapalı",
+    "snap05": "Yapışma 0,5 m",
+    "snap1": "Yapışma 1 m",
     "packAll": "Tüm paketler",
     "scopeAll": "Hepsi",
     "scopeFavorites": "Favoriler",
@@ -393,9 +394,9 @@
     "wanderRadius": "Gezinme yarıçapı",
     "moveSpeed": "Hız",
     "themeFog": "Sis",
-    "themeAmbient": "Ambient",
-    "themeHemiSky": "Hemi gökyüzü",
-    "themeHemiGround": "Hemi zemin",
+    "themeAmbient": "Dolgu ışığı",
+    "themeHemiSky": "Gökyüzü ışığı",
+    "themeHemiGround": "Zemin ışığı",
     "themeSun": "Güneş",
     "themeAccent": "Vurgu",
     "packs": {
@@ -405,7 +406,7 @@
       "camping": "Kamp",
       "cars": "Araçlar",
       "animals": "Hayvanlar",
-      "farm-animals": "Çiftlik",
+      "farm-animals": "Çiftlik hayvanları",
       "food": "Yiyecek",
       "cosmetics": "Kozmetik",
       "space": "Uzay"

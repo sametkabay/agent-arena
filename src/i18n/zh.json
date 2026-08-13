@@ -1,0 +1,415 @@
+{
+  "app": {
+    "title": "Agent Arena",
+    "tagline": "你的本地多智能体空间"
+  },
+  "nameGate": {
+    "badge": "欢迎",
+    "heading": "我们该怎么称呼你？",
+    "blurb": "智能体会用这个名字称呼你。之后可在设置里更改。",
+    "placeholder": "你的名字",
+    "appearance": "白天或夜晚",
+    "continue": "进入竞技场"
+  },
+  "hud": {
+    "agents": "智能体",
+    "models": "模型",
+    "map": "地图",
+    "settings": "设置",
+    "hello": "你好，{{name}}",
+    "editMap": "编辑地图",
+    "day": "白天",
+    "night": "夜晚",
+    "switchToDay": "切换到白天",
+    "switchToNight": "切换到夜晚"
+  },
+  "agentList": {
+    "title": "智能体",
+    "empty": "还没有智能体。打开「智能体」添加一个。",
+    "talk": "交谈",
+    "edit": "编辑智能体"
+  },
+  "mapList": {
+    "title": "地图",
+    "empty": "还没有地图。打开地图设置添加一个。",
+    "builtin": "内置",
+    "custom": "自定义",
+    "edit": "编辑地图"
+  },
+  "chat": {
+    "placeholder": "问 {{name}}…",
+    "send": "发送",
+    "empty": "打个招呼开始聊天。",
+    "noModel": "这个智能体还没有 AI 模型。",
+    "thinking": "思考中…",
+    "close": "关闭",
+    "resize": "调整聊天面板大小",
+    "error": "出了点问题",
+    "arena": {
+      "placeholder": "说点什么… 或 @某个智能体",
+      "send": "发送",
+      "history": "聊天记录",
+      "closeHistory": "关闭记录",
+      "empty": "还没有竞技场聊天。试试 @智能体名 你好",
+      "noMatch": "没有匹配的智能体：{{names}}",
+      "noAgents": "还没有已配置模型的智能体。"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "close": "关闭",
+    "back": "返回",
+    "save": "保存",
+    "cancel": "取消",
+    "add": "添加",
+    "edit": "编辑",
+    "delete": "删除",
+    "saved": "已保存",
+    "tabs": {
+      "general": "通用",
+      "models": "AI 模型",
+      "agents": "智能体",
+      "map": "地图",
+      "graphics": "画面"
+    },
+    "general": {
+      "displayName": "显示名称",
+      "language": "语言",
+      "languageHint": "界面语言。智能体会用你使用的语言回复。",
+      "clearChats": "聊天记录",
+      "clearChatsHint": "私聊和共享的竞技场聊天保存在此浏览器中。可随时在这里清除。",
+      "clearChatsAction": "清除聊天记录",
+      "clearChatsConfirmTitle": "清除聊天记录？",
+      "clearChatsConfirmBody": "这将永久删除此浏览器中所有智能体私聊和共享的竞技场聊天。",
+      "clearChatsConfirm": "清除",
+      "clearChatsDone": "聊天记录已清除"
+    },
+    "models": {
+      "title": "AI 模型",
+      "hint": "添加 OpenAI、Gemini、Claude、Ollama 或其他兼容 API。",
+      "empty": "还没有模型。",
+      "name": "显示名称",
+      "provider": "提供方",
+      "baseUrl": "服务器地址",
+      "apiKey": "API 密钥",
+      "modelId": "模型",
+      "searchModels": "搜索模型…",
+      "fetchModels": "加载模型",
+      "fetching": "加载中…",
+      "test": "测试连接",
+      "testing": "测试中…",
+      "extraHeaders": "额外请求头",
+      "extraHeadersHint": "仅在提供方要求额外请求头时填写（例如 Organization）。否则留空。",
+      "addHeader": "添加请求头",
+      "headerKey": "名称",
+      "headerValue": "值",
+      "providers": {
+        "openai": "兼容 OpenAI 的云端 API",
+        "gemini": "Google Gemini API",
+        "claude": "Anthropic Claude API",
+        "ollama": "本地 Ollama 服务",
+        "custom": "自定义 API"
+      },
+      "providerNames": {
+        "openai": "OpenAI",
+        "gemini": "Gemini",
+        "claude": "Claude",
+        "ollama": "Ollama",
+        "custom": "自定义"
+      },
+      "addLlm": "添加模型",
+      "addLlmHint": "同一 {{provider}} 账号（{{host}}）。另选一个模型 — 密钥保持不变。"
+    },
+    "agents": {
+      "title": "智能体",
+      "hint": "每个智能体都有一个 AI 模型、外观和可自定义的角色。",
+      "empty": "还没有智能体。",
+      "displayName": "显示名称",
+      "model": "AI 模型",
+      "poly": "角色",
+      "character": "外观",
+      "systemPrompt": "智能体说明",
+      "thinking": "思考模式",
+      "thinkingHint": "支持时，模型会先想再答。更慢，但往往更好。",
+      "thinkingOn": "思考已开",
+      "chattiness": "健谈程度",
+      "chattinessHint": "智能体在气泡里自言自语的频率。0 = 从不，100 ≈ 每分钟两次。",
+      "skills": "技能",
+      "skillsHint": "这个智能体始终遵守的固定说明 — 代码风格、文档、工具等。",
+      "skillsEmpty": "还没有技能。",
+      "skillsEmptyHint": "选一个模板或自己写。智能体每次回复都会遵循。",
+      "addSkill": "添加技能",
+      "skillName": "技能名称",
+      "skillNamePlaceholder": "例如：代码风格",
+      "skillBody": "说明",
+      "skillContent": "这项技能生效时，智能体应始终做什么？",
+      "skillCount_one": "{{count}} 项技能",
+      "skillCount_other": "{{count}} 项技能",
+      "skillTemplates": {
+        "coding": {
+          "name": "代码风格",
+          "content": "遵循这些编码约定：\n- 优先用清晰的命名和小函数\n- 与现有代码风格保持一致\n- 简要说明取舍"
+        },
+        "docs": {
+          "name": "文档",
+          "content": "写文档或注释时：\n- 说明为什么，而不只是做什么\n- 让示例可以直接复制\n- 标出假设和边界情况"
+        },
+        "tools": {
+          "name": "工具",
+          "content": "可用的工具及用法：\n- 优先用能完成工作的最简单工具\n- 说明用了什么以及为什么\n- 缺少工具时如实说，不要编造结果"
+        }
+      },
+      "color": "强调色",
+      "bio": "简短介绍",
+      "bioHint": "其他智能体靠这段文字认出它。请写得短而有辨识度。",
+      "bioPlaceholder": "例如：务实的工程师，更喜欢具体步骤而不是理论。",
+      "enabled": "在地图上启用",
+      "inactive": "未启用",
+      "needModel": "请先添加一个 AI 模型。",
+      "rebuildNote": "智能体会出现在当前地图上。地图本身不变。",
+      "customRole": "自定义角色",
+      "customRoleHint": "选择角色可自动填入显示名称，或选「自定义」自己输入。"
+    },
+    "map": {
+      "title": "地图",
+      "hint": "选择一张地图，或打开编辑器修改地面和物体。添加智能体不会扩大地图。",
+      "comingSoon": "即将推出",
+      "active": "当前地图",
+      "edit": "编辑",
+      "new": "新建地图",
+      "duplicate": "复制",
+      "import": "导入 JSON",
+      "custom": "自定义",
+      "export": "导出 JSON",
+      "exported": "地图已导出",
+      "mapsTitle": "地图",
+      "presetApplied": "已添加 {{name}}",
+      "presets": {
+        "starter_camp": {
+          "name": "入门营地",
+          "description": "自然营地的副本"
+        },
+        "space_outpost": {
+          "name": "太空前哨",
+          "description": "太空前哨的副本"
+        },
+        "office_lounge": {
+          "name": "办公休息区",
+          "description": "办公室的副本"
+        },
+        "blank_concrete": {
+          "name": "水泥地面",
+          "description": "一块干净的水泥地，可自行布置"
+        }
+      }
+    },
+    "graphics": {
+      "title": "画面",
+      "hint": "按设备调整性能。设置保存在此浏览器中。",
+      "castShadows": "动态阴影",
+      "shadowQuality": "阴影质量",
+      "contactShadows": "柔和地面阴影",
+      "lampLights": "灯具灯光",
+      "roomLights": "室内灯光",
+      "antialias": "平滑边缘",
+      "maxDpr": "画面锐度",
+      "reset": "恢复默认",
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    }
+  },
+  "poly": {
+    "explorer": {
+      "name": "探险家",
+      "blurb": "热爱发现的好奇向导"
+    },
+    "engineer": {
+      "name": "工程师",
+      "blurb": "务实、有条理的问题解决者"
+    },
+    "botanist": {
+      "name": "植物学家",
+      "blurb": "语气温和的沉稳助手"
+    },
+    "scholar": {
+      "name": "学者",
+      "blurb": "细致、准确的讲解者"
+    },
+    "artisan": {
+      "name": "工匠",
+      "blurb": "专注手艺的创作者"
+    },
+    "guardian": {
+      "name": "守护者",
+      "blurb": "沉稳、有保护欲的顾问"
+    },
+    "scout": {
+      "name": "侦察员",
+      "blurb": "快速总结和清晰的下一步"
+    },
+    "muse": {
+      "name": "灵感",
+      "blurb": "富有想象力的头脑风暴伙伴"
+    },
+    "custom": {
+      "name": "自定义",
+      "blurb": "你自己的角色名和说明"
+    }
+  },
+  "characters": {
+    "generic-male": "Alex",
+    "generic-female": "Maya",
+    "citizen-1": "Sam",
+    "citizen-2": "Leo",
+    "citizen-3": "Nora",
+    "retail-worker": "Nina",
+    "food-worker": "Marco",
+    "male-officer": "Cole",
+    "female-officer": "Ada",
+    "crypto-bro": "Dex",
+    "prisoner": "Vince",
+    "chicken-guy": "Pip",
+    "rubber-duck": "Goldie"
+  },
+  "maps": {
+    "office": {
+      "name": "办公室",
+      "description": "温暖橡木地砖上的开放式办公室，室内日光柔和。一排排带显示器的桌子和盆栽面向一张配红椅和书柜的长会议桌。厨房角落有冰箱、炉灶、水槽和餐桌；蓝色沙发和红色休息区靠近乒乓球桌。落地灯洒下暖光；一只小黑猫在地上走动。"
+    },
+    "nature": {
+      "name": "自然",
+      "description": "雾蒙蒙蓝绿色天空下的林间草地。后方是高大的松树；两侧是绿、红、橙色树冠的风格化树木，夹杂灰岩和草丛。两顶橙色帐篷面向燃烧的营火，旁边有野餐桌和椅子；一辆银色 SUV 停在空地边缘。"
+    },
+    "space": {
+      "name": "太空",
+      "description": "桃色薄雾下尘土飞扬的红橙色行星前哨。灰色栖息穹顶和较小舱体坐落在补给箱、碟形天线和发光蓝信标灯之间。外星植物和扭曲的深色树木长在岩脊与巨石之间；六轮漫游车和大圆形基座环标出庭院。"
+    },
+    "empty": {
+      "name": "空白",
+      "description": "没有摆设的水泥地面。在地图编辑器里布置吧。"
+    }
+  },
+  "mapEditor": {
+    "title": "地图编辑器",
+    "builtinHint": "内置 — 保存会生成你自己的副本",
+    "toolSelect": "选择",
+    "toolSpawn": "出生点",
+    "export": "导出 JSON",
+    "import": "导入",
+    "save": "保存地图",
+    "close": "关闭",
+    "closeUnsavedTitle": "未保存的更改",
+    "closeUnsavedBody": "有未保存的编辑。不保存就关闭吗？",
+    "closeDiscard": "不保存并关闭",
+    "library": "物体库",
+    "searchAssets": "搜索物体…",
+    "searchEmpty": "没有符合搜索的物体。",
+    "catAll": "全部",
+    "cat": {
+      "furniture": "家具",
+      "nature": "自然",
+      "space": "太空",
+      "camping": "露营",
+      "decor": "装饰",
+      "ground": "地面",
+      "vehicles": "载具",
+      "animals": "动物",
+      "food": "食物",
+      "cosmetics": "化妆品"
+    },
+    "libraryHint": "选择分类，点击物体，再点击地面放置。点击已放置的物体可选中 — 在属性里旋转、缩放或删除。",
+    "inspector": "属性",
+    "mapName": "地图名称",
+    "untitled": "未命名地图",
+    "description": "描述",
+    "floorSize": "地面大小",
+    "floorSurface": "地面类型",
+    "floorStyle": "图案",
+    "styleChecker": "棋盘",
+    "stylePattern": "表面",
+    "styleSolid": "纯色",
+    "styles": {
+      "surface": "表面",
+      "solid": "纯色",
+      "checker": "棋盘",
+      "patches": "斑块",
+      "slabs": "板块"
+    },
+    "floorColor": "地面颜色",
+    "surfaces": {
+      "office": "木纹 / 办公",
+      "grass": "草地",
+      "dirt": "泥土",
+      "concrete": "水泥",
+      "factory": "深色厂房"
+    },
+    "bgColor": "天空 / 雾",
+    "rotation": "旋转",
+    "scale": "缩放",
+    "behavior": "移动",
+    "behaviorStatic": "静止",
+    "behaviorWander": "闲逛（随机）",
+    "behaviorAnimated": "动画",
+    "axisUp": "上",
+    "deleteObject": "删除物体",
+    "deleteSpawn": "删除出生点",
+    "spawnPoint": "出生点",
+    "selectHint": "选中地面上的物体进行编辑。Shift+点击可多选。叠放时再点一次可选中后面的。",
+    "hotkeys": "快捷键：Shift+点击多选，Ctrl/⌘Z 撤销，Ctrl/⌘⇧Z 重做，R 旋转，Delete 删除，Ctrl/⌘D 复制，Esc 取消。右键物体查看更多。",
+    "undo": "撤销",
+    "redo": "重做",
+    "ctx": {
+      "rotateLeft": "向左旋转 90°",
+      "rotateRight": "向右旋转 90°",
+      "scaleUp": "放大",
+      "scaleDown": "缩小",
+      "duplicate": "复制"
+    },
+    "spawnMode": "点击地面添加出生点",
+    "paintMode": "点击地面放置 {{name}}",
+    "selectedBanner": "已选：{{name}} — 拖动移动，R 旋转",
+    "multiSelectedBanner": "已选 {{count}} 个 — 一起拖动，R 旋转，Delete 删除",
+    "multiSelected": "已选 {{count}} 个物体",
+    "multiHint": "移动、旋转、缩放、复制或删除会作用于全部选中项。",
+    "deleteSelected": "删除 {{count}} 个物体",
+    "saved": "地图已保存",
+    "imported": "地图已导入",
+    "importError": "无法导入该地图文件",
+    "loadError": "无法加载该地图（可能已被删除）",
+    "placed": "已放置物体",
+    "placedCenter": "物体已放在中心 — 拖到目标位置",
+    "snapOff": "关闭吸附",
+    "snap05": "吸附 0.5 米",
+    "snap1": "吸附 1 米",
+    "packAll": "全部资源包",
+    "scopeAll": "全部",
+    "scopeFavorites": "收藏",
+    "scopeUsed": "地图上",
+    "favorite": "收藏",
+    "alignX": "对齐 X",
+    "alignZ": "对齐 Z",
+    "distributeX": "分布 X",
+    "distributeZ": "分布 Z",
+    "wanderRadius": "闲逛半径",
+    "moveSpeed": "移动速度",
+    "themeFog": "雾",
+    "themeAmbient": "补光",
+    "themeHemiSky": "天空光",
+    "themeHemiGround": "地面光",
+    "themeSun": "太阳",
+    "themeAccent": "强调",
+    "packs": {
+      "furniture": "家具",
+      "trees": "树木",
+      "nature": "自然",
+      "camping": "露营",
+      "cars": "汽车",
+      "animals": "动物",
+      "farm-animals": "农场动物",
+      "food": "食物",
+      "cosmetics": "化妆品",
+      "space": "太空"
+    }
+  }
+}

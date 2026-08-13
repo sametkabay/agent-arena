@@ -1,4 +1,5 @@
 import type { AgentConfig, AgentSkill, DayNightMode, LanguageCode } from "@/lib/types";
+import { languageEnglishName } from "@/i18n/languages";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
 import { getPolyPreset } from "@/lib/poly/presets";
@@ -55,7 +56,7 @@ function channelMeta(channel: ArenaMessageChannel): {
 
 /** Human-readable UI language for model instructions. */
 export function languageLabel(language: LanguageCode): string {
-  return language === "tr" ? "Turkish" : "English";
+  return languageEnglishName(language);
 }
 
 /** Short public blurb for another agent (bio → role → clipped system prompt). */

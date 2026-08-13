@@ -1,0 +1,415 @@
+{
+  "app": {
+    "title": "Agent Arena",
+    "tagline": "Tu espacio local para varios agentes"
+  },
+  "nameGate": {
+    "badge": "Bienvenido",
+    "heading": "¿Cómo te llamamos?",
+    "blurb": "Los agentes te hablarán por este nombre. Puedes cambiarlo después en Ajustes.",
+    "placeholder": "Tu nombre",
+    "appearance": "Día o noche",
+    "continue": "Entrar a la arena"
+  },
+  "hud": {
+    "agents": "Agentes",
+    "models": "Modelos",
+    "map": "Mapa",
+    "settings": "Ajustes",
+    "hello": "Hola, {{name}}",
+    "editMap": "Editar mapa",
+    "day": "Día",
+    "night": "Noche",
+    "switchToDay": "Cambiar a día",
+    "switchToNight": "Cambiar a noche"
+  },
+  "agentList": {
+    "title": "Agentes",
+    "empty": "Aún no hay agentes. Abre Agentes para añadir uno.",
+    "talk": "Hablar",
+    "edit": "Editar agente"
+  },
+  "mapList": {
+    "title": "Mapas",
+    "empty": "Aún no hay mapas. Abre Ajustes de mapa para añadir uno.",
+    "builtin": "Incluido",
+    "custom": "Personalizado",
+    "edit": "Editar mapa"
+  },
+  "chat": {
+    "placeholder": "Pregunta a {{name}}…",
+    "send": "Enviar",
+    "empty": "Di hola para empezar a chatear.",
+    "noModel": "Este agente aún no tiene un modelo de IA.",
+    "thinking": "Pensando…",
+    "close": "Cerrar",
+    "resize": "Cambiar el tamaño del chat",
+    "error": "Algo salió mal",
+    "arena": {
+      "placeholder": "Di algo… o @un agente",
+      "send": "Decir",
+      "history": "Historial del chat",
+      "closeHistory": "Cerrar historial",
+      "empty": "Aún no hay chat de arena. Prueba @NombreAgente hola",
+      "noMatch": "Ningún agente coincide: {{names}}",
+      "noAgents": "Ningún agente tiene un modelo todavía."
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "add": "Añadir",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "saved": "Guardado",
+    "tabs": {
+      "general": "General",
+      "models": "Modelos de IA",
+      "agents": "Agentes",
+      "map": "Mapa",
+      "graphics": "Gráficos"
+    },
+    "general": {
+      "displayName": "Nombre visible",
+      "language": "Idioma",
+      "languageHint": "Idioma de la interfaz. Los agentes responden en el idioma que uses.",
+      "clearChats": "Historial del chat",
+      "clearChatsHint": "Los chats privados y el chat compartido de la arena se guardan en este navegador. Puedes borrarlos aquí cuando quieras.",
+      "clearChatsAction": "Borrar historial",
+      "clearChatsConfirmTitle": "¿Borrar el historial del chat?",
+      "clearChatsConfirmBody": "Esto elimina de forma permanente todos los chats privados de agentes y el chat compartido de la arena en este navegador.",
+      "clearChatsConfirm": "Borrar",
+      "clearChatsDone": "Historial borrado"
+    },
+    "models": {
+      "title": "Modelos de IA",
+      "hint": "Añade OpenAI, Gemini, Claude, Ollama u otra API compatible.",
+      "empty": "Aún no hay modelos.",
+      "name": "Nombre visible",
+      "provider": "Proveedor",
+      "baseUrl": "URL base",
+      "apiKey": "Clave API",
+      "modelId": "Modelo",
+      "searchModels": "Buscar modelos…",
+      "fetchModels": "Cargar modelos",
+      "fetching": "Cargando…",
+      "test": "Probar conexión",
+      "testing": "Probando…",
+      "extraHeaders": "Cabeceras extra",
+      "extraHeadersHint": "Solo si tu proveedor pide cabeceras extra (por ejemplo Organization). Si no, déjalo vacío.",
+      "addHeader": "Añadir cabecera",
+      "headerKey": "Cabecera",
+      "headerValue": "Valor",
+      "providers": {
+        "openai": "API en la nube compatible con OpenAI",
+        "gemini": "API de Google Gemini",
+        "claude": "API de Anthropic Claude",
+        "ollama": "Servidor Ollama local",
+        "custom": "API personalizada"
+      },
+      "providerNames": {
+        "openai": "OpenAI",
+        "gemini": "Gemini",
+        "claude": "Claude",
+        "ollama": "Ollama",
+        "custom": "Personalizada"
+      },
+      "addLlm": "Añadir modelo",
+      "addLlmHint": "Misma cuenta de {{provider}} ({{host}}). Elige otro modelo: tu clave no cambia."
+    },
+    "agents": {
+      "title": "Agentes",
+      "hint": "Cada agente tiene un modelo de IA, un aspecto y un rol que puedes personalizar.",
+      "empty": "Aún no hay agentes.",
+      "displayName": "Nombre visible",
+      "model": "Modelo de IA",
+      "poly": "Rol",
+      "character": "Aspecto",
+      "systemPrompt": "Instrucciones del agente",
+      "thinking": "Modo de reflexión",
+      "thinkingHint": "Si el modelo lo permite, piensa la respuesta antes de hablar. Más lento, pero suele ser mejor.",
+      "thinkingOn": "reflexión activa",
+      "chattiness": "Loquacidad",
+      "chattinessHint": "Con qué frecuencia el agente se habla a sí mismo en un globo. 0 = nunca, 100 ≈ dos veces por minuto.",
+      "skills": "Habilidades",
+      "skillsHint": "Instrucciones fijas que este agente siempre sigue: estilo de código, docs, herramientas, etc.",
+      "skillsEmpty": "Aún no hay habilidades.",
+      "skillsEmptyHint": "Elige una plantilla o escribe la tuya. El agente las sigue en cada respuesta.",
+      "addSkill": "Añadir habilidad",
+      "skillName": "Nombre de la habilidad",
+      "skillNamePlaceholder": "p. ej. Estilo de código",
+      "skillBody": "Instrucciones",
+      "skillContent": "¿Qué debe hacer siempre este agente cuando aplique esta habilidad?",
+      "skillCount_one": "{{count}} habilidad",
+      "skillCount_other": "{{count}} habilidades",
+      "skillTemplates": {
+        "coding": {
+          "name": "Estilo de código",
+          "content": "Sigue estas convenciones:\n- Prefiere nombres claros y funciones pequeñas\n- Adapta el estilo del código existente\n- Menciona los compromisos con brevedad"
+        },
+        "docs": {
+          "name": "Documentación",
+          "content": "Al escribir docs o comentarios:\n- Explica el porqué, no solo el qué\n- Deja ejemplos que se puedan copiar\n- Señala supuestos y casos límite"
+        },
+        "tools": {
+          "name": "Herramientas",
+          "content": "Herramientas que puedes usar y cómo:\n- Prefiere la herramienta más simple que funcione\n- Di qué usaste y por qué\n- Si falta una herramienta, dilo; no inventes resultados"
+        }
+      },
+      "color": "Color de acento",
+      "bio": "Bio corta",
+      "bioHint": "Los demás agentes usan esto para reconocer quién es. Que sea breve y distintiva.",
+      "bioPlaceholder": "p. ej. Ingeniero práctico que prefiere pasos concretos a la teoría.",
+      "enabled": "Activo en el mapa",
+      "inactive": "inactivo",
+      "needModel": "Añade primero un modelo de IA.",
+      "rebuildNote": "Los agentes aparecen en el mapa actual. El mapa no cambia.",
+      "customRole": "Rol personalizado",
+      "customRoleHint": "Elige un rol para rellenar el nombre, o Personalizado y escribe el tuyo."
+    },
+    "map": {
+      "title": "Mapa",
+      "hint": "Elige un mapa o abre el editor para cambiar el suelo y los objetos. Añadir agentes no agranda el mapa.",
+      "comingSoon": "Próximamente",
+      "active": "Mapa activo",
+      "edit": "Editar",
+      "new": "Mapa nuevo",
+      "duplicate": "Duplicar",
+      "import": "Importar JSON",
+      "custom": "Personalizado",
+      "export": "Exportar JSON",
+      "exported": "Mapa exportado",
+      "mapsTitle": "Mapas",
+      "presetApplied": "Se añadió {{name}}",
+      "presets": {
+        "starter_camp": {
+          "name": "Campamento inicial",
+          "description": "Una copia del campamento de Naturaleza"
+        },
+        "space_outpost": {
+          "name": "Puesto espacial",
+          "description": "Una copia del puesto espacial"
+        },
+        "office_lounge": {
+          "name": "Oficina lounge",
+          "description": "Una copia de la Oficina"
+        },
+        "blank_concrete": {
+          "name": "Losa de hormigón",
+          "description": "Un suelo de hormigón limpio para decorar"
+        }
+      }
+    },
+    "graphics": {
+      "title": "Gráficos",
+      "hint": "Ajusta el rendimiento a tu dispositivo. Los ajustes se guardan en este navegador.",
+      "castShadows": "Sombras dinámicas",
+      "shadowQuality": "Calidad de sombras",
+      "contactShadows": "Sombra suave en el suelo",
+      "lampLights": "Luces de lámpara",
+      "roomLights": "Luces de sala",
+      "antialias": "Bordes suaves",
+      "maxDpr": "Nitidez de pantalla",
+      "reset": "Restablecer",
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta"
+    }
+  },
+  "poly": {
+    "explorer": {
+      "name": "Explorador",
+      "blurb": "Guía curiosa a la que le encanta descubrir"
+    },
+    "engineer": {
+      "name": "Ingeniero",
+      "blurb": "Resuelve problemas de forma práctica y ordenada"
+    },
+    "botanist": {
+      "name": "Botánico",
+      "blurb": "Ayuda con calma y un tono suave"
+    },
+    "scholar": {
+      "name": "Erudito",
+      "blurb": "Explica con cuidado y precisión"
+    },
+    "artisan": {
+      "name": "Artesano",
+      "blurb": "Creador centrado en el oficio"
+    },
+    "guardian": {
+      "name": "Guardián",
+      "blurb": "Consejero firme y protector"
+    },
+    "scout": {
+      "name": "Explorador rápido",
+      "blurb": "Resúmenes rápidos y siguientes pasos claros"
+    },
+    "muse": {
+      "name": "Musa",
+      "blurb": "Compañera imaginativa para idear"
+    },
+    "custom": {
+      "name": "Personalizado",
+      "blurb": "Tu propio nombre de rol e instrucciones"
+    }
+  },
+  "characters": {
+    "generic-male": "Alex",
+    "generic-female": "Maya",
+    "citizen-1": "Sam",
+    "citizen-2": "Leo",
+    "citizen-3": "Nora",
+    "retail-worker": "Nina",
+    "food-worker": "Marco",
+    "male-officer": "Cole",
+    "female-officer": "Ada",
+    "crypto-bro": "Dex",
+    "prisoner": "Vince",
+    "chicken-guy": "Pip",
+    "rubber-duck": "Goldie"
+  },
+  "maps": {
+    "office": {
+      "name": "Oficina",
+      "description": "Oficina abierta sobre baldosa de roble cálido, con luz interior suave. Filas de escritorios con monitores y plantas miran a una mesa de reuniones larga con sillas rojas y estanterías. En la esquina de cocina hay nevera, cocina, fregadero y mesa; sofás azules y un lounge rojo junto a una mesa de ping-pong. Lámparas de pie proyectan charcos de luz cálida; un gato negro pequeño recorre el suelo."
+    },
+    "nature": {
+      "name": "Naturaleza",
+      "description": "Claro herboso bajo un cielo azul verdoso y brumoso. Al fondo, pinos altos; a los lados, árboles estilizados de copas verdes, rojas y naranjas entre rocas grises y matas de hierba. Dos tiendas naranjas miran a una hoguera encendida, con mesa de picnic y sillas; un SUV plateado está aparcado al borde del claro."
+    },
+    "space": {
+      "name": "Espacio",
+      "description": "Puesto planetario de tono naranja rojizo bajo una bruma melocotón. Una cúpula gris y módulos más pequeños entre cajas de suministros, antenas de plato y lámparas baliza azules. Plantas alienígenas y árboles oscuros retorcidos crecen entre crestas y rocas; un rover de seis ruedas y un anillo de base grande marcan el patio."
+    },
+    "empty": {
+      "name": "Vacío",
+      "description": "Suelo de hormigón sin objetos. Decóralo en el editor de mapas."
+    }
+  },
+  "mapEditor": {
+    "title": "Editor de mapas",
+    "builtinHint": "Incluido — al guardar se crea tu propia copia",
+    "toolSelect": "Seleccionar",
+    "toolSpawn": "Inicio",
+    "export": "Exportar JSON",
+    "import": "Importar",
+    "save": "Guardar mapa",
+    "close": "Cerrar",
+    "closeUnsavedTitle": "Cambios sin guardar",
+    "closeUnsavedBody": "Tienes ediciones sin guardar. ¿Cerrar sin guardar?",
+    "closeDiscard": "Cerrar sin guardar",
+    "library": "Biblioteca de objetos",
+    "searchAssets": "Buscar objetos…",
+    "searchEmpty": "Ningún objeto coincide con tu búsqueda.",
+    "catAll": "Todos",
+    "cat": {
+      "furniture": "Muebles",
+      "nature": "Naturaleza",
+      "space": "Espacio",
+      "camping": "Camping",
+      "decor": "Decoración",
+      "ground": "Suelo",
+      "vehicles": "Vehículos",
+      "animals": "Animales",
+      "food": "Comida",
+      "cosmetics": "Cosméticos"
+    },
+    "libraryHint": "Elige una categoría, haz clic en un objeto y luego en el suelo para colocarlo. Haz clic en un objeto colocado para seleccionarlo: rota, escala o elimínalo en Propiedades.",
+    "inspector": "Propiedades",
+    "mapName": "Nombre del mapa",
+    "untitled": "Mapa sin título",
+    "description": "Descripción",
+    "floorSize": "Tamaño del suelo",
+    "floorSurface": "Tipo de suelo",
+    "floorStyle": "Patrón",
+    "styleChecker": "Damero",
+    "stylePattern": "Superficie",
+    "styleSolid": "Liso",
+    "styles": {
+      "surface": "Superficie",
+      "solid": "Liso",
+      "checker": "Damero",
+      "patches": "Parches",
+      "slabs": "Losas"
+    },
+    "floorColor": "Color del suelo",
+    "surfaces": {
+      "office": "Madera / oficina",
+      "grass": "Césped",
+      "dirt": "Tierra",
+      "concrete": "Hormigón",
+      "factory": "Fábrica oscura"
+    },
+    "bgColor": "Cielo / niebla",
+    "rotation": "Rotación",
+    "scale": "Escala",
+    "behavior": "Movimiento",
+    "behaviorStatic": "Fijo",
+    "behaviorWander": "Vagar (aleatorio)",
+    "behaviorAnimated": "Animado",
+    "axisUp": "arriba",
+    "deleteObject": "Eliminar objeto",
+    "deleteSpawn": "Eliminar punto de inicio",
+    "spawnPoint": "Punto de inicio",
+    "selectHint": "Selecciona un objeto en el suelo para editarlo. Mayús+clic para selección múltiple. En una pila, vuelve a hacer clic para elegir el de detrás.",
+    "hotkeys": "Atajos: Mayús+clic selección múltiple, Ctrl/⌘Z deshacer, Ctrl/⌘⇧Z rehacer, R rotar, Supr eliminar, Ctrl/⌘D duplicar, Esc limpiar. Clic derecho en objetos para más.",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "ctx": {
+      "rotateLeft": "Girar 90° a la izquierda",
+      "rotateRight": "Girar 90° a la derecha",
+      "scaleUp": "Agrandar",
+      "scaleDown": "Reducir",
+      "duplicate": "Duplicar"
+    },
+    "spawnMode": "Haz clic en el suelo para añadir un punto de inicio",
+    "paintMode": "Haz clic en el suelo para colocar {{name}}",
+    "selectedBanner": "Seleccionado: {{name}} — arrastra para mover, R para rotar",
+    "multiSelectedBanner": "{{count}} seleccionados — arrastra juntos, R rota, Supr elimina",
+    "multiSelected": "{{count}} objetos seleccionados",
+    "multiHint": "Mover, rotar, escalar, duplicar o eliminar se aplica a toda la selección.",
+    "deleteSelected": "Eliminar {{count}} objetos",
+    "saved": "Mapa guardado",
+    "imported": "Mapa importado",
+    "importError": "No se pudo importar ese archivo de mapa",
+    "loadError": "No se pudo cargar ese mapa (puede que se haya eliminado)",
+    "placed": "Objeto colocado",
+    "placedCenter": "Objeto colocado en el centro — arrástralo a su sitio",
+    "snapOff": "Sin ajuste",
+    "snap05": "Ajuste 0,5 m",
+    "snap1": "Ajuste 1 m",
+    "packAll": "Todos los paquetes",
+    "scopeAll": "Todos",
+    "scopeFavorites": "Favoritos",
+    "scopeUsed": "En el mapa",
+    "favorite": "Favorito",
+    "alignX": "Alinear X",
+    "alignZ": "Alinear Z",
+    "distributeX": "Distribuir X",
+    "distributeZ": "Distribuir Z",
+    "wanderRadius": "Radio de deambular",
+    "moveSpeed": "Velocidad",
+    "themeFog": "Niebla",
+    "themeAmbient": "Luz de relleno",
+    "themeHemiSky": "Luz de cielo",
+    "themeHemiGround": "Luz de suelo",
+    "themeSun": "Sol",
+    "themeAccent": "Acento",
+    "packs": {
+      "furniture": "Muebles",
+      "trees": "Árboles",
+      "nature": "Naturaleza",
+      "camping": "Camping",
+      "cars": "Coches",
+      "animals": "Animales",
+      "farm-animals": "Animales de granja",
+      "food": "Comida",
+      "cosmetics": "Cosméticos",
+      "space": "Espacio"
+    }
+  }
+}

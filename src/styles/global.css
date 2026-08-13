@@ -993,7 +993,67 @@ button {
   gap: 12px;
 }
 
-.name-gate input {
+.name-gate__field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.name-gate__field .aa-select {
+  width: 100%;
+}
+
+.name-gate__theme {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 6px;
+}
+
+.name-gate__theme legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.name-gate__radios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.name-gate__radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.7rem 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-input);
+  color: var(--ink);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.name-gate__radio input {
+  width: auto;
+  margin: 0;
+  accent-color: var(--sage-deep);
+}
+
+.name-gate__radio.is-selected {
+  border-color: var(--sage);
+  background: rgba(122, 158, 126, 0.14);
+  box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.16);
+}
+
+.name-gate input[type="text"] {
   width: 100%;
   border: 1px solid var(--border-strong);
   border-radius: 16px;
@@ -1003,7 +1063,7 @@ button {
   outline: none;
 }
 
-.name-gate input:focus {
+.name-gate input[type="text"]:focus {
   border-color: var(--sage);
   box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.16);
 }

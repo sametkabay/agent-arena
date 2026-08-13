@@ -8,6 +8,7 @@
     "heading": "What should we call you?",
     "blurb": "Agents will address you by this name. You can change it later in Settings.",
     "placeholder": "Your name",
+    "appearance": "Day or night",
     "continue": "Enter Arena"
   },
   "hud": {
@@ -39,19 +40,19 @@
     "placeholder": "Ask {{name}}…",
     "send": "Send",
     "empty": "Say hello to start chatting.",
-    "noModel": "This agent has no AI model configured.",
+    "noModel": "This agent has no AI model yet.",
     "thinking": "Thinking…",
     "close": "Close",
     "resize": "Resize chat panel",
     "error": "Something went wrong",
     "arena": {
-      "placeholder": "Say something… or \"@mention\"",
+      "placeholder": "Say something… or @an agent",
       "send": "Say",
       "history": "Chat history",
       "closeHistory": "Close history",
       "empty": "No arena chat yet. Try @AgentName hello",
       "noMatch": "No agent matched: {{names}}",
-      "noAgents": "No agents with a model configured."
+      "noAgents": "No agents with a model yet."
     }
   },
   "settings": {
@@ -76,16 +77,16 @@
       "language": "Language",
       "languageHint": "Interface language. Agents reply in the language you use.",
       "clearChats": "Chat history",
-      "clearChatsHint": "Private agent chats and the shared arena log are saved in this browser. Clear them from here anytime.",
+      "clearChatsHint": "Private chats and the shared arena chat are saved in this browser. Clear them here anytime.",
       "clearChatsAction": "Clear chat history",
       "clearChatsConfirmTitle": "Clear chat history?",
-      "clearChatsConfirmBody": "This permanently deletes all private agent chats and the shared arena chat log in this browser.",
+      "clearChatsConfirmBody": "This permanently deletes all private agent chats and the shared arena chat in this browser.",
       "clearChatsConfirm": "Clear",
       "clearChatsDone": "Chat history cleared"
     },
     "models": {
       "title": "AI Models",
-      "hint": "Add OpenAI, Gemini, Claude, Ollama, or a custom OpenAI-compatible gateway.",
+      "hint": "Add OpenAI, Gemini, Claude, Ollama, or another compatible API.",
       "empty": "No models yet.",
       "name": "Display name",
       "provider": "Provider",
@@ -93,12 +94,12 @@
       "apiKey": "API key",
       "modelId": "Model",
       "searchModels": "Search models…",
-      "fetchModels": "Fetch models",
-      "fetching": "Fetching…",
+      "fetchModels": "Load models",
+      "fetching": "Loading…",
       "test": "Test connection",
       "testing": "Testing…",
       "extraHeaders": "Extra headers",
-      "extraHeadersHint": "Optional HTTP headers sent with every request to this model (e.g. Organization, custom auth). Leave empty unless your provider requires them.",
+      "extraHeadersHint": "Only if your provider asks for extra headers (for example Organization). Leave empty otherwise.",
       "addHeader": "Add header",
       "headerKey": "Header",
       "headerValue": "Value",
@@ -117,26 +118,26 @@
         "custom": "Custom"
       },
       "addLlm": "Add model",
-      "addLlmHint": "Using the same {{provider}} connection ({{host}}). Pick another LLM — credentials stay as they are."
+      "addLlmHint": "Same {{provider}} account ({{host}}). Pick another model — your key stays as it is."
     },
     "agents": {
       "title": "Agents",
-      "hint": "Each agent uses one AI model, a character look, and a role preset you can customize.",
+      "hint": "Each agent has an AI model, a look, and a role you can customize.",
       "empty": "No agents yet.",
       "displayName": "Display name",
       "model": "AI model",
       "poly": "Role",
       "character": "Look",
-      "systemPrompt": "System prompt",
+      "systemPrompt": "Agent instructions",
       "thinking": "Thinking mode",
-      "thinkingHint": "When supported (Ollama, Claude, Gemini, reasoning models), the model reasons before answering. Slower but often smarter.",
+      "thinkingHint": "The model thinks through the answer first when it can. Slower, but often better.",
       "thinkingOn": "thinking on",
       "chattiness": "Chattiness",
-      "chattinessHint": "How often the agent mutters to itself in a speech bubble (LLM-generated, not scripted). 0 = never, 100 ≈ 2 lines per minute.",
+      "chattinessHint": "How often the agent talks to itself in a speech bubble. 0 = never, 100 ≈ twice a minute.",
       "skills": "Skills",
-      "skillsHint": "Reusable instructions injected into the system prompt (coding style, docs, tools, etc.).",
+      "skillsHint": "Standing instructions this agent always follows — coding style, docs, tools, and so on.",
       "skillsEmpty": "No skills yet.",
-      "skillsEmptyHint": "Pick a starter or add a blank skill. Each one is a named block the model follows on every reply.",
+      "skillsEmptyHint": "Pick a starter or write your own. The agent follows these on every reply.",
       "addSkill": "Add skill",
       "skillName": "Skill name",
       "skillNamePlaceholder": "e.g. Coding style",
@@ -165,13 +166,13 @@
       "enabled": "Active on map",
       "inactive": "inactive",
       "needModel": "Add an AI model first.",
-      "rebuildNote": "Agents spawn on the active map without changing its layout.",
+      "rebuildNote": "Agents appear on the current map. The map itself stays as it is.",
       "customRole": "Custom role",
       "customRoleHint": "Pick a role to fill the display name, or choose Custom and type your own."
     },
     "map": {
       "title": "Map",
-      "hint": "Maps are JSON layouts (aamf v1). Agents do not resize the floor — edit maps in the map editor.",
+      "hint": "Pick a map or open the editor to change the floor and objects. Adding agents does not resize the map.",
       "comingSoon": "Coming soon",
       "active": "Active map",
       "edit": "Edit",
@@ -186,19 +187,19 @@
       "presets": {
         "starter_camp": {
           "name": "Starter camp",
-          "description": "Nature camp layout copy"
+          "description": "A copy of the Nature camp"
         },
         "space_outpost": {
           "name": "Space outpost",
-          "description": "Space outpost layout copy"
+          "description": "A copy of the Space outpost"
         },
         "office_lounge": {
           "name": "Office lounge",
-          "description": "Office floor layout copy"
+          "description": "A copy of the Office"
         },
         "blank_concrete": {
           "name": "Concrete pad",
-          "description": "Clean concrete slab to dress up"
+          "description": "A clean concrete floor you can dress up"
         }
       }
     },
@@ -209,9 +210,9 @@
       "shadowQuality": "Shadow quality",
       "contactShadows": "Soft ground shadow",
       "lampLights": "Lamp lights",
-      "roomLights": "Point lights",
-      "antialias": "Antialias",
-      "maxDpr": "Max pixel ratio",
+      "roomLights": "Room lights",
+      "antialias": "Smooth edges",
+      "maxDpr": "Display sharpness",
       "reset": "Reset to defaults",
       "low": "Low",
       "medium": "Medium",
@@ -253,7 +254,7 @@
     },
     "custom": {
       "name": "Custom",
-      "blurb": "Your own role name and prompt"
+      "blurb": "Your own role name and instructions"
     }
   },
   "characters": {
@@ -291,7 +292,7 @@
   },
   "mapEditor": {
     "title": "Map editor",
-    "builtinHint": "Builtin — save creates a custom copy",
+    "builtinHint": "Built-in — saving creates your own copy",
     "toolSelect": "Select",
     "toolSpawn": "Spawn",
     "export": "Export JSON",
@@ -301,9 +302,9 @@
     "closeUnsavedTitle": "Unsaved changes",
     "closeUnsavedBody": "You have unsaved edits. Close without saving?",
     "closeDiscard": "Close without saving",
-    "library": "Asset library",
-    "searchAssets": "Search assets…",
-    "searchEmpty": "No assets match your search.",
+    "library": "Object library",
+    "searchAssets": "Search objects…",
+    "searchEmpty": "No objects match your search.",
     "catAll": "All",
     "cat": {
       "furniture": "Furniture",
@@ -317,8 +318,8 @@
       "food": "Food",
       "cosmetics": "Cosmetics"
     },
-    "libraryHint": "Pick a category, click an asset, then click the floor to place it. Click a placed object to select — rotate, scale, or delete in the inspector.",
-    "inspector": "Inspector",
+    "libraryHint": "Pick a category, click an object, then click the floor to place it. Click a placed object to select — rotate, scale, or delete in Properties.",
+    "inspector": "Properties",
     "mapName": "Map name",
     "untitled": "Untitled map",
     "description": "Description",
@@ -355,7 +356,7 @@
     "deleteSpawn": "Delete spawn",
     "spawnPoint": "Spawn point",
     "selectHint": "Select an object on the floor to edit it. Shift+click to multi-select. Click again on a stack to select the one behind.",
-    "hotkeys": "Hotkeys: Shift+click multi-select, Ctrl/⌘Z undo, Ctrl/⌘⇧Z redo, R rotate, Delete remove, Ctrl/⌘D duplicate, Esc clear. Right-click assets for more.",
+    "hotkeys": "Hotkeys: Shift+click multi-select, Ctrl/⌘Z undo, Ctrl/⌘⇧Z redo, R rotate, Delete remove, Ctrl/⌘D duplicate, Esc clear. Right-click objects for more.",
     "undo": "Undo",
     "redo": "Redo",
     "ctx": {
@@ -374,11 +375,11 @@
     "deleteSelected": "Delete {{count}} objects",
     "saved": "Map saved",
     "imported": "Map imported",
-    "importError": "Could not import map JSON",
+    "importError": "Could not import that map file",
     "loadError": "Could not load that map (it may have been removed)",
-    "placed": "Asset placed",
-    "placedCenter": "Asset placed at center — drag it into position",
-    "snapOff": "Snap off",
+    "placed": "Object placed",
+    "placedCenter": "Object placed at center — drag it into position",
+    "snapOff": "No snap",
     "snap05": "Snap 0.5m",
     "snap1": "Snap 1m",
     "packAll": "All packs",
@@ -393,9 +394,9 @@
     "wanderRadius": "Wander radius",
     "moveSpeed": "Move speed",
     "themeFog": "Fog",
-    "themeAmbient": "Ambient",
-    "themeHemiSky": "Hemi sky",
-    "themeHemiGround": "Hemi ground",
+    "themeAmbient": "Fill light",
+    "themeHemiSky": "Sky light",
+    "themeHemiGround": "Ground light",
     "themeSun": "Sun",
     "themeAccent": "Accent",
     "packs": {

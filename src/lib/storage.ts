@@ -8,6 +8,7 @@ import type {
   LanguageCode,
   MapId,
 } from "@/lib/types";
+import { isLanguageCode } from "@/i18n/languages";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId } from "@/lib/maps/schema";
 import { isBuiltinMapId } from "@/lib/maps/runtime";
@@ -197,7 +198,7 @@ export function loadPersisted(): AppPersisted {
     const customMaps = sanitizeCustomMaps(parsed.customMaps);
     return {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
-      language: parsed.language === "tr" || parsed.language === "en" ? parsed.language : "en",
+      language: isLanguageCode(parsed.language) ? parsed.language : "en",
       models: Array.isArray(parsed.models) ? parsed.models : [],
       agents: sanitizeAgents(parsed.agents),
       customMaps,

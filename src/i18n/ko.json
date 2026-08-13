@@ -1,0 +1,415 @@
+{
+  "app": {
+    "title": "Agent Arena",
+    "tagline": "내 컴퓨터에서 쓰는 멀티 에이전트 공간"
+  },
+  "nameGate": {
+    "badge": "환영합니다",
+    "heading": "어떻게 불러드릴까요?",
+    "blurb": "에이전트가 이 이름으로 당신을 부릅니다. 나중에 설정에서 바꿀 수 있습니다.",
+    "placeholder": "이름",
+    "appearance": "낮 또는 밤",
+    "continue": "아레나 입장"
+  },
+  "hud": {
+    "agents": "에이전트",
+    "models": "모델",
+    "map": "맵",
+    "settings": "설정",
+    "hello": "안녕하세요, {{name}}",
+    "editMap": "맵 편집",
+    "day": "낮",
+    "night": "밤",
+    "switchToDay": "낮으로 전환",
+    "switchToNight": "밤으로 전환"
+  },
+  "agentList": {
+    "title": "에이전트",
+    "empty": "아직 에이전트가 없습니다. 에이전트에서 추가하세요.",
+    "talk": "대화",
+    "edit": "에이전트 편집"
+  },
+  "mapList": {
+    "title": "맵",
+    "empty": "아직 맵이 없습니다. 맵 설정에서 추가하세요.",
+    "builtin": "기본",
+    "custom": "사용자",
+    "edit": "맵 편집"
+  },
+  "chat": {
+    "placeholder": "{{name}}에게 묻기…",
+    "send": "보내기",
+    "empty": "인사하고 대화를 시작하세요.",
+    "noModel": "이 에이전트에는 아직 AI 모델이 없습니다.",
+    "thinking": "생각 중…",
+    "close": "닫기",
+    "resize": "채팅 패널 크기 조절",
+    "error": "문제가 발생했습니다",
+    "arena": {
+      "placeholder": "한마디 하거나… @에이전트",
+      "send": "말하기",
+      "history": "채팅 기록",
+      "closeHistory": "기록 닫기",
+      "empty": "아직 아레나 채팅이 없습니다. @에이전트이름 안녕 을 보내 보세요",
+      "noMatch": "일치하는 에이전트 없음: {{names}}",
+      "noAgents": "모델이 있는 에이전트가 아직 없습니다."
+    }
+  },
+  "settings": {
+    "title": "설정",
+    "close": "닫기",
+    "back": "뒤로",
+    "save": "저장",
+    "cancel": "취소",
+    "add": "추가",
+    "edit": "편집",
+    "delete": "삭제",
+    "saved": "저장됨",
+    "tabs": {
+      "general": "일반",
+      "models": "AI 모델",
+      "agents": "에이전트",
+      "map": "맵",
+      "graphics": "그래픽"
+    },
+    "general": {
+      "displayName": "표시 이름",
+      "language": "언어",
+      "languageHint": "인터페이스 언어입니다. 에이전트는 당신이 쓰는 언어로 답합니다.",
+      "clearChats": "채팅 기록",
+      "clearChatsHint": "개인 채팅과 공유 아레나 채팅은 이 브라우저에 저장됩니다. 여기서 언제든 지울 수 있습니다.",
+      "clearChatsAction": "채팅 기록 지우기",
+      "clearChatsConfirmTitle": "채팅 기록을 지울까요?",
+      "clearChatsConfirmBody": "이 브라우저의 모든 에이전트 개인 채팅과 공유 아레나 채팅이 영구 삭제됩니다.",
+      "clearChatsConfirm": "지우기",
+      "clearChatsDone": "채팅 기록을 지웠습니다"
+    },
+    "models": {
+      "title": "AI 모델",
+      "hint": "OpenAI, Gemini, Claude, Ollama 또는 호환 API를 추가하세요.",
+      "empty": "아직 모델이 없습니다.",
+      "name": "표시 이름",
+      "provider": "제공자",
+      "baseUrl": "서버 주소",
+      "apiKey": "API 키",
+      "modelId": "모델",
+      "searchModels": "모델 검색…",
+      "fetchModels": "모델 불러오기",
+      "fetching": "불러오는 중…",
+      "test": "연결 테스트",
+      "testing": "테스트 중…",
+      "extraHeaders": "추가 헤더",
+      "extraHeadersHint": "제공자가 추가 헤더를 요청할 때만 넣으세요(예: Organization). 아니면 비워 두세요.",
+      "addHeader": "헤더 추가",
+      "headerKey": "헤더",
+      "headerValue": "값",
+      "providers": {
+        "openai": "OpenAI 호환 클라우드 API",
+        "gemini": "Google Gemini API",
+        "claude": "Anthropic Claude API",
+        "ollama": "로컬 Ollama 서버",
+        "custom": "사용자 API"
+      },
+      "providerNames": {
+        "openai": "OpenAI",
+        "gemini": "Gemini",
+        "claude": "Claude",
+        "ollama": "Ollama",
+        "custom": "사용자"
+      },
+      "addLlm": "모델 추가",
+      "addLlmHint": "같은 {{provider}} 계정({{host}}). 다른 모델을 골라도 키는 그대로입니다."
+    },
+    "agents": {
+      "title": "에이전트",
+      "hint": "각 에이전트에는 AI 모델, 외형, 직접 바꿀 수 있는 역할이 있습니다.",
+      "empty": "아직 에이전트가 없습니다.",
+      "displayName": "표시 이름",
+      "model": "AI 모델",
+      "poly": "역할",
+      "character": "외형",
+      "systemPrompt": "에이전트 지시",
+      "thinking": "생각 모드",
+      "thinkingHint": "지원하면 모델이 답하기 전에 생각합니다. 더 느리지만 보통 더 낫습니다.",
+      "thinkingOn": "생각 켜짐",
+      "chattiness": "수다",
+      "chattinessHint": "말풍선으로 혼잣말하는 빈도. 0 = 안 함, 100 ≈ 분당 두 번.",
+      "skills": "스킬",
+      "skillsHint": "이 에이전트가 항상 따르는 고정 지시 — 코딩 스타일, 문서, 도구 등.",
+      "skillsEmpty": "아직 스킬이 없습니다.",
+      "skillsEmptyHint": "시작 템플릿을 고르거나 직접 쓰세요. 답할 때마다 따릅니다.",
+      "addSkill": "스킬 추가",
+      "skillName": "스킬 이름",
+      "skillNamePlaceholder": "예: 코딩 스타일",
+      "skillBody": "지시",
+      "skillContent": "이 스킬이 적용될 때 에이전트가 항상 해야 할 일은?",
+      "skillCount_one": "스킬 {{count}}개",
+      "skillCount_other": "스킬 {{count}}개",
+      "skillTemplates": {
+        "coding": {
+          "name": "코딩 스타일",
+          "content": "다음 규칙을 따르세요:\n- 분명한 이름과 작은 함수를 우선하세요\n- 기존 코드 스타일에 맞추세요\n- 트레이드오프는 짧게 말하세요"
+        },
+        "docs": {
+          "name": "문서",
+          "content": "문서나 주석을 쓸 때:\n- 무엇을 했는지뿐 아니라 이유도 설명하세요\n- 예제는 복사해 쓸 수 있게 하세요\n- 가정과 예외 상황을 표시하세요"
+        },
+        "tools": {
+          "name": "도구",
+          "content": "쓸 수 있는 도구와 방법:\n- 되는 가장 단순한 도구를 고르세요\n- 무엇을 썼고 왜인지 말하세요\n- 도구가 없으면 결과를 지어내지 말고 없다고 하세요"
+        }
+      },
+      "color": "강조색",
+      "bio": "짧은 소개",
+      "bioHint": "다른 에이전트가 누구인지 알아보는 데 씁니다. 짧고 뚜렷하게.",
+      "bioPlaceholder": "예: 이론보다 구체적인 단계를 선호하는 실무형 엔지니어.",
+      "enabled": "맵에서 활성",
+      "inactive": "비활성",
+      "needModel": "먼저 AI 모델을 추가하세요.",
+      "rebuildNote": "에이전트는 현재 맵에 나타납니다. 맵 자체는 그대로입니다.",
+      "customRole": "사용자 역할",
+      "customRoleHint": "역할을 고르면 표시 이름이 채워집니다. 사용자를 고르면 직접 입력합니다."
+    },
+    "map": {
+      "title": "맵",
+      "hint": "맵을 고르거나 편집기에서 바닥과 물체를 바꾸세요. 에이전트를 추가해도 맵은 커지지 않습니다.",
+      "comingSoon": "곧 제공",
+      "active": "활성 맵",
+      "edit": "편집",
+      "new": "새 맵",
+      "duplicate": "복제",
+      "import": "JSON 가져오기",
+      "custom": "사용자",
+      "export": "JSON 내보내기",
+      "exported": "맵을 내보냈습니다",
+      "mapsTitle": "맵",
+      "presetApplied": "{{name}}을(를) 추가했습니다",
+      "presets": {
+        "starter_camp": {
+          "name": "시작 캠프",
+          "description": "자연 캠프의 복사본"
+        },
+        "space_outpost": {
+          "name": "우주 전초",
+          "description": "우주 전초의 복사본"
+        },
+        "office_lounge": {
+          "name": "사무실 라운지",
+          "description": "사무실의 복사본"
+        },
+        "blank_concrete": {
+          "name": "콘크리트 바닥",
+          "description": "꾸밀 수 있는 깨끗한 콘크리트 바닥"
+        }
+      }
+    },
+    "graphics": {
+      "title": "그래픽",
+      "hint": "기기에 맞게 성능을 조절하세요. 설정은 이 브라우저에 저장됩니다.",
+      "castShadows": "동적 그림자",
+      "shadowQuality": "그림자 품질",
+      "contactShadows": "부드러운 바닥 그림자",
+      "lampLights": "램프 조명",
+      "roomLights": "실내 조명",
+      "antialias": "가장자리 부드럽게",
+      "maxDpr": "화면 선명도",
+      "reset": "기본값으로",
+      "low": "낮음",
+      "medium": "중간",
+      "high": "높음"
+    }
+  },
+  "poly": {
+    "explorer": {
+      "name": "탐험가",
+      "blurb": "발견을 좋아하는 호기심 많은 안내자"
+    },
+    "engineer": {
+      "name": "엔지니어",
+      "blurb": "실용적이고 체계적인 문제 해결사"
+    },
+    "botanist": {
+      "name": "식물학자",
+      "blurb": "차분하고 부드러운 말투의 도우미"
+    },
+    "scholar": {
+      "name": "학자",
+      "blurb": "신중하고 정확한 설명가"
+    },
+    "artisan": {
+      "name": "장인",
+      "blurb": "솜씨에 집중하는 만드는 사람"
+    },
+    "guardian": {
+      "name": "수호자",
+      "blurb": "든든하고 보호하는 조언자"
+    },
+    "scout": {
+      "name": "정찰",
+      "blurb": "빠른 요약과 분명한 다음 단계"
+    },
+    "muse": {
+      "name": "뮤즈",
+      "blurb": "상상력 있는 아이디어 파트너"
+    },
+    "custom": {
+      "name": "사용자",
+      "blurb": "직접 정한 역할 이름과 지시"
+    }
+  },
+  "characters": {
+    "generic-male": "Alex",
+    "generic-female": "Maya",
+    "citizen-1": "Sam",
+    "citizen-2": "Leo",
+    "citizen-3": "Nora",
+    "retail-worker": "Nina",
+    "food-worker": "Marco",
+    "male-officer": "Cole",
+    "female-officer": "Ada",
+    "crypto-bro": "Dex",
+    "prisoner": "Vince",
+    "chicken-guy": "Pip",
+    "rubber-duck": "Goldie"
+  },
+  "maps": {
+    "office": {
+      "name": "사무실",
+      "description": "따뜻한 오크 타일 위 개방형 사무실, 부드러운 실내 햇빛. 모니터와 화분이 있는 책상 열이 빨간 의자와 책장이 있는 긴 회의 테이블을 향합니다. 주방 구석에는 냉장고, 레인지, 싱크, 식탁. 파란 소파와 빨간 라운지가 탁구대 옆. 플로어 램프가 따뜻한 빛 웅덩이를 만들고 작은 검은 고양이가 돌아다닙니다."
+    },
+    "nature": {
+      "name": "자연",
+      "description": "안개 낀 청록 하늘 아래 풀밭 숲 공터. 뒤쪽은 키 큰 소나무, 옆에는 초록·빨강·주황 수관의 양식화된 나무와 회색 바위, 풀 더미. 주황 텐트 두 동이 타오르는 모닥불을 보고, 피크닉 테이블과 의자, 공터 가장자리에 은색 SUV가 주차되어 있습니다."
+    },
+    "space": {
+      "name": "우주",
+      "description": "복숭아빛 아지랑이 아래 먼지 낀 적갈색 행성 전초. 회색 서식 돔과 작은 포드가 보급 상자, 접시 안테나, 파란 봉화등 사이에 있습니다. 외계 식물과 뒤틀린 어두운 나무가 바위 능선 사이에 자라고, 여섯 바퀴 로버와 큰 원형 기지 고리가 마당을 표시합니다."
+    },
+    "empty": {
+      "name": "빈 맵",
+      "description": "소품 없는 콘크리트 바닥. 맵 편집기에서 꾸미세요."
+    }
+  },
+  "mapEditor": {
+    "title": "맵 편집기",
+    "builtinHint": "기본 — 저장하면 내 복사본이 만들어집니다",
+    "toolSelect": "선택",
+    "toolSpawn": "시작점",
+    "export": "JSON 내보내기",
+    "import": "가져오기",
+    "save": "맵 저장",
+    "close": "닫기",
+    "closeUnsavedTitle": "저장하지 않은 변경",
+    "closeUnsavedBody": "저장하지 않은 편집이 있습니다. 저장하지 않고 닫을까요?",
+    "closeDiscard": "저장하지 않고 닫기",
+    "library": "오브젝트 라이브러리",
+    "searchAssets": "오브젝트 검색…",
+    "searchEmpty": "검색과 맞는 오브젝트가 없습니다.",
+    "catAll": "전체",
+    "cat": {
+      "furniture": "가구",
+      "nature": "자연",
+      "space": "우주",
+      "camping": "캠핑",
+      "decor": "장식",
+      "ground": "바닥",
+      "vehicles": "탈것",
+      "animals": "동물",
+      "food": "음식",
+      "cosmetics": "화장품"
+    },
+    "libraryHint": "분류를 고르고 오브젝트를 클릭한 뒤 바닥을 클릭해 놓습니다. 놓은 오브젝트를 클릭해 선택 — 속성에서 회전, 크기, 삭제.",
+    "inspector": "속성",
+    "mapName": "맵 이름",
+    "untitled": "제목 없는 맵",
+    "description": "설명",
+    "floorSize": "바닥 크기",
+    "floorSurface": "바닥 종류",
+    "floorStyle": "패턴",
+    "styleChecker": "체크",
+    "stylePattern": "표면",
+    "styleSolid": "단색",
+    "styles": {
+      "surface": "표면",
+      "solid": "단색",
+      "checker": "체크",
+      "patches": "얼룩",
+      "slabs": "슬래브"
+    },
+    "floorColor": "바닥 색",
+    "surfaces": {
+      "office": "나무 / 사무실",
+      "grass": "잔디",
+      "dirt": "흙",
+      "concrete": "콘크리트",
+      "factory": "어두운 공장"
+    },
+    "bgColor": "하늘 / 안개",
+    "rotation": "회전",
+    "scale": "크기",
+    "behavior": "움직임",
+    "behaviorStatic": "고정",
+    "behaviorWander": "배회 (무작위)",
+    "behaviorAnimated": "애니메이션",
+    "axisUp": "위",
+    "deleteObject": "오브젝트 삭제",
+    "deleteSpawn": "시작점 삭제",
+    "spawnPoint": "시작점",
+    "selectHint": "바닥의 오브젝트를 골라 편집하세요. Shift+클릭으로 여러 개 선택. 겹쳐 있으면 다시 클릭해 뒤쪽을 고릅니다.",
+    "hotkeys": "단축키: Shift+클릭 다중 선택, Ctrl/⌘Z 실행 취소, Ctrl/⌘⇧Z 다시 실행, R 회전, Delete 삭제, Ctrl/⌘D 복제, Esc 해제. 오브젝트 오른쪽 클릭으로 더 보기.",
+    "undo": "실행 취소",
+    "redo": "다시 실행",
+    "ctx": {
+      "rotateLeft": "왼쪽으로 90° 회전",
+      "rotateRight": "오른쪽으로 90° 회전",
+      "scaleUp": "키우기",
+      "scaleDown": "줄이기",
+      "duplicate": "복제"
+    },
+    "spawnMode": "바닥을 클릭해 시작점을 추가",
+    "paintMode": "바닥을 클릭해 {{name}} 놓기",
+    "selectedBanner": "선택: {{name}} — 드래그로 이동, R로 회전",
+    "multiSelectedBanner": "{{count}}개 선택 — 함께 드래그, R 회전, Delete 삭제",
+    "multiSelected": "오브젝트 {{count}}개 선택됨",
+    "multiHint": "이동, 회전, 크기, 복제, 삭제는 선택 전체에 적용됩니다.",
+    "deleteSelected": "오브젝트 {{count}}개 삭제",
+    "saved": "맵을 저장했습니다",
+    "imported": "맵을 가져왔습니다",
+    "importError": "그 맵 파일을 가져올 수 없습니다",
+    "loadError": "그 맵을 불러올 수 없습니다(삭제되었을 수 있음)",
+    "placed": "오브젝트를 놓았습니다",
+    "placedCenter": "가운데에 놓았습니다 — 드래그해서 위치를 잡으세요",
+    "snapOff": "스냅 끄기",
+    "snap05": "스냅 0.5m",
+    "snap1": "스냅 1m",
+    "packAll": "모든 팩",
+    "scopeAll": "전체",
+    "scopeFavorites": "즐겨찾기",
+    "scopeUsed": "맵에 있음",
+    "favorite": "즐겨찾기",
+    "alignX": "X 정렬",
+    "alignZ": "Z 정렬",
+    "distributeX": "X 분배",
+    "distributeZ": "Z 분배",
+    "wanderRadius": "배회 반경",
+    "moveSpeed": "이동 속도",
+    "themeFog": "안개",
+    "themeAmbient": "보조광",
+    "themeHemiSky": "하늘 빛",
+    "themeHemiGround": "바닥 빛",
+    "themeSun": "태양",
+    "themeAccent": "강조",
+    "packs": {
+      "furniture": "가구",
+      "trees": "나무",
+      "nature": "자연",
+      "camping": "캠핑",
+      "cars": "자동차",
+      "animals": "동물",
+      "farm-animals": "농장 동물",
+      "food": "음식",
+      "cosmetics": "화장품",
+      "space": "우주"
+    }
+  }
+}

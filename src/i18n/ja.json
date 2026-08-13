@@ -1,0 +1,415 @@
+{
+  "app": {
+    "title": "Agent Arena",
+    "tagline": "自分のパソコンで動くマルチエージェント空間"
+  },
+  "nameGate": {
+    "badge": "ようこそ",
+    "heading": "なんて呼べばいい？",
+    "blurb": "エージェントはこの名前であなたを呼びます。あとから設定で変えられます。",
+    "placeholder": "あなたの名前",
+    "appearance": "昼または夜",
+    "continue": "アリーナに入る"
+  },
+  "hud": {
+    "agents": "エージェント",
+    "models": "モデル",
+    "map": "マップ",
+    "settings": "設定",
+    "hello": "こんにちは、{{name}}",
+    "editMap": "マップを編集",
+    "day": "昼",
+    "night": "夜",
+    "switchToDay": "昼にする",
+    "switchToNight": "夜にする"
+  },
+  "agentList": {
+    "title": "エージェント",
+    "empty": "まだエージェントがいません。エージェントから追加してください。",
+    "talk": "話す",
+    "edit": "エージェントを編集"
+  },
+  "mapList": {
+    "title": "マップ",
+    "empty": "まだマップがありません。マップ設定から追加してください。",
+    "builtin": "内蔵",
+    "custom": "カスタム",
+    "edit": "マップを編集"
+  },
+  "chat": {
+    "placeholder": "{{name}} に聞く…",
+    "send": "送信",
+    "empty": "こんにちは、と送ってチャットを始めましょう。",
+    "noModel": "このエージェントにはまだ AI モデルがありません。",
+    "thinking": "考え中…",
+    "close": "閉じる",
+    "resize": "チャットパネルのサイズを変更",
+    "error": "問題が発生しました",
+    "arena": {
+      "placeholder": "何か言う… または @エージェント",
+      "send": "話す",
+      "history": "チャット履歴",
+      "closeHistory": "履歴を閉じる",
+      "empty": "まだアリーナチャットがありません。@エージェント名 こんにちは と送ってみて",
+      "noMatch": "一致するエージェントがありません：{{names}}",
+      "noAgents": "モデルのあるエージェントがまだいません。"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "close": "閉じる",
+    "back": "戻る",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "add": "追加",
+    "edit": "編集",
+    "delete": "削除",
+    "saved": "保存しました",
+    "tabs": {
+      "general": "一般",
+      "models": "AI モデル",
+      "agents": "エージェント",
+      "map": "マップ",
+      "graphics": "グラフィック"
+    },
+    "general": {
+      "displayName": "表示名",
+      "language": "言語",
+      "languageHint": "画面の言語です。エージェントはあなたが使う言語で返事します。",
+      "clearChats": "チャット履歴",
+      "clearChatsHint": "個別チャットと共有のアリーナチャットはこのブラウザに保存されます。いつでもここから消せます。",
+      "clearChatsAction": "履歴を消去",
+      "clearChatsConfirmTitle": "チャット履歴を消去しますか？",
+      "clearChatsConfirmBody": "このブラウザ内のすべての個別チャットと共有アリーナチャットが完全に削除されます。",
+      "clearChatsConfirm": "消去",
+      "clearChatsDone": "履歴を消去しました"
+    },
+    "models": {
+      "title": "AI モデル",
+      "hint": "OpenAI、Gemini、Claude、Ollama、または互換 API を追加します。",
+      "empty": "まだモデルがありません。",
+      "name": "表示名",
+      "provider": "プロバイダー",
+      "baseUrl": "サーバーアドレス",
+      "apiKey": "API キー",
+      "modelId": "モデル",
+      "searchModels": "モデルを検索…",
+      "fetchModels": "モデルを読み込む",
+      "fetching": "読み込み中…",
+      "test": "接続をテスト",
+      "testing": "テスト中…",
+      "extraHeaders": "追加ヘッダー",
+      "extraHeadersHint": "プロバイダーが追加ヘッダーを求めるときだけ（例：Organization）。不要なら空のまま。",
+      "addHeader": "ヘッダーを追加",
+      "headerKey": "ヘッダー",
+      "headerValue": "値",
+      "providers": {
+        "openai": "OpenAI 互換のクラウド API",
+        "gemini": "Google Gemini API",
+        "claude": "Anthropic Claude API",
+        "ollama": "ローカル Ollama サーバー",
+        "custom": "カスタム API"
+      },
+      "providerNames": {
+        "openai": "OpenAI",
+        "gemini": "Gemini",
+        "claude": "Claude",
+        "ollama": "Ollama",
+        "custom": "カスタム"
+      },
+      "addLlm": "モデルを追加",
+      "addLlmHint": "同じ {{provider}} アカウント（{{host}}）。別のモデルを選んでもキーはそのままです。"
+    },
+    "agents": {
+      "title": "エージェント",
+      "hint": "各エージェントには AI モデル、見た目、カスタムできる役割があります。",
+      "empty": "まだエージェントがいません。",
+      "displayName": "表示名",
+      "model": "AI モデル",
+      "poly": "役割",
+      "character": "見た目",
+      "systemPrompt": "エージェントへの指示",
+      "thinking": "思考モード",
+      "thinkingHint": "対応していれば、モデルは答える前に考えます。遅くなりますが、多くの場合より良くなります。",
+      "thinkingOn": "思考オン",
+      "chattiness": "おしゃべり度",
+      "chattinessHint": "吹き出しでひとりごとを言う頻度。0 = なし、100 ≈ 1分に2回。",
+      "skills": "スキル",
+      "skillsHint": "このエージェントがいつも守る指示 — コードの書き方、ドキュメント、ツールなど。",
+      "skillsEmpty": "まだスキルがありません。",
+      "skillsEmptyHint": "ひな形を選ぶか、自分で書いてください。返信のたびに従います。",
+      "addSkill": "スキルを追加",
+      "skillName": "スキル名",
+      "skillNamePlaceholder": "例：コードの書き方",
+      "skillBody": "指示",
+      "skillContent": "このスキルが当てはまるとき、エージェントはいつも何をすべき？",
+      "skillCount_one": "{{count}} 件のスキル",
+      "skillCount_other": "{{count}} 件のスキル",
+      "skillTemplates": {
+        "coding": {
+          "name": "コードの書き方",
+          "content": "次の約束に従ってください：\n- わかりやすい名前と小さな関数を優先する\n- 既存のコードのスタイルに合わせる\n- トレードオフは短く伝える"
+        },
+        "docs": {
+          "name": "ドキュメント",
+          "content": "ドキュメントやコメントを書くとき：\n- 何をしたかだけでなく、なぜかを説明する\n- 例はコピーして使える形にする\n- 前提と端のケースを示す"
+        },
+        "tools": {
+          "name": "ツール",
+          "content": "使えるツールとその使い方：\n- うまくいく一番簡単なツールを選ぶ\n- 何を使ったか、なぜかを言う\n- ツールがなければ結果を作らず、足りないと言う"
+        }
+      },
+      "color": "アクセントカラー",
+      "bio": "短い紹介",
+      "bioHint": "他のエージェントが誰かを見分けるための一文です。短く、特徴がわかるように。",
+      "bioPlaceholder": "例：理論より具体的な手順を好む実務的なエンジニア。",
+      "enabled": "マップで有効",
+      "inactive": "無効",
+      "needModel": "先に AI モデルを追加してください。",
+      "rebuildNote": "エージェントは今のマップに現れます。マップ自体は変わりません。",
+      "customRole": "カスタム役割",
+      "customRoleHint": "役割を選ぶと表示名が入ります。カスタムなら自分で入力できます。"
+    },
+    "map": {
+      "title": "マップ",
+      "hint": "マップを選ぶか、エディタで床とオブジェクトを変えてください。エージェントを足してもマップは広がりません。",
+      "comingSoon": "近日公開",
+      "active": "使用中のマップ",
+      "edit": "編集",
+      "new": "新しいマップ",
+      "duplicate": "複製",
+      "import": "JSON を読み込む",
+      "custom": "カスタム",
+      "export": "JSON を書き出す",
+      "exported": "マップを書き出しました",
+      "mapsTitle": "マップ",
+      "presetApplied": "{{name}} を追加しました",
+      "presets": {
+        "starter_camp": {
+          "name": "スターターキャンプ",
+          "description": "自然キャンプのコピー"
+        },
+        "space_outpost": {
+          "name": "宇宙前哨",
+          "description": "宇宙前哨のコピー"
+        },
+        "office_lounge": {
+          "name": "オフィラウンジ",
+          "description": "オフィスのコピー"
+        },
+        "blank_concrete": {
+          "name": "コンクリート床",
+          "description": "好きに飾れるきれいなコンクリート床"
+        }
+      }
+    },
+    "graphics": {
+      "title": "グラフィック",
+      "hint": "端末に合わせて性能を調整します。設定はこのブラウザに保存されます。",
+      "castShadows": "動く影",
+      "shadowQuality": "影の品質",
+      "contactShadows": "やわらかい地面の影",
+      "lampLights": "ランプの光",
+      "roomLights": "室内の光",
+      "antialias": "輪郭をなめらかに",
+      "maxDpr": "画面のシャープさ",
+      "reset": "初期値に戻す",
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    }
+  },
+  "poly": {
+    "explorer": {
+      "name": "探検家",
+      "blurb": "発見が好きな好奇心旺盛な案内役"
+    },
+    "engineer": {
+      "name": "エンジニア",
+      "blurb": "実務的で筋の通った問題解決者"
+    },
+    "botanist": {
+      "name": "植物学者",
+      "blurb": "落ち着いた、やさしい口調の助け役"
+    },
+    "scholar": {
+      "name": "学者",
+      "blurb": "丁寧で正確に説明する人"
+    },
+    "artisan": {
+      "name": "職人",
+      "blurb": "手仕事に向き合う作り手"
+    },
+    "guardian": {
+      "name": "守護者",
+      "blurb": "落ち着いた、守る側の助言者"
+    },
+    "scout": {
+      "name": "斥候",
+      "blurb": "速い要約と次の一歩"
+    },
+    "muse": {
+      "name": "ミューズ",
+      "blurb": "発想を広げるブレインストームの相棒"
+    },
+    "custom": {
+      "name": "カスタム",
+      "blurb": "自分で決める役割名と指示"
+    }
+  },
+  "characters": {
+    "generic-male": "Alex",
+    "generic-female": "Maya",
+    "citizen-1": "Sam",
+    "citizen-2": "Leo",
+    "citizen-3": "Nora",
+    "retail-worker": "Nina",
+    "food-worker": "Marco",
+    "male-officer": "Cole",
+    "female-officer": "Ada",
+    "crypto-bro": "Dex",
+    "prisoner": "Vince",
+    "chicken-guy": "Pip",
+    "rubber-duck": "Goldie"
+  },
+  "maps": {
+    "office": {
+      "name": "オフィス",
+      "description": "暖かいオークの床に、やわらかい室内の昼光。モニター付きの机と観葉植物が、赤い椅子と本棚のある長い会議テーブルに向かっています。キッチンには冷蔵庫、コンロ、シンク、食卓。青いソファと赤いラウンジが卓球台のそばに。フロアランプが暖かい光の輪を落とし、小さな黒猫が歩いています。"
+    },
+    "nature": {
+      "name": "自然",
+      "description": "霧がかった青緑の空の下の芝生の林間。奥に高い松、脇には緑・赤・オレンジの樹冠の木、灰色の岩と草むら。オレンジのテント2張りが焚き火に向き、ピクニックテーブルと椅子、空き地の端に銀色の SUV。"
+    },
+    "space": {
+      "name": "宇宙",
+      "description": "桃の霞の下、赤みがかったオレンジの惑星前哨。灰色の居住ドームと小さなポッドが、補給箱、皿アンテナ、青いビーコン灯のあいだに。エイリアン植物とねじれた暗い木が岩の尾根のあいだに生え、六輪のローバーと大きな円環が庭を示します。"
+    },
+    "empty": {
+      "name": "空",
+      "description": "物のないコンクリート床。マップエディタで飾りましょう。"
+    }
+  },
+  "mapEditor": {
+    "title": "マップエディタ",
+    "builtinHint": "内蔵 — 保存すると自分のコピーができます",
+    "toolSelect": "選択",
+    "toolSpawn": "開始地点",
+    "export": "JSON を書き出す",
+    "import": "読み込む",
+    "save": "マップを保存",
+    "close": "閉じる",
+    "closeUnsavedTitle": "保存していない変更",
+    "closeUnsavedBody": "保存していない編集があります。保存せずに閉じますか？",
+    "closeDiscard": "保存せずに閉じる",
+    "library": "オブジェクトライブラリ",
+    "searchAssets": "オブジェクトを検索…",
+    "searchEmpty": "検索に合うオブジェクトがありません。",
+    "catAll": "すべて",
+    "cat": {
+      "furniture": "家具",
+      "nature": "自然",
+      "space": "宇宙",
+      "camping": "キャンプ",
+      "decor": "装飾",
+      "ground": "地面",
+      "vehicles": "乗り物",
+      "animals": "動物",
+      "food": "食べ物",
+      "cosmetics": "化粧品"
+    },
+    "libraryHint": "分類を選び、オブジェクトをクリックしてから床をクリックして置きます。置いたオブジェクトをクリックして選択 — プロパティで回転、拡大縮小、削除。",
+    "inspector": "プロパティ",
+    "mapName": "マップ名",
+    "untitled": "無題のマップ",
+    "description": "説明",
+    "floorSize": "床の大きさ",
+    "floorSurface": "地面の種類",
+    "floorStyle": "模様",
+    "styleChecker": "市松",
+    "stylePattern": "表面",
+    "styleSolid": "単色",
+    "styles": {
+      "surface": "表面",
+      "solid": "単色",
+      "checker": "市松",
+      "patches": "まだら",
+      "slabs": "板"
+    },
+    "floorColor": "床の色",
+    "surfaces": {
+      "office": "木 / オフィス",
+      "grass": "芝",
+      "dirt": "土",
+      "concrete": "コンクリート",
+      "factory": "暗い工場"
+    },
+    "bgColor": "空 / 霧",
+    "rotation": "回転",
+    "scale": "拡大縮小",
+    "behavior": "動き",
+    "behaviorStatic": "固定",
+    "behaviorWander": "歩き回る（ランダム）",
+    "behaviorAnimated": "アニメーション",
+    "axisUp": "上",
+    "deleteObject": "オブジェクトを削除",
+    "deleteSpawn": "開始地点を削除",
+    "spawnPoint": "開始地点",
+    "selectHint": "床のオブジェクトを選んで編集。Shift+クリックで複数選択。重なっているときはもう一度クリックで奥を選べます。",
+    "hotkeys": "ショートカット：Shift+クリックで複数選択、Ctrl/⌘Z 元に戻す、Ctrl/⌘⇧Z やり直す、R 回転、Delete 削除、Ctrl/⌘D 複製、Esc 解除。オブジェクトを右クリックでほかの操作。",
+    "undo": "元に戻す",
+    "redo": "やり直す",
+    "ctx": {
+      "rotateLeft": "左に 90° 回転",
+      "rotateRight": "右に 90° 回転",
+      "scaleUp": "大きく",
+      "scaleDown": "小さく",
+      "duplicate": "複製"
+    },
+    "spawnMode": "床をクリックして開始地点を追加",
+    "paintMode": "床をクリックして {{name}} を置く",
+    "selectedBanner": "選択中：{{name}} — ドラッグで移動、R で回転",
+    "multiSelectedBanner": "{{count}} 件選択 — まとめてドラッグ、R 回転、Delete 削除",
+    "multiSelected": "{{count}} 個のオブジェクトを選択中",
+    "multiHint": "移動、回転、拡大縮小、複製、削除は選択全体に適用されます。",
+    "deleteSelected": "{{count}} 個を削除",
+    "saved": "マップを保存しました",
+    "imported": "マップを読み込みました",
+    "importError": "そのマップファイルを読み込めませんでした",
+    "loadError": "そのマップを読み込めませんでした（削除された可能性があります）",
+    "placed": "オブジェクトを置きました",
+    "placedCenter": "中央に置きました — ドラッグして位置を決めてください",
+    "snapOff": "スナップなし",
+    "snap05": "スナップ 0.5m",
+    "snap1": "スナップ 1m",
+    "packAll": "すべてのパック",
+    "scopeAll": "すべて",
+    "scopeFavorites": "お気に入り",
+    "scopeUsed": "マップ上",
+    "favorite": "お気に入り",
+    "alignX": "X 揃え",
+    "alignZ": "Z 揃え",
+    "distributeX": "X 均等",
+    "distributeZ": "Z 均等",
+    "wanderRadius": "徘徊半径",
+    "moveSpeed": "移動速度",
+    "themeFog": "霧",
+    "themeAmbient": "補助光",
+    "themeHemiSky": "空の光",
+    "themeHemiGround": "地面の光",
+    "themeSun": "太陽",
+    "themeAccent": "アクセント",
+    "packs": {
+      "furniture": "家具",
+      "trees": "木",
+      "nature": "自然",
+      "camping": "キャンプ",
+      "cars": "車",
+      "animals": "動物",
+      "farm-animals": "家畜",
+      "food": "食べ物",
+      "cosmetics": "化粧品",
+      "space": "宇宙"
+    }
+  }
+}
