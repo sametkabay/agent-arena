@@ -1,0 +1,93 @@
+# Agent Arena
+
+> Agent Arena is an open-source, browser-native multi-agent playground. You place LLM-powered characters on a 3D map (office, forest, or space), watch them idle-talk, and chat with them privately or in a shared arena. It runs entirely in the browser with OpenAI, Gemini, Claude, or Ollama — no Agent Arena backend.
+
+Live demo: https://sametkabay.github.io/agent-arena/
+Source: https://github.com/sametkabay/agent-arena
+Version: 0.1.0-preview (early preview — map format and UI may still change)
+
+## What it is
+
+Most multi-agent demos are terminals, dashboards, or chat bots. Agent Arena treats agents as characters in a place: they stand on a map, walk to targets, idle-mutter into speech bubbles, and answer when you click them. Session context (your name, UI language, map, zones, day/night, other people) is available to the model. Prompts tell agents not to volunteer a scenery tour unless you steer there.
+
+Use it to prototype agent personas, stage small multi-agent scenes, compare LLM providers side by side, or explore a tactile sandbox for agent UX.
+
+## What it is not
+
+Not a hosted multi-agent orchestration framework, not a Discord bot, and not a server-side agent runtime. It is a visual playground you run or host statically yourself.
+
+## Try it
+
+1. Open https://sametkabay.github.io/agent-arena/
+2. Pick a display name, UI language, and day/night
+3. Settings → AI Models → add a provider + API key
+4. Settings → Agents → bind that model to a character
+5. Click an agent to chat, or right-click the floor to walk them somewhere
+
+Local run (required for Ollama / localhost gateways):
+
+```
+git clone https://github.com/sametkabay/agent-arena.git
+cd agent-arena
+npm install
+npm run dev
+```
+
+Dev server: http://localhost:5174/ (port from agent-arena.yaml → dev.port). Node.js 20+, WebGL2, desktop-first (mouse + right-click).
+
+Your keys stay in the browser. There is no Agent Arena backend.
+
+## Conversation
+
+- Private chat: resizable, draggable panel; replies stream into the panel and a speech bubble
+- Arena chat: fading live feed + history; broadcast or @mention (autocomplete)
+- Idle mutter: short asides on a chattiness slider (pauses when the tab is hidden or Settings / Map Editor is open)
+- Prompt channels in prompts.yaml: private_chat, arena_broadcast, arena_mention, idle_mutter
+
+## Worlds
+
+Builtin aamf v1 maps in data/maps/:
+
+- Office — indoor lounge, kitchen, desks, wandering cat
+- Nature — forest camp, tents, campfire
+- Space — planetary outpost, habitat dome, beacons, rover (shines at night)
+
+Day/night is a global lighting mode, not a separate map. Full-screen map editor: place/move/rotate/scale assets, snap grid, spawn tool, floor surface, theme colors, undo/redo, import/export .aamf.json. Saving a builtin creates a custom copy in localStorage.
+
+## AI providers
+
+| Provider | Default model | Notes |
+|----------|---------------|--------|
+| OpenAI | gpt-4o-mini | Chat Completions–compatible API |
+| Gemini | gemini-2.0-flash | Google Generative Language API |
+| Claude | claude-3-5-sonnet-latest | Anthropic Messages API (browser direct-access header) |
+| Ollama | llama3.2 | Local; use npm run dev (no proxy on GitHub Pages) |
+| Custom | default | Any OpenAI-compatible gateway |
+
+## Fork without hunting through source
+
+- agent-arena.yaml — name, defaults, graphics, providers, languages, dev proxies
+- prompts.yaml — system / situation / idle / arena templates
+- data/characters.yaml, data/roles.yaml — looks and persona presets
+- data/maps/*.json — drop another aamf v1 JSON to ship a world
+
+## Stack
+
+Vite · React 19 · TypeScript · Three.js / React Three Fiber · Zustand · i18next · YAML config
+
+Ten UI languages: English, Türkçe, Español, 简体中文, Português, Français, Deutsch, 日本語, 한국어, Русский. The UI language is also sent to models as the reply language.
+
+## FAQ
+
+Do I need a backend? No — only the LLM providers you choose.
+
+Are my keys uploaded to Agent Arena? No. They stay in localStorage and are sent only to the provider endpoints you configure.
+
+Can I run only on Ollama? Yes, locally with npm run dev.
+
+Is aamf stable? Versioned as v1 in early preview — expect additive changes.
+
+## License
+
+Code and documentation: MIT © 2026 Samet Kabay.
+3D assets under public/assets/ are not MIT (CC0 / CC BY). See public/assets/ATTRIBUTION.md.

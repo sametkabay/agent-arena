@@ -1,0 +1,21 @@
+# Agent Arena
+
+> Agent Arena is an open-source, browser-native multi-agent playground. You place LLM-powered characters on a 3D map (office, forest, or space), watch them idle-talk, and chat with them privately or in a shared arena. It runs entirely in the browser with OpenAI, Gemini, Claude, or Ollama — no Agent Arena backend.
+
+Agent Arena is not a hosted multi-agent orchestration framework, not a Discord bot, and not a server-side agent runtime. It is a visual playground you run locally (`npm run dev`) or host statically (GitHub Pages). API keys stay in the browser (`localStorage`) and are sent only to the providers you configure. Code is MIT; bundled 3D assets remain CC0 / CC BY.
+
+Early preview (`v0.1.0`). Map format (`aamf` v1) and UI may still change.
+
+## Docs
+
+- [Live demo](https://sametkabay.github.io/agent-arena/): Static playground (cloud providers; Ollama needs local dev)
+- [Full digest](https://sametkabay.github.io/agent-arena/llms-full.txt): Longer product summary for crawlers
+- [README](https://github.com/sametkabay/agent-arena/blob/main/README.md): Setup, features, configuration, FAQ
+- [Contributing](https://github.com/sametkabay/agent-arena/blob/main/CONTRIBUTING.md): Tests, lint, good first issues
+- [License (MIT, code)](https://github.com/sametkabay/agent-arena/blob/main/LICENSE)
+- [3D asset attribution](https://github.com/sametkabay/agent-arena/blob/main/public/assets/ATTRIBUTION.md)
+
+## Optional
+
+- [Source repository](https://github.com/sametkabay/agent-arena)
+- [Releases](https://github.com/sametkabay/agent-arena/releases)

@@ -166,6 +166,8 @@ export function ColorField({
     setOpen(false);
     dragRef.current = null;
   };
+  const closeRef = useRef(close);
+  closeRef.current = close;
 
   const openPicker = () => {
     if (disabled) return;
@@ -198,12 +200,12 @@ export function ColorField({
     const onDown = (e: MouseEvent) => {
       const t = e.target as Node;
       if (rootRef.current?.contains(t) || panelRef.current?.contains(t)) return;
-      close(true);
+      closeRef.current(true);
     };
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        close(false);
+        closeRef.current(false);
         triggerRef.current?.focus();
       }
     };
@@ -217,7 +219,7 @@ export function ColorField({
       window.removeEventListener("resize", sync);
       window.removeEventListener("scroll", sync, true);
     };
-  }, [open, committed]);
+  }, [open]);
 
   const applySv = (el: HTMLElement, clientX: number, clientY: number) => {
     const r = el.getBoundingClientRect();

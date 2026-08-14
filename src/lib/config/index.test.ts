@@ -8,4 +8,11 @@ describe("barrel exports", () => {
     expect(DEFAULT_GRAPHICS.shadowQuality).toBeTruthy();
     expect(MAPS.length).toBeGreaterThan(0);
   });
+
+  it("keeps crawler-facing title and description", () => {
+    expect(appConfig.app.title).toContain("3D multi-agent playground");
+    expect(appConfig.app.description).toMatch(
+      /open-source, browser-native multi-agent playground/i,
+    );
+  });
 });

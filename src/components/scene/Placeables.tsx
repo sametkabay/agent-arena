@@ -20,14 +20,12 @@ import {
   type PlaceableSpec,
 } from "@/lib/assets/catalog";
 import { PolyProp } from "@/components/scene/PolyProps";
-import {
-  CampfireFx,
-  FireMeshTicker,
-  getFireFxKind,
-  prepareFireMesh,
-} from "@/components/scene/CampfireFx";
-import { getLampKind, LampFx } from "@/components/scene/LampFx";
-import { TreeSway, isSwayPlaceable } from "@/components/scene/TreeSway";
+import { CampfireFx, FireMeshTicker } from "@/components/scene/CampfireFx";
+import { getFireFxKind, prepareFireMesh } from "@/components/scene/fireFx";
+import { LampFx } from "@/components/scene/LampFx";
+import { getLampKind } from "@/components/scene/lampKind";
+import { TreeSway } from "@/components/scene/TreeSway";
+import { isSwayPlaceable } from "@/components/scene/isSwayPlaceable";
 import type { PlaceableInstance } from "@/lib/types";
 
 /** Match procedural `wall_solid` (PropWallSolid) cream palette. */

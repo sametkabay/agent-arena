@@ -1,8 +1,12 @@
 # Agent Arena — third-party 3D assets
 
-Code is MIT (see [`LICENSE`](../../LICENSE)). **GLBs in this folder are not MIT.** Each file stays under its original license. Do not treat a fork of this repo as a relicensed asset dump.
+The [MIT License](../../LICENSE) covers **source code and documentation only**. 3D models under `public/assets/` (GLB packs and character looks) are third-party works. They are **not** licensed as MIT.
 
-Kenney kits: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Attribution is optional; do not use the Kenney logo. poly.pizza models: the Creative Commons license on the model page at download time ([ToS](https://poly.pizza/docs/tos)).
+Those files remain under their original licenses (typically [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) or [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)). This file lists authors, sources, and terms.
+
+Forks may relicense the **code** under MIT terms; they may not relicense the bundled 3D assets. GitHub Pages serves the same binaries as the repo. Do not treat a fork of this repo as a relicensed asset dump.
+
+Kenney kits: CC0 1.0. Attribution is optional; do not use the Kenney logo. poly.pizza models: the Creative Commons license on the model page at download time ([ToS](https://poly.pizza/docs/tos)).
 
 ## Packs (Kenney, CC0 1.0)
 
