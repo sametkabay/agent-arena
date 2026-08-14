@@ -127,7 +127,7 @@ function inferCategory(pack: string, file: string): AssetCategory {
   if (pack === "space") return "space";
   if (pack === "trees" || pack === "nature") return "nature";
   if (pack === "cars") return "vehicles";
-  if (pack === "animals" || pack === "farm-animals") return "animals";
+  if (pack === "animals") return "animals";
   if (pack === "food") return "food";
   if (pack === "camping") {
     if (n.includes("tree") || n === "rock.glb") return "nature";
@@ -361,7 +361,6 @@ export const ASSET_PACKS = [
   "camping",
   "cars",
   "animals",
-  "farm-animals",
   "food",
   "space",
 ] as const;

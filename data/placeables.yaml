@@ -6,18 +6,9 @@ wander:
   animals/Cat.glb:
     walk: [Walk]
     idle: [Idle]
-  animals/Fish.glb:
-    walk: [Swim]
-    idle: [Swim]
-  animals/Snake.glb:
-    walk: [Snake_Walk, Walk]
-    idle: [Snake_Idle, Idle]
   animals/Spider.glb:
     walk: [Spider_Walk, Walk]
     idle: [Spider_Idle, Idle]
-  animals/Wolf.glb:
-    walk: [Walk, Gallop]
-    idle: [Idle]
   space/Astronaut.glb:
     walk: [Walk]
     idle: [Idle]

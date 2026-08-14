@@ -7,55 +7,7 @@ export interface PackGlbEntry {
 export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "animals",
-    "file": "Bear.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Bee.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Bird.glb"
-  },
-  {
-    "pack": "animals",
     "file": "Cat.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Chicken.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Crab.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Dog.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Duck.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Fish.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Frog.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Penguin.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Rabbit.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Snake.glb"
   },
   {
     "pack": "animals",
@@ -64,14 +16,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "animals",
     "file": "Turkey vulture.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Turtle.glb"
-  },
-  {
-    "pack": "animals",
-    "file": "Wolf.glb"
   },
   {
     "pack": "camping",
@@ -116,18 +60,6 @@ export const PACK_GLB_INVENTORY: readonly PackGlbEntry[] = [
   {
     "pack": "cars",
     "file": "Taxi.glb"
-  },
-  {
-    "pack": "farm-animals",
-    "file": "Llama.glb"
-  },
-  {
-    "pack": "farm-animals",
-    "file": "Pig.glb"
-  },
-  {
-    "pack": "farm-animals",
-    "file": "Pug.glb"
   },
   {
     "pack": "food",

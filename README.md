@@ -238,6 +238,8 @@ Ten UI locales ship today: **en**, **tr**, **es**, **zh**, **pt**, **fr**, **de*
 
 ### Privacy & API keys
 
+See [`SECURITY.md`](./SECURITY.md) for how to report a vulnerability.
+
 - **No `.env` required.** Keys and settings are entered in the UI and stored in `localStorage` (key from `agent-arena.yaml` → `storage.key`).
 - Keys leave your machine only when **your browser** calls the provider you configured — there is no Agent Arena backend holding secrets.
 - Prefer restricted / rotatable API keys. Clear site data if you share the machine.
@@ -284,7 +286,7 @@ Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, o
 
 ### Assets
 
-Low-poly GLB packs under `public/assets/packs/`; character looks under `public/assets/characters/`. Catalog + generated inventory expose them to the editor and scene. Credits: [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md).
+Low-poly GLB packs under `public/assets/packs/`; character looks under `public/assets/characters/`. **Code is MIT; assets are not** — authors and licenses: [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md).
 
 ---
 
@@ -375,7 +377,7 @@ Ideas and PRs welcome.
 
 ## Credits
 
-- 3D packs: poly.pizza / Kenney-style kits — [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md)
+- 3D packs and characters: Kenney (CC0) and poly.pizza (CC BY / CC0) — [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md)
 - [Vite](https://vitejs.dev/) · [React](https://react.dev/) · [Three.js](https://threejs.org/) / [R3F](https://docs.pmnd.rs/react-three-fiber) · [Zustand](https://zustand-demo.pmnd.rs/) · [i18next](https://www.i18next.com/)
 
 If Agent Arena helps you prototype agent UX, [star the repo](https://github.com/sametkabay/agent-arena) — it helps others find it.
@@ -384,4 +386,8 @@ If Agent Arena helps you prototype agent UX, [star the repo](https://github.com/
 
 ## License
 
-[MIT](./LICENSE) © 2026 Samet Kabay
+**Code and documentation:** [MIT](./LICENSE) © 2026 Samet Kabay.
+
+**3D assets** under `public/assets/` are **not MIT**. They keep their original CC0 / CC BY licenses — see [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md) and the note at the bottom of [`LICENSE`](./LICENSE).
+
+Report vulnerabilities via [`SECURITY.md`](./SECURITY.md).

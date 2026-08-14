@@ -1,6 +1,5 @@
 # Asset packs (design language)
 
-GLB packs extracted under this folder (poly.pizza / Kenney-style).
+Kenney CC0 kits plus a few poly.pizza props. Licenses and authors: [`../ATTRIBUTION.md`](../ATTRIBUTION.md).
 
 Do not rename files with spaces; URLs use `encodeURIComponent`.
-See root `public/assets/ATTRIBUTION.md` for scale/orientation rules.

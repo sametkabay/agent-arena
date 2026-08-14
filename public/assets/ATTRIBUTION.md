@@ -1,38 +1,74 @@
-# Agent Arena — asset library
+# Agent Arena — third-party 3D assets
 
-Design-language packs live under `public/assets/packs/`.
-All were unpacked from Desktop zips (poly.pizza / Kenney-style low-poly).
+Code is MIT (see [`LICENSE`](../../LICENSE)). **GLBs in this folder are not MIT.** Each file stays under its original license. Do not treat a fork of this repo as a relicensed asset dump.
 
-| Folder | Source zip | Count | Use |
-|--------|------------|------:|-----|
-| `furniture/` | Furniture Kit-glb.zip | 117 | Office furniture (primary scene props) |
-| `furniture/Desk.glb` | Desk by Robbobin (poly.pizza / 58zA8yry4qr) | 1 | Office desk workstation (asset floor + blue wall removed) |
-| `furniture/BookcaseWithBooks.glb` | Bookcase with Books by Quaternius (poly.pizza / tACDGJ4CGW) | 1 | Office cabinet (recolored to Kenney office wood) |
-| `furniture/PingPongTable.glb` | Ping Pong table by burunduk (poly.pizza / PUbHPqqrWZ) | 1 | Table tennis / ping pong table |
-| `furniture/TableJeremy.glb` | Table by jeremy (poly.pizza / 8cnrwlAWqx7) | 1 | Large rectangular table |
-| `trees/` | Tree Collection…zip | 4 | Outdoor / corner accents |
-| `nature/` | poly.pizza grass props | 3 | Outdoor grass clumps / blades |
-| `nature/Grass Green.glb` | grass green by Steve B (poly.pizza / 8q6D0D_SuBE) | 1 | Tall green grass patch |
-| `nature/Grass Clump.glb` | Grass #1 by Tomáš Bayer (poly.pizza / 00rprwmzLKP) | 1 | Small grass clump |
-| `nature/Grass Blades.glb` | grass blades by Tiff Eidmann (poly.pizza / 7jaHZEe1exG) | 1 | Sparse grass blades |
-| `camping/` | Small Camping Bundle | 6 | Outdoor accents |
-| `cars/` | Cars Bundle | 5 | Vehicles |
-| `animals/` | Animals…zip | 17 | Map décor (low-poly subset) |
-| `farm-animals/` | Farm Animal Pack | 3 | Pig, llama, pug |
-| `food/` | Ultimate Food Pack | 20 | Desk / camp décor |
-| `space/` | Ultimate Space Kit-glb (poly.pizza) | 22 | Space map habitats, flora, rover, astronaut |
+Kenney kits: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Attribution is optional; do not use the Kenney logo. poly.pizza models: the Creative Commons license on the model page at download time ([ToS](https://poly.pizza/docs/tos)).
 
-## Scaling rule
+## Packs (Kenney, CC0 1.0)
 
-Kenney-style GLBs are **toy-scale** (often 0.1–0.9 m tall).
-Always set `scale = targetHeightMeters / nativeAABB.height` in `src/lib/assets/catalog.ts`.
+| Folder | Kit | Source | License |
+|--------|-----|--------|---------|
+| `packs/furniture/` | Furniture Kit (except named poly.pizza files below) | [kenney.nl/assets/furniture-kit](https://kenney.nl/assets/furniture-kit) | CC0 1.0 |
+| `packs/food/` | Food Kit | [kenney.nl](https://kenney.nl/) / [Food Kit on itch.io](https://kenney-assets.itch.io/food-kit) | CC0 1.0 |
+| `packs/space/` | Space Kit | [Space Kit on itch.io](https://kenney-assets.itch.io/space-kit) | CC0 1.0 |
+| `packs/trees/` | Nature-style tree kit (Kenney naming) | Kenney | CC0 1.0 |
+| `packs/camping/` | Camping kit (Kenney naming) | Kenney | CC0 1.0 |
+| `packs/cars/` | Car kit (Kenney naming) | Kenney | CC0 1.0 |
 
-## Orientation rule
+## Named poly.pizza props (used in builtin maps)
 
-Assume kit models face **+Z** (front). Rotate with `rotationY` so seats/screens face their partners.
+Keep these. Credit the author if you redistribute.
 
-## Watcher
+| File | Author | Source | Notes |
+|------|--------|--------|-------|
+| `packs/furniture/Desk.glb` | Robbobin | [poly.pizza/m/58zA8yry4qr](https://poly.pizza/m/58zA8yry4qr) | Floor + blue wall removed |
+| `packs/furniture/BookcaseWithBooks.glb` | Quaternius | [poly.pizza/m/tACDGJ4CGW](https://poly.pizza/m/tACDGJ4CGW) | Recolored to office wood |
+| `packs/furniture/PingPongTable.glb` | burunduk | [poly.pizza/m/PUbHPqqrWZ](https://poly.pizza/m/PUbHPqqrWZ) | |
+| `packs/furniture/TableJeremy.glb` | jeremy | [poly.pizza/m/8cnrwlAWqx7](https://poly.pizza/m/8cnrwlAWqx7) | |
+| `packs/nature/Grass Green.glb` | Steve B | [poly.pizza/m/8q6D0D_SuBE](https://poly.pizza/m/8q6D0D_SuBE) | |
+| `packs/nature/Grass Clump.glb` | Tomáš Bayer | [poly.pizza/m/00rprwmzLKP](https://poly.pizza/m/00rprwmzLKP) | |
+| `packs/nature/Grass Blades.glb` | Tiff Eidmann | [poly.pizza/m/7jaHZEe1exG](https://poly.pizza/m/7jaHZEe1exG) | |
 
-Vite ignores `public/assets/packs/**` and `*.glb` (Windows EBUSY).
-A `serve-pack-assets` middleware still streams pack files from disk so newly
-added GLBs work without restarting the dev server.
+License on each page is Creative Commons (typically CC BY 3.0 or CC0). Check the live page before a commercial redistribution.
+
+## Characters (used — playable looks)
+
+All 13 shipped looks are **in use** (`data/characters.yaml`). They are J-Toastie’s [CUTES Part One](https://poly.pizza/bundle/CUTES-Part-One-WD91WrT0gx) set on poly.pizza, **CC BY 3.0**. Texture atlas: modified from [Kay Lousberg](https://www.kaylousberg.com/) (credited by J-Toastie).
+
+| File | Model | Source |
+|------|-------|--------|
+| `characters/generic-male.glb` | Generic Male | [poly.pizza/m/jNp6bjMW9a](https://poly.pizza/m/jNp6bjMW9a) |
+| `characters/generic-female.glb` | Generic Female | CUTES Part One bundle |
+| `characters/citizen-1.glb` | Citizen 1 | [poly.pizza/m/sYl7E9whZH](https://poly.pizza/m/sYl7E9whZH) |
+| `characters/citizen-2.glb` | Citizen 2 | [poly.pizza/m/M37AwJwOzy](https://poly.pizza/m/M37AwJwOzy) |
+| `characters/citizen-3.glb` | Citizen 3 | [poly.pizza/m/26UC5iU4Fk](https://poly.pizza/m/26UC5iU4Fk) |
+| `characters/retail-worker.glb` | Retail Worker | [poly.pizza/m/kpw4fiF8St](https://poly.pizza/m/kpw4fiF8St) |
+| `characters/food-worker.glb` | Food Worker | [poly.pizza/m/6cjgeTS8Pl](https://poly.pizza/m/6cjgeTS8Pl) |
+| `characters/male-officer.glb` | Male Officer | [poly.pizza/m/ipEgtSYI8u](https://poly.pizza/m/ipEgtSYI8u) |
+| `characters/female-officer.glb` | Female Officer | [poly.pizza/m/g6Pu2llnES](https://poly.pizza/m/g6Pu2llnES) |
+| `characters/crypto-bro.glb` | Crypto Bro | [poly.pizza/m/zGOWefrMDQ](https://poly.pizza/m/zGOWefrMDQ) |
+| `characters/prisoner.glb` | Prisoner | [poly.pizza/m/5X70x024kR](https://poly.pizza/m/5X70x024kR) |
+| `characters/chicken-guy.glb` | Chicken Guy | [poly.pizza/m/b2hbNsaTN0](https://poly.pizza/m/b2hbNsaTN0) |
+| `characters/rubber-duck.glb` | Rubber Duck | CUTES Part One bundle (animated character look) |
+
+## License-unverified — used (keep)
+
+Builtin maps place these animal GLBs. Per-file CC0 vs CC-BY is not recorded. They stay as live décor until sourced.
+
+| File | Builtin map |
+|------|-------------|
+| `packs/animals/Cat.glb` | office |
+| `packs/animals/Spider.glb` | nature |
+| `packs/animals/Turkey vulture.glb` | nature |
+
+Unused unverified animals and the entire `farm-animals` pack were removed from the repo.
+
+Unused Kenney furniture / food / space / car GLBs stay as editor fill (CC0).
+
+## Scaling / orientation
+
+Kenney-style GLBs are often toy-scale (0.1–0.9 m). Scene code uses `scale = targetHeightMeters / nativeAABB.height` in `src/lib/assets/catalog.ts`. Assume kit models face **+Z**; rotate with `rotationY`.
+
+## Dev watcher
+
+Vite ignores `public/assets/packs/**` and `*.glb` (Windows EBUSY). `serve-pack-assets` still streams pack files from disk so new GLBs work without a restart.
