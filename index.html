@@ -3,33 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agent Arena</title>
+    <title>Agent Arena — 3D multi-agent playground in the browser</title>
     <meta
       name="description"
-      content="A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them."
+      content="Agent Arena is an open-source, browser-native multi-agent playground. Place LLM characters on a 3D map, watch them live, and chat — no backend."
     />
+    <meta name="author" content="Samet Kabay" />
+    <meta name="application-name" content="Agent Arena" />
     <meta name="theme-color" content="#7a9e7e" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://sametkabay.github.io/agent-arena/" />
-    <meta property="og:title" content="Agent Arena" />
+    <link
+      rel="alternate"
+      type="text/plain"
+      title="llms.txt"
+      href="https://sametkabay.github.io/agent-arena/llms.txt"
+    />
+    <link rel="license" href="https://github.com/sametkabay/agent-arena/blob/main/LICENSE" />
+    <meta property="og:site_name" content="Agent Arena" />
+    <meta property="og:locale" content="en_US" />
+    <meta
+      property="og:title"
+      content="Agent Arena — 3D multi-agent playground in the browser"
+    />
     <meta
       property="og:description"
-      content="A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them."
+      content="Agent Arena is an open-source, browser-native multi-agent playground. Place LLM characters on a 3D map, watch them live, and chat — no backend."
     />
     <meta
       property="og:image"
       content="https://raw.githubusercontent.com/sametkabay/agent-arena/main/docs/screenshot-space-night.png"
     />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1600" />
+    <meta property="og:image:height" content="900" />
+    <meta
+      property="og:image:alt"
+      content="Space map at night — four agents on a planetary outpost, private chat open"
+    />
     <meta property="og:url" content="https://sametkabay.github.io/agent-arena/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Agent Arena" />
+    <meta
+      name="twitter:title"
+      content="Agent Arena — 3D multi-agent playground in the browser"
+    />
     <meta
       name="twitter:description"
-      content="A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them."
+      content="Agent Arena is an open-source, browser-native multi-agent playground. Place LLM characters on a 3D map, watch them live, and chat — no backend."
     />
     <meta
       name="twitter:image"
       content="https://raw.githubusercontent.com/sametkabay/agent-arena/main/docs/screenshot-space-night.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Space map at night — four agents on a planetary outpost, private chat open"
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -39,9 +68,169 @@
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap"
       rel="stylesheet"
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://sametkabay.github.io/agent-arena/#website",
+            "name": "Agent Arena",
+            "url": "https://sametkabay.github.io/agent-arena/",
+            "description": "Agent Arena is an open-source, browser-native multi-agent playground. You place LLM-powered characters on a 3D map, watch them idle-talk, and chat with them privately or in a shared arena.",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://github.com/sametkabay#person" }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://sametkabay.github.io/agent-arena/#webpage",
+            "url": "https://sametkabay.github.io/agent-arena/",
+            "name": "Agent Arena — 3D multi-agent playground in the browser",
+            "isPartOf": { "@id": "https://sametkabay.github.io/agent-arena/#website" },
+            "about": { "@id": "https://sametkabay.github.io/agent-arena/#app" },
+            "mainEntity": { "@id": "https://sametkabay.github.io/agent-arena/#app" },
+            "primaryImageOfPage": "https://raw.githubusercontent.com/sametkabay/agent-arena/main/docs/screenshot-space-night.png"
+          },
+          {
+            "@type": ["SoftwareApplication", "WebApplication"],
+            "@id": "https://sametkabay.github.io/agent-arena/#app",
+            "name": "Agent Arena",
+            "alternateName": "agent-arena",
+            "url": "https://sametkabay.github.io/agent-arena/",
+            "applicationCategory": "DeveloperApplication",
+            "operatingSystem": "Web browser",
+            "browserRequirements": "Requires WebGL2",
+            "softwareVersion": "0.1.0-preview",
+            "datePublished": "2026-08-06",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "description": "Agent Arena is an open-source, browser-native multi-agent playground. You place LLM-powered characters on a 3D map (office, forest, or space), watch them idle-talk, and chat with them privately or in a shared arena. It runs entirely in the browser with OpenAI, Gemini, Claude, or Ollama — no Agent Arena backend.",
+            "screenshot": "https://raw.githubusercontent.com/sametkabay/agent-arena/main/docs/screenshot-space-night.png",
+            "image": "https://raw.githubusercontent.com/sametkabay/agent-arena/main/docs/screenshot-space-night.png",
+            "author": { "@id": "https://github.com/sametkabay#person" },
+            "license": "https://github.com/sametkabay/agent-arena/blob/main/LICENSE",
+            "codeRepository": "https://github.com/sametkabay/agent-arena",
+            "sameAs": [
+              "https://github.com/sametkabay/agent-arena",
+              "https://sametkabay.github.io/agent-arena/"
+            ]
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "@id": "https://github.com/sametkabay/agent-arena#source",
+            "name": "Agent Arena",
+            "url": "https://github.com/sametkabay/agent-arena",
+            "codeRepository": "https://github.com/sametkabay/agent-arena",
+            "programmingLanguage": ["TypeScript", "JavaScript"],
+            "runtimePlatform": "Web browser",
+            "license": "https://spdx.org/licenses/MIT.html",
+            "isAccessibleForFree": true,
+            "author": { "@id": "https://github.com/sametkabay#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://github.com/sametkabay#person",
+            "name": "Samet Kabay",
+            "url": "https://github.com/sametkabay"
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://sametkabay.github.io/agent-arena/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Do I need a backend to run Agent Arena?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Agent Arena is a static client. You only need the LLM providers you choose (OpenAI, Gemini, Claude, Ollama, or a custom OpenAI-compatible gateway)."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Are my API keys uploaded to Agent Arena?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Keys stay in the browser (localStorage) and are sent only to the provider endpoints you configure. There is no Agent Arena backend holding secrets."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I run Agent Arena only on Ollama?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, locally with npm run dev. Ollama and localhost models do not work on the GitHub Pages demo because that host has no dev proxy."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is Agent Arena not?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Agent Arena is not a hosted multi-agent orchestration framework, not a Discord bot, and not a server-side agent runtime. It is a visual playground you run or host statically yourself."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <style>
+        .crawler-fallback {
+          font-family: Nunito, system-ui, sans-serif;
+          max-width: 42rem;
+          margin: 2rem auto;
+          padding: 0 1rem 3rem;
+          line-height: 1.55;
+          color: #1c1917;
+        }
+        .crawler-fallback h1 {
+          font-size: 1.75rem;
+        }
+        .crawler-fallback a {
+          color: #2563eb;
+        }
+      </style>
+      <article class="crawler-fallback">
+        <h1>Agent Arena</h1>
+        <p>
+          Agent Arena is an open-source, browser-native multi-agent playground.
+          You place LLM-powered characters on a 3D map (office, forest, or
+          space), watch them idle-talk, and chat with them privately or in a
+          shared arena. It runs entirely in the browser with OpenAI, Gemini,
+          Claude, or Ollama — no Agent Arena backend.
+        </p>
+        <p>
+          This live page is a WebGL playground and needs JavaScript. Enable JS,
+          or open the
+          <a href="https://github.com/sametkabay/agent-arena">source repo</a>.
+        </p>
+        <h2>What you can do</h2>
+        <ul>
+          <li>Drop personas onto Office, Nature, or Space maps</li>
+          <li>Private chat, arena broadcast, and @mention</li>
+          <li>Idle speech bubbles while the world runs</li>
+          <li>Full-screen map editor with .aamf.json import / export</li>
+          <li>YAML config for prompts, roles, characters, and defaults</li>
+        </ul>
+        <p>
+          What this is not: not a hosted multi-agent orchestration framework,
+          not a Discord bot, and not a server-side agent runtime.
+        </p>
+        <p>
+          <a href="https://github.com/sametkabay/agent-arena">GitHub</a>
+          ·
+          <a href="https://sametkabay.github.io/agent-arena/llms.txt">llms.txt</a>
+          · Code MIT; 3D assets CC0 / CC BY
+        </p>
+      </article>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,6 +1,6 @@
 # Agent Arena
 
-**A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them.**
+**Agent Arena is an open-source, browser-native multi-agent playground.** You place LLM-powered characters on a 3D map (office, forest, or space), watch them idle-talk, and chat with them privately or in a shared arena. It runs entirely in the browser with OpenAI, Gemini, Claude, or Ollama — no Agent Arena backend.
 
 [![Live demo](https://img.shields.io/badge/Try_live_demo-2563eb?style=for-the-badge)](https://sametkabay.github.io/agent-arena/)
 [![Code: MIT](https://img.shields.io/badge/code-MIT-yellow.svg)](./LICENSE)
@@ -325,6 +325,8 @@ Push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.ym
 
 Vite `base` is `/` in dev and `/agent-arena/` on production builds so asset URLs match the project Pages path.
 
+Crawler files on the demo origin: [`robots.txt`](https://sametkabay.github.io/agent-arena/robots.txt), [`sitemap.xml`](https://sametkabay.github.io/agent-arena/sitemap.xml), [`llms.txt`](https://sametkabay.github.io/agent-arena/llms.txt). Google still reads `robots.txt` from the `github.io` host root — submit the sitemap in [Google Search Console](https://search.google.com/search-console) and Bing Webmaster after deploy.
+
 ---
 
 ## Troubleshooting & FAQ
@@ -354,7 +356,7 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) (setup, pre-commit hook, lint/test) a
 
 `npm test` runs Vitest on `src/lib` and **fails below 80% coverage**. `npm run lint` is oxlint. Pre-commit runs both (`simple-git-hooks` via `npm install`); CI also runs `npm run build`.
 
-**Good first contributions:** bug reports, locale translations (`src/i18n/` + `agent-arena.yaml`), new builtin maps, and attributed GLB packs.
+**Good first contributions:** [good first issue](https://github.com/sametkabay/agent-arena/labels/good%20first%20issue) tickets — locale translations (`src/i18n/` + `agent-arena.yaml`), new builtin maps, and attributed GLB packs.
 
 ---
 
@@ -383,6 +385,6 @@ If Agent Arena helps you prototype agent UX, [star the repo](https://github.com/
 
 **Code and documentation:** [MIT](./LICENSE) © 2026 Samet Kabay.
 
-**3D assets** under `public/assets/` are **not MIT**. They keep their original CC0 / CC BY licenses — see [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md) and the note at the bottom of [`LICENSE`](./LICENSE).
+**3D assets** under `public/assets/` are **not MIT**. They keep their original CC0 / CC BY licenses — see [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md).
 
 Report vulnerabilities via [`SECURITY.md`](./SECURITY.md).

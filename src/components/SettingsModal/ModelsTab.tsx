@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 import type { AiModelConfig, AiProviderKind } from "@/lib/types";
 import { fetchModels, providerDefaults, testConnection } from "@/lib/ai/providers";
 import { createModelDraft, useArenaStore } from "@/store/arenaStore";
-import { useSettingsBack } from "@/components/SettingsModal/SettingsNavContext";
+import { useSettingsBack } from "@/components/SettingsModal/settingsNav";
 import { ModelForm } from "@/components/SettingsModal/ModelForm";
-import { ModelList, groupModels } from "@/components/SettingsModal/ModelList";
+import { ModelList } from "@/components/SettingsModal/ModelList";
+import { groupModels } from "@/components/SettingsModal/groupModels";
 
 type FormMode = "full" | "llm";
 

@@ -6,8 +6,20 @@ import App from "@/App";
 import { appConfig } from "@/lib/config";
 
 document.title = appConfig.app.title;
-const desc = document.querySelector('meta[name="description"]');
-if (desc) desc.setAttribute("content", appConfig.app.description);
+const desc = appConfig.app.description;
+for (const selector of [
+  'meta[name="description"]',
+  'meta[property="og:description"]',
+  'meta[name="twitter:description"]',
+]) {
+  document.querySelector(selector)?.setAttribute("content", desc);
+}
+for (const selector of [
+  'meta[property="og:title"]',
+  'meta[name="twitter:title"]',
+]) {
+  document.querySelector(selector)?.setAttribute("content", appConfig.app.title);
+}
 const theme = document.querySelector('meta[name="theme-color"]');
 if (theme) theme.setAttribute("content", appConfig.app.themeColor);
 
