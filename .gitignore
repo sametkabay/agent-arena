@@ -19,6 +19,11 @@ tmp-*.txt
 tmp-*.glb
 *.zip
 tmp-check.glb
+coverage
+*.pem
+*.key
+*.p12
+.npmrc
 
 # Editor directories and files
 .vscode/*

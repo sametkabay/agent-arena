@@ -217,8 +217,6 @@ export function ColorField({
       window.removeEventListener("resize", sync);
       window.removeEventListener("scroll", sync, true);
     };
-    // close reads latest hsv via hsvRef
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, committed]);
 
   const applySv = (el: HTMLElement, clientX: number, clientY: number) => {

@@ -5,7 +5,7 @@
 #   data/characters.yaml      playable character looks
 #   data/roles.yaml           agent role presets
 #   data/maps/*.json          builtin worlds (drop a new aamf v1 JSON to ship a map)
-#   data/map-presets.yaml     Settings → Map gallery
+#   data/map-presets.yaml     gallery presets (file is authored; Settings UI not wired yet)
 #   data/floor-surfaces.yaml  procedural ground looks
 #   data/placeables.yaml      curated props + wander clips
 # Restart `npm run dev` (or rebuild) after changes.

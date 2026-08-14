@@ -3,15 +3,16 @@
 **A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them.**
 
 [![Live demo](https://img.shields.io/badge/Try_live_demo-2563eb?style=for-the-badge)](https://sametkabay.github.io/agent-arena/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-yellow.svg)](./LICENSE)
+[![Assets](https://img.shields.io/badge/3D_assets-see_ATTRIBUTION-informational.svg)](./public/assets/ATTRIBUTION.md)
 [![Version](https://img.shields.io/badge/version-0.1.0--preview-orange)](https://github.com/sametkabay/agent-arena)
 [![Client-side](https://img.shields.io/badge/client--side-no_backend-2ea043)](https://github.com/sametkabay/agent-arena)
 
 > **Early preview** (`v0.1.0`) — map format and UI may still change.
 
-[Live demo](https://sametkabay.github.io/agent-arena/) · [Run locally](#run-locally) · [Issues](https://github.com/sametkabay/agent-arena/issues) · [License](./LICENSE)
+[Live demo](https://sametkabay.github.io/agent-arena/) · [Run locally](#run-locally) · [Issues](https://github.com/sametkabay/agent-arena/issues) · [Contributing](./CONTRIBUTING.md) · [License](./LICENSE)
 
-**Contents:** [Try it](#try-the-live-demo) · [Run locally](#run-locally) · [Controls](#controls) · [Features](#features) · [Configuration](#configuration) · [Deploy](#deploy-github-pages) · [FAQ](#troubleshooting--faq) · [Roadmap](#roadmap)
+**Contents:** [Try it](#try-the-live-demo) · [Run locally](#run-locally) · [Controls](#controls) · [Features](#features) · [Configuration](#configuration) · [Deploy](#deploy-github-pages) · [FAQ](#troubleshooting--faq) · [Roadmap](#roadmap) · [Contributing](#contributing)
 
 <p align="center">
   <a href="https://sametkabay.github.io/agent-arena/">
@@ -349,17 +350,11 @@ Vite `base` is `/` in dev and `/agent-arena/` on production builds so asset URLs
 
 ## Contributing
 
-1. Fork and clone
-2. Use Node **20+** (24 matches CI)
-3. `npm install` && `npm run dev`
-4. Keep PRs focused; match existing TypeScript / React style
-5. Before opening a PR, run `npm run build` and smoke-check chat plus at least one map in Chromium
-6. New GLBs under `public/assets/packs/` → `npm run assets:inventory` + credit in [`ATTRIBUTION.md`](public/assets/ATTRIBUTION.md)
-7. Discuss larger features in [Issues](https://github.com/sametkabay/agent-arena/issues) first
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) (setup, pre-commit hook, lint/test) and the [code of conduct](./CODE_OF_CONDUCT.md).
+
+`npm test` runs Vitest on `src/lib` and **fails below 80% coverage**. `npm run lint` is oxlint. Pre-commit runs both (`simple-git-hooks` via `npm install`); CI also runs `npm run build`.
 
 **Good first contributions:** bug reports, locale translations (`src/i18n/` + `agent-arena.yaml`), new builtin maps, and attributed GLB packs.
-
-There is no separate test suite yet — production build + manual UI check is the current bar.
 
 ---
 

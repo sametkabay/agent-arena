@@ -25,11 +25,25 @@ Keep these. Credit the author if you redistribute.
 | `packs/furniture/BookcaseWithBooks.glb` | Quaternius | [poly.pizza/m/tACDGJ4CGW](https://poly.pizza/m/tACDGJ4CGW) | Recolored to office wood |
 | `packs/furniture/PingPongTable.glb` | burunduk | [poly.pizza/m/PUbHPqqrWZ](https://poly.pizza/m/PUbHPqqrWZ) | |
 | `packs/furniture/TableJeremy.glb` | jeremy | [poly.pizza/m/8cnrwlAWqx7](https://poly.pizza/m/8cnrwlAWqx7) | |
+| `packs/furniture/Lounge Chair-PImRvMqW1O.glb` | Kenney | [poly.pizza/m/PImRvMqW1O](https://poly.pizza/m/PImRvMqW1O) | **CC0** (not CC-BY) |
+| `packs/furniture/Bear.glb` | Kenney | Kenney furniture kit teddy | **CC0** |
 | `packs/nature/Grass Green.glb` | Steve B | [poly.pizza/m/8q6D0D_SuBE](https://poly.pizza/m/8q6D0D_SuBE) | |
 | `packs/nature/Grass Clump.glb` | Tomáš Bayer | [poly.pizza/m/00rprwmzLKP](https://poly.pizza/m/00rprwmzLKP) | |
 | `packs/nature/Grass Blades.glb` | Tiff Eidmann | [poly.pizza/m/7jaHZEe1exG](https://poly.pizza/m/7jaHZEe1exG) | |
 
-License on each page is Creative Commons (typically CC BY 3.0 or CC0). Check the live page before a commercial redistribution.
+License on each page is Creative Commons (typically CC BY 3.0 or CC0). Check the live page before a commercial redistribution. Kenney re-uploads on poly.pizza stay **CC0**.
+
+## Animals (used in builtin maps)
+
+| File | Author | Source | License | Builtin map |
+|------|--------|--------|---------|-------------|
+| `packs/animals/Cat.glb` | Quaternius | [poly.pizza/m/2f54vbV0In](https://poly.pizza/m/2f54vbV0In) | CC0 | office |
+| `packs/animals/Spider.glb` | Quaternius | [poly.pizza/m/yRYJiAJyiM](https://poly.pizza/m/yRYJiAJyiM) | CC0 | nature |
+| `packs/animals/Turkey vulture.glb` | Poly by Google | [poly.pizza/m/fvAgunyr1kd](https://poly.pizza/m/fvAgunyr1kd) | CC BY 3.0 | nature |
+
+Unused animals and the entire `farm-animals` pack were removed from the repo.
+
+Unused Kenney furniture / food / space / car GLBs stay as editor fill (CC0).
 
 ## Characters (used — playable looks)
 
@@ -50,20 +64,6 @@ All 13 shipped looks are **in use** (`data/characters.yaml`). They are J-Toastie
 | `characters/prisoner.glb` | Prisoner | [poly.pizza/m/5X70x024kR](https://poly.pizza/m/5X70x024kR) |
 | `characters/chicken-guy.glb` | Chicken Guy | [poly.pizza/m/b2hbNsaTN0](https://poly.pizza/m/b2hbNsaTN0) |
 | `characters/rubber-duck.glb` | Rubber Duck | CUTES Part One bundle (animated character look) |
-
-## License-unverified — used (keep)
-
-Builtin maps place these animal GLBs. Per-file CC0 vs CC-BY is not recorded. They stay as live décor until sourced.
-
-| File | Builtin map |
-|------|-------------|
-| `packs/animals/Cat.glb` | office |
-| `packs/animals/Spider.glb` | nature |
-| `packs/animals/Turkey vulture.glb` | nature |
-
-Unused unverified animals and the entire `farm-animals` pack were removed from the repo.
-
-Unused Kenney furniture / food / space / car GLBs stay as editor fill (CC0).
 
 ## Scaling / orientation
 
