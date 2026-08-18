@@ -5,6 +5,7 @@ export const PROMPT_MODES = [
   "private_chat",
   "arena_broadcast",
   "arena_mention",
+  "social_group",
   "idle_mutter",
 ] as const;
 
@@ -35,6 +36,8 @@ export interface PromptsFile {
     idleMutter: string;
     arenaMention: string;
     arenaBroadcast: string;
+    socialGroup: string;
+    socialAuto: string;
   };
   connectionTest: {
     system: string;

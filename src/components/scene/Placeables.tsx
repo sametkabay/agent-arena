@@ -277,15 +277,17 @@ function KenneyGlb({
 
 function PlaceableMesh({
   id,
+  label,
   locomotion,
   animateFire,
 }: {
   id: PlaceableId;
+  label?: string;
   locomotion?: "idle" | "walk";
   animateFire?: boolean;
 }) {
   const spec = PLACEABLE_SPECS[id];
-  const fallback = <PolyProp id={id} />;
+  const fallback = <PolyProp id={id} label={label} />;
   if (!spec?.glb) return fallback;
 
   return (
@@ -326,6 +328,7 @@ export function Placeables({ items }: { items: PlaceableInstance[] }) {
           <>
             <PlaceableMesh
               id={item.placeableId}
+              label={item.label}
               locomotion={loco}
               animateFire={animateFire}
             />

@@ -1,6 +1,6 @@
 import { Html } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { forwardRef, useMemo, useRef } from "react";
+import { forwardRef, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { getPolyPreset } from "@/lib/poly/presets";
 import type { ArenaAgent } from "@/lib/types";
@@ -35,6 +35,7 @@ const Limb = forwardRef<
 /** Soft rounded low-poly character (capsules + spheres — visible limbs). */
 export function JellyAgent({ agent, selected, onPick }: Props) {
   const group = useRef<THREE.Group>(null);
+  const [hovered, setHovered] = useState(false);
   const leftArm = useRef<THREE.Mesh>(null);
   const rightArm = useRef<THREE.Mesh>(null);
   const leftLeg = useRef<THREE.Mesh>(null);
@@ -66,21 +67,26 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
     const selectedScale = selected ? 1.07 : 1;
     const s = bodyScale * selectedScale;
     g.scale.set(sxz * s, sy * s, sxz * s);
-    g.position.set(agent.position[0], 0.02 + (sy - 1) * 0.3, agent.position[2]);
+    g.position.set(
+      agent.position[0],
+      0.02 + (sy - 1) * 0.3,
+      agent.position[2],
+    );
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, agent.rotationY, 6, dt);
 
     const sway = moving ? Math.sin(t * 9) * 0.5 : Math.sin(t * 1.5) * 0.08;
     if (leftArm.current) leftArm.current.rotation.x = sway;
     if (rightArm.current) rightArm.current.rotation.x = -sway;
-    if (leftLeg.current) leftLeg.current.rotation.x = -sway * 0.65;
-    if (rightLeg.current) rightLeg.current.rotation.x = sway * 0.65;
+    if (leftLeg.current) leftLeg.current.rotation.x = agent.seated ? -1.05 : -sway * 0.65;
+    if (rightLeg.current) rightLeg.current.rotation.x = agent.seated ? -1.05 : sway * 0.65;
   });
 
   const thinking = agent.state === "thinking" || agent.thinkingIntensity > 0.35;
   const bubble = agent.speechBubble || (thinking ? THINKING_BUBBLE : undefined);
   const settingsOpen = useArenaStore((s) => s.settingsOpen);
   // Keep labels below Settings (200) / Chat (100). drei Html defaults to ~16M z-index.
-  const showLabels = !settingsOpen;
+  const showOverlays = !settingsOpen;
+  const showNameLabel = showOverlays && (!agent.seated || selected || hovered);
 
   return (
     <group
@@ -90,6 +96,11 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
         e.stopPropagation();
         onPick(e);
       }}
+      onPointerEnter={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+      }}
+      onPointerLeave={() => setHovered(false)}
     >
       {/* Head */}
       <mesh position={[0, 1.12, 0]} castShadow receiveShadow>
@@ -141,7 +152,7 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
           <meshBasicMaterial color="#7a9e7e" transparent opacity={0.85} depthWrite={false} />
         </mesh>
       )}
-      {showLabels && (
+      {showNameLabel && (
         <Html
           position={[0, 2.05, 0]}
           center
@@ -162,7 +173,7 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
           </button>
         </Html>
       )}
-      {showLabels && bubble && (
+      {showOverlays && bubble && (
         <Html
           position={[0, 2.45, 0]}
           center
@@ -170,7 +181,17 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
           style={{ pointerEvents: "none" }}
           className="agent-html-overlay"
         >
-          <div className="agent-speech">{bubble}</div>
+          <div className="agent-speech">
+            {agent.seated && (
+              <span
+                className="agent-speech__name"
+                style={{ color: agent.color || bodyColor }}
+              >
+                {agent.displayName}
+              </span>
+            )}
+            <span className="agent-speech__text">{bubble}</span>
+          </div>
         </Html>
       )}
     </group>

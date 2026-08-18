@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AgentList } from "@/components/AgentList";
 import { MapList } from "@/components/MapList";
+import { SocialSpotsPanel } from "@/components/SocialSpotsPanel";
 import { appConfig } from "@/lib/config";
 
 const STORAGE_KEY = appConfig.storage.sidePanelsKey;
@@ -8,19 +9,21 @@ const STORAGE_KEY = appConfig.storage.sidePanelsKey;
 type SidePanelOpenState = {
   agents: boolean;
   maps: boolean;
+  activities: boolean;
 };
 
 function loadOpenState(): SidePanelOpenState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { agents: true, maps: true };
+    if (!raw) return { agents: true, maps: true, activities: true };
     const parsed = JSON.parse(raw) as Partial<SidePanelOpenState>;
     return {
       agents: parsed.agents !== false,
       maps: parsed.maps !== false,
+      activities: parsed.activities !== false,
     };
   } catch {
-    return { agents: true, maps: true };
+    return { agents: true, maps: true, activities: true };
   }
 }
 
@@ -41,6 +44,12 @@ export function ArenaSidePanels() {
       <MapList
         collapsed={!open.maps}
         onToggle={() => setOpen((s) => ({ ...s, maps: !s.maps }))}
+      />
+      <SocialSpotsPanel
+        collapsed={!open.activities}
+        onToggle={() =>
+          setOpen((s) => ({ ...s, activities: !s.activities }))
+        }
       />
     </aside>
   );

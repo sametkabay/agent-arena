@@ -5,6 +5,7 @@ import { ArenaSidePanels } from "@/components/ArenaSidePanels";
 import { ChatPanel } from "@/components/ChatPanel";
 import { FloatingChatLog } from "@/components/FloatingChatLog";
 import { AgentChatterLoop } from "@/components/AgentChatterLoop";
+import { SocialActivityLoop } from "@/components/SocialActivityLoop";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
@@ -71,6 +72,7 @@ export default function App() {
           <ChatPanel />
           <FloatingChatLog />
           <AgentChatterLoop />
+          <SocialActivityLoop />
           <SettingsModal />
         </>
       )}
