@@ -43,6 +43,9 @@ describe("isArenaMapDefinition", () => {
     expect(isArenaMapDefinition({ ...ok, spawnPoints: "x" })).toBe(false);
     expect(isArenaMapDefinition({ ...ok, zones: [{ id: 1 }] })).toBe(false);
     expect(isArenaMapDefinition({ ...ok, lights: [{ id: 1 }] })).toBe(false);
+    expect(isArenaMapDefinition({ ...ok, interactionSpots: [{ id: 1 }] })).toBe(
+      false,
+    );
     expect(isArenaMapDefinition({ ...ok, roomLights: "yes" })).toBe(false);
   });
 });
@@ -56,15 +59,27 @@ describe("blankMap / cloneMap", () => {
         { id: "l", position: [1, 2, 3], color: "#fff", intensity: 1, distance: 4 },
       ],
       roomLights: true,
+      interactionSpots: [
+        {
+          id: "table",
+          name: "Table",
+          kind: "table_chat",
+          position: [0, 0, 0],
+          seats: [{ id: "seat", position: [1, 0, 0], rotationY: 1 }],
+        },
+      ],
     });
     expect(a.builtin).toBe(false);
     expect(a.zones?.[0]?.name).toBe("Yard");
+    expect(a.interactionSpots?.[0]?.name).toBe("Table");
     const b = cloneMap(a, { name: "Copy", floor: { ...a.floor, size: 18 } });
     expect(b.name).toBe("Copy");
     expect(b.floor.size).toBe(18);
     expect(a.name).toBe("Camp");
     a.zones![0]!.name = "mutated";
+    a.interactionSpots![0]!.seats[0]!.position[0] = 99;
     expect(b.zones?.[0]?.name).toBe("Yard");
+    expect(b.interactionSpots?.[0]?.seats[0]?.position[0]).toBe(1);
   });
 
   it("migrates legacy placeable ids on clone", () => {

@@ -43,6 +43,20 @@ export function PlaceableCard({
           placeable.placeableId}
       </h4>
 
+      {placeable.placeableId.endsWith("_sign") && (
+        <label className="map-editor__field">
+          <span>{t("mapEditor.signText", { defaultValue: "Sign text" })}</span>
+          <input
+            type="text"
+            value={placeable.label ?? ""}
+            maxLength={40}
+            onFocus={beginGesture}
+            onBlur={endGesture}
+            onChange={(e) => onPatchLive({ label: e.target.value })}
+          />
+        </label>
+      )}
+
       {placeableCanWander(placeable.placeableId) && (
         <>
           <label className="map-editor__field">

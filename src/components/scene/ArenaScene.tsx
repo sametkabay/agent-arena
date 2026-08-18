@@ -20,6 +20,8 @@ import {
 } from "@/components/scene/MoveMarkers";
 import { NightGlow, NightSky } from "@/components/scene/NightSky";
 import { SunShadowLight } from "@/components/scene/SunShadowLight";
+import { FitCameraToFloor } from "@/components/scene/FitCameraToFloor";
+import { InteractionSpotMarkers } from "@/components/scene/InteractionSpotMarkers";
 
 function SceneTick({ dormant }: { dormant: boolean }) {
   useFrame((_, dt) => {
@@ -249,8 +251,13 @@ function ArenaWorld({ dormant }: { dormant: boolean }) {
       ))}
 
       <ArenaFloor floor={{ ...floor, size: floorSize }} />
+      <FitCameraToFloor
+        floorSize={floorSize}
+        viewKey={activeMap?.id ?? "fallback"}
+      />
       {/* Zones are authoring aids — only visible in the map editor. */}
       <Placeables items={placeables} />
+      <InteractionSpotMarkers spots={activeMap?.interactionSpots ?? []} />
 
       {agents.map((agent) => (
         <CharacterAgent

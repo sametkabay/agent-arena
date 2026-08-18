@@ -5,6 +5,9 @@ export type {
   ArenaMapDefinition,
   MapFloor,
   MapSpawnPoint,
+  MapInteractionKind,
+  MapInteractionSeat,
+  MapInteractionSpot,
   FloorStyle,
 } from "@/lib/maps/schema";
 export {

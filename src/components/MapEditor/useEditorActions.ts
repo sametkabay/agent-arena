@@ -363,6 +363,7 @@ export function useEditorActions({
       const item: PlaceableInstance = {
         id: uid("prop"),
         placeableId,
+        ...(placeableId.endsWith("_sign") ? { label: "SOCIAL HUB" } : {}),
         position: pos,
         rotationY: 0,
         scale: 1,

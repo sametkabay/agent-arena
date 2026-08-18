@@ -79,6 +79,24 @@ export interface MapSpawnPoint {
   rotationY: number;
 }
 
+export type MapInteractionKind = "table_chat" | "bar_chat" | "open_mic";
+
+export interface MapInteractionSeat {
+  id: string;
+  position: [number, number, number];
+  rotationY: number;
+}
+
+/** A named social activity with reservable positions for agents. */
+export interface MapInteractionSpot {
+  id: string;
+  name: string;
+  kind: MapInteractionKind;
+  /** Marker / conversation center. */
+  position: [number, number, number];
+  seats: MapInteractionSeat[];
+}
+
 /** Agent Arena Map Format (aamf) v1 — shareable JSON map definition. */
 export interface ArenaMapDefinition {
   version: 1;
@@ -95,11 +113,52 @@ export interface ArenaMapDefinition {
   zones?: MapZone[];
   /** Extra practical point lights authored in the map. */
   lights?: MapLightPoint[];
+  /** Runtime social activities such as tables, booths, bars, and stages. */
+  interactionSpots?: MapInteractionSpot[];
   /**
    * When set, overrides indoor/outdoor room-fill heuristic.
    * Outdoor maps usually omit floating office point lights.
    */
   roomLights?: boolean;
+}
+
+const INTERACTION_KINDS: readonly MapInteractionKind[] = [
+  "table_chat",
+  "bar_chat",
+  "open_mic",
+];
+
+function isVec3(v: unknown): v is [number, number, number] {
+  return (
+    Array.isArray(v) &&
+    v.length === 3 &&
+    v.every((part) => typeof part === "number" && Number.isFinite(part))
+  );
+}
+
+export function isMapInteractionSpot(v: unknown): v is MapInteractionSpot {
+  if (!v || typeof v !== "object") return false;
+  const spot = v as Record<string, unknown>;
+  if (typeof spot.id !== "string" || typeof spot.name !== "string") return false;
+  if (
+    typeof spot.kind !== "string" ||
+    !(INTERACTION_KINDS as readonly string[]).includes(spot.kind)
+  ) {
+    return false;
+  }
+  if (!isVec3(spot.position) || !Array.isArray(spot.seats) || spot.seats.length === 0) {
+    return false;
+  }
+  return spot.seats.every((value) => {
+    if (!value || typeof value !== "object") return false;
+    const seat = value as Record<string, unknown>;
+    return (
+      typeof seat.id === "string" &&
+      isVec3(seat.position) &&
+      typeof seat.rotationY === "number" &&
+      Number.isFinite(seat.rotationY)
+    );
+  });
 }
 
 export const AAMF_VERSION = 1 as const;
@@ -133,6 +192,13 @@ export function isArenaMapDefinition(v: unknown): v is ArenaMapDefinition {
   ) {
     return false;
   }
+  if (
+    m.interactionSpots != null &&
+    (!Array.isArray(m.interactionSpots) ||
+      !m.interactionSpots.every(isMapInteractionSpot))
+  ) {
+    return false;
+  }
   if (m.roomLights != null && typeof m.roomLights !== "boolean") return false;
   return true;
 }
@@ -163,6 +229,9 @@ export function blankMap(partial?: Partial<ArenaMapDefinition>): ArenaMapDefinit
     placeables: partial?.placeables ?? [],
     zones: partial?.zones ? structuredClone(partial.zones) : undefined,
     lights: partial?.lights ? structuredClone(partial.lights) : undefined,
+    interactionSpots: partial?.interactionSpots
+      ? structuredClone(partial.interactionSpots)
+      : undefined,
     roomLights: partial?.roomLights,
   };
 }
@@ -210,6 +279,11 @@ export function cloneMap(
       ? structuredClone(overrides.lights)
       : def.lights
         ? structuredClone(def.lights)
+        : undefined,
+    interactionSpots: overrides?.interactionSpots
+      ? structuredClone(overrides.interactionSpots)
+      : def.interactionSpots
+        ? structuredClone(def.interactionSpots)
         : undefined,
     roomLights: overrides?.roomLights ?? def.roomLights,
   };

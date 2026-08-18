@@ -53,6 +53,10 @@ describe("catalog helpers", () => {
     const wanderId = all.find((id) => placeableCanWander(id));
     expect(wanderId).toBeTruthy();
     expect(placeableCanWander("not-real")).toBe(false);
+    expect(PLACEABLE_SPECS.region_sign?.pack).toBe("procedural");
+    expect(PLACEABLE_SPECS.plaza_paving?.category).toBe("ground");
+    expect(PLACEABLE_SPECS.wall_brick?.category).toBe("furniture");
+    expect(PLACEABLE_SPECS.diner_sign?.category).toBe("decor");
 
     const animated = all.find((id) => placeableCanAnimate(id));
     expect(animated).toBeTruthy();

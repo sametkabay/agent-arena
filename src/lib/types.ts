@@ -12,7 +12,13 @@ export type { LanguageCode };
 /** Builtin id or custom_* user map id. */
 export type MapId = string;
 
-export type AgentVisualState = "idle" | "wander" | "walk" | "thinking" | "talking";
+export type AgentVisualState =
+  | "idle"
+  | "wander"
+  | "walk"
+  | "sitting"
+  | "thinking"
+  | "talking";
 
 export type ShadowQuality = "off" | "low" | "medium" | "high";
 
@@ -112,6 +118,8 @@ export interface FloatingChatLine {
 export interface PlaceableInstance {
   id: string;
   placeableId: string;
+  /** Optional text rendered by text-capable procedural props (for example signs). */
+  label?: string;
   position: [number, number, number];
   rotationY: number;
   scale?: number;
@@ -151,6 +159,11 @@ export interface ArenaAgent {
   target?: [number, number, number];
   /** User right-click destination — shown while selected until arrival. */
   commandTarget?: [number, number, number];
+  /** Reserved map interaction while walking there or using it. */
+  interactionSpotId?: string;
+  interactionSeatId?: string;
+  /** True after reaching the reserved seat. */
+  seated?: boolean;
   walkPath?: [number, number, number][];
   speechBubble?: string;
   speechBubbleUntil?: number;

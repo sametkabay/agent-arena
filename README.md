@@ -23,8 +23,9 @@
 
 **At a glance**
 
-- Drop LLM-powered characters onto an office floor, a forest camp, or a night-lit planetary outpost
+- Drop LLM-powered characters onto an office floor, a forest camp, a night-lit planetary outpost, or a four-district TV-inspired social hub
 - Chat one-on-one, broadcast in a shared arena feed, or `@mention` a single agent
+- Seat agents at authored social spots and start context-aware small-group conversations
 - Idle mutters appear as speech bubbles — the world keeps living when you are not typing
 - Tune personas, maps, lighting, and provider defaults in YAML — no redeploy to experiment
 
@@ -158,7 +159,7 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 
 ### Maps & editor
 
-- **Builtin worlds:** Office, Nature, Space (`aamf` v1 JSON in `data/maps/`)
+- **Builtin worlds:** Office, Nature, Space, Four Corners Social Hub (`aamf` v1 JSON in `data/maps/`)
 - **Day/night** is a global lighting mode (not a separate map) — HUD toggle, name-gate choice, and editor preview
 - **Full-screen map editor:** place / move / rotate / scale assets, multi-select, snap grid, spawn tool, drag-drop from the library, favorites, floor size & surface, theme colors, prop wander / animated behavior, undo/redo, import / export (`.aamf.json`)
 - Saving a builtin creates a **custom copy** in `localStorage`
@@ -270,20 +271,23 @@ flowchart TB
 ```
 
 1. **State** — Zustand (`src/store/arenaStore.ts`), hydrated from `localStorage`
-2. **Scene** — active `ArenaMapDefinition`: floor, theme, spawns, placeables, zones, lights
+2. **Scene** — active `ArenaMapDefinition`: floor, theme, spawns, placeables, zones, lights, social interaction spots
 3. **Agents** — config (look + persona + model) + runtime (position, path, speech bubble, state)
-4. **Prompts** — private chat, arena broadcast, `@mention`, or idle mutter + shared world context
+4. **Prompts** — private chat, arena broadcast, `@mention`, seated group chat, or idle mutter + shared world context
 5. **Providers** — OpenAI-style, Gemini, and Claude behind one chat interface
 
 ### Map format (`aamf` v1)
 
-Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones and lights. Builtins: `data/maps/`. Custom maps and exports use the same schema (`.aamf.json`).
+Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones, lights, and reservable social interaction spots. Builtins: `data/maps/`. Custom maps and exports use the same schema (`.aamf.json`).
 
 | Builtin | Theme | Notes |
 |---------|-------|-------|
 | `office` | Indoor office | Zones, practical lights, wandering cat |
 | `nature` | Forest camp | Grass, tents, campfire |
 | `space` | Planetary outpost | Habitat dome, beacons, rover — shines at night |
+| `social-hub` | Four connected social districts | Original coffeehouse, Manhattan pub, diner, and Boston bar zones inspired by Friends, How I Met Your Mother, Seinfeld, and Cheers |
+
+The Social Hub also ships with reservable table and bar seats. Select an agent, send them to a social spot, then start a group topic once at least two model-backed agents are seated together.
 
 ### Assets
 

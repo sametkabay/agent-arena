@@ -26,6 +26,7 @@ import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { placeableCanWander } from "@/lib/assets/catalog";
+import { findAvailableInteractionSeat } from "@/lib/maps/interactions";
 import { formatSpeechBubble } from "@/lib/speechBubble";
 import i18n from "@/i18n";
 import { applyDocumentLang } from "@/i18n/languages";
@@ -87,6 +88,8 @@ interface ArenaState extends AppPersisted {
 
   selectAgent: (id: string | null) => void;
   commandAgentTo: (agentId: string, pos: [number, number, number]) => void;
+  commandAgentToInteraction: (agentId: string, spotId: string) => void;
+  leaveInteraction: (agentId: string) => void;
   setChatOpen: (open: boolean) => void;
   appendChat: (agentId: string, message: ChatMessage) => void;
   replaceLastAssistant: (agentId: string, content: string) => void;
@@ -453,12 +456,64 @@ export const useArenaStore = create<ArenaState>((set, get) => {
                 ...a,
                 target,
                 commandTarget: target,
+                interactionSpotId: undefined,
+                interactionSeatId: undefined,
+                seated: false,
                 state: "walk" as const,
               }
             : a,
         ),
       };
     });
+  },
+
+  commandAgentToInteraction: (agentId, spotId) => {
+    set((s) => {
+      if (s.chatBusyById[agentId]) return s;
+      const spot = s.activeMap?.interactionSpots?.find((item) => item.id === spotId);
+      const movingAgent = s.runtimeAgents.find((agent) => agent.id === agentId);
+      if (!spot || !movingAgent) return s;
+      const currentSeat =
+        movingAgent.interactionSpotId === spotId
+          ? spot.seats.find((seat) => seat.id === movingAgent.interactionSeatId)
+          : undefined;
+      const seat =
+        currentSeat ?? findAvailableInteractionSeat(spot, s.runtimeAgents, agentId);
+      if (!seat) return s;
+      const target: [number, number, number] = [...seat.position];
+      return {
+        runtimeAgents: s.runtimeAgents.map((agent) =>
+          agent.id === agentId
+            ? {
+                ...agent,
+                target,
+                commandTarget: target,
+                interactionSpotId: spot.id,
+                interactionSeatId: seat.id,
+                seated: false,
+                state: "walk" as const,
+              }
+            : agent,
+        ),
+      };
+    });
+  },
+
+  leaveInteraction: (agentId) => {
+    set((s) => ({
+      runtimeAgents: s.runtimeAgents.map((agent) =>
+        agent.id === agentId
+          ? {
+              ...agent,
+              interactionSpotId: undefined,
+              interactionSeatId: undefined,
+              seated: false,
+              homePosition: [...agent.position] as [number, number, number],
+              state: "idle" as const,
+            }
+          : agent,
+      ),
+    }));
   },
 
   setChatOpen: (open) => set({ chatOpen: open }),
@@ -488,6 +543,16 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   setChatBusy: (agentId, busy) => {
     set((s) => ({
       chatBusyById: { ...s.chatBusyById, [agentId]: busy },
+      runtimeAgents: busy
+        ? s.runtimeAgents
+        : s.runtimeAgents.map((agent) =>
+            agent.id === agentId && agent.state === "thinking"
+              ? {
+                  ...agent,
+                  state: agent.seated ? ("sitting" as const) : ("idle" as const),
+                }
+              : agent,
+          ),
     }));
     // Persist once when the model turn finishes (not on each streamed token).
     if (!busy) get().persist();
@@ -542,7 +607,13 @@ export const useArenaStore = create<ArenaState>((set, get) => {
               ...a,
               speechBubble,
               speechBubbleUntil: until,
-              state: text ? "talking" : a.state === "talking" ? "idle" : a.state,
+              state: text
+                ? "talking"
+                : a.state === "talking"
+                  ? a.seated
+                    ? "sitting"
+                    : "idle"
+                  : a.state,
             }
           : a,
       ),
@@ -582,7 +653,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           next.speechBubble = undefined;
           next.speechBubbleUntil = undefined;
           if (next.state === "talking" && !s.chatBusyById[next.id]) {
-            next.state = "idle";
+            next.state = next.seated ? "sitting" : "idle";
           }
         }
 
@@ -592,7 +663,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           return next;
         }
 
-        if (!next.target && next.state !== "talking") {
+        if (!next.target && !next.seated && next.state !== "talking") {
           if (Math.random() < dt * 0.15) {
             const angle = Math.random() * Math.PI * 2;
             const dist = 1.5 + Math.random() * 2.5;
@@ -616,7 +687,23 @@ export const useArenaStore = create<ArenaState>((set, get) => {
             next.position = [tx, 0, tz];
             next.target = undefined;
             next.commandTarget = undefined;
-            next.state = "idle";
+            if (next.interactionSpotId && next.interactionSeatId) {
+              const seat = s.activeMap?.interactionSpots
+                ?.find((spot) => spot.id === next.interactionSpotId)
+                ?.seats.find((item) => item.id === next.interactionSeatId);
+              if (seat) {
+                next.rotationY = seat.rotationY;
+                next.seated = true;
+                next.state = "sitting";
+              } else {
+                next.interactionSpotId = undefined;
+                next.interactionSeatId = undefined;
+                next.seated = false;
+                next.state = "idle";
+              }
+            } else {
+              next.state = "idle";
+            }
           } else {
             const speed =
               next.moveSpeed * (next.commandTarget ? 2 : 1);

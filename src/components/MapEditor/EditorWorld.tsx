@@ -17,6 +17,7 @@ import { clampToFloor, hitboxSize, hitFloor } from "@/components/MapEditor/geome
 import { DRAG_THRESHOLD, type EditorTool } from "@/components/MapEditor/types";
 import { lerpSceneLighting } from "@/lib/dayNight";
 import { useArenaStore } from "@/store/arenaStore";
+import { FitCameraToFloor } from "@/components/scene/FitCameraToFloor";
 
 export function EditorWorld({
   draft,
@@ -255,6 +256,11 @@ export function EditorWorld({
       ))}
 
       <ArenaFloor floor={draft.floor} />
+      <FitCameraToFloor
+        floorSize={floorSize}
+        viewKey={draft.id}
+        basePosition={[14, 16, 18]}
+      />
       <MapZones zones={draft.zones ?? []} visible opacity={0.16} />
       <gridHelper
         args={[

@@ -36,6 +36,28 @@
     "custom": "Custom",
     "edit": "Edit map"
   },
+  "social": {
+    "title": "Social spots",
+    "empty": "No one is seated yet.",
+    "selectAgent": "Select an agent first",
+    "sendHere": "Send {{name}} here",
+    "sendTo": "Send selected agent to {{name}}",
+    "onTheWay": "On the way…",
+    "alreadyHere": "Selected agent is already here",
+    "standUp": "Ask {{name}} to stand up",
+    "seatedAt": "Seated at {{name}}",
+    "headingTo": "Heading to {{name}}",
+    "full": "All seats are reserved",
+    "topicPlaceholder": "Conversation topic…",
+    "startChat": "Start",
+    "needTwo": "Seat at least two agents with models to start a group chat.",
+    "spots": {
+      "friends_coffee_table": "Coffeehouse table",
+      "himym_bar": "Manhattan pub bar",
+      "seinfeld_diner_table": "Diner table",
+      "cheers_bar": "Boston bar"
+    }
+  },
   "chat": {
     "placeholder": "Ask {{name}}…",
     "send": "Send",
@@ -284,6 +306,10 @@
     "space": {
       "name": "Space",
       "description": "Dusty reddish-orange planetary outpost under a peach haze. A grey habitat dome and smaller pod modules sit among stacked supply crates, dish antennas, and glowing blue beacon lamps. Alien plants and twisted dark trees grow between rock ridges and boulders; a six-wheeled rover and a large circular base ring mark the yard."
+    },
+    "social-hub": {
+      "name": "Four Corners Social Hub",
+      "description": "Four original social districts inspired by Friends, How I Met Your Mother, Seinfeld, and Cheers, connected by an open central plaza."
     }
   },
   "mapEditor": {
@@ -316,6 +342,7 @@
     "libraryHint": "Pick a category, click an object, then click the floor to place it. Click a placed object to select — rotate, scale, or delete in Properties.",
     "inspector": "Properties",
     "mapName": "Map name",
+    "signText": "Sign text",
     "untitled": "Untitled map",
     "description": "Description",
     "floorSize": "Floor size",
