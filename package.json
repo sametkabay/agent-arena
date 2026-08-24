@@ -2,7 +2,7 @@
   "name": "agent-arena",
   "private": true,
   "version": "0.1.0",
-  "description": "A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them.",
+  "description": "Agent Arena is an open-source, browser-native multi-agent playground. Place LLM characters on a 3D map, watch them live, and chat — no backend.",
   "license": "MIT",
   "homepage": "https://sametkabay.github.io/agent-arena/",
   "repository": {
@@ -32,7 +32,7 @@
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "i18next": "^26.3.6",
-    "js-yaml": "^5.2.3",
+    "js-yaml": "^5.3.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.11",
@@ -51,6 +51,6 @@
     "simple-git-hooks": "^2.13.1",
     "typescript": "~5.8.3",
     "vite": "^8.2.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }

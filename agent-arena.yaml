@@ -12,8 +12,9 @@
 
 app:
   name: Agent Arena
-  title: Agent Arena
-  description: A browser-native multi-agent playground — place AI personas on a 3D map, watch them live, and talk to them.
+  # document.title + meta description after JS boot — keep in sync with index.html
+  title: Agent Arena — 3D multi-agent playground in the browser
+  description: Agent Arena is an open-source, browser-native multi-agent playground. Place LLM characters on a 3D map, watch them live, and chat — no backend.
   themeColor: "#7a9e7e"
 
 defaults:

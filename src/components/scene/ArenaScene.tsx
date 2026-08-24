@@ -14,10 +14,8 @@ import { useArenaStore } from "@/store/arenaStore";
 import { CharacterAgent } from "@/components/scene/CharacterAgent";
 import { ArenaFloor } from "@/components/scene/OfficeFloor";
 import { Placeables } from "@/components/scene/Placeables";
-import {
-  MoveMarkers,
-  useMoveBursts,
-} from "@/components/scene/MoveMarkers";
+import { MoveMarkers } from "@/components/scene/MoveMarkers";
+import { useMoveBursts } from "@/components/scene/useMoveBursts";
 import { NightGlow, NightSky } from "@/components/scene/NightSky";
 import { SunShadowLight } from "@/components/scene/SunShadowLight";
 

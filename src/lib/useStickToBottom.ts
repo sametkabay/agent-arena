@@ -23,11 +23,12 @@ export function useStickToBottom(deps: readonly unknown[]) {
     if (el) el.scrollTop = el.scrollHeight;
   }, []);
 
+  const depKey = JSON.stringify(deps);
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el || !stickRef.current) return;
     el.scrollTop = el.scrollHeight;
-  }, deps);
+  }, [depKey]);
 
   return { containerRef, onScroll, stickNow };
 }

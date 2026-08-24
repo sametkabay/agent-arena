@@ -29,4 +29,16 @@ Coverage excludes generated files, `src/lib/three/**`, `src/lib/useStickToBottom
 - New GLBs under `public/assets/packs/` → `npm run assets:inventory` + credit in [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md)
 - Discuss larger features in [Issues](https://github.com/sametkabay/agent-arena/issues) first
 
-**Good first contributions:** bug reports, locale translations (`src/i18n/` + `agent-arena.yaml`), new builtin maps, and attributed GLB packs.
+## Good first issues
+
+Look for the [`good first issue`](https://github.com/sametkabay/agent-arena/labels/good%20first%20issue) label (often paired with `help wanted`). Those tickets are scoped for a first PR.
+
+Open one of these templates if you already know what you want to add:
+
+| Contribution | Issue template | What to touch |
+|--------------|----------------|---------------|
+| New UI language | [Translation](https://github.com/sametkabay/agent-arena/issues/new?template=translation.md) | Copy `src/i18n/en.json` → `src/i18n/xx.json`, add the locale under `languages` in `agent-arena.yaml` |
+| New builtin map | [Builtin map](https://github.com/sametkabay/agent-arena/issues/new?template=builtin-map.md) | Export `.aamf.json` from **Edit map**, drop it in `data/maps/` |
+| Attributed GLB pack | [Assets](https://github.com/sametkabay/agent-arena/issues/new?template=assets.md) | Files under `public/assets/`, credit in [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md), then `npm run assets:inventory` |
+
+Bug reports and larger features use the other templates; they are not automatically labeled `good first issue`.

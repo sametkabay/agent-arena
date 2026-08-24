@@ -5,10 +5,8 @@ import { ModelsTab } from "@/components/SettingsModal/ModelsTab";
 import { AgentsTab } from "@/components/SettingsModal/AgentsTab";
 import { MapTab } from "@/components/SettingsModal/MapTab";
 import { GraphicsTab } from "@/components/SettingsModal/GraphicsTab";
-import {
-  SettingsNavProvider,
-  useSettingsNav,
-} from "@/components/SettingsModal/SettingsNavContext";
+import { SettingsNavProvider } from "@/components/SettingsModal/SettingsNavContext";
+import { useSettingsNav } from "@/components/SettingsModal/settingsNav";
 
 const TABS = ["general", "models", "agents", "map", "graphics"] as const;
 

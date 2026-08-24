@@ -8,7 +8,7 @@ import { clampChattiness } from "@/lib/storage";
 import {
   useSettingsBack,
   useSettingsHeaderSave,
-} from "@/components/SettingsModal/SettingsNavContext";
+} from "@/components/SettingsModal/settingsNav";
 import { AgentForm } from "@/components/SettingsModal/AgentForm";
 import { AgentList } from "@/components/SettingsModal/AgentList";
 

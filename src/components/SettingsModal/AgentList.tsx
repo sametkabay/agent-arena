@@ -3,7 +3,6 @@ import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import { getPolyPreset } from "@/lib/poly/presets";
 import { getCharacter } from "@/lib/assets/characters";
 import { Switch } from "@/components/ui/Switch";
-import { clampChattiness } from "@/lib/storage";
 
 export function AgentList({
   agents,

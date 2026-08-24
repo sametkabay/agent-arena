@@ -11,7 +11,6 @@ import {
 } from "@/lib/ai/arenaContext";
 import { appConfig, prompts } from "@/lib/config";
 
-const OLLAMA_DEFAULT_HOST = appConfig.providers.ollama.host ?? "localhost";
 const OLLAMA_DEFAULT_PORT = appConfig.providers.ollama.port ?? 11434;
 
 export function providerDefaults(
