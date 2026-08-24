@@ -6,6 +6,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type ReactNode,
 } from "react";
 import * as THREE from "three";
@@ -77,20 +78,23 @@ function ProceduralWalk({
 function AgentLabels({
   agent,
   selected,
+  hovered,
   height,
 }: {
   agent: ArenaAgent;
   selected: boolean;
+  hovered: boolean;
   height: number;
 }) {
   const settingsOpen = useArenaStore((s) => s.settingsOpen);
-  const showLabels = !settingsOpen;
+  const showOverlays = !settingsOpen;
+  const showNameLabel = showOverlays && (!agent.seated || selected || hovered);
   const thinking = agent.state === "thinking" || agent.thinkingIntensity > 0.35;
   const bubble = agent.speechBubble || (thinking ? THINKING_BUBBLE : undefined);
 
   return (
     <>
-      {showLabels && (
+      {showNameLabel && (
         <Html
           position={[0, height + 0.22, 0]}
           center
@@ -111,7 +115,7 @@ function AgentLabels({
           </button>
         </Html>
       )}
-      {showLabels && bubble && (
+      {showOverlays && bubble && (
         <Html
           position={[0, height + 0.62, 0]}
           center
@@ -119,7 +123,17 @@ function AgentLabels({
           style={{ pointerEvents: "none" }}
           className="agent-html-overlay"
         >
-          <div className="agent-speech">{bubble}</div>
+          <div className="agent-speech">
+            {agent.seated && (
+              <span
+                className="agent-speech__name"
+                style={{ color: agent.color || "#7a9e7e" }}
+              >
+                {agent.displayName}
+              </span>
+            )}
+            <span className="agent-speech__text">{bubble}</span>
+          </div>
         </Html>
       )}
     </>
@@ -130,6 +144,7 @@ function GlbCharacter({ agent, selected, onPick }: CharacterAgentProps) {
   const spec = getCharacter(agent.characterId);
   const yawOffset = characterYawOffset(spec);
   const group = useRef<THREE.Group>(null);
+  const [hovered, setHovered] = useState(false);
   const { scene, animations: rawClips } = useGLTF(spec.glb) as {
     scene: THREE.Object3D;
     animations: THREE.AnimationClip[];
@@ -226,6 +241,8 @@ function GlbCharacter({ agent, selected, onPick }: CharacterAgentProps) {
   useFrame((_, dt) => {
     const g = group.current;
     if (!g) return;
+    // Keep seated characters above the furniture mesh. Lowering the whole GLB
+    // hides shorter characters behind booth and sofa backs.
     g.position.set(agent.position[0], 0, agent.position[2]);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, agent.rotationY, 6, dt);
   });
@@ -242,6 +259,11 @@ function GlbCharacter({ agent, selected, onPick }: CharacterAgentProps) {
         e.stopPropagation();
         onPick(e);
       }}
+      onPointerEnter={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+      }}
+      onPointerLeave={() => setHovered(false)}
     >
       <group rotation={[0, yawOffset, 0]}>
         <group position={offset} scale={scale}>
@@ -270,7 +292,12 @@ function GlbCharacter({ agent, selected, onPick }: CharacterAgentProps) {
           />
         </mesh>
       )}
-      <AgentLabels agent={agent} selected={selected} height={height} />
+      <AgentLabels
+        agent={agent}
+        selected={selected}
+        hovered={hovered}
+        height={height}
+      />
     </group>
   );
 }
@@ -278,6 +305,7 @@ function GlbCharacter({ agent, selected, onPick }: CharacterAgentProps) {
 function AgentStandIn({ agent, selected, onPick }: CharacterAgentProps) {
   const spec = getCharacter(agent.characterId);
   const h = spec.targetHeight;
+  const [hovered, setHovered] = useState(false);
   return (
     <group
       position={[agent.position[0], 0, agent.position[2]]}
@@ -286,6 +314,11 @@ function AgentStandIn({ agent, selected, onPick }: CharacterAgentProps) {
         e.stopPropagation();
         onPick(e);
       }}
+      onPointerEnter={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+      }}
+      onPointerLeave={() => setHovered(false)}
     >
       <mesh position={[0, h * 0.45, 0]} castShadow>
         <capsuleGeometry args={[spec.radius * 0.85, h * 0.55, 5, 10]} />
@@ -297,7 +330,7 @@ function AgentStandIn({ agent, selected, onPick }: CharacterAgentProps) {
           opacity={0.4}
         />
       </mesh>
-      <AgentLabels agent={agent} selected={selected} height={h} />
+      <AgentLabels agent={agent} selected={selected} hovered={hovered} height={h} />
     </group>
   );
 }

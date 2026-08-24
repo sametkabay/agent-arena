@@ -9,6 +9,8 @@ type Props = {
 export function AgentList({ collapsed, onToggle }: Props) {
   const { t } = useTranslation();
   const agents = useArenaStore((s) => s.agents);
+  const runtimeAgents = useArenaStore((s) => s.runtimeAgents);
+  const activeMap = useArenaStore((s) => s.activeMap);
   const activeAgents = agents.filter((a) => a.enabled !== false);
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
@@ -45,6 +47,13 @@ export function AgentList({ collapsed, onToggle }: Props) {
           ) : (
             activeAgents.map((agent) => {
               const active = selectedAgentId === agent.id;
+              const runtime = runtimeAgents.find((item) => item.id === agent.id);
+              const spot = activeMap?.interactionSpots?.find(
+                (item) => item.id === runtime?.interactionSpotId,
+              );
+              const spotName = spot
+                ? t(`social.spots.${spot.id}`, { defaultValue: spot.name })
+                : "";
               return (
                 <div
                   key={agent.id}
@@ -66,7 +75,11 @@ export function AgentList({ collapsed, onToggle }: Props) {
                     <span className="side-panel__meta">
                       <span className="side-panel__name">{agent.displayName}</span>
                       <span className="side-panel__bio">
-                        {agent.bio || t("agentList.talk")}
+                        {spot
+                          ? t(runtime?.seated ? "social.seatedAt" : "social.headingTo", {
+                              name: spotName,
+                            })
+                          : agent.bio || t("agentList.talk")}
                       </span>
                     </span>
                   </button>

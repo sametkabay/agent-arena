@@ -36,6 +36,28 @@
     "custom": "Özel",
     "edit": "Haritayı düzenle"
   },
+  "social": {
+    "title": "Sosyal noktalar",
+    "empty": "Henüz oturan kimse yok.",
+    "selectAgent": "Önce bir ajan seç",
+    "sendHere": "{{name}} buraya gelsin",
+    "sendTo": "Seçili ajanı {{name}} noktasına gönder",
+    "onTheWay": "Yolda…",
+    "alreadyHere": "Seçili ajan zaten burada",
+    "standUp": "{{name}} ayağa kalksın",
+    "seatedAt": "{{name}} noktasında oturuyor",
+    "headingTo": "{{name}} noktasına gidiyor",
+    "full": "Tüm koltuklar ayrılmış",
+    "topicPlaceholder": "Sohbet konusu…",
+    "startChat": "Başlat",
+    "needTwo": "Grup sohbeti için modeli olan en az iki ajanı oturt.",
+    "spots": {
+      "friends_coffee_table": "Kahvehane masası",
+      "himym_bar": "Manhattan pub barı",
+      "seinfeld_diner_table": "Diner masası",
+      "cheers_bar": "Boston barı"
+    }
+  },
   "chat": {
     "placeholder": "{{name}}’e sor…",
     "send": "Gönder",
@@ -284,6 +306,10 @@
     "space": {
       "name": "Uzay",
       "description": "Şeftali tonlu pus altında tozlu kırmızımsı-turuncu gezegen üssü. Gri habitat kubbesi ve küçük kapsüller, istiflenmiş ikmal sandıkları, çanak antenler ve mavi parlayan işaret lambaları arasında. Uzaylı bitkiler ve kıvrık koyu ağaçlar kaya sırtları ile kayalar arasında büyüyor; altı tekerlekli bir gezgin ve büyük dairesel bir üs halkası avluyu belirliyor."
+    },
+    "social-hub": {
+      "name": "Dört Köşe Sosyal Alanı",
+      "description": "Friends, How I Met Your Mother, Seinfeld ve Cheers dizilerinden esinlenen dört özgün sosyal bölgeyi açık bir merkez meydanında buluşturur."
     }
   },
   "mapEditor": {
@@ -316,6 +342,7 @@
     "libraryHint": "Kategori seç, bir nesneye tıkla, sonra zemine tıklayarak yerleştir. Yerleştirilmiş bir nesneye tıklayınca seçilir — Özellikler’den döndür, boyutlandır veya sil.",
     "inspector": "Özellikler",
     "mapName": "Harita adı",
+    "signText": "Tabela yazısı",
     "untitled": "Adsız harita",
     "description": "Açıklama",
     "floorSize": "Zemin boyutu",

@@ -30,6 +30,17 @@ modes:
       - 'The human in the arena is "{{userName}}".'
       - "Reply with one short spoken line (~25 words max); you were addressed directly."
       - "Stick to the human's topic. Mention place, day/night, or other people only if they ask or clearly steer there."
+  social_group:
+    channelId: social_group
+    how: "A small face-to-face conversation with agents seated at the same social spot."
+    lines:
+      - "Channel: a face-to-face small-group conversation at a shared table or bar."
+      - 'The human facilitating the conversation is "{{userName}}".'
+      - "Reply with one natural spoken sentence of 8–14 words."
+      - "Respond directly to the most recent speaker instead of restarting the topic."
+      - "Keep your personality subtle. Never force catchphrases, metaphors, hobbies, scenery, seasons, or venue details into the reply."
+      - "Do not repeat a question already asked. Prefer a direct answer or opinion; ask a new question only when it moves the exchange forward."
+      - "Do not narrate the interface, seating system, or your own actions."
   idle_mutter:
     channelId: idle_mutter
     how: "No human message — you are muttering to yourself while idle."
@@ -85,6 +96,20 @@ user:
   arenaBroadcast: |
     {{userName}} said in shared arena chat (broadcast, no @mention): "{{userText}}"
     If it fits, chime in with one short in-character line on their topic. Do not bring up place, day/night, or other people unless their message is clearly about those. Output only that line.
+  socialGroup: |
+    You are seated at "{{activityName}}" with {{participantNames}}.
+    {{userName}} starts a small-group conversation: "{{userText}}"
+    Conversation so far:
+    {{priorLines}}
+    Most recent line: {{latestLine}}
+    Speak next in 8–14 words. Answer the most recent line directly, using plain conversational language. Do not restate the topic, repeat an earlier question, or force your persona's favorite imagery. Output only your spoken sentence.
+  socialAuto: |
+    You are seated at "{{activityName}}" with {{participantNames}}.
+    The group has just settled in for a casual face-to-face conversation.
+    Conversation so far:
+    {{priorLines}}
+    Most recent line: {{latestLine}}
+    If no one has spoken, open with one simple everyday question. Otherwise answer the most recent line directly without repeating an earlier question. Use one plain, natural sentence of 8–14 words. Do not mention the venue, scenery, seasons, or force your persona's favorite imagery. Output only the spoken sentence.
 
 connectionTest:
   system: "Reply with exactly: OK"

@@ -14,6 +14,7 @@ import {
   resolveMapDefinition,
   syncRuntimeAgents,
 } from "@/lib/maps/runtime";
+import { isPlaceableId } from "@/lib/assets/catalog";
 
 describe("builtin maps", () => {
   it("lists shipped maps and resolves ids", () => {
@@ -24,6 +25,29 @@ describe("builtin maps", () => {
     expect(listed.every((m) => m.builtin)).toBe(true);
     expect(getBuiltinMap("nope")).toBeNull();
     expect(getBuiltinMap(BUILTIN_MAP_IDS[0]!)?.id).toBe(BUILTIN_MAP_IDS[0]);
+  });
+
+  it("ships the editable four-district social hub with titled regions", () => {
+    const socialHub = getBuiltinMap("social-hub");
+    expect(socialHub).not.toBeNull();
+    expect(socialHub?.zones).toHaveLength(4);
+    expect(socialHub?.interactionSpots).toHaveLength(4);
+    expect(
+      socialHub?.interactionSpots?.every((spot) => spot.seats.length === 4),
+    ).toBe(true);
+    expect(socialHub?.floor.size).toBeGreaterThanOrEqual(40);
+    expect(socialHub?.placeables.every((p) => isPlaceableId(p.placeableId))).toBe(
+      true,
+    );
+    const signs = socialHub?.placeables.filter(
+      (p) => p.placeableId.endsWith("_sign"),
+    );
+    expect(signs?.map((p) => p.label)).toEqual([
+      "FRIENDS",
+      "HOW I MET YOUR MOTHER",
+      "SEINFELD",
+      "CHEERS",
+    ]);
   });
 });
 

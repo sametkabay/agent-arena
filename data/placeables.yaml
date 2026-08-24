@@ -287,6 +287,174 @@ curated:
     pack: procedural
     footprint: [2.0, 0.22]
     scale: 1
+  region_sign:
+    label: Region sign
+    category: decor
+    pack: procedural
+    footprint: [4.2, 0.4]
+    scale: 1
+  cafe_sign:
+    label: Coffeehouse district sign
+    category: decor
+    pack: procedural
+    footprint: [4.2, 0.4]
+    scale: 1
+  pub_sign:
+    label: Manhattan pub district sign
+    category: decor
+    pack: procedural
+    footprint: [4.2, 0.4]
+    scale: 1
+  diner_sign:
+    label: Retro diner district sign
+    category: decor
+    pack: procedural
+    footprint: [4.2, 0.4]
+    scale: 1
+  tavern_sign:
+    label: Classic tavern district sign
+    category: decor
+    pack: procedural
+    footprint: [4.2, 0.4]
+    scale: 1
+  social_sofa_orange:
+    label: Burnt-orange social sofa
+    category: furniture
+    pack: procedural
+    footprint: [2.2, 0.9]
+    scale: 1
+  pub_booth_green:
+    label: Deep-green pub booth
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.8]
+    scale: 1
+  diner_booth_teal:
+    label: Teal diner booth
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.8]
+    scale: 1
+  tavern_booth_red:
+    label: Deep-red tavern booth
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.8]
+    scale: 1
+  rug_coffeehouse:
+    label: Coffeehouse area rug
+    category: ground
+    pack: procedural
+    footprint: [4.2, 3.2]
+    scale: 1
+  rug_pub:
+    label: Forest-green pub rug
+    category: ground
+    pack: procedural
+    footprint: [4.2, 3.2]
+    scale: 1
+  rug_diner:
+    label: Teal diner floor inset
+    category: ground
+    pack: procedural
+    footprint: [4.2, 3.2]
+    scale: 1
+  rug_tavern:
+    label: Burgundy tavern rug
+    category: ground
+    pack: procedural
+    footprint: [4.2, 3.2]
+    scale: 1
+  plaza_paving:
+    label: Plaza stone paving
+    category: ground
+    pack: procedural
+    footprint: [10.0, 10.0]
+    scale: 1
+  path_paving:
+    label: Plaza connecting path
+    category: ground
+    pack: procedural
+    footprint: [6.0, 2.4]
+    scale: 1
+  wall_brick:
+    label: Coffeehouse brick wall
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.24]
+    scale: 1
+  wall_pub_panel:
+    label: Dark pub panel wall
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.24]
+    scale: 1
+  wall_diner_window:
+    label: Diner window wall
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.24]
+    scale: 1
+  wall_tavern_panel:
+    label: Tavern panel wall
+    category: furniture
+    pack: procedural
+    footprint: [2.0, 0.24]
+    scale: 1
+  pastry_display:
+    label: Pastry display case
+    category: decor
+    pack: procedural
+    footprint: [1.25, 0.6]
+    scale: 1
+  microphone_stand:
+    label: Microphone stand
+    category: decor
+    pack: procedural
+    footprint: [0.4, 0.4]
+    scale: 1
+  framed_art:
+    label: Eclectic framed art
+    category: decor
+    pack: procedural
+    footprint: [0.9, 0.15]
+    scale: 1
+  bottle_shelf:
+    label: Bottle and glass shelf
+    category: decor
+    pack: procedural
+    footprint: [1.7, 0.36]
+    scale: 1
+  dartboard:
+    label: Pub dartboard
+    category: decor
+    pack: procedural
+    footprint: [0.75, 0.16]
+    scale: 1
+  menu_board:
+    label: Diner menu board
+    category: decor
+    pack: procedural
+    footprint: [1.5, 0.18]
+    scale: 1
+  wall_clock:
+    label: Retro wall clock
+    category: decor
+    pack: procedural
+    footprint: [0.65, 0.14]
+    scale: 1
+  condiment_set:
+    label: Diner condiment set
+    category: decor
+    pack: procedural
+    footprint: [0.34, 0.2]
+    scale: 1
+  brass_rail:
+    label: Brass bar rail
+    category: decor
+    pack: procedural
+    footprint: [2.0, 0.16]
+    scale: 1
   door:
     label: Door
     category: furniture

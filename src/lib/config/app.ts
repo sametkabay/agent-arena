@@ -60,6 +60,10 @@ export interface AppConfig {
   chatter: {
     maxMuttersPerMinute: number;
   };
+  social: {
+    roundsPerConversation: number;
+    maxReplyWords: number;
+  };
   speech: {
     maxChars: number;
     msPerChar: number;
