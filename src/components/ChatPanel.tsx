@@ -14,6 +14,15 @@ const STORAGE_KEY = appConfig.storage.chatPanelKey;
 const MIN_W = appConfig.chat.panel.minWidth;
 const MIN_H = appConfig.chat.panel.minHeight;
 const MARGIN = appConfig.chat.panel.margin;
+// Below this width the panel opens as a full-bleed sheet instead of a
+// desktop-sized floating window, and stays clear of the bottom arena chat
+// dock (composer) so the two never overlap by default.
+const MOBILE_BREAKPOINT = 720;
+const DOCK_CLEARANCE = 96;
+
+function isMobileViewport(): boolean {
+  return window.innerWidth <= MOBILE_BREAKPOINT;
+}
 
 type ChatLayout = {
   left: number;
@@ -23,6 +32,19 @@ type ChatLayout = {
 };
 
 function defaultLayout(): ChatLayout {
+  if (isMobileViewport()) {
+    const width = Math.max(MIN_W, window.innerWidth - MARGIN * 2);
+    const height = Math.max(
+      MIN_H,
+      Math.min(appConfig.chat.panel.defaultHeight, window.innerHeight - DOCK_CLEARANCE - 70),
+    );
+    return {
+      width,
+      height,
+      left: MARGIN,
+      top: Math.max(60, window.innerHeight - height - DOCK_CLEARANCE),
+    };
+  }
   const width = Math.min(appConfig.chat.panel.defaultWidth, Math.max(MIN_W, window.innerWidth - 24));
   const height = Math.min(appConfig.chat.panel.defaultHeight, Math.max(MIN_H, window.innerHeight - 100));
   return {
@@ -34,8 +56,9 @@ function defaultLayout(): ChatLayout {
 }
 
 function clampLayout(layout: ChatLayout): ChatLayout {
+  const bottomClearance = isMobileViewport() ? DOCK_CLEARANCE : MARGIN;
   const maxW = Math.max(MIN_W, window.innerWidth - MARGIN * 2);
-  const maxH = Math.max(MIN_H, window.innerHeight - MARGIN * 2);
+  const maxH = Math.max(MIN_H, window.innerHeight - MARGIN - bottomClearance);
   const width = Math.min(maxW, Math.max(MIN_W, layout.width));
   const height = Math.min(maxH, Math.max(MIN_H, layout.height));
   const left = Math.min(
@@ -43,7 +66,7 @@ function clampLayout(layout: ChatLayout): ChatLayout {
     Math.max(MARGIN, layout.left),
   );
   const top = Math.min(
-    window.innerHeight - height - MARGIN,
+    window.innerHeight - height - bottomClearance,
     Math.max(MARGIN, layout.top),
   );
   return { left, top, width, height };
