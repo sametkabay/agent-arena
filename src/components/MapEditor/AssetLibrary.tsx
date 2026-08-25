@@ -4,11 +4,14 @@ import {
   ASSET_CATEGORIES,
   ASSET_PACKS,
   PLACEABLE_SPECS,
+  isUserPlaceableId,
   listPlaceables,
   type AssetCategory,
   type PlaceableId,
 } from "@/lib/assets/catalog";
+import type { UserAssetMeta } from "@/lib/types";
 import { AssetPreview } from "@/components/MapEditor/AssetPreview";
+import { ImportAssetPanel } from "@/components/MapEditor/ImportAssetPanel";
 import { Select } from "@/components/ui/Select";
 import type { LibraryScope, SnapMode } from "@/components/MapEditor/types";
 
@@ -21,6 +24,7 @@ export function AssetLibrary({
   paintId,
   favoriteAssets,
   usedPlaceableIds,
+  userAssets,
   onSnapMode,
   onPackFilter,
   onLibraryScope,
@@ -28,6 +32,8 @@ export function AssetLibrary({
   onAssetQuery,
   onToggleFavorite,
   onPaintAsset,
+  onImportAsset,
+  onDeleteAsset,
 }: {
   snapMode: SnapMode;
   packFilter: string;
@@ -37,6 +43,7 @@ export function AssetLibrary({
   paintId: PlaceableId | null;
   favoriteAssets: string[];
   usedPlaceableIds: Set<string>;
+  userAssets: UserAssetMeta[];
   onSnapMode: (mode: SnapMode) => void;
   onPackFilter: (pack: string) => void;
   onLibraryScope: (scope: LibraryScope) => void;
@@ -44,8 +51,16 @@ export function AssetLibrary({
   onAssetQuery: (q: string) => void;
   onToggleFavorite: (id: PlaceableId) => void;
   onPaintAsset: (id: PlaceableId) => void;
+  onImportAsset: Parameters<typeof ImportAssetPanel>[0]["onImport"];
+  onDeleteAsset: (id: PlaceableId) => void;
 }) {
   const { t } = useTranslation();
+
+  // Imports/removals mutate the shared PLACEABLE_SPECS catalog in place, so
+  // a user id's presence here (not just in PLACEABLE_SPECS) is what ties the
+  // list to React state — otherwise a just-deleted id can linger in the
+  // memoized list with no spec left to render.
+  const userAssetIds = useMemo(() => new Set(userAssets.map((a) => a.id)), [userAssets]);
 
   const libraryGroups = useMemo(() => {
     const q = assetQuery.trim().toLowerCase();
@@ -55,6 +70,7 @@ export function AssetLibrary({
     return cats
       .map((cat) => {
         const ids = listPlaceables(cat).filter((id) => {
+          if (isUserPlaceableId(id) && !userAssetIds.has(id)) return false;
           const spec = PLACEABLE_SPECS[id];
           if (packFilter !== "all" && spec?.pack !== packFilter) return false;
           if (libraryScope === "favorites" && !fav.has(id)) return false;
@@ -73,6 +89,7 @@ export function AssetLibrary({
     libraryScope,
     favoriteAssets,
     usedPlaceableIds,
+    userAssetIds,
   ]);
 
   const libraryMatchCount = useMemo(
@@ -83,6 +100,7 @@ export function AssetLibrary({
   return (
     <aside className="map-editor__library">
       <h3>{t("mapEditor.library")}</h3>
+      <ImportAssetPanel count={userAssets.length} onImport={onImportAsset} />
       <label className="map-editor__search">
         <span className="map-editor__sr-only">{t("mapEditor.searchAssets")}</span>
         <input
@@ -170,6 +188,10 @@ export function AssetLibrary({
             <div className="map-editor__asset-grid">
               {group.ids.map((id) => {
                 const spec = PLACEABLE_SPECS[id];
+                // A user asset can be removed between the memo computing
+                // `group.ids` and this render (e.g. deleted from another
+                // scope's grid); skip rather than crash on a missing spec.
+                if (!spec) return null;
                 const fav = favoriteAssets.includes(id);
                 return (
                   <div
@@ -206,6 +228,19 @@ export function AssetLibrary({
                     >
                       ★
                     </button>
+                    {isUserPlaceableId(id) && (
+                      <button
+                        type="button"
+                        className="map-editor__asset-delete"
+                        title={t("mapEditor.importAsset.remove")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteAsset(id);
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 );
               })}

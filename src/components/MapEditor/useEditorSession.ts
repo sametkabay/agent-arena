@@ -7,7 +7,7 @@ import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu"
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
 import type { EditorTool } from "@/components/MapEditor/types";
 import { useArenaStore } from "@/store/arenaStore";
-import type { PlaceableId } from "@/lib/assets/catalog";
+import { isPlaceableId, isUserPlaceableId, type PlaceableId } from "@/lib/assets/catalog";
 
 type UseEditorSessionArgs = {
   open: boolean;
@@ -132,6 +132,11 @@ export function useEditorSession({
     a.download = `${safeName}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    // .aamf.json only ever stores placeable ids — a user-imported GLB stays
+    // in this browser's IndexedDB, so warn before the recipient is confused
+    // by props missing from the file they were given.
+    const hasUserAssets = current.placeables.some((p) => isUserPlaceableId(p.placeableId));
+    if (hasUserAssets) showToast(t("mapEditor.importAsset.exportWarning"));
   };
 
   const onImportFile = async (file: File) => {
@@ -143,7 +148,12 @@ export function useEditorSession({
       useArenaStore.setState({ mapEditorSourceId: id });
       const def = resolveMapDefinition(id, useArenaStore.getState().customMaps);
       reset(cloneMap(def));
-      showToast(t("mapEditor.imported"));
+      const missingUserAssets = def.placeables.some(
+        (p) => isUserPlaceableId(p.placeableId) && !isPlaceableId(p.placeableId),
+      );
+      showToast(
+        missingUserAssets ? t("mapEditor.importAsset.importMissingAssets") : t("mapEditor.imported"),
+      );
     } catch {
       showToast(t("mapEditor.importError"));
     }

@@ -13,6 +13,7 @@ import { appConfig } from "@/lib/config";
 
 export default function App() {
   const hydrate = useArenaStore((s) => s.hydrate);
+  const hydrateUserAssetsFromDb = useArenaStore((s) => s.hydrateUserAssetsFromDb);
   const userName = useArenaStore((s) => s.userName);
   const toast = useArenaStore((s) => s.toast);
   const mapEditorOpen = useArenaStore((s) => s.mapEditorOpen);
@@ -20,7 +21,8 @@ export default function App() {
 
   useEffect(() => {
     hydrate();
-  }, [hydrate]);
+    void hydrateUserAssetsFromDb();
+  }, [hydrate, hydrateUserAssetsFromDb]);
 
   useEffect(() => {
     document.documentElement.dataset.dayNight = dayNight;

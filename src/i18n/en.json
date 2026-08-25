@@ -402,7 +402,37 @@
       "cars": "Cars",
       "animals": "Animals",
       "food": "Food",
-      "space": "Space"
+      "space": "Space",
+      "user": "My imports"
+    },
+    "importAsset": {
+      "open": "Import GLB…",
+      "limitReached": "Import limit reached — remove one to add another",
+      "file": "GLB / glTF file",
+      "label": "Label",
+      "labelPlaceholder": "e.g. My couch",
+      "category": "Category",
+      "autoFit": "Fit to size",
+      "autoFitHeight": "By height",
+      "autoFitFootprint": "By footprint",
+      "targetSize": "Target size",
+      "importing": "Importing…",
+      "confirm": "Import",
+      "imported": "Asset imported",
+      "hint": "Stored in this browser only (IndexedDB), up to {{maxMb}} MB per file.",
+      "remove": "Remove",
+      "removeTitle": "Remove imported asset",
+      "removeBody": "This asset and its file will be removed from this browser. This can't be undone.",
+      "removeBodyUsed": "Used by {{count}} placed object(s) on this map — they'll disappear from the scene. The asset and its file will be removed from this browser. This can't be undone.",
+      "exportWarning": "This map uses imported assets that stay in this browser — they won't be included in the exported file.",
+      "importMissingAssets": "Map imported, but some placed objects use custom assets not in this browser and were skipped.",
+      "error": {
+        "invalidType": "Choose a .glb or .gltf file",
+        "empty": "That file looks empty",
+        "tooLarge": "File is too large",
+        "tooMany": "You've reached the import limit — remove one first",
+        "storageFailed": "Could not save that file in this browser"
+      }
     }
   }
 }

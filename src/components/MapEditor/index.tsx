@@ -29,6 +29,9 @@ export function MapEditor() {
   const toggleDayNight = useArenaStore((s) => s.toggleDayNight);
   const favoriteAssets = useArenaStore((s) => s.favoriteAssets ?? []);
   const toggleFavoriteAsset = useArenaStore((s) => s.toggleFavoriteAsset);
+  const userAssets = useArenaStore((s) => s.userAssets ?? []);
+  const importUserAsset = useArenaStore((s) => s.importUserAsset);
+  const removeUserAsset = useArenaStore((s) => s.removeUserAsset);
 
   const {
     draft,
@@ -53,6 +56,7 @@ export function MapEditor() {
   const [paintId, setPaintId] = useState<PlaceableId | null>(null);
   const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null);
   const [confirmClose, setConfirmClose] = useState(false);
+  const [deleteAssetId, setDeleteAssetId] = useState<PlaceableId | null>(null);
   const viewportApi = useRef<{
     camera: THREE.Camera;
     gl: THREE.WebGLRenderer;
@@ -125,6 +129,27 @@ export function MapEditor() {
     for (const p of draft?.placeables ?? []) set.add(p.placeableId);
     return set;
   }, [draft?.placeables]);
+
+  const handleImportAsset: typeof importUserAsset = async (file, form) => {
+    const result = await importUserAsset(file, form);
+    if (result.ok) {
+      showToast(t("mapEditor.importAsset.imported"));
+    } else {
+      showToast(t(`mapEditor.importAsset.error.${result.error}`, { defaultValue: result.error }));
+    }
+    return result;
+  };
+
+  const deleteAssetUsageCount = deleteAssetId
+    ? (draft?.placeables ?? []).filter((p) => p.placeableId === deleteAssetId).length
+    : 0;
+
+  const confirmDeleteAsset = () => {
+    if (!deleteAssetId) return;
+    if (paintId === deleteAssetId) setPaintId(null);
+    void removeUserAsset(deleteAssetId);
+    setDeleteAssetId(null);
+  };
 
   const selectedPlaceables = useMemo(
     () => draft?.placeables.filter((p) => selectedIds.includes(p.id)) ?? [],
@@ -210,6 +235,7 @@ export function MapEditor() {
           paintId={paintId}
           favoriteAssets={favoriteAssets}
           usedPlaceableIds={usedPlaceableIds}
+          userAssets={userAssets}
           onSnapMode={setSnapMode}
           onPackFilter={setPackFilter}
           onLibraryScope={setLibraryScope}
@@ -222,6 +248,8 @@ export function MapEditor() {
             setSelectedIds([]);
             setCtxMenu(null);
           }}
+          onImportAsset={handleImportAsset}
+          onDeleteAsset={setDeleteAssetId}
         />
 
         <div
@@ -260,7 +288,9 @@ export function MapEditor() {
           )}
           {paintId && tool === "select" && (
             <div className="map-editor__mode-banner">
-              {t("mapEditor.paintMode", { name: PLACEABLE_SPECS[paintId].label })}
+              {t("mapEditor.paintMode", {
+                name: PLACEABLE_SPECS[paintId]?.label ?? paintId,
+              })}
             </div>
           )}
           {multiPlaceable && !paintId && !ctxMenu && (
@@ -320,6 +350,21 @@ export function MapEditor() {
         danger
         onCancel={() => setConfirmClose(false)}
         onConfirm={confirmDiscardClose}
+      />
+
+      <ConfirmDialog
+        open={deleteAssetId != null}
+        title={t("mapEditor.importAsset.removeTitle")}
+        message={
+          deleteAssetUsageCount > 0
+            ? t("mapEditor.importAsset.removeBodyUsed", { count: deleteAssetUsageCount })
+            : t("mapEditor.importAsset.removeBody")
+        }
+        confirmLabel={t("mapEditor.importAsset.remove")}
+        cancelLabel={t("settings.cancel")}
+        danger
+        onCancel={() => setDeleteAssetId(null)}
+        onConfirm={confirmDeleteAsset}
       />
     </div>
   );

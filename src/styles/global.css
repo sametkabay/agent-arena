@@ -3050,6 +3050,63 @@ body.is-chat-panel-dragging .chat-popup__resize {
   color: #f0c14a;
 }
 
+.map-editor__asset-delete {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.map-editor__asset-delete:hover {
+  background: rgba(180, 80, 60, 0.85);
+  color: #fff;
+}
+
+.map-editor__import-toggle {
+  width: 100%;
+  margin: 0 0 12px;
+  border: 1px dashed rgba(244, 239, 230, 0.28);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f4efe6;
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.map-editor__import-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.map-editor__import-panel {
+  margin: 0 0 14px;
+  padding: 10px;
+  border: 1px solid rgba(244, 239, 230, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+}
+
+.map-editor__import-error {
+  margin: 0 0 10px;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(180, 80, 60, 0.45);
+  background: rgba(180, 80, 60, 0.18);
+  color: #f0c0b0;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
 .map-card__row {
   display: flex;
   gap: 6px;

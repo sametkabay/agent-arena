@@ -166,6 +166,45 @@ describe("loadPersisted / savePersisted", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ mapId: "custom_gone" }));
     expect(loadPersisted().mapId).toBe(appConfig.defaults.mapId);
   });
+
+  it("sanitizes user asset metadata, dropping malformed or non-user entries", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        userAssets: [
+          {
+            id: "user__abc",
+            label: "My couch",
+            category: "not-a-category",
+            fileName: "couch.glb",
+            size: 1200,
+            footprint: [0.8, 0.5],
+            scale: "bad",
+            autoFit: "height",
+            targetSize: 1.2,
+            createdAt: 42,
+          },
+          { id: "furniture__chair" }, // not a user__ id — dropped
+          "skip",
+          { id: "user__no_fields" },
+        ],
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.userAssets).toHaveLength(2);
+    expect(loaded.userAssets?.[0]).toMatchObject({
+      id: "user__abc",
+      label: "My couch",
+      category: "decor", // invalid category falls back
+      scale: 1, // invalid scale falls back
+      createdAt: 42,
+    });
+    expect(loaded.userAssets?.[1]).toMatchObject({
+      id: "user__no_fields",
+      footprint: [0.85, 0.85],
+      scale: 1,
+    });
+  });
 });
 
 describe("uid", () => {

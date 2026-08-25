@@ -85,6 +85,16 @@ ui:
   dayNightBlendSpeed: 0.55
   editorMaxHistory: 80
 
+userAssets:
+  # Imported GLBs live in IndexedDB (never localStorage) — see lib/assets/userAssets.ts.
+  dbName: agent-arena-assets
+  storeName: glbs
+  maxFileBytes: 20971520 # 20 MB
+  maxCount: 60
+  defaultCategory: decor
+  defaultAutoFit: height
+  defaultTargetSize: 1
+
 maps:
   floorSizeMin: 10
   floorSizeMax: 48
