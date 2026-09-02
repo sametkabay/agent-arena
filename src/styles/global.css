@@ -946,10 +946,19 @@ button {
 /* —— Name gate —— */
 .name-gate {
   min-height: 100%;
+  height: 100%;
+  overflow-y: auto;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
   background: var(--name-gate-bg);
+}
+
+@supports (height: 100dvh) {
+  .name-gate {
+    height: 100dvh;
+  }
 }
 
 .name-gate__card {
@@ -1099,7 +1108,8 @@ button {
   flex-wrap: wrap;
   gap: 12px 18px;
   align-items: center;
-  padding: 14px 18px;
+  padding: max(14px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 14px
+    max(18px, env(safe-area-inset-left));
   background: linear-gradient(180deg, var(--hud-fade-top), var(--hud-fade-mid), transparent);
   pointer-events: none;
 }
@@ -1838,7 +1848,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   z-index: 200;
   display: grid;
   place-items: center;
-  padding: 18px;
+  padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right))
+    max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
   background: var(--modal-scrim);
   backdrop-filter: blur(4px);
 }
@@ -1854,6 +1865,12 @@ body.is-chat-panel-dragging .chat-popup__resize {
   box-shadow: var(--modal-shadow);
   overflow: hidden;
   color: var(--ink);
+}
+
+@supports (height: 100dvh) {
+  .settings-modal__card {
+    height: min(680px, calc(100dvh - 36px));
+  }
 }
 
 .settings-modal__nav {
@@ -2500,9 +2517,50 @@ body.is-chat-panel-dragging .chat-popup__resize {
     border-bottom: 1px solid var(--border);
   }
   .arena-side-panels {
-    top: auto;
-    bottom: 18px;
-    max-height: min(52vh, calc(100vh - 120px));
+    /* Stay pinned under the HUD (not the bottom) so an expanded list never
+       covers the arena chat dock, which is also bottom-anchored. */
+    left: 12px;
+    top: 68px;
+    width: min(168px, calc(100vw - 24px));
+    max-height: calc(100vh - 190px);
+  }
+  /* The agent/model/map counters duplicate what the side panels already
+     show and are the first thing to collide with them once the HUD wraps
+     onto a second line on a narrow screen — drop them here. */
+  .hud__stats {
+    display: none;
+  }
+}
+
+/* Larger tap targets for touch pointers, independent of viewport width
+   (a touch-capable tablet can still be wide). */
+@media (pointer: coarse) {
+  .agent-label {
+    padding: 0.4rem 0.85rem;
+    font-size: 16px;
+  }
+  .hud__settings {
+    width: 44px;
+    height: 36px;
+  }
+  .chat-popup__close {
+    padding: 8px;
+    font-size: 1.35rem;
+  }
+  .chat-popup__resize {
+    width: 28px;
+    height: 28px;
+  }
+  .side-panel__header {
+    min-height: 44px;
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 720px) {
+    .settings-modal__card {
+      height: min(760px, calc(100dvh - 24px));
+    }
   }
 }
 
@@ -2526,7 +2584,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   position: absolute;
   z-index: 90;
   left: 50%;
-  bottom: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   width: min(520px, calc(100vw - 48px));
   display: flex;

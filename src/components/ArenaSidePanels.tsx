@@ -11,16 +11,19 @@ type SidePanelOpenState = {
 };
 
 function loadOpenState(): SidePanelOpenState {
+  // Default to collapsed on narrow viewports so the lists don't cover the
+  // scene on first visit; a saved preference always wins.
+  const defaults = { agents: window.innerWidth > 720, maps: window.innerWidth > 720 };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { agents: true, maps: true };
+    if (!raw) return defaults;
     const parsed = JSON.parse(raw) as Partial<SidePanelOpenState>;
     return {
-      agents: parsed.agents !== false,
-      maps: parsed.maps !== false,
+      agents: parsed.agents ?? defaults.agents,
+      maps: parsed.maps ?? defaults.maps,
     };
   } catch {
-    return { agents: true, maps: true };
+    return defaults;
   }
 }
 
