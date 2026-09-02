@@ -2,9 +2,12 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { load as loadYaml } from "js-yaml";
 import fs from "node:fs";
+import http from "node:http";
+import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Connect } from "vite";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -22,7 +25,6 @@ const appYaml = loadYaml(
 
 const DEV_PORT = appYaml.dev?.port ?? 5174;
 const OLLAMA_PROXY = appYaml.dev?.ollamaProxy ?? "http://127.0.0.1:11434";
-const LOCAL_LLM_FALLBACK = appYaml.dev?.localLlmFallback ?? "http://127.0.0.1:3100";
 
 function yamlPlugin(): Plugin {
   return {
@@ -39,12 +41,89 @@ function yamlPlugin(): Plugin {
   };
 }
 
-/** /local-llm/<host>/<port>/... → http://host:port/... (DEV streaming-friendly proxy). */
-function localLlmTarget(req: IncomingMessage): string {
-  const url = req.url ?? "";
-  const m = url.match(/^\/local-llm\/([^/]+)\/(\d+)/);
-  if (!m) return LOCAL_LLM_FALLBACK;
-  return `http://${m[1]}:${m[2]}`;
+/**
+ * Dynamic LLM proxies (Vite's built-in `proxy.router` is ignored).
+ * - /local-llm/<host>/<port>/...  → http://host:port/...
+ * - /remote-llm/<host>/<port>/... → https://host:port/...
+ */
+function llmDevProxyPlugin(): Plugin {
+  const middleware: Connect.NextHandleFunction = (req, res, next) => {
+    const raw = req.url ?? "";
+    const q = raw.indexOf("?");
+    const pathname = q >= 0 ? raw.slice(0, q) : raw;
+    const search = q >= 0 ? raw.slice(q) : "";
+
+    const local = pathname.match(/^\/local-llm\/([^/]+)\/(\d+)(\/.*)?$/);
+    const remote = pathname.match(/^\/remote-llm\/([^/]+)\/(\d+)(\/.*)?$/);
+    const match = local ?? remote;
+    if (!match) {
+      next();
+      return;
+    }
+
+    const host = decodeURIComponent(match[1]);
+    const port = match[2];
+    const restPath = match[3] && match[3].length > 0 ? match[3] : "/";
+    const isRemote = Boolean(remote);
+    const target = new URL(
+      isRemote
+        ? `https://${host}${port === "443" ? "" : `:${port}`}${restPath}${search}`
+        : `http://${host}:${port}${restPath}${search}`,
+    );
+
+    pipeHttpProxy(req, res as ServerResponse, target, isRemote);
+  };
+
+  return {
+    name: "llm-dev-proxy",
+    configureServer(server) {
+      server.middlewares.use(middleware);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(middleware);
+    },
+  };
+}
+
+function pipeHttpProxy(
+  req: IncomingMessage,
+  res: ServerResponse,
+  target: URL,
+  secure: boolean,
+): void {
+  const lib = secure ? https : http;
+  const headers: http.OutgoingHttpHeaders = { ...req.headers, host: target.host };
+  delete headers["origin"];
+
+  const upstream = lib.request(
+    {
+      protocol: target.protocol,
+      hostname: target.hostname,
+      port: target.port || (secure ? 443 : 80),
+      path: `${target.pathname}${target.search}`,
+      method: req.method,
+      headers,
+    },
+    (upRes) => {
+      const outHeaders = { ...upRes.headers };
+      outHeaders["cache-control"] = "no-cache, no-transform";
+      outHeaders["x-accel-buffering"] = "no";
+      res.writeHead(upRes.statusCode ?? 502, outHeaders);
+      upRes.pipe(res);
+    },
+  );
+
+  upstream.on("error", (err) => {
+    if (!res.headersSent) {
+      res.statusCode = 502;
+      res.setHeader("Content-Type", "text/plain");
+      res.end(`LLM proxy error: ${err.message}`);
+    } else {
+      res.end();
+    }
+  });
+
+  req.pipe(upstream);
 }
 
 /**
@@ -109,7 +188,7 @@ export default defineConfig(({ command }) => {
 
   return {
     base,
-    plugins: [react(), yamlPlugin(), servePackAssets(base)],
+    plugins: [react(), yamlPlugin(), llmDevProxyPlugin(), servePackAssets(base)],
     resolve: {
       alias: {
         "@": path.resolve(rootDir, "src"),
@@ -132,43 +211,6 @@ export default defineConfig(({ command }) => {
           target: OLLAMA_PROXY,
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/ollama/, ""),
-        },
-        "/local-llm": {
-          target: LOCAL_LLM_FALLBACK,
-          changeOrigin: true,
-          // http-proxy `router` — not in Vite's ProxyOptions typings
-          ...({ router: localLlmTarget } as object),
-          rewrite: (p) => p.replace(/^\/local-llm\/[^/]+\/\d+/, ""),
-          configure: (proxy) => {
-            proxy.on("proxyRes", (proxyRes) => {
-              // Discourage intermediary buffering of SSE/NDJSON streams.
-              proxyRes.headers["cache-control"] = "no-cache, no-transform";
-              proxyRes.headers["x-accel-buffering"] = "no";
-            });
-          },
-        },
-        // NVIDIA NIM has no browser CORS — same-origin proxy in DEV / preview only.
-        "/nvidia-nim": {
-          target: "https://integrate.api.nvidia.com",
-          changeOrigin: true,
-          secure: true,
-          rewrite: (p) => p.replace(/^\/nvidia-nim/, ""),
-          configure: (proxy) => {
-            proxy.on("proxyRes", (proxyRes) => {
-              proxyRes.headers["cache-control"] = "no-cache, no-transform";
-              proxyRes.headers["x-accel-buffering"] = "no";
-            });
-          },
-        },
-      },
-    },
-    preview: {
-      proxy: {
-        "/nvidia-nim": {
-          target: "https://integrate.api.nvidia.com",
-          changeOrigin: true,
-          secure: true,
-          rewrite: (p) => p.replace(/^\/nvidia-nim/, ""),
         },
       },
     },

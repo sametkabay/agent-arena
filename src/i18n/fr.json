@@ -102,7 +102,7 @@
       "extraHeadersHint": "Uniquement si ton fournisseur demande des en-têtes en plus (par exemple Organization). Sinon, laisse vide.",
       "presetsLabel": "Remplissage rapide",
       "baseUrlHint": "Les API compatibles OpenAI veulent la racine /v1. Une URL /chat/completions collée est raccourcie automatiquement.",
-      "nvidiaCorsHint": "NVIDIA NIM n’autorise pas le CORS navigateur. La démo GitHub Pages ne peut pas l’appeler. Lance npm run dev en local — Agent Arena proxifie NVIDIA sur ta machine.",
+      "corsDevHint": "Les API qui bloquent le CORS navigateur nécessitent npm run dev (proxy local) ou ton propre gateway en URL de base. La démo GitHub Pages n’a pas de proxy.",
       "addHeader": "Ajouter un en-tête",
       "headerKey": "En-tête",
       "headerValue": "Valeur",

@@ -40,39 +40,48 @@ export function normalizeOpenAiCompatibleBaseUrl(baseUrl: string): string {
   return s.replace(/\/+$/, "");
 }
 
-export function isNvidiaNimBaseUrl(baseUrl: string): boolean {
-  return /integrate\.api\.nvidia\.com/i.test(baseUrl);
+export function isLocalLlmBaseUrl(baseUrl: string): boolean {
+  try {
+    const u = new URL(normalizeOpenAiCompatibleBaseUrl(baseUrl));
+    return u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
+  } catch {
+    return false;
+  }
 }
 
-/** In Vite DEV, rewrite local LLM URLs to same-origin proxies (CORS + less SSE buffering). */
+/** In Vite DEV, rewrite LLM URLs to same-origin proxies (CORS + less SSE buffering). */
 function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): string {
   const trimmed = normalizeOpenAiCompatibleBaseUrl(baseUrl);
-  if (trimmed.startsWith("/ollama") || trimmed.startsWith("/local-llm/") || trimmed.startsWith("/nvidia-nim")) {
+  if (
+    trimmed.startsWith("/ollama") ||
+    trimmed.startsWith("/local-llm/") ||
+    trimmed.startsWith("/remote-llm/")
+  ) {
     return trimmed;
   }
 
   try {
     const u = new URL(trimmed);
-    const isLocal =
-      u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
-
-    if (import.meta.env.DEV && isNvidiaNimBaseUrl(trimmed)) {
-      const pathPart = u.pathname.replace(/\/+$/, "") || "/v1";
-      return `/nvidia-nim${pathPart}`;
-    }
+    const isLocal = isLocalLlmBaseUrl(trimmed);
 
     if (!import.meta.env.DEV) return trimmed;
-    if (!isLocal) return trimmed;
 
-    if (provider === "ollama" && (u.port === String(OLLAMA_DEFAULT_PORT) || !u.port)) {
+    if (provider === "ollama" && isLocal && (u.port === String(OLLAMA_DEFAULT_PORT) || !u.port)) {
       return "/ollama";
     }
 
     if (provider === "openai" || provider === "custom" || provider === "ollama") {
       const host = u.hostname === "[::1]" || u.hostname === "localhost" ? "127.0.0.1" : u.hostname;
-      const port = u.port || (u.protocol === "https:" ? "443" : "80");
       const pathPart = u.pathname.replace(/\/+$/, "");
-      return `/local-llm/${host}/${port}${pathPart}`;
+      if (isLocal) {
+        const port = u.port || (u.protocol === "https:" ? "443" : "80");
+        return `/local-llm/${host}/${port}${pathPart}`;
+      }
+      // Remote HTTPS OpenAI-compatible APIs often lack browser CORS.
+      if (u.protocol === "https:") {
+        const port = u.port || "443";
+        return `/remote-llm/${host}/${port}${pathPart}`;
+      }
     }
   } catch {
     // keep as-is
@@ -170,18 +179,11 @@ async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
     stream,
   };
 
-  // Local / custom gateways may think by default — send an explicit effort.
-  // Skip for hosted api.openai.com and NVIDIA NIM (they 400 on unknown / invalid params).
+  // Local gateways may think by default — send an explicit effort.
+  // Skip remote hosted APIs unless thinking is on (many 400 on unknown params).
   const effort = thinkingEnabled === true ? "medium" : "none";
-  const hostedOpenAi = /api\.openai\.com/i.test(model.baseUrl);
-  const nvidiaNim = isNvidiaNimBaseUrl(model.baseUrl);
-  const sendEffort =
-    !nvidiaNim &&
-    (model.provider === "ollama" ||
-      model.provider === "custom" ||
-      (model.provider === "openai" && !hostedOpenAi) ||
-      thinkingEnabled === true ||
-      isLikelyReasoningModel(model.modelId));
+  const localGateway = model.provider === "ollama" || isLocalLlmBaseUrl(model.baseUrl);
+  const sendEffort = localGateway || thinkingEnabled === true;
   if (sendEffort) {
     body.reasoning_effort = effort;
     if (model.provider === "ollama") {
@@ -595,15 +597,6 @@ export async function testConnection(
   }
 }
 
-function isLikelyReasoningModel(modelId: string): boolean {
-  const id = modelId.toLowerCase();
-  return (
-    /(^|[/:_-])o[1-9]([.-]|$)/.test(id) ||
-    id.includes("gpt-5") ||
-    id.includes("reason")
-  );
-}
-
 async function fetchProvider(
   url: string,
   init: RequestInit,
@@ -624,11 +617,8 @@ export function wrapNetworkError(error: unknown, baseUrl: string): Error {
   return new Error(corsHelpMessage(baseUrl));
 }
 
-export function corsHelpMessage(baseUrl: string): string {
-  if (isNvidiaNimBaseUrl(baseUrl)) {
-    return "NVIDIA NIM blocks browser CORS. The GitHub Pages demo cannot call it. Run npm run dev — Agent Arena proxies integrate.api.nvidia.com. Base URL must be https://integrate.api.nvidia.com/v1 (not …/chat/completions).";
-  }
-  return "Network or CORS error. The provider must send Access-Control-Allow-Origin, or use a local proxy (npm run dev).";
+export function corsHelpMessage(_baseUrl?: string): string {
+  return "Network or CORS error. This origin cannot call that API. Run npm run dev (proxies remote OpenAI-compatible HTTPS hosts) or put your own CORS-enabled gateway in Base URL. GitHub Pages has no proxy.";
 }
 
 function formatHttpError(status: number, body: string, baseUrl?: string): string {

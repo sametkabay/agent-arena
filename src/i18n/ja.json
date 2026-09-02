@@ -102,7 +102,7 @@
       "extraHeadersHint": "プロバイダーが追加ヘッダーを求めるときだけ（例：Organization）。不要なら空のまま。",
       "presetsLabel": "クイック入力",
       "baseUrlHint": "OpenAI 互換 API は /v1 ルートを使います。/chat/completions を貼ると自動で削られます。",
-      "nvidiaCorsHint": "NVIDIA NIM はブラウザ CORS を許可しません。GitHub Pages のデモからは呼べません。ローカルで npm run dev を実行してください。Agent Arena がこのマシンで NVIDIA をプロキシします。",
+      "corsDevHint": "ブラウザ CORS を拒否する API には npm run dev（ローカルプロキシ）か、Base URL に自分のゲートウェイが必要です。GitHub Pages デモにプロキシはありません。",
       "addHeader": "ヘッダーを追加",
       "headerKey": "ヘッダー",
       "headerValue": "値",

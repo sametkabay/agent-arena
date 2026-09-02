@@ -16,8 +16,9 @@ describe("barrel exports", () => {
     );
   });
 
-  it("includes NVIDIA NIM as an OpenAI-compatible preset", () => {
-    const nim = appConfig.providers.openai.compatiblePresets?.find((p) => p.id === "nvidia-nim");
-    expect(nim?.baseUrl).toBe("https://integrate.api.nvidia.com/v1");
+  it("includes OpenAI-compatible presets from yaml", () => {
+    const presets = appConfig.providers.openai.compatiblePresets ?? [];
+    expect(presets.length).toBeGreaterThan(0);
+    expect(presets[0]?.baseUrl).toMatch(/^https:\/\//);
   });
 });

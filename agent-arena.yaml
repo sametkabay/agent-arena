@@ -155,7 +155,7 @@ providers:
     name: OpenAI
     baseUrl: https://api.openai.com/v1
     modelId: gpt-4o-mini
-    # OpenAI-compatible hosted APIs (same Chat Completions shape).
+    # Optional OpenAI-compatible hosted API quick-fills (same Chat Completions shape).
     compatiblePresets:
       - id: nvidia-nim
         name: NVIDIA NIM

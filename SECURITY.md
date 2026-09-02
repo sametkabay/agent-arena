@@ -18,5 +18,5 @@ Agent Arena is a static client. There is no backend and no server-side secret st
 
 - Keys readable from `localStorage` by same-origin XSS, extensions, or anyone with the browser profile
 - LLM prompt injection and jailbreaks (agents have no tools or code execution)
-- Provider CORS limits on the GitHub Pages demo (including NVIDIA NIM, which does not send CORS headers)
+- Provider CORS limits on the GitHub Pages demo (static hosting has no API proxy)
 - Cost / quota burn when many agents share one key

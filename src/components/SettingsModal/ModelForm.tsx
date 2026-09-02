@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import type { AiModelConfig, AiProviderKind, ExtraHeader } from "@/lib/types";
 import { Select } from "@/components/ui/Select";
 import {
-  isNvidiaNimBaseUrl,
   normalizeOpenAiCompatibleBaseUrl,
   openaiCompatiblePresets,
 } from "@/lib/ai/providers";
@@ -189,10 +188,10 @@ export function ModelForm({
         />
       </label>
       {(draft.provider === "openai" || draft.provider === "custom") && (
-        <p className="settings-hint">{t("settings.models.baseUrlHint")}</p>
-      )}
-      {isNvidiaNimBaseUrl(draft.baseUrl) && (
-        <p className="settings-hint">{t("settings.models.nvidiaCorsHint")}</p>
+        <>
+          <p className="settings-hint">{t("settings.models.baseUrlHint")}</p>
+          <p className="settings-hint">{t("settings.models.corsDevHint")}</p>
+        </>
       )}
       <label>
         {t("settings.models.apiKey")}
