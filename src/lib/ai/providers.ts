@@ -578,7 +578,7 @@ export async function testConnection(
   try {
     const list = await fetchModels(model, signal);
     if (list.length > 0) {
-      return { ok: true, detail: `Found ${list.length} model(s)` };
+      return { ok: true, detail: `Connected. Found ${list.length} model(s)` };
     }
     // Fallback: tiny completion
     const reply = await chatCompletion({

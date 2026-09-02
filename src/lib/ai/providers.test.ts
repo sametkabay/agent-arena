@@ -365,7 +365,10 @@ describe("fetchModels / testConnection", () => {
 
   it("reports connection success and failure", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [{ id: "gpt-4o" }] })));
-    await expect(testConnection(sampleModel())).resolves.toMatchObject({ ok: true });
+    await expect(testConnection(sampleModel())).resolves.toMatchObject({
+      ok: true,
+      detail: "Connected. Found 1 model(s)",
+    });
 
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [] })));
     vi.stubGlobal(
