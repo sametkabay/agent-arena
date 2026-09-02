@@ -15,4 +15,10 @@ describe("barrel exports", () => {
       /open-source, browser-native multi-agent playground/i,
     );
   });
+
+  it("includes OpenAI-compatible presets from yaml", () => {
+    const presets = appConfig.providers.openai.compatiblePresets ?? [];
+    expect(presets.length).toBeGreaterThan(0);
+    expect(presets[0]?.baseUrl).toMatch(/^https:\/\//);
+  });
 });
