@@ -4,10 +4,13 @@ import {
   ASSET_PACKS,
   PLACEABLE_SPECS,
   isPlaceableId,
+  isUserPlaceableId,
   listPlaceables,
   pickClipName,
   placeableCanAnimate,
   placeableCanWander,
+  registerUserPlaceable,
+  unregisterUserPlaceable,
   yawToward,
 } from "@/lib/assets/catalog";
 import {
@@ -98,6 +101,29 @@ describe("catalog helpers", () => {
     expect(listPlaceables("decor").length).toBeGreaterThan(0);
     expect(listPlaceables("ground").length).toBeGreaterThan(0);
     expect(listPlaceables("nature").length).toBeGreaterThan(0);
+  });
+
+  it("registers, lists, and unregisters user-imported placeables", () => {
+    const id = "user__test_asset";
+    expect(isUserPlaceableId(id)).toBe(true);
+    expect(isUserPlaceableId("furniture__chair")).toBe(false);
+    expect(isPlaceableId(id)).toBe(false);
+
+    registerUserPlaceable(id, {
+      label: "Test asset",
+      category: "decor",
+      pack: "user",
+      footprint: [0.5, 0.5],
+      glb: "blob:mock",
+      scale: 1,
+    });
+    expect(isPlaceableId(id)).toBe(true);
+    expect(PLACEABLE_SPECS[id]?.label).toBe("Test asset");
+    expect(listPlaceables("decor")).toContain(id);
+
+    unregisterUserPlaceable(id);
+    expect(isPlaceableId(id)).toBe(false);
+    expect(listPlaceables("decor")).not.toContain(id);
   });
 });
 

@@ -41,6 +41,10 @@ export default defineConfig({
         "src/lib/three/**",
         "src/lib/useStickToBottom.ts",
         "src/lib/types.ts",
+        // Thin IndexedDB/Blob/ObjectURL glue — needs a real browser, like lib/three/**.
+        // Pure logic (validation, spec-building) lives in userAssetValidation.ts and is tested.
+        "src/lib/assets/userAssetDb.ts",
+        "src/lib/assets/userAssets.ts",
       ],
       thresholds: {
         lines: 80,

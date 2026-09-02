@@ -1,5 +1,6 @@
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import type { DayNightMode } from "@/lib/dayNight";
+import type { AssetCategory } from "@/lib/assets/catalog";
 
 export type { DayNightMode } from "@/lib/dayNight";
 
@@ -85,6 +86,12 @@ export interface AppPersisted {
   dayNight: DayNightMode;
   /** Favorite placeable ids for the map editor library. */
   favoriteAssets?: string[];
+  /**
+   * Metadata for GLBs the user imported in the map editor. The GLB bytes
+   * themselves live only in IndexedDB (see lib/assets/userAssets.ts) — this
+   * is just the small catalog-entry info, safe to keep in localStorage.
+   */
+  userAssets?: UserAssetMeta[];
   /** Per-agent private chat history (localStorage). */
   chats: Record<string, ChatMessage[]>;
   /** Shared arena (global) chat log (localStorage). */
@@ -107,6 +114,26 @@ export interface FloatingChatLine {
   text: string;
   createdAt: number;
   kind: "user" | "agent" | "system";
+}
+
+/**
+ * Catalog entry for a GLB the user imported in the map editor. The GLB blob
+ * lives only in IndexedDB — this record (safe for localStorage) is what lets
+ * the library/inspector show the entry and reload it on the next visit.
+ */
+export interface UserAssetMeta {
+  /** `user__<uid>` — see USER_PLACEABLE_PREFIX in lib/assets/catalog. */
+  id: string;
+  label: string;
+  category: AssetCategory;
+  fileName: string;
+  /** Bytes, for display + the total-size guard on import. */
+  size: number;
+  footprint: [number, number];
+  scale: number;
+  autoFit?: "height" | "xz";
+  targetSize?: number;
+  createdAt: number;
 }
 
 export interface PlaceableInstance {

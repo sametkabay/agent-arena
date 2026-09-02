@@ -336,6 +336,26 @@ export function isPlaceableId(id: string): id is PlaceableId {
   return id in PLACEABLE_SPECS;
 }
 
+/** Prefix for ids of GLBs a user imported in the browser (never a shipped pack). */
+export const USER_PLACEABLE_PREFIX = "user__";
+
+export function isUserPlaceableId(id: string): boolean {
+  return id.startsWith(USER_PLACEABLE_PREFIX);
+}
+
+/**
+ * Add or replace a user-imported placeable in the shared catalog so it can be
+ * used anywhere a builtin id is (library, paint, inspector, favorites, save).
+ * Callers are responsible for the object URL's lifetime (see lib/assets/userAssets).
+ */
+export function registerUserPlaceable(id: PlaceableId, spec: PlaceableSpec): void {
+  PLACEABLE_SPECS[id] = spec;
+}
+
+export function unregisterUserPlaceable(id: PlaceableId): void {
+  delete PLACEABLE_SPECS[id];
+}
+
 export function listPlaceables(category?: AssetCategory): PlaceableId[] {
   const ids = Object.keys(PLACEABLE_SPECS) as PlaceableId[];
   if (!category) return ids;
@@ -363,4 +383,5 @@ export const ASSET_PACKS = [
   "animals",
   "food",
   "space",
+  "user",
 ] as const;

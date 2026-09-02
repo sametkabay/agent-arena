@@ -84,6 +84,15 @@ export interface AppConfig {
     dayNightBlendSpeed: number;
     editorMaxHistory: number;
   };
+  userAssets: {
+    dbName: string;
+    storeName: string;
+    maxFileBytes: number;
+    maxCount: number;
+    defaultCategory: string;
+    defaultAutoFit: "height" | "xz";
+    defaultTargetSize: number;
+  };
   maps: {
     floorSizeMin: number;
     floorSizeMax: number;

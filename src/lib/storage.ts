@@ -7,6 +7,7 @@ import type {
   GraphicsSettings,
   LanguageCode,
   MapId,
+  UserAssetMeta,
 } from "@/lib/types";
 import { isLanguageCode } from "@/i18n/languages";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
@@ -14,6 +15,7 @@ import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId }
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { ASSET_CATEGORIES, isUserPlaceableId } from "@/lib/assets/catalog";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 
 export { DEFAULT_GRAPHICS };
@@ -69,9 +71,38 @@ export function defaultPersisted(): AppPersisted {
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: appConfig.defaults.dayNight,
     favoriteAssets: [],
+    userAssets: [],
     chats: {},
     arenaChatHistory: [],
   };
+}
+
+const ASSET_CATEGORY_SET = new Set<string>(ASSET_CATEGORIES);
+
+function sanitizeUserAssets(raw: unknown): UserAssetMeta[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((m): m is Record<string, unknown> => !!m && typeof m === "object")
+    .filter((m) => typeof m.id === "string" && isUserPlaceableId(m.id))
+    .map((m) => {
+      const footprint = Array.isArray(m.footprint) && m.footprint.length === 2
+        ? (m.footprint as [number, number])
+        : ([0.85, 0.85] as [number, number]);
+      return {
+        id: m.id as string,
+        label: typeof m.label === "string" && m.label ? m.label : (m.id as string),
+        category: ASSET_CATEGORY_SET.has(m.category as string)
+          ? (m.category as UserAssetMeta["category"])
+          : "decor",
+        fileName: typeof m.fileName === "string" ? m.fileName : "",
+        size: typeof m.size === "number" ? m.size : 0,
+        footprint,
+        scale: typeof m.scale === "number" && Number.isFinite(m.scale) ? m.scale : 1,
+        autoFit: m.autoFit === "height" || m.autoFit === "xz" ? m.autoFit : undefined,
+        targetSize: typeof m.targetSize === "number" ? m.targetSize : undefined,
+        createdAt: typeof m.createdAt === "number" ? m.createdAt : Date.now(),
+      };
+    });
 }
 
 const CHAT_ROLES = new Set(["user", "assistant", "system"]);
@@ -203,6 +234,7 @@ export function loadPersisted(): AppPersisted {
             .filter((x): x is string => typeof x === "string")
             .map(migratePlaceableId)
         : [],
+      userAssets: sanitizeUserAssets(parsed.userAssets),
       chats: sanitizeChats(parsed.chats),
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };

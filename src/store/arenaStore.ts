@@ -26,6 +26,12 @@ import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { placeableCanWander } from "@/lib/assets/catalog";
+import {
+  hydrateUserAssets,
+  importUserAsset as importUserAssetFile,
+  removeUserAsset as removeUserAssetFile,
+  type ImportAssetForm,
+} from "@/lib/assets/userAssets";
 import { formatSpeechBubble } from "@/lib/speechBubble";
 import i18n from "@/i18n";
 import { applyDocumentLang } from "@/i18n/languages";
@@ -68,6 +74,14 @@ interface ArenaState extends AppPersisted {
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
   toggleFavoriteAsset: (placeableId: string) => void;
+  /** True once IndexedDB-backed GLBs have been loaded and registered. */
+  userAssetsHydrated: boolean;
+  hydrateUserAssetsFromDb: () => Promise<void>;
+  importUserAsset: (
+    file: File,
+    form: ImportAssetForm,
+  ) => Promise<{ ok: true; id: string } | { ok: false; error: string }>;
+  removeUserAsset: (id: string) => Promise<void>;
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
 
@@ -119,6 +133,7 @@ function persistSlice(s: ArenaState): AppPersisted {
     graphics: s.graphics,
     dayNight: s.dayNight,
     favoriteAssets: s.favoriteAssets ?? [],
+    userAssets: s.userAssets ?? [],
     chats: sanitizeChats(s.chats),
     arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),
   };
@@ -170,6 +185,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   toast: null,
   dayNightBlend: 0,
   favoriteAssets: initial.favoriteAssets ?? [],
+  userAssets: initial.userAssets ?? [],
+  userAssetsHydrated: false,
 
   hydrate: () => {
     const data = loadPersisted();
@@ -183,6 +200,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       chats: data.chats ?? {},
       arenaChatHistory: data.arenaChatHistory ?? [],
       favoriteAssets: data.favoriteAssets ?? [],
+      userAssets: data.userAssets ?? [],
       dayNightBlend: data.dayNight === "night" ? 1 : 0,
     });
     void i18n.changeLanguage(data.language);
@@ -243,6 +261,32 @@ export const useArenaStore = create<ArenaState>((set, get) => {
         : [...cur, placeableId];
       return { favoriteAssets: next };
     });
+    get().persist();
+  },
+
+  hydrateUserAssetsFromDb: async () => {
+    const metas = await hydrateUserAssets();
+    // IndexedDB is the source of truth: a record whose blob couldn't be read
+    // (evicted storage, corrupt entry) is dropped here too, so a stale entry
+    // doesn't linger in the library forever.
+    set({ userAssets: metas, userAssetsHydrated: true });
+    get().persist();
+  },
+
+  importUserAsset: async (file, form) => {
+    const result = await importUserAssetFile(file, form, (get().userAssets ?? []).length);
+    if ("error" in result) return { ok: false, error: result.error };
+    set((s) => ({ userAssets: [...(s.userAssets ?? []), result.meta] }));
+    get().persist();
+    return { ok: true, id: result.meta.id };
+  },
+
+  removeUserAsset: async (id) => {
+    await removeUserAssetFile(id);
+    set((s) => ({
+      userAssets: (s.userAssets ?? []).filter((a) => a.id !== id),
+      favoriteAssets: (s.favoriteAssets ?? []).filter((a) => a !== id),
+    }));
     get().persist();
   },
 
