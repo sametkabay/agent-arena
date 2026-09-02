@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AiModelConfig, AiProviderKind } from "@/lib/types";
-import { fetchModels, providerDefaults, testConnection } from "@/lib/ai/providers";
+import { fetchModels, normalizeOpenAiCompatibleBaseUrl, providerDefaults, testConnection } from "@/lib/ai/providers";
 import { createModelDraft, useArenaStore } from "@/store/arenaStore";
 import { useSettingsBack } from "@/components/SettingsModal/settingsNav";
 import { ModelForm } from "@/components/SettingsModal/ModelForm";
@@ -123,7 +123,7 @@ export function ModelsTab() {
     upsertModel({
       ...draft,
       name,
-      baseUrl: draft.baseUrl.trim(),
+      baseUrl: normalizeOpenAiCompatibleBaseUrl(draft.baseUrl),
       modelId,
       apiKey: draft.apiKey?.trim() || undefined,
       extraHeaders: draft.extraHeaders.filter((h) => h.key.trim()),

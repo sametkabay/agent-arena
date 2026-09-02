@@ -147,6 +147,29 @@ export default defineConfig(({ command }) => {
             });
           },
         },
+        // NVIDIA NIM has no browser CORS — same-origin proxy in DEV / preview only.
+        "/nvidia-nim": {
+          target: "https://integrate.api.nvidia.com",
+          changeOrigin: true,
+          secure: true,
+          rewrite: (p) => p.replace(/^\/nvidia-nim/, ""),
+          configure: (proxy) => {
+            proxy.on("proxyRes", (proxyRes) => {
+              proxyRes.headers["cache-control"] = "no-cache, no-transform";
+              proxyRes.headers["x-accel-buffering"] = "no";
+            });
+          },
+        },
+      },
+    },
+    preview: {
+      proxy: {
+        "/nvidia-nim": {
+          target: "https://integrate.api.nvidia.com",
+          changeOrigin: true,
+          secure: true,
+          rewrite: (p) => p.replace(/^\/nvidia-nim/, ""),
+        },
       },
     },
   };

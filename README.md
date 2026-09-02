@@ -38,7 +38,7 @@
 
 Open **[https://sametkabay.github.io/agent-arena/](https://sametkabay.github.io/agent-arena/)**, pick a display name, language, and day/night, add a model under **Settings → AI Models**, bind it on an agent under **Settings → Agents**, then click an agent to chat.
 
-> Cloud providers work on the static demo **subject to provider CORS**. **Ollama / localhost models need the local dev server.**
+> Cloud providers work on the static demo **subject to provider CORS**. **Ollama / localhost models and NVIDIA NIM need the local dev server** (NVIDIA does not allow browser CORS).
 
 ### Run locally
 
@@ -65,6 +65,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 | Capability | Live demo (GitHub Pages) | Local `npm run dev` |
 |------------|--------------------------|---------------------|
 | OpenAI / Gemini / Claude | Yes (provider CORS permitting) | Yes |
+| NVIDIA NIM (OpenAI-compatible) | No (NVIDIA sends no CORS headers) | Yes (`/nvidia-nim` proxy) |
 | Ollama / local gateways | No (no dev proxy) | Yes (`/ollama`, `/local-llm`) |
 | Map editor + `.aamf.json` export | Yes | Yes |
 | Idle chatter + private / arena chat | Yes | Yes |
@@ -80,6 +81,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 
 - `/ollama` → `http://127.0.0.1:11434`
 - `/local-llm/<host>/<port>/...` → local OpenAI-compatible gateways
+- `/nvidia-nim` → `https://integrate.api.nvidia.com` (NVIDIA NIM has no browser CORS)
 
 > **Your keys stay in your browser.** There is no Agent Arena backend. API keys live in `localStorage` and are sent only to the providers you configure. Prefer restricted / rotatable keys.
 
@@ -169,7 +171,7 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 
 | Provider | Default model | Notes |
 |----------|---------------|--------|
-| **OpenAI** | `gpt-4o-mini` | Chat Completions–compatible API |
+| **OpenAI** | `gpt-4o-mini` | Chat Completions–compatible API. Quick-fill includes **NVIDIA NIM** (`https://integrate.api.nvidia.com/v1`) |
 | **Gemini** | `gemini-2.0-flash` | Google Generative Language API; thinking budget on 2.5+ |
 | **Claude** | `claude-3-5-sonnet-latest` | Anthropic Messages API (browser direct-access header) |
 | **Ollama** | `llama3.2` | Local models (best with `npm run dev` proxy) |
@@ -245,7 +247,7 @@ See [`SECURITY.md`](./SECURITY.md) for how to report a vulnerability.
 - Keys leave your machine only when **your browser** calls the provider you configured — there is no Agent Arena backend holding secrets.
 - Prefer restricted / rotatable API keys. Clear site data if you share the machine.
 - **Claude from the browser** uses Anthropic’s `anthropic-dangerous-direct-browser-access` header; treat that key as **origin-exposed** (not a server secret).
-- Browser **CORS** applies. Some self-hosted gateways need CORS headers; `npm run dev` proxies help for Ollama.
+- Browser **CORS** applies. Some self-hosted gateways need CORS headers; `npm run dev` proxies help for Ollama and **NVIDIA NIM**. The GitHub Pages demo cannot call NVIDIA NIM from the browser.
 
 ---
 
@@ -336,6 +338,7 @@ Crawler files on the demo origin: [`robots.txt`](https://sametkabay.github.io/ag
 | Blank page / missing assets on Pages | Open the deployed app under `/agent-arena/`; local dev uses `/` |
 | Ollama fails on GitHub Pages | Expected — use `npm run dev` (proxies are **dev-only**) |
 | CORS errors on custom gateway | Enable CORS on the gateway, or call it through a local proxy |
+| CORS errors on **NVIDIA NIM** | NVIDIA does not send `Access-Control-Allow-Origin`. The live GitHub Pages demo **cannot** call `integrate.api.nvidia.com`. Run `npm run dev` (OpenAI provider + Base URL `https://integrate.api.nvidia.com/v1`, not `…/chat/completions`). To keep using the Pages demo, put your own HTTPS CORS proxy in front and use *that* as Base URL |
 | Claude browser calls rejected | Needs Anthropic browser/CORS-allowed setup + the direct-browser-access header the app sends; use a restricted key |
 | Stale agents / maps | Clear site data for the origin, or reset from Settings where available |
 | Huge PR with new GLBs | Update [`ATTRIBUTION.md`](public/assets/ATTRIBUTION.md) and run `npm run assets:inventory` |

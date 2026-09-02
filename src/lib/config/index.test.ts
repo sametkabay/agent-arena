@@ -15,4 +15,9 @@ describe("barrel exports", () => {
       /open-source, browser-native multi-agent playground/i,
     );
   });
+
+  it("includes NVIDIA NIM as an OpenAI-compatible preset", () => {
+    const nim = appConfig.providers.openai.compatiblePresets?.find((p) => p.id === "nvidia-nim");
+    expect(nim?.baseUrl).toBe("https://integrate.api.nvidia.com/v1");
+  });
 });

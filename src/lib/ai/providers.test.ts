@@ -2,10 +2,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildSystemPrompt,
   chatCompletion,
+  corsHelpMessage,
   fetchModels,
+  isNvidiaNimBaseUrl,
+  normalizeOpenAiCompatibleBaseUrl,
+  openaiCompatiblePresets,
   providerDefaults,
   testConnection,
   truncateChatHistory,
+  wrapNetworkError,
 } from "@/lib/ai/providers";
 import { sampleModel } from "@/test/fixtures";
 import type { ArenaWorldContext } from "@/lib/ai/arenaContext";
@@ -57,6 +62,30 @@ describe("provider helpers", () => {
     expect(providerDefaults("ollama").modelId).toBeTruthy();
     expect(providerDefaults("gemini").name).toBeTruthy();
     expect(providerDefaults("claude").baseUrl).toContain("anthropic");
+  });
+
+  it("ships an NVIDIA NIM OpenAI-compatible preset", () => {
+    const nim = openaiCompatiblePresets().find((p) => p.id === "nvidia-nim");
+    expect(nim?.baseUrl).toBe("https://integrate.api.nvidia.com/v1");
+    expect(nim?.modelId).toBeTruthy();
+    expect(isNvidiaNimBaseUrl(nim!.baseUrl)).toBe(true);
+  });
+
+  it("strips pasted /chat/completions from OpenAI-compatible bases", () => {
+    expect(
+      normalizeOpenAiCompatibleBaseUrl("https://integrate.api.nvidia.com/v1/chat/completions"),
+    ).toBe("https://integrate.api.nvidia.com/v1");
+    expect(normalizeOpenAiCompatibleBaseUrl("https://api.openai.com/v1/")).toBe(
+      "https://api.openai.com/v1",
+    );
+  });
+
+  it("explains NVIDIA CORS failures", () => {
+    expect(corsHelpMessage("https://integrate.api.nvidia.com/v1")).toMatch(/NVIDIA NIM/);
+    expect(wrapNetworkError(new TypeError("Failed to fetch"), "https://integrate.api.nvidia.com/v1").message).toMatch(
+      /CORS/,
+    );
+    expect(wrapNetworkError(new Error("offline"), "https://api.openai.com/v1").message).toBe("offline");
   });
 
   it("truncates chat history from the tail", () => {
@@ -211,6 +240,34 @@ describe("chatCompletion", () => {
       messages: [{ role: "user", content: "hi" }],
     });
     expect(String(fetchMock.mock.calls[0][0])).toContain("not a url");
+  });
+
+  it("rewrites NVIDIA NIM URLs in DEV and omits reasoning_effort", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ choices: [{ message: { content: "ok" } }] }));
+    vi.stubGlobal("fetch", fetchMock);
+    await chatCompletion({
+      model: sampleModel({
+        provider: "openai",
+        baseUrl: "https://integrate.api.nvidia.com/v1/chat/completions",
+        modelId: "meta/llama-3.2-11b-vision-instruct",
+      }),
+      messages: [{ role: "user", content: "hi" }],
+    });
+    expect(String(fetchMock.mock.calls[0][0])).toBe("/nvidia-nim/v1/chat/completions");
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string) as Record<string, unknown>;
+    expect(body.reasoning_effort).toBeUndefined();
+  });
+
+  it("maps NVIDIA fetch failures to a CORS hint", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    await expect(
+      fetchModels({
+        provider: "openai",
+        baseUrl: "https://integrate.api.nvidia.com/v1",
+        apiKey: "k",
+        extraHeaders: [],
+      }),
+    ).rejects.toThrow(/NVIDIA NIM blocks browser CORS/);
   });
 
   it("ignores comment lines and incomplete SSE JSON", async () => {

@@ -1,5 +1,5 @@
 export { appConfig, DEFAULT_GRAPHICS, speechMsForText } from "@/lib/config/app";
-export type { AppConfig, LanguageEntry, ProviderDefaults } from "@/lib/config/app";
+export type { AppConfig, LanguageEntry, ProviderDefaults, OpenAiCompatiblePreset } from "@/lib/config/app";
 export {
   prompts,
   promptMode,

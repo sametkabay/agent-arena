@@ -155,6 +155,12 @@ providers:
     name: OpenAI
     baseUrl: https://api.openai.com/v1
     modelId: gpt-4o-mini
+    # OpenAI-compatible hosted APIs (same Chat Completions shape).
+    compatiblePresets:
+      - id: nvidia-nim
+        name: NVIDIA NIM
+        baseUrl: https://integrate.api.nvidia.com/v1
+        modelId: meta/llama-3.2-11b-vision-instruct
   gemini:
     name: Gemini
     baseUrl: https://generativelanguage.googleapis.com/v1beta
