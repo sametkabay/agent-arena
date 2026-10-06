@@ -1,6 +1,7 @@
 import type {
   AgentConfig,
   AgentSkill,
+  AiModelConfig,
   AppPersisted,
   ChatMessage,
   FloatingChatLine,
@@ -14,6 +15,7 @@ import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId }
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { defaultZibbyModels, resolveZibbyTextModel } from "@/lib/ai/zibbyModels";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 
 export { DEFAULT_GRAPHICS };
@@ -62,7 +64,7 @@ export function defaultPersisted(): AppPersisted {
   return {
     userName: "",
     language: appConfig.defaults.language,
-    models: [],
+    models: defaultZibbyModels(),
     agents: [],
     mapId: appConfig.defaults.mapId,
     customMaps: [],
@@ -162,6 +164,28 @@ function sanitizeSkills(raw: unknown): AgentSkill[] {
     }));
 }
 
+function sanitizeModels(raw: unknown): AiModelConfig[] {
+  if (!Array.isArray(raw) || raw.length === 0) return defaultZibbyModels();
+  const out: AiModelConfig[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const m = item as Record<string, unknown>;
+    const catalog = resolveZibbyTextModel(
+      typeof m.modelId === "string" ? m.modelId : "",
+    );
+    out.push({
+      id: typeof m.id === "string" && m.id ? m.id : `zibby-${out.length}`,
+      name: typeof m.name === "string" && m.name.trim() ? m.name : catalog.label,
+      provider: catalog.kind,
+      baseUrl: "",
+      modelId: catalog.id,
+      extraHeaders: [],
+      createdAt: typeof m.createdAt === "number" ? m.createdAt : Date.now(),
+    });
+  }
+  return out.length ? out : defaultZibbyModels();
+}
+
 function sanitizeAgents(raw: unknown): AgentConfig[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -193,7 +217,7 @@ export function loadPersisted(): AppPersisted {
     return {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
       language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
-      models: Array.isArray(parsed.models) ? parsed.models : [],
+      models: sanitizeModels(parsed.models),
       agents: sanitizeAgents(parsed.agents),
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),

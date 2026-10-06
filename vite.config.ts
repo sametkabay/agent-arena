@@ -1,3 +1,5 @@
+import { zibbyViteConfig } from "@zibby-run/app-kit/vite";
+import { writePagesManifest, writeSampleManifest } from "@zibby-run/app-kit/publish";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { load as loadYaml } from "js-yaml";
@@ -103,13 +105,48 @@ function servePackAssets(base: string): Plugin {
   };
 }
 
+function zibbyManifestPlugin(): Plugin {
+  return {
+    name: "zibby-manifests",
+    closeBundle() {
+      const outDir = path.resolve(rootDir, "dist");
+      writePagesManifest(outDir, [
+        {
+          slug: "agent-arena",
+          title: "Agent Arena",
+          description:
+            "Place LLM characters on a 3D map in the browser. Chat privately or in the arena; Zibby holds the model keys and bills credits per call.",
+          entry_fragment: "#",
+        },
+      ]);
+      writeSampleManifest(outDir, {
+        version: 1,
+        requests: [
+          {
+            action: "private_chat",
+            provider: "anthropic",
+            model: "claude-haiku-4-5-20251001",
+            payload: {
+              model: "claude-haiku-4-5-20251001",
+              max_tokens: 64,
+              messages: [{ role: "user", content: "Say hello in one short sentence." }],
+            },
+          },
+        ],
+      });
+    },
+  };
+}
+
 export default defineConfig(({ command }) => {
-  // Dev serves at `/`. Production keeps `/agent-arena/` for GitHub Pages.
-  const base = command === "build" ? "/agent-arena/" : "/";
+  const base = command === "build" ? zibbyViteConfig.base : "/";
 
   return {
     base,
-    plugins: [react(), yamlPlugin(), servePackAssets(base)],
+    plugins: [react(), yamlPlugin(), servePackAssets(base), zibbyManifestPlugin()],
+    build: {
+      assetsInlineLimit: zibbyViteConfig.build.assetsInlineLimit,
+    },
     resolve: {
       alias: {
         "@": path.resolve(rootDir, "src"),

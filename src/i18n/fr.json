@@ -16,6 +16,8 @@
     "models": "Modèles",
     "map": "Carte",
     "settings": "Réglages",
+    "credits": "Crédits",
+    "creditsCount": "{{count}} cr",
     "hello": "Bonjour, {{name}}",
     "editMap": "Modifier la carte",
     "day": "Jour",

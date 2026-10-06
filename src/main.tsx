@@ -1,9 +1,24 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { installHostBridge, setMockLoader } from "@zibby-run/app-kit";
 import "@/i18n";
 import "@/styles/global.css";
 import App from "@/App";
 import { appConfig } from "@/lib/config";
+
+if (import.meta.env.DEV) {
+  setMockLoader(() => import("./zibbyMock").then((m) => m.mockStreamZibbyAi));
+  if ((window as unknown as { __zibbyAiMock?: unknown }).__zibbyAiMock === undefined) {
+    (window as unknown as { __zibbyAiMock: boolean }).__zibbyAiMock = true;
+  }
+  if (window.parent === window) {
+    void import("@zibby-run/app-kit/mock").then((m) => m.installMockHostBridge());
+  } else {
+    installHostBridge();
+  }
+} else {
+  installHostBridge();
+}
 
 document.title = appConfig.app.title;
 const desc = appConfig.app.description;

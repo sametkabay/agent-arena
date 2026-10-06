@@ -253,6 +253,7 @@ export function ChatPanel() {
     try {
       const reply = await chatCompletion({
         model,
+        action: "private_chat",
         signal: ac.signal,
         thinkingEnabled: agent.thinkingEnabled === true,
         messages: [

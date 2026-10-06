@@ -8,7 +8,7 @@ export type ProviderGroup = {
 };
 
 function groupKey(m: AiModelConfig): string {
-  return `${m.provider}\0${m.baseUrl}\0${m.apiKey ?? ""}`;
+  return m.provider;
 }
 
 export function groupModels(models: AiModelConfig[]): ProviderGroup[] {

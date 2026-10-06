@@ -88,6 +88,29 @@ describe("loadPersisted / savePersisted", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());
   });
 
+  it("seeds Zibby catalog models and remaps legacy ids", () => {
+    expect(defaultPersisted().models.length).toBeGreaterThan(0);
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [
+          {
+            id: "old",
+            name: "Mini",
+            provider: "openai",
+            modelId: "gpt-4o-mini",
+            apiKey: "sk-secret",
+            extraHeaders: [{ key: "X", value: "1" }],
+          },
+        ],
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.models[0]?.modelId).toBe("gpt-5");
+    expect(loaded.models[0]?.apiKey).toBeUndefined();
+    expect(JSON.stringify(loaded.models)).not.toMatch(/sk-secret/);
+  });
+
   it("treats missing idle chatter as off (opt-in)", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ userName: "Samet" }));
     expect(loadPersisted().idleChatterEnabled).toBe(false);
@@ -127,6 +150,8 @@ describe("loadPersisted / savePersisted", () => {
     expect(loaded.dayNight).toBe("night");
     expect(loaded.favoriteAssets).toContain("space_boulder");
     expect(loaded.agents[0]?.chattiness).toBe(100);
+    expect(loaded.models.length).toBeGreaterThan(0);
+    expect(loaded.models[0]?.apiKey).toBeUndefined();
     expect(loaded.agents[0]?.enabled).toBe(true);
     expect(loaded.agents[0]?.characterId).toBeTruthy();
     expect(loaded.agents[0]?.skills[0]?.id).toMatch(/^skill_/);

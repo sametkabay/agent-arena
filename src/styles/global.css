@@ -44,7 +44,7 @@
     radial-gradient(circle at 82% 12%, rgba(196, 164, 132, 0.32), transparent 28%),
     linear-gradient(145deg, #f7f1e5 0%, var(--cream) 48%, #dfd2be 100%);
   --swatch-ring: rgba(255, 255, 255, 0.5);
-  font-family: "Nunito", system-ui, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--ink);
   background: radial-gradient(1200px 700px at 20% 0%, #f7f2e8 0%, var(--cream) 45%, #ddd3c2 100%);
 }
@@ -1141,6 +1141,16 @@ button {
   gap: 12px 18px;
   font-size: 0.9rem;
   color: var(--ink-soft);
+}
+
+.hud__credits {
+  background: transparent !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .hud__actions {

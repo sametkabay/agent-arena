@@ -16,6 +16,8 @@
     "models": "Modelos",
     "map": "Mapa",
     "settings": "Ajustes",
+    "credits": "Créditos",
+    "creditsCount": "{{count}} cr",
     "hello": "Hola, {{name}}",
     "editMap": "Editar mapa",
     "day": "Día",

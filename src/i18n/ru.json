@@ -16,6 +16,8 @@
     "models": "Модели",
     "map": "Карта",
     "settings": "Настройки",
+    "credits": "Кредиты",
+    "creditsCount": "{{count}} cr",
     "hello": "Привет, {{name}}",
     "editMap": "Редактировать карту",
     "day": "День",

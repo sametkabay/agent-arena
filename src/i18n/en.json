@@ -16,6 +16,8 @@
     "models": "Models",
     "map": "Map",
     "settings": "Settings",
+    "credits": "Credits",
+    "creditsCount": "{{count}} cr",
     "hello": "Hello, {{name}}",
     "editMap": "Edit map",
     "day": "Day",
@@ -88,7 +90,7 @@
     },
     "models": {
       "title": "AI Models",
-      "hint": "Add OpenAI, Gemini, Claude, Ollama, or another compatible API.",
+      "hint": "Pick a Zibby catalog model. Visitors pay with credits — no API keys.",
       "empty": "No models yet.",
       "name": "Display name",
       "provider": "Provider",

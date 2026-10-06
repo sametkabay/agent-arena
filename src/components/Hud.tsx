@@ -1,9 +1,12 @@
+import { useCreditBalance } from "@zibby-run/app-kit/react";
+import { hostNavigate, ZIBBY_CREDITS_PATH } from "@zibby-run/app-kit";
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
 
 export function Hud() {
   const { t } = useTranslation();
+  const credits = useCreditBalance();
   const userName = useArenaStore((s) => s.userName);
   const agents = useArenaStore((s) => s.agents);
   const models = useArenaStore((s) => s.models);
@@ -28,6 +31,15 @@ export function Hud() {
         <span>
           {t("hud.map")}: {activeMap?.name ?? "—"}
         </span>
+        <button
+          type="button"
+          className="hud__credits"
+          onClick={() => hostNavigate(ZIBBY_CREDITS_PATH)}
+        >
+          {credits == null
+            ? t("hud.credits")
+            : t("hud.creditsCount", { count: credits })}
+        </button>
       </div>
       <div className="hud__actions">
         <DayNightSwitch mode={dayNight} onToggle={toggleDayNight} />

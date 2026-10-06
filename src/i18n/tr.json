@@ -16,6 +16,8 @@
     "models": "Modeller",
     "map": "Harita",
     "settings": "Ayarlar",
+    "credits": "Krediler",
+    "creditsCount": "{{count}} kr",
     "hello": "Merhaba, {{name}}",
     "editMap": "Haritayı düzenle",
     "day": "Gündüz",
@@ -88,7 +90,7 @@
     },
     "models": {
       "title": "AI Modelleri",
-      "hint": "OpenAI, Gemini, Claude, Ollama veya uyumlu başka bir API ekle.",
+      "hint": "Zibby katalog modelini seç. Ziyaretçiler krediyle öder — API anahtarı yok.",
       "empty": "Henüz model yok.",
       "name": "Görünen ad",
       "provider": "Sağlayıcı",

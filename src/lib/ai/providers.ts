@@ -1,77 +1,30 @@
+import {
+  publishBalance,
+  streamZibbyAi,
+  ZibbyAiError,
+} from "@zibby-run/app-kit";
 import type {
   AgentSkill,
   AiModelConfig,
   AiProviderKind,
   ChatMessage,
-  ExtraHeader,
 } from "@/lib/types";
 import {
   buildAgentSystemPrompt,
   type ArenaWorldContext,
 } from "@/lib/ai/arenaContext";
-import { appConfig, prompts } from "@/lib/config";
+import { resolveZibbyTextModel, ZIBBY_TEXT_MODELS } from "@/lib/ai/zibbyModels";
+import { appConfig } from "@/lib/config";
 
-const OLLAMA_DEFAULT_PORT = appConfig.providers.ollama.port ?? 11434;
+const MAX_TOKENS = 2048;
+const IDLE_MAX_TOKENS = 256;
 
 export function providerDefaults(
   provider: AiProviderKind,
 ): { name: string; baseUrl: string; modelId: string } {
-  const d = appConfig.providers[provider];
-  return { name: d.name, baseUrl: d.baseUrl, modelId: d.modelId };
-}
-
-/** In Vite DEV, rewrite local LLM URLs to same-origin proxies (CORS + less SSE buffering). */
-function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): string {
-  const trimmed = baseUrl.trim().replace(/\/+$/, "");
-  if (!import.meta.env.DEV) return trimmed;
-  if (trimmed.startsWith("/ollama") || trimmed.startsWith("/local-llm/")) return trimmed;
-
-  try {
-    const u = new URL(trimmed);
-    const isLocal =
-      u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
-    if (!isLocal) return trimmed;
-
-    if (provider === "ollama" && (u.port === String(OLLAMA_DEFAULT_PORT) || !u.port)) {
-      return "/ollama";
-    }
-
-    if (provider === "openai" || provider === "custom" || provider === "ollama") {
-      const host = u.hostname === "[::1]" || u.hostname === "localhost" ? "127.0.0.1" : u.hostname;
-      const port = u.port || (u.protocol === "https:" ? "443" : "80");
-      const pathPart = u.pathname.replace(/\/+$/, "");
-      return `/local-llm/${host}/${port}${pathPart}`;
-    }
-  } catch {
-    // keep as-is
-  }
-  return trimmed;
-}
-
-function headersToRecord(extras: ExtraHeader[]): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const h of extras) {
-    if (h.key.trim()) out[h.key.trim()] = h.value;
-  }
-  return out;
-}
-
-function joinUrl(base: string, path: string): string {
-  const b = base.replace(/\/+$/, "");
-  const p = path.startsWith("/") ? path : `/${path}`;
-  // Avoid double /v1/v1
-  if (b.endsWith("/v1") && p.startsWith("/v1/")) return `${b}${p.slice(3)}`;
-  return `${b}${p}`;
-}
-
-function openaiCompatibleBase(model: AiModelConfig): string {
-  const base = resolveRequestBaseUrl(model.provider, model.baseUrl);
-  if (model.provider === "ollama") {
-    // Ollama OpenAI-compatible lives under /v1
-    if (base.endsWith("/v1")) return base;
-    return `${base.replace(/\/+$/, "")}/v1`;
-  }
-  return base.replace(/\/+$/, "");
+  const hit =
+    ZIBBY_TEXT_MODELS.find((m) => m.kind === provider) ?? ZIBBY_TEXT_MODELS[0]!;
+  return { name: hit.label, baseUrl: "", modelId: hit.id };
 }
 
 /** Private 1:1 chat system prompt (session facts come from `world`). */
@@ -107,467 +60,110 @@ export interface ChatRequest {
   signal?: AbortSignal;
   onToken?: (chunk: string) => void;
   thinkingEnabled?: boolean;
+  /** `x-zibby-action` label. */
+  action?: string;
+}
+
+function actionLabel(raw: string | undefined): string {
+  const a = (raw ?? "chat").toLowerCase();
+  if (/^[a-z0-9_:.-]{1,64}$/.test(a)) return a;
+  return "chat";
+}
+
+function buildPayload(
+  req: ChatRequest,
+  catalogId: string,
+  zibbyProvider: "anthropic" | "openai",
+): Record<string, unknown> {
+  const maxTokens = req.action === "idle_mutter" ? IDLE_MAX_TOKENS : MAX_TOKENS;
+  const system = req.messages
+    .filter((m) => m.role === "system")
+    .map((m) => m.content)
+    .join("\n\n")
+    .trim();
+  const rest = req.messages
+    .filter((m) => m.role !== "system")
+    .map((m) => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: m.content,
+    }));
+
+  if (zibbyProvider === "anthropic") {
+    const payload: Record<string, unknown> = {
+      model: catalogId,
+      max_tokens: maxTokens,
+      messages: rest.length ? rest : [{ role: "user", content: "…" }],
+    };
+    if (system) payload.system = system;
+    if (req.thinkingEnabled === true) {
+      payload.thinking = { type: "enabled", budget_tokens: 1024 };
+    }
+    return payload;
+  }
+
+  const messages = system
+    ? [{ role: "system", content: system }, ...rest]
+    : rest;
+  return {
+    model: catalogId,
+    max_tokens: maxTokens,
+    messages: messages.length ? messages : [{ role: "user", content: "…" }],
+  };
 }
 
 export async function chatCompletion(req: ChatRequest): Promise<string> {
-  const { model } = req;
-  if (model.provider === "gemini") {
-    return chatGemini(req);
-  }
-  if (model.provider === "claude") {
-    return chatClaude(req);
-  }
-  return chatOpenAiCompatible(req);
-}
-
-async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
-  const { model, messages, signal, onToken, thinkingEnabled } = req;
-  const base = openaiCompatibleBase(model);
-  const url = joinUrl(base, "/chat/completions");
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "text/event-stream, application/x-ndjson, application/json",
-    ...headersToRecord(model.extraHeaders),
-  };
-  if (model.apiKey) headers.Authorization = `Bearer ${model.apiKey}`;
-
-  const stream = Boolean(onToken);
-  const body: Record<string, unknown> = {
-    model: model.modelId,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
-    stream,
-  };
-
-  // Local / custom gateways may think by default — send an explicit effort.
-  // Skip for hosted api.openai.com chat models (they 400 on unknown params).
-  const effort = thinkingEnabled === true ? "medium" : "none";
-  const hostedOpenAi = /api\.openai\.com/i.test(model.baseUrl);
-  const sendEffort =
-    model.provider === "ollama" ||
-    model.provider === "custom" ||
-    (model.provider === "openai" && !hostedOpenAi) ||
-    thinkingEnabled === true ||
-    isLikelyReasoningModel(model.modelId);
-  if (sendEffort) {
-    body.reasoning_effort = effort;
-    if (model.provider === "ollama") {
-      body.reasoning = { effort };
-    }
-  }
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-    signal,
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(formatHttpError(res.status, text));
-  }
-
-  if (!onToken || !res.body) {
-    const data = (await res.json()) as {
-      choices?: Array<{ message?: { content?: unknown } }>;
-    };
-    return normalizeOpenAiContent(data.choices?.[0]?.message?.content).trim();
-  }
-
-  // Always consume as a stream when requested. Some gateways label SSE as
-  // application/json; awaiting res.json() would hide tokens until the end.
-  return readOpenAiStream(res, onToken);
-}
-
-function normalizeOpenAiContent(content: unknown): string {
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) {
-    return content
-      .map((p) => {
-        if (typeof p === "string") return p;
-        if (p && typeof p === "object" && "text" in p) {
-          return String((p as { text?: string }).text ?? "");
-        }
-        return "";
-      })
-      .join("");
-  }
-  return "";
-}
-
-function extractOpenAiDeltaContent(json: {
-  choices?: Array<{
-    delta?: { content?: unknown; text?: string };
-    message?: { content?: unknown };
-  }>;
-}): string {
-  const choice = json.choices?.[0];
-  if (!choice) return "";
-  if (choice.delta) {
-    if (choice.delta.content != null) return normalizeOpenAiContent(choice.delta.content);
-    if (typeof choice.delta.text === "string") return choice.delta.text;
-  }
-  if (choice.message?.content != null) return normalizeOpenAiContent(choice.message.content);
-  return "";
-}
-
-function consumeOpenAiStreamLine(line: string, onToken: (c: string) => void): string {
-  const trimmed = line.trim();
-  if (!trimmed || trimmed.startsWith(":")) return "";
-  let payload = trimmed;
-  if (trimmed.startsWith("data:")) {
-    payload = trimmed.slice(5).trim();
-  }
-  if (!payload || payload === "[DONE]") return "";
+  const catalog = resolveZibbyTextModel(req.model.modelId);
+  const action = actionLabel(req.action);
   try {
-    const json = JSON.parse(payload) as {
-      choices?: Array<{
-        delta?: { content?: unknown; text?: string };
-        message?: { content?: unknown };
-      }>;
-    };
-    const chunk = extractOpenAiDeltaContent(json);
-    if (chunk) onToken(chunk);
-    return chunk;
-  } catch {
-    return "";
-  }
-}
-
-async function readOpenAiStream(res: Response, onToken: (c: string) => void): Promise<string> {
-  const reader = res.body!.getReader();
-  const decoder = new TextDecoder();
-  let full = "";
-  let buffer = "";
-
-  const emitFromLine = (line: string) => {
-    const chunk = consumeOpenAiStreamLine(line, onToken);
-    if (chunk) full += chunk;
-  };
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-
-    // Prefer line-delimited SSE/NDJSON; also try to peel complete JSON objects early.
-    let nl: number;
-    while ((nl = buffer.indexOf("\n")) >= 0) {
-      const line = buffer.slice(0, nl);
-      buffer = buffer.slice(nl + 1);
-      emitFromLine(line);
+    const result = await streamZibbyAi(
+      {
+        action,
+        provider: catalog.zibbyProvider,
+        model: catalog.id,
+        payload: buildPayload(req, catalog.id, catalog.zibbyProvider),
+      },
+      { onDelta: req.onToken, signal: req.signal },
+    );
+    if (result.terminal) publishBalance(result.terminal.balance_cr);
+    return (result.text || "").trim();
+  } catch (e) {
+    if ((e as Error).name === "AbortError") throw e;
+    if (e instanceof ZibbyAiError) {
+      throw new Error(formatZibbyError(e));
     }
-
-    // Some gateways flush a complete `data: {...}` without trailing newline for a while.
-    if (buffer.startsWith("data:")) {
-      const payload = buffer.slice(5).trim();
-      if (payload.startsWith("{")) {
-        try {
-          JSON.parse(payload);
-          emitFromLine(buffer);
-          buffer = "";
-        } catch {
-          // incomplete JSON — wait for more bytes
-        }
-      }
-    }
+    throw e;
   }
-
-  buffer += decoder.decode();
-  if (buffer.trim()) emitFromLine(buffer);
-
-  return full.trim();
 }
 
-type GeminiPart = { text?: string; thought?: boolean };
-
-function geminiAnswerText(parts: GeminiPart[] | undefined): string {
-  if (!parts?.length) return "";
-  return parts
-    .filter((p) => !p.thought && Boolean(p.text))
-    .map((p) => p.text ?? "")
-    .join("");
-}
-
-/** thinkingConfig is only valid on Gemini 2.5+ / thinking variants. */
-function geminiSupportsThinkingConfig(modelId: string): boolean {
-  const id = modelId.toLowerCase();
-  return (
-    id.includes("2.5") ||
-    id.includes("2.6") ||
-    id.includes("thinking") ||
-    /(?:^|[/:_-])gemini-3/.test(id)
-  );
-}
-
-function geminiGenerationConfig(
-  modelId: string,
-  thinkingEnabled: boolean,
-): Record<string, unknown> | undefined {
-  const wantsThinking = thinkingEnabled === true;
-  if (!geminiSupportsThinkingConfig(modelId) && !wantsThinking) return undefined;
-  return {
-    thinkingConfig: {
-      // 2.5+ may think by default; 0 disables, 1024 enables a budget.
-      thinkingBudget: wantsThinking ? (appConfig.providers.gemini.thinkingBudget ?? 1024) : 0,
-    },
-  };
-}
-
-async function chatGemini(req: ChatRequest): Promise<string> {
-  const { model, messages, signal, onToken, thinkingEnabled } = req;
-  const base = model.baseUrl.replace(/\/+$/, "");
-  const key = model.apiKey ?? "";
-  const stream = Boolean(onToken);
-  const params = new URLSearchParams();
-  if (key) params.set("key", key);
-  if (stream) params.set("alt", "sse");
-  const qs = params.toString();
-  const method = stream ? "streamGenerateContent" : "generateContent";
-  const url = `${base}/models/${encodeURIComponent(model.modelId)}:${method}${
-    qs ? `?${qs}` : ""
-  }`;
-
-  const system = messages.find((m) => m.role === "system")?.content;
-  const contents = messages
-    .filter((m) => m.role !== "system")
-    .map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...headersToRecord(model.extraHeaders),
-  };
-
-  const body: Record<string, unknown> = {
-    systemInstruction: system ? { parts: [{ text: system }] } : undefined,
-    contents,
-  };
-  const generationConfig = geminiGenerationConfig(model.modelId, thinkingEnabled === true);
-  if (generationConfig) body.generationConfig = generationConfig;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    signal,
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(formatHttpError(res.status, text));
+function formatZibbyError(error: ZibbyAiError): string {
+  switch (error.code) {
+    case "insufficient_credits":
+      return "Not enough Zibby credits for this call.";
+    case "session_cap_reached":
+      return "This session hit the Zibby spending cap.";
+    case "unauthenticated":
+      return "Sign in on Zibby to use AI.";
+    case "locked":
+      return "Your Zibby account is on hold.";
+    case "rate_limited":
+      return "Too many AI calls just now. Try again in a moment.";
+    case "unknown_model":
+      return "That model is not available on Zibby.";
+    default:
+      return error.message || "The AI call failed.";
   }
-
-  if (!stream || !res.body) {
-    const data = (await res.json()) as {
-      candidates?: Array<{ content?: { parts?: GeminiPart[] } }>;
-    };
-    const text = geminiAnswerText(data.candidates?.[0]?.content?.parts);
-    if (onToken && text) onToken(text);
-    return text.trim();
-  }
-
-  return readSseGemini(res, onToken!);
-}
-
-async function readSseGemini(res: Response, onToken: (c: string) => void): Promise<string> {
-  const reader = res.body!.getReader();
-  const decoder = new TextDecoder();
-  let full = "";
-  let buffer = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const data = trimmed.slice(5).trim();
-      if (!data || data === "[DONE]") continue;
-      try {
-        const json = JSON.parse(data) as {
-          candidates?: Array<{ content?: { parts?: GeminiPart[] } }>;
-        };
-        const chunk = geminiAnswerText(json.candidates?.[0]?.content?.parts);
-        if (chunk) {
-          full += chunk;
-          onToken(chunk);
-        }
-      } catch {
-        // ignore partial JSON
-      }
-    }
-  }
-  return full.trim();
-}
-
-async function chatClaude(req: ChatRequest): Promise<string> {
-  const { model, messages, signal, onToken, thinkingEnabled } = req;
-  const base = model.baseUrl.replace(/\/+$/, "");
-  const url = `${base}/v1/messages`;
-  const system = messages.find((m) => m.role === "system")?.content;
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "anthropic-version": appConfig.providers.claude.anthropicVersion ?? "2023-06-01",
-    "anthropic-dangerous-direct-browser-access": "true",
-    ...headersToRecord(model.extraHeaders),
-  };
-  if (model.apiKey) headers["x-api-key"] = model.apiKey;
-
-  const thinkingOn = thinkingEnabled === true;
-  const thinkingBudget = appConfig.providers.claude.thinkingBudget ?? 2048;
-  const maxTokens = appConfig.providers.claude.maxTokens ?? 2048;
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    signal,
-    body: JSON.stringify({
-      model: model.modelId,
-      max_tokens: thinkingOn ? thinkingBudget + maxTokens : maxTokens,
-      system: system || undefined,
-      messages: messages
-        .filter((m) => m.role !== "system")
-        .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content })),
-      stream: Boolean(onToken),
-      ...(thinkingOn
-        ? { thinking: { type: "enabled", budget_tokens: thinkingBudget } }
-        : {}),
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(formatHttpError(res.status, text));
-  }
-
-  if (!onToken || !res.body) {
-    const data = (await res.json()) as {
-      content?: Array<{ type?: string; text?: string }>;
-    };
-    return data.content?.filter((c) => c.type === "text").map((c) => c.text ?? "").join("") ?? "";
-  }
-
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let full = "";
-  let buffer = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const data = trimmed.slice(5).trim();
-      try {
-        const json = JSON.parse(data) as {
-          type?: string;
-          delta?: { text?: string };
-        };
-        if (json.type === "content_block_delta" && json.delta?.text) {
-          full += json.delta.text;
-          onToken(json.delta.text);
-        }
-      } catch {
-        // ignore
-      }
-    }
-  }
-  return full.trim();
 }
 
 export async function fetchModels(
-  model: Pick<AiModelConfig, "provider" | "baseUrl" | "apiKey" | "extraHeaders">,
-  signal?: AbortSignal,
+  _model: Pick<AiModelConfig, "provider" | "baseUrl" | "apiKey" | "extraHeaders">,
+  _signal?: AbortSignal,
 ): Promise<string[]> {
-  const { provider } = model;
-
-  if (provider === "ollama") {
-    const base = resolveRequestBaseUrl(provider, model.baseUrl).replace(/\/v1$/, "");
-    const res = await fetch(`${base}/api/tags`, {
-      signal,
-      headers: headersToRecord(model.extraHeaders),
-    });
-    if (!res.ok) throw new Error(formatHttpError(res.status, await res.text()));
-    const data = (await res.json()) as { models?: Array<{ name?: string }> };
-    return (data.models ?? []).map((m) => m.name!).filter(Boolean);
-  }
-
-  if (provider === "openai" || provider === "custom") {
-    const base = model.baseUrl.replace(/\/+$/, "");
-    const url = joinUrl(base, "/models");
-    const headers: Record<string, string> = {
-      ...headersToRecord(model.extraHeaders),
-    };
-    if (model.apiKey) headers.Authorization = `Bearer ${model.apiKey}`;
-    const res = await fetch(url, { headers, signal });
-    if (!res.ok) throw new Error(formatHttpError(res.status, await res.text()));
-    const data = (await res.json()) as { data?: Array<{ id?: string }> };
-    return (data.data ?? []).map((m) => m.id!).filter(Boolean).sort();
-  }
-
-  if (provider === "gemini") {
-    const base = model.baseUrl.replace(/\/+$/, "");
-    const key = model.apiKey ?? "";
-    const url = `${base}/models${key ? `?key=${encodeURIComponent(key)}` : ""}`;
-    const res = await fetch(url, {
-      signal,
-      headers: headersToRecord(model.extraHeaders),
-    });
-    if (!res.ok) throw new Error(formatHttpError(res.status, await res.text()));
-    const data = (await res.json()) as { models?: Array<{ name?: string }> };
-    return (data.models ?? [])
-      .map((m) => (m.name ?? "").replace(/^models\//, ""))
-      .filter((n) => n.includes("gemini"))
-      .sort();
-  }
-
-  // Claude has no simple browser models list without special access — return empty
-  return [];
+  return ZIBBY_TEXT_MODELS.map((m) => m.id);
 }
 
 export async function testConnection(
   model: AiModelConfig,
-  signal?: AbortSignal,
 ): Promise<{ ok: boolean; detail: string }> {
-  try {
-    const list = await fetchModels(model, signal);
-    if (list.length > 0) {
-      return { ok: true, detail: `Found ${list.length} model(s)` };
-    }
-    // Fallback: tiny completion
-    const reply = await chatCompletion({
-      model,
-      signal,
-      messages: [
-        { role: "system", content: prompts.connectionTest.system },
-        { role: "user", content: prompts.connectionTest.user },
-      ],
-    });
-    return { ok: true, detail: reply.slice(0, 80) || "Connected" };
-  } catch (e) {
-    return { ok: false, detail: e instanceof Error ? e.message : String(e) };
-  }
-}
-
-function isLikelyReasoningModel(modelId: string): boolean {
-  const id = modelId.toLowerCase();
-  return (
-    /(^|[/:_-])o[1-9]([.-]|$)/.test(id) ||
-    id.includes("gpt-5") ||
-    id.includes("reason")
-  );
-}
-
-function formatHttpError(status: number, body: string): string {
-  const snippet = body.slice(0, 180).replace(/\s+/g, " ");
-  if (status === 0) return "Network or CORS error. Use a custom gateway or local proxy.";
-  return `HTTP ${status}${snippet ? `: ${snippet}` : ""}`;
+  const catalog = resolveZibbyTextModel(model.modelId);
+  return { ok: true, detail: catalog.id };
 }

@@ -16,6 +16,8 @@
     "models": "模型",
     "map": "地图",
     "settings": "设置",
+    "credits": "积分",
+    "creditsCount": "{{count}} cr",
     "hello": "你好，{{name}}",
     "editMap": "编辑地图",
     "day": "白天",

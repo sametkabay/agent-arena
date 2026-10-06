@@ -2,24 +2,14 @@ import { useTranslation } from "react-i18next";
 import type { AiModelConfig } from "@/lib/types";
 import type { ProviderGroup } from "@/components/SettingsModal/groupModels";
 
-function hostOf(url: string): string {
-  try {
-    return new URL(url).host || url;
-  } catch {
-    return url;
-  }
-}
-
 export function ModelList({
   groups,
   onAdd,
-  onAddLlm,
   onEdit,
   onDelete,
 }: {
   groups: ProviderGroup[];
   onAdd: () => void;
-  onAddLlm: (source: AiModelConfig, takenIds: string[]) => void;
   onEdit: (model: AiModelConfig) => void;
   onDelete: (id: string) => void;
 }) {
@@ -47,20 +37,7 @@ export function ModelList({
                   <div className="provider-group__title">
                     {t(`settings.models.providerNames.${group.provider}`)}
                   </div>
-                  <div className="provider-group__sub">{hostOf(group.baseUrl)}</div>
                 </div>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  onClick={() =>
-                    onAddLlm(
-                      group.models[0],
-                      group.models.map((m) => m.modelId),
-                    )
-                  }
-                >
-                  {t("settings.models.addLlm")}
-                </button>
               </div>
               <ul className="provider-group__items">
                 {group.models.map((m) => (

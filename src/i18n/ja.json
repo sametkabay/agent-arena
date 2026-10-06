@@ -16,6 +16,8 @@
     "models": "モデル",
     "map": "マップ",
     "settings": "設定",
+    "credits": "クレジット",
+    "creditsCount": "{{count}} cr",
     "hello": "こんにちは、{{name}}",
     "editMap": "マップを編集",
     "day": "昼",

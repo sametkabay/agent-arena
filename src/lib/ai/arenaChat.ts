@@ -175,6 +175,7 @@ async function runArenaReply(
   try {
     const reply = await chatCompletion({
       model,
+      action: channel,
       signal: ac.signal,
       thinkingEnabled: false,
       messages: [

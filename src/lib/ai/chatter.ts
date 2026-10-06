@@ -187,6 +187,7 @@ async function runChatterTurn(
   try {
     const reply = await chatCompletion({
       model,
+      action: "idle_mutter",
       signal: ac.signal,
       thinkingEnabled: false,
       messages: [
