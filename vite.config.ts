@@ -112,7 +112,7 @@ function zibbyManifestPlugin(): Plugin {
       const outDir = path.resolve(rootDir, "dist");
       writePagesManifest(outDir, [
         {
-          slug: "sametkabay-agent-arena",
+          slug: "sk-agent-arena",
           title: "Agent Arena",
           description:
             "Place LLM characters on a 3D map in the browser. Chat privately or in the arena; Zibby holds the model keys and bills credits per call.",
