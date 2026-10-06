@@ -35,6 +35,7 @@ export interface AppConfig {
     agentName: string;
     agentColor: string;
     agentChattiness: number;
+    idleChatterEnabled: boolean;
     agentEnabled: boolean;
     agentThinking: boolean;
     modelName: string;

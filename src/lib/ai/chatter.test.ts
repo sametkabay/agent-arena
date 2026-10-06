@@ -21,6 +21,7 @@ function seedStore(partial: Record<string, unknown> = {}) {
   useArenaStore.setState({
     mapEditorOpen: false,
     settingsOpen: false,
+    idleChatterEnabled: true,
     chatBusyById: {},
     agents: [sampleAgent({ chattiness: 80, modelConfigId: "model-1" })],
     models: [sampleModel()],
@@ -92,6 +93,19 @@ describe("tickAgentChatter", () => {
     seedStore({ mapEditorOpen: true });
     tickAgentChatter(rt);
     expect(rt.nextAt.size).toBe(0);
+  });
+
+  it("skips and clears timers when idle chatter is off", () => {
+    const rt = createChatterRuntime();
+    const ac = new AbortController();
+    rt.nextAt.set("agent-1", 1);
+    rt.inflight.set("agent-1", ac);
+    seedStore({ idleChatterEnabled: false });
+    tickAgentChatter(rt);
+    expect(ac.signal.aborted).toBe(true);
+    expect(rt.nextAt.size).toBe(0);
+    expect(rt.inflight.size).toBe(0);
+    expect(chatCompletion).not.toHaveBeenCalled();
   });
 
   it("schedules then fires a mutter", async () => {

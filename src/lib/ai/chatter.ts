@@ -94,6 +94,14 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
   resumeChatterRuntime(rt);
 
   const s = useArenaStore.getState();
+  if (!s.idleChatterEnabled) {
+    if (rt.inflight.size || rt.nextAt.size) {
+      for (const ac of rt.inflight.values()) ac.abort();
+      rt.inflight.clear();
+      rt.nextAt.clear();
+    }
+    return;
+  }
   if (s.mapEditorOpen || s.settingsOpen) return;
 
   const now = Date.now();

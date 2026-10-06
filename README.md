@@ -95,7 +95,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 | Target one agent | `@Name` in arena chat (autocomplete) |
 | Day / night | HUD toggle (also chosen on first visit) |
 | Edit world | **Edit map** — full-screen editor |
-| Pause idle chatter | Open Settings or the Map Editor, or hide the tab |
+| Idle chatter | Off by default — turn it on in **Settings → General** |
 
 ---
 
@@ -117,7 +117,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 - **Agents on a map** — they walk, idle, think, and talk in a low-poly world
 - **Private chat** — resizable, draggable panel; replies stream into the panel and a speech bubble
 - **Arena chat** — fading live feed + history; broadcast or `@mention`
-- **Idle mutter** — short asides on a chattiness slider (pauses when the tab is hidden)
+- **Idle mutter** — opt-in; short asides on a chattiness slider (pauses when the tab is hidden)
 - **YAML-configured fork** — app defaults, prompt templates, characters, roles, and maps live in files you can edit
 - **10 UI languages** — English, Türkçe, Español, 简体中文, Português, Français, Deutsch, 日本語, 한국어, Русский
 
@@ -144,7 +144,7 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 - Spawn multiple agents on map spawn points
 - Each agent has a **GLB character look** (13 shipped faces, from `data/characters.yaml`) and a **role preset** (explorer, engineer, botanist, scholar, artisan, guardian, scout, muse, or custom)
 - Role fills default name, color, bio, and system prompt; **character look** (GLB) is independent of role
-- **Idle chatter loop** — rate via *chattiness* (0–100; default 10; 100 ≈ 2 mutters/minute); pauses when the tab is hidden or Settings / Map Editor is open
+- **Idle chatter loop** — opt-in in Settings (off by default); rate via *chattiness* (0–100; default 10; 100 ≈ 2 mutters/minute); pauses when the tab is hidden or Settings / Map Editor is open
 - Click to select; **right-click the floor** to send them walking
 - Thinking / talking visual states while replies stream (`🤔` bubble while a reply is in flight; optional **thinking / reasoning** toggle per agent — provider-specific)
 - Optional **skills** blocks (coding / docs / tools templates) appended to the system prompt
@@ -214,6 +214,7 @@ defaults:
   mapId: nature
   dayNight: night
   agentChattiness: 25
+  idleChatterEnabled: false
 chatter:
   maxMuttersPerMinute: 2   # 100 chattiness ≈ 2 mutters/min at default
 ```

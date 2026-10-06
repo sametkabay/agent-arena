@@ -5,6 +5,7 @@ import { LANGUAGES } from "@/i18n/languages";
 import { useArenaStore } from "@/store/arenaStore";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Select } from "@/components/ui/Select";
+import { Switch } from "@/components/ui/Switch";
 
 export function GeneralTab() {
   const { t } = useTranslation();
@@ -12,6 +13,8 @@ export function GeneralTab() {
   const language = useArenaStore((s) => s.language);
   const setUserName = useArenaStore((s) => s.setUserName);
   const setLanguage = useArenaStore((s) => s.setLanguage);
+  const idleChatterEnabled = useArenaStore((s) => s.idleChatterEnabled);
+  const setIdleChatterEnabled = useArenaStore((s) => s.setIdleChatterEnabled);
   const clearChats = useArenaStore((s) => s.clearChats);
   const showToast = useArenaStore((s) => s.showToast);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -36,6 +39,17 @@ export function GeneralTab() {
           options={LANGUAGES.map((l) => ({ value: l.code, label: l.label }))}
         />
       </label>
+      <div className="settings-row settings-row--stack">
+        <div>
+          <strong>{t("settings.general.idleChatter")}</strong>
+          <p className="settings-hint">{t("settings.general.idleChatterHint")}</p>
+        </div>
+        <Switch
+          checked={idleChatterEnabled === true}
+          onChange={setIdleChatterEnabled}
+          aria-label={t("settings.general.idleChatter")}
+        />
+      </div>
       <div className="settings-row settings-row--stack">
         <div>
           <strong>{t("settings.general.clearChats")}</strong>

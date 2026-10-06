@@ -67,6 +67,7 @@ interface ArenaState extends AppPersisted {
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
+  setIdleChatterEnabled: (enabled: boolean) => void;
   toggleFavoriteAsset: (placeableId: string) => void;
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
@@ -118,6 +119,7 @@ function persistSlice(s: ArenaState): AppPersisted {
     customMaps: s.customMaps,
     graphics: s.graphics,
     dayNight: s.dayNight,
+    idleChatterEnabled: s.idleChatterEnabled === true,
     favoriteAssets: s.favoriteAssets ?? [],
     chats: sanitizeChats(s.chats),
     arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),
@@ -232,6 +234,11 @@ export const useArenaStore = create<ArenaState>((set, get) => {
 
   toggleDayNight: () => {
     set((s) => ({ dayNight: s.dayNight === "day" ? "night" : "day" }));
+    get().persist();
+  },
+
+  setIdleChatterEnabled: (enabled) => {
+    set({ idleChatterEnabled: enabled });
     get().persist();
   },
 

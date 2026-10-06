@@ -68,6 +68,7 @@ export function defaultPersisted(): AppPersisted {
     customMaps: [],
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: appConfig.defaults.dayNight,
+    idleChatterEnabled: appConfig.defaults.idleChatterEnabled,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -198,6 +199,7 @@ export function loadPersisted(): AppPersisted {
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
       dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : appConfig.defaults.dayNight,
+      idleChatterEnabled: parsed.idleChatterEnabled === true,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")
