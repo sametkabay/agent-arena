@@ -8,6 +8,13 @@ export interface LanguageEntry {
   englishName: string;
 }
 
+export interface OpenAiCompatiblePreset {
+  id: string;
+  name: string;
+  baseUrl: string;
+  modelId: string;
+}
+
 export interface ProviderDefaults {
   name: string;
   baseUrl: string;
@@ -17,6 +24,7 @@ export interface ProviderDefaults {
   anthropicVersion?: string;
   maxTokens?: number;
   thinkingBudget?: number;
+  compatiblePresets?: OpenAiCompatiblePreset[];
 }
 
 export interface AppConfig {

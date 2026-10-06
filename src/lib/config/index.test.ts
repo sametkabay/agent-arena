@@ -16,4 +16,10 @@ describe("barrel exports", () => {
     );
     expect(appConfig.defaults.idleChatterEnabled).toBe(false);
   });
+
+  it("includes OpenAI-compatible presets from yaml", () => {
+    const presets = appConfig.providers.openai.compatiblePresets ?? [];
+    expect(presets.length).toBeGreaterThan(0);
+    expect(presets[0]?.baseUrl).toMatch(/^https:\/\//);
+  });
 });

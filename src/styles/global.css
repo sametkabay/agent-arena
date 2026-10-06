@@ -1995,6 +1995,17 @@ body.is-chat-panel-dragging .chat-popup__resize {
   line-height: 1.4;
 }
 
+.model-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-presets .settings-hint {
+  margin: 0;
+}
+
 .settings-row {
   display: flex;
   justify-content: space-between;

@@ -2,6 +2,10 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import type { AiModelConfig, AiProviderKind, ExtraHeader } from "@/lib/types";
 import { Select } from "@/components/ui/Select";
+import {
+  normalizeOpenAiCompatibleBaseUrl,
+  openaiCompatiblePresets,
+} from "@/lib/ai/providers";
 
 const PROVIDERS: AiProviderKind[] = ["openai", "gemini", "claude", "ollama", "custom"];
 
@@ -141,6 +145,28 @@ export function ModelForm({
           }))}
         />
       </label>
+      {draft.provider === "openai" && openaiCompatiblePresets().length > 0 && (
+        <div className="model-presets">
+          <span className="settings-hint settings-hint--inline">{t("settings.models.presetsLabel")}</span>
+          {openaiCompatiblePresets().map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              className="btn btn--ghost"
+              onClick={() =>
+                onChange({
+                  ...draft,
+                  name: preset.name,
+                  baseUrl: preset.baseUrl,
+                  modelId: preset.modelId,
+                })
+              }
+            >
+              {preset.name}
+            </button>
+          ))}
+        </div>
+      )}
       <label>
         {t("settings.models.name")}
         <input
@@ -153,8 +179,20 @@ export function ModelForm({
         <input
           value={draft.baseUrl}
           onChange={(e) => onChange({ ...draft, baseUrl: e.target.value })}
+          onBlur={() =>
+            onChange({
+              ...draft,
+              baseUrl: normalizeOpenAiCompatibleBaseUrl(draft.baseUrl),
+            })
+          }
         />
       </label>
+      {(draft.provider === "openai" || draft.provider === "custom") && (
+        <>
+          <p className="settings-hint">{t("settings.models.baseUrlHint")}</p>
+          <p className="settings-hint">{t("settings.models.corsDevHint")}</p>
+        </>
+      )}
       <label>
         {t("settings.models.apiKey")}
         <div className="header-pair header-pair--name-action">

@@ -2,10 +2,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildSystemPrompt,
   chatCompletion,
+  corsHelpMessage,
   fetchModels,
+  isLocalLlmBaseUrl,
+  normalizeOpenAiCompatibleBaseUrl,
+  openaiCompatiblePresets,
   providerDefaults,
   testConnection,
   truncateChatHistory,
+  wrapNetworkError,
 } from "@/lib/ai/providers";
 import { sampleModel } from "@/test/fixtures";
 import type { ArenaWorldContext } from "@/lib/ai/arenaContext";
@@ -57,6 +62,31 @@ describe("provider helpers", () => {
     expect(providerDefaults("ollama").modelId).toBeTruthy();
     expect(providerDefaults("gemini").name).toBeTruthy();
     expect(providerDefaults("claude").baseUrl).toContain("anthropic");
+  });
+
+  it("ships yaml OpenAI-compatible presets without host-specific helpers", () => {
+    const presets = openaiCompatiblePresets();
+    expect(presets.length).toBeGreaterThan(0);
+    expect(presets.every((p) => p.baseUrl && p.modelId && p.id)).toBe(true);
+    expect(isLocalLlmBaseUrl("https://api.openai.com/v1")).toBe(false);
+    expect(isLocalLlmBaseUrl("http://127.0.0.1:8080/v1")).toBe(true);
+  });
+
+  it("strips pasted /chat/completions from OpenAI-compatible bases", () => {
+    expect(
+      normalizeOpenAiCompatibleBaseUrl("https://example.com/v1/chat/completions"),
+    ).toBe("https://example.com/v1");
+    expect(normalizeOpenAiCompatibleBaseUrl("https://api.openai.com/v1/")).toBe(
+      "https://api.openai.com/v1",
+    );
+  });
+
+  it("explains generic CORS / network failures", () => {
+    expect(corsHelpMessage("https://example.com/v1")).toMatch(/CORS/);
+    expect(wrapNetworkError(new TypeError("Failed to fetch"), "https://example.com/v1").message).toMatch(
+      /CORS/,
+    );
+    expect(wrapNetworkError(new Error("offline"), "https://api.openai.com/v1").message).toBe("offline");
   });
 
   it("truncates chat history from the tail", () => {
@@ -213,6 +243,34 @@ describe("chatCompletion", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain("not a url");
   });
 
+  it("rewrites remote OpenAI-compatible URLs in DEV and omits reasoning_effort", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ choices: [{ message: { content: "ok" } }] }));
+    vi.stubGlobal("fetch", fetchMock);
+    await chatCompletion({
+      model: sampleModel({
+        provider: "openai",
+        baseUrl: "https://example.invalid/v1/chat/completions",
+        modelId: "remote-model",
+      }),
+      messages: [{ role: "user", content: "hi" }],
+    });
+    expect(String(fetchMock.mock.calls[0][0])).toBe("/remote-llm/example.invalid/443/v1/chat/completions");
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body as string) as Record<string, unknown>;
+    expect(body.reasoning_effort).toBeUndefined();
+  });
+
+  it("maps remote fetch failures to a CORS hint", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    await expect(
+      fetchModels({
+        provider: "openai",
+        baseUrl: "https://example.invalid/v1",
+        apiKey: "k",
+        extraHeaders: [],
+      }),
+    ).rejects.toThrow(/CORS/);
+  });
+
   it("ignores comment lines and incomplete SSE JSON", async () => {
     vi.stubGlobal(
       "fetch",
@@ -308,7 +366,10 @@ describe("fetchModels / testConnection", () => {
 
   it("reports connection success and failure", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [{ id: "gpt-4o" }] })));
-    await expect(testConnection(sampleModel())).resolves.toMatchObject({ ok: true });
+    await expect(testConnection(sampleModel())).resolves.toMatchObject({
+      ok: true,
+      detail: "Connected. Found 1 model(s)",
+    });
 
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ data: [] })));
     vi.stubGlobal(
