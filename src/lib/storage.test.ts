@@ -83,8 +83,19 @@ describe("sanitizeArenaChatHistory", () => {
 describe("loadPersisted / savePersisted", () => {
   it("returns defaults when empty or invalid JSON", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());
+    expect(loadPersisted().idleChatterEnabled).toBe(false);
     localStorage.setItem(STORAGE_KEY, "{not json");
     expect(loadPersisted()).toEqual(defaultPersisted());
+  });
+
+  it("treats missing idle chatter as off (opt-in)", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ userName: "Samet" }));
+    expect(loadPersisted().idleChatterEnabled).toBe(false);
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ idleChatterEnabled: true }),
+    );
+    expect(loadPersisted().idleChatterEnabled).toBe(true);
   });
 
   it("round-trips sanitized persisted state", () => {

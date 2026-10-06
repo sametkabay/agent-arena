@@ -14,5 +14,6 @@ describe("barrel exports", () => {
     expect(appConfig.app.description).toMatch(
       /open-source, browser-native multi-agent playground/i,
     );
+    expect(appConfig.defaults.idleChatterEnabled).toBe(false);
   });
 });

@@ -83,6 +83,8 @@ export interface AppPersisted {
   graphics: GraphicsSettings;
   /** Arena + UI day/night preference (persisted). */
   dayNight: DayNightMode;
+  /** When false, agents never idle-mutter (opt-in). Default off. */
+  idleChatterEnabled: boolean;
   /** Favorite placeable ids for the map editor library. */
   favoriteAssets?: string[];
   /** Per-agent private chat history (localStorage). */

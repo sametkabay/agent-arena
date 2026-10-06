@@ -26,6 +26,8 @@ defaults:
   agentName: New agent
   agentColor: "#4A90A4"
   agentChattiness: 10
+  # Idle mutters are opt-in so LLM calls only fire when the visitor chats.
+  idleChatterEnabled: false
   agentEnabled: true
   agentThinking: false
   modelName: New model
