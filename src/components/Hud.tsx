@@ -1,5 +1,5 @@
 import { useCreditBalance } from "@zibby-run/app-kit/react";
-import { hostNavigate, ZIBBY_CREDITS_PATH } from "@zibby-run/app-kit";
+import { hostNavigate, isEmbedded, ZIBBY_CREDITS_PATH } from "@zibby-run/app-kit";
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
@@ -34,7 +34,9 @@ export function Hud() {
         <button
           type="button"
           className="hud__credits"
-          onClick={() => hostNavigate(ZIBBY_CREDITS_PATH)}
+          onClick={() => {
+            if (isEmbedded()) hostNavigate(ZIBBY_CREDITS_PATH);
+          }}
         >
           {credits == null
             ? t("hud.credits")
