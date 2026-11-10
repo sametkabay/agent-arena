@@ -41,6 +41,10 @@ const REQUIRED_KEYS = [
   "controlsHelp.rows.editMap.how",
   "controlsHelp.rows.idle.action",
   "controlsHelp.rows.idle.how",
+  "settings.agents.duplicate",
+  "settings.agents.duplicateAria",
+  "settings.agents.duplicated",
+  "settings.agents.copyLabel",
 ] as const;
 
 function getByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -57,8 +61,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 34 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(34);
+  it("lists exactly 38 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(38);
   });
 
   it("includes every configured language with matching placeholders", () => {

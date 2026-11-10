@@ -23,6 +23,7 @@ import {
   placeAgentsOnMap,
 } from "@/lib/maps";
 import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
+import { createAgentCopy } from "@/lib/agentCopy";
 import { isSetupComplete } from "@/lib/onboarding";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
@@ -83,6 +84,7 @@ interface ArenaState extends AppPersisted {
   upsertModel: (model: AiModelConfig) => void;
   deleteModel: (id: string) => void;
   upsertAgent: (agent: AgentConfig) => void;
+  duplicateAgent: (id: string, copyLabel: string) => AgentConfig | null;
   deleteAgent: (id: string) => void;
 
   upsertCustomMap: (def: ArenaMapDefinition) => void;
@@ -349,6 +351,14 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       };
     });
     get().persist();
+  },
+
+  duplicateAgent: (id, copyLabel) => {
+    const source = get().agents.find((a) => a.id === id);
+    if (!source) return null;
+    const copy = createAgentCopy(source, get().agents, copyLabel);
+    get().upsertAgent(copy);
+    return copy;
   },
 
   deleteAgent: (id) => {
