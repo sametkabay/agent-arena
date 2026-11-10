@@ -17,19 +17,21 @@ export function SetupGuide() {
       role="region"
       aria-label={t("onboarding.title")}
     >
-      <h2 className="setup-guide__title">{t("onboarding.title")}</h2>
-      <p className="setup-guide__intro">{t("onboarding.intro")}</p>
-      <ol className="setup-guide__steps">
-        <li>{t("onboarding.step1")}</li>
-        <li>{t("onboarding.step2")}</li>
-        <li>{t("onboarding.step3")}</li>
-      </ol>
-      <p className="setup-guide__alive">
-        {t("onboarding.alive", {
-          setting: t("settings.general.idleChatter"),
-          tab: t("settings.tabs.general"),
-        })}
-      </p>
+      <div className="setup-guide__body">
+        <h2 className="setup-guide__title">{t("onboarding.title")}</h2>
+        <p className="setup-guide__intro">{t("onboarding.intro")}</p>
+        <ol className="setup-guide__steps">
+          <li>{t("onboarding.step1")}</li>
+          <li>{t("onboarding.step2")}</li>
+          <li>{t("onboarding.step3")}</li>
+        </ol>
+        <p className="setup-guide__alive">
+          {t("onboarding.alive", {
+            setting: t("settings.general.idleChatter"),
+            tab: t("settings.tabs.general"),
+          })}
+        </p>
+      </div>
       <div className="setup-guide__actions">
         <button
           type="button"

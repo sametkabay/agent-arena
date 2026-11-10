@@ -176,7 +176,9 @@
         "custom": "Eigene"
       },
       "addLlm": "Modell hinzufügen",
-      "addLlmHint": "Dasselbe {{provider}}-Konto ({{host}}). Wähle ein anderes Modell — dein Schlüssel bleibt gleich."
+      "addLlmHint": "Dasselbe {{provider}}-Konto ({{host}}). Wähle ein anderes Modell — dein Schlüssel bleibt gleich.",
+      "showKey": "Anzeigen",
+      "hideKey": "Ausblenden"
     },
     "agents": {
       "title": "Agenten",
@@ -263,7 +265,9 @@
           "name": "Betonplatte",
           "description": "Ein leerer Betonboden zum Einrichten"
         }
-      }
+      },
+      "propCount_one": "{{count}} Objekt",
+      "propCount_other": "{{count}} Objekte"
     },
     "graphics": {
       "title": "Grafik",

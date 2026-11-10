@@ -165,7 +165,7 @@ export function ModelForm({
             autoComplete="off"
           />
           <button type="button" className="btn btn--ghost" onClick={onToggleShowKey}>
-            {showKey ? "Hide" : "Show"}
+            {t(showKey ? "settings.models.hideKey" : "settings.models.showKey")}
           </button>
         </div>
       </label>

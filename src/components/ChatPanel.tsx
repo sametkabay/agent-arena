@@ -9,6 +9,7 @@ import { getArenaWorldContext, withSituationUserMessage } from "@/lib/ai/arenaCo
 import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig } from "@/lib/config";
+import { dockClearanceFor } from "@/lib/chatPanelLayout";
 
 const STORAGE_KEY = appConfig.storage.chatPanelKey;
 const MIN_W = appConfig.chat.panel.minWidth;
@@ -18,7 +19,7 @@ const MARGIN = appConfig.chat.panel.margin;
 // desktop-sized floating window, and stays clear of the bottom arena chat
 // dock (composer) so the two never overlap by default.
 const MOBILE_BREAKPOINT = 720;
-const DOCK_CLEARANCE = 96;
+const DOCK_CLEARANCE = 112;
 
 function isMobileViewport(): boolean {
   return window.innerWidth <= MOBILE_BREAKPOINT;
@@ -46,12 +47,21 @@ function defaultLayout(): ChatLayout {
     };
   }
   const width = Math.min(appConfig.chat.panel.defaultWidth, Math.max(MIN_W, window.innerWidth - 24));
-  const height = Math.min(appConfig.chat.panel.defaultHeight, Math.max(MIN_H, window.innerHeight - 100));
+  const left = Math.max(MARGIN, window.innerWidth - width - 18);
+  const clearance = dockClearanceFor({
+    panelLeft: left,
+    panelWidth: width,
+    viewportWidth: window.innerWidth,
+  });
+  const height = Math.min(
+    appConfig.chat.panel.defaultHeight,
+    Math.max(MIN_H, window.innerHeight - clearance - MARGIN),
+  );
   return {
     width,
     height,
-    left: Math.max(MARGIN, window.innerWidth - width - 18),
-    top: Math.max(MARGIN, window.innerHeight - height - 18),
+    left,
+    top: Math.max(MARGIN, window.innerHeight - height - clearance),
   };
 }
 

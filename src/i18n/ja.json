@@ -176,7 +176,9 @@
         "custom": "カスタム"
       },
       "addLlm": "モデルを追加",
-      "addLlmHint": "同じ {{provider}} アカウント（{{host}}）。別のモデルを選んでもキーはそのままです。"
+      "addLlmHint": "同じ {{provider}} アカウント（{{host}}）。別のモデルを選んでもキーはそのままです。",
+      "showKey": "表示",
+      "hideKey": "非表示"
     },
     "agents": {
       "title": "エージェント",
@@ -263,7 +265,9 @@
           "name": "コンクリート床",
           "description": "好きに飾れるきれいなコンクリート床"
         }
-      }
+      },
+      "propCount_one": "{{count}} 個のオブジェクト",
+      "propCount_other": "{{count}} 個のオブジェクト"
     },
     "graphics": {
       "title": "グラフィック",

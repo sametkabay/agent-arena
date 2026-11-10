@@ -176,7 +176,9 @@
         "custom": "Personalizada"
       },
       "addLlm": "Adicionar modelo",
-      "addLlmHint": "Mesma conta {{provider}} ({{host}}). Escolha outro modelo — sua chave continua a mesma."
+      "addLlmHint": "Mesma conta {{provider}} ({{host}}). Escolha outro modelo — sua chave continua a mesma.",
+      "showKey": "Mostrar",
+      "hideKey": "Ocultar"
     },
     "agents": {
       "title": "Agentes",
@@ -263,7 +265,9 @@
           "name": "Laje de concreto",
           "description": "Um chão de concreto limpo para você decorar"
         }
-      }
+      },
+      "propCount_one": "{{count}} objeto",
+      "propCount_other": "{{count}} objetos"
     },
     "graphics": {
       "title": "Gráficos",

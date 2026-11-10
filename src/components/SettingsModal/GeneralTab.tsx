@@ -39,7 +39,7 @@ export function GeneralTab() {
           options={LANGUAGES.map((l) => ({ value: l.code, label: l.label }))}
         />
       </label>
-      <div className="settings-row settings-row--stack">
+      <div className="settings-row settings-row--stack settings-row--inline">
         <div>
           <strong>{t("settings.general.idleChatter")}</strong>
           <p className="settings-hint">{t("settings.general.idleChatterHint")}</p>
@@ -50,7 +50,7 @@ export function GeneralTab() {
           aria-label={t("settings.general.idleChatter")}
         />
       </div>
-      <div className="settings-row settings-row--stack">
+      <div className="settings-row settings-row--stack settings-row--flush">
         <div>
           <strong>{t("settings.general.clearChats")}</strong>
           <p className="settings-hint">{t("settings.general.clearChatsHint")}</p>

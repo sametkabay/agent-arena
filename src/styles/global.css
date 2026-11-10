@@ -1014,6 +1014,14 @@ button {
   width: 100%;
 }
 
+.name-gate__field .aa-select__trigger {
+  min-height: 44px;
+  padding: 0.78rem 0.95rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 .name-gate__theme {
   margin: 0;
   padding: 0;
@@ -1212,7 +1220,9 @@ button {
   right: 18px;
   width: min(340px, calc(100vw - 36px));
   max-height: calc(100dvh - 94px);
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   padding: 16px 16px 14px;
   border-radius: 16px;
   background: var(--surface-raised);
@@ -1220,6 +1230,12 @@ button {
   box-shadow: var(--modal-shadow);
   color: var(--ink);
   pointer-events: auto;
+}
+
+.setup-guide__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
 }
 
 .setup-guide__title {
@@ -1253,10 +1269,8 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  position: sticky;
-  bottom: 0;
+  flex: 0 0 auto;
   padding-top: 8px;
-  background: var(--surface-raised);
 }
 
 /* —— Controls help overlay (#27) —— */
@@ -1269,9 +1283,20 @@ button {
 }
 
 .controls-help__table-wrap {
+  position: relative;
   overflow: auto;
   margin: 0 0 14px;
   flex: 1 1 auto;
+}
+
+.controls-help__table-wrap::after {
+  content: "";
+  display: block;
+  position: sticky;
+  bottom: 0;
+  height: 24px;
+  background: linear-gradient(transparent, var(--surface-raised));
+  pointer-events: none;
 }
 
 .controls-help__table {
@@ -2144,6 +2169,19 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-weight: 500;
 }
 
+.settings-row--inline {
+  flex-wrap: nowrap;
+}
+
+.settings-row--inline > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.settings-row--flush {
+  border-bottom: none;
+}
+
 .settings-row input[type="text"],
 .settings-row input[type="password"],
 .settings-row input[type="number"] {
@@ -2661,6 +2699,17 @@ body.is-chat-panel-dragging .chat-popup__resize {
     flex-wrap: wrap;
     justify-content: flex-end;
   }
+  .settings-modal .provider-group__item {
+    flex-wrap: wrap;
+  }
+  .settings-modal .provider-group__item-main {
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .settings-modal .provider-group__item-main .card-item__sub {
+    grid-column: 2;
+  }
 }
 
 /* Phone widths: keep switch + Edit / Duplicate / Delete on one row.
@@ -2702,14 +2751,64 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 @media (max-width: 720px) {
   .settings-modal__card {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     height: min(760px, calc(100vh - 24px));
   }
   .settings-modal__nav {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    /* Edge fade cues: data-scroll-edge updated from JS on scroll/resize. */
+    --nav-fade-left: transparent;
+    --nav-fade-right: transparent;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      var(--nav-fade-left),
+      #000 14px,
+      #000 calc(100% - 14px),
+      var(--nav-fade-right)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      var(--nav-fade-left),
+      #000 14px,
+      #000 calc(100% - 14px),
+      var(--nav-fade-right)
+    );
+  }
+  .settings-modal__nav[data-scroll-edge~="left"] {
+    --nav-fade-left: transparent;
+  }
+  .settings-modal__nav:not([data-scroll-edge~="left"]) {
+    --nav-fade-left: #000;
+  }
+  .settings-modal__nav[data-scroll-edge~="right"] {
+    --nav-fade-right: transparent;
+  }
+  .settings-modal__nav:not([data-scroll-edge~="right"]) {
+    --nav-fade-right: #000;
+  }
+  .settings-modal__nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  .settings-modal__nav-title {
+    display: none;
+  }
+  .settings-modal__nav button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    white-space: nowrap;
+    outline-offset: -2px;
   }
   .arena-side-panels {
     /* Stay pinned under the HUD (not the bottom) so an expanded list never
@@ -2741,8 +2840,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
     left: 12px;
     bottom: calc(88px + env(safe-area-inset-bottom));
     width: auto;
-    max-height: min(42vh, 320px);
-    overflow: auto;
+    max-height: min(56dvh, 420px);
   }
   .controls-help__table thead {
     display: none;
@@ -2777,13 +2875,22 @@ body.is-chat-panel-dragging .chat-popup__resize {
     color: var(--ink-soft);
     margin-bottom: 2px;
   }
+  .controls-help__table td:first-child[data-label]::before {
+    content: none;
+  }
+  .controls-help__footer .confirm-dialog__actions {
+    margin-left: auto;
+  }
 }
 
 /* Larger tap targets for touch pointers, independent of viewport width
    (a touch-capable tablet can still be wide). */
 @media (pointer: coarse) {
+  .arena-side-panels {
+    --side-panel-row: 46px;
+  }
   .agent-label {
-    padding: 0.4rem 0.85rem;
+    padding: 0.5rem 0.85rem;
     font-size: 16px;
   }
   .hud__settings {
@@ -2801,6 +2908,23 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .side-panel__header {
     min-height: 44px;
   }
+  .settings-modal__back {
+    position: relative;
+  }
+  .settings-modal__back::after {
+    content: "";
+    position: absolute;
+    inset: -14px -8px;
+  }
+  .daynight-switch::after {
+    content: "";
+    position: absolute;
+    inset: -8px 0;
+  }
+  .side-panel__item-edit {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 @supports (height: 100dvh) {
@@ -2817,6 +2941,9 @@ body.is-chat-panel-dragging .chat-popup__resize {
   top: 70px;
   left: 50%;
   transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  text-align: center;
   padding: 0.55rem 1rem;
   border-radius: 999px;
   background: var(--toast-bg);
@@ -3213,11 +3340,11 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .map-tab__actions button {
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--surface-chip);
   color: var(--ink);
-  border-radius: 10px;
+  border-radius: 999px;
   padding: 0.4rem 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.85rem;
 }
 
@@ -3244,10 +3371,10 @@ body.is-chat-panel-dragging .chat-popup__resize {
   position: absolute;
   left: 8px;
   bottom: 8px;
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  border: 2px solid rgba(255, 255, 255, 0.75);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -3365,10 +3492,10 @@ body.is-chat-panel-dragging .chat-popup__resize {
   border: 1px solid var(--border);
   background: var(--surface-chip);
   color: var(--ink);
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 0.28rem 0.55rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .map-card__row button.danger {
@@ -3381,6 +3508,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   inset: 0;
   z-index: 250;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   background: #1c1916;
   color: #f4efe6;
@@ -3392,6 +3520,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
+  min-width: 0;
   background: rgba(28, 25, 22, 0.96);
   border-bottom: 1px solid rgba(244, 239, 230, 0.12);
 }
@@ -3511,6 +3640,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__body {
   display: grid;
   grid-template-columns: 280px 1fr 270px;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -3624,13 +3754,14 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .map-editor__asset-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 .map-editor__asset {
   display: grid;
   gap: 4px;
+  width: 100%;
   text-align: left;
   border: 1px solid rgba(244, 239, 230, 0.12);
   background: rgba(255, 255, 255, 0.04);
@@ -3849,5 +3980,112 @@ body.is-chat-panel-dragging .chat-popup__resize {
     max-height: 220px;
     border-left: none;
     border-top: 1px solid rgba(244, 239, 230, 0.08);
+  }
+  .map-editor__filter-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* —— Mobile polish (#44) —— */
+/* After the base .toast rule so phone bottom anchoring wins over top: 70px.
+   Explicit height:auto prevents a stretched pill if both insets ever apply. */
+@media (max-width: 720px) {
+  .toast {
+    top: auto;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    height: auto;
+    max-height: 56px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 960px) {
+  .map-editor__toolbar {
+    flex-wrap: wrap;
+  }
+  .map-editor__brand {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .map-editor__brand {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+  .map-editor__badge {
+    white-space: nowrap;
+  }
+  .map-editor__toolbar-actions {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+  .map-editor__toolbar-actions::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  .map-editor__toolbar-actions button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-row .aa-select {
+    min-width: 120px;
+    flex: 0 1 160px;
+  }
+  .settings-row > span {
+    min-width: 0;
+  }
+  .provider-group__head,
+  .header-row {
+    flex-wrap: wrap;
+  }
+  .provider-group__head .btn,
+  .header-row .btn {
+    white-space: nowrap;
+  }
+  .provider-group__head > div:first-child,
+  .header-row > :first-child {
+    flex: 1 1 150px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) and (pointer: coarse) {
+  .settings-modal .card-item__actions .btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+  .settings-modal .card-item__actions {
+    gap: 6px;
+  }
+}
+
+@media (pointer: coarse) {
+  .arena-chat-dock__form input,
+  .arena-chat-dock__form button[type="submit"],
+  .arena-chat-dock__history-btn,
+  .arena-chat-dock__icon-btn {
+    height: 44px;
+  }
+  .arena-chat-dock__history-btn,
+  .arena-chat-dock__icon-btn {
+    width: 44px;
+  }
+  .arena-chat-dock__form input {
+    text-overflow: ellipsis;
+  }
+  .map-tab__actions button,
+  .map-card__row button {
+    min-height: 36px;
   }
 }
