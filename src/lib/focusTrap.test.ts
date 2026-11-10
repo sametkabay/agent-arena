@@ -3,6 +3,7 @@ import {
   canRestoreFocus,
   rememberRestoreFocusTarget,
   resolveFocusTrapWrapIndex,
+  shouldRestoreFocusAfterTrapCleanup,
 } from "@/lib/focusTrap";
 
 describe("resolveFocusTrapWrapIndex", () => {
@@ -64,5 +65,20 @@ describe("canRestoreFocus", () => {
     const el = { focus() {} };
     expect(canRestoreFocus(null, () => true)).toBe(false);
     expect(canRestoreFocus(el, () => false)).toBe(false);
+  });
+});
+
+describe("shouldRestoreFocusAfterTrapCleanup", () => {
+  it("skips restore when the card is still connected (StrictMode re-run)", () => {
+    expect(shouldRestoreFocusAfterTrapCleanup({ isConnected: true })).toBe(false);
+  });
+
+  it("restores after a real unmount when the card is detached", () => {
+    expect(shouldRestoreFocusAfterTrapCleanup({ isConnected: false })).toBe(true);
+  });
+
+  it("restores when the card ref was never set", () => {
+    expect(shouldRestoreFocusAfterTrapCleanup(null)).toBe(true);
+    expect(shouldRestoreFocusAfterTrapCleanup(undefined)).toBe(true);
   });
 });

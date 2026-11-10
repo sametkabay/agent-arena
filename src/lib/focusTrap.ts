@@ -60,3 +60,16 @@ export function canRestoreFocus<T extends RestoreFocusTarget>(
 ): el is T {
   return !!el && typeof el.focus === "function" && isAttached(el);
 }
+
+/**
+ * Whether effect cleanup should restore focus to the dialog opener.
+ *
+ * React StrictMode re-runs mount effect cleanup while the dialog DOM is still
+ * connected. Skip restore in that case; on a real unmount the card is already
+ * detached by the time cleanup runs.
+ */
+export function shouldRestoreFocusAfterTrapCleanup(
+  card: { isConnected: boolean } | null | undefined,
+): boolean {
+  return !card?.isConnected;
+}

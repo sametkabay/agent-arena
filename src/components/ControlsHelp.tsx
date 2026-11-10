@@ -6,6 +6,7 @@ import {
   canRestoreFocus,
   rememberRestoreFocusTarget,
   resolveFocusTrapWrapIndex,
+  shouldRestoreFocusAfterTrapCleanup,
 } from "@/lib/focusTrap";
 
 type Props = {
@@ -36,6 +37,9 @@ export function ControlsHelp({ auto, onClose }: Props) {
   );
 
   useEffect(() => {
+    // Capture at effect start so StrictMode's simulated cleanup can detect that
+    // the card is still mounted and skip restoring focus to the opener.
+    const card = cardRef.current;
     const onKey = (e: KeyboardEvent) => {
       const { auto: isAuto, dontShowAgain: skip, onClose: close } = closeRef.current;
       if (e.key === "Escape") {
@@ -43,11 +47,11 @@ export function ControlsHelp({ auto, onClose }: Props) {
         return;
       }
 
-      const card = cardRef.current;
-      if (!card || e.key !== "Tab") return;
+      const liveCard = cardRef.current;
+      if (!liveCard || e.key !== "Tab") return;
 
       const focusable = Array.from(
-        card.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+        liveCard.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
       );
       const active = document.activeElement;
       const activeIndex =
@@ -66,6 +70,8 @@ export function ControlsHelp({ auto, onClose }: Props) {
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
+      // Skip when the card is still connected (StrictMode re-run in dev).
+      if (!shouldRestoreFocusAfterTrapCleanup(card)) return;
       const prev = restoreFocusRef.current;
       if (canRestoreFocus(prev, (el) => document.contains(el))) {
         prev.focus();
