@@ -3,6 +3,11 @@ import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import { getPolyPreset } from "@/lib/poly/presets";
 import { getCharacter } from "@/lib/assets/characters";
 import { Switch } from "@/components/ui/Switch";
+import {
+  DeleteActionIcon,
+  DuplicateActionIcon,
+  EditActionIcon,
+} from "@/components/SettingsModal/CardActionIcons";
 
 export function AgentList({
   agents,
@@ -87,21 +92,7 @@ export function AgentList({
                     onClick={() => onEdit(a)}
                   >
                     <span className="card-item__action-label">{editLabel}</span>
-                    <svg
-                      className="card-item__action-icon"
-                      viewBox="0 0 16 16"
-                      width="14"
-                      height="14"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                      focusable="false"
-                    >
-                      <path d="M11.5 2.5a1.4 1.4 0 0 1 2 2L5.5 12.5 2.5 13.5l1-3z" />
-                    </svg>
+                    <EditActionIcon />
                   </button>
                   <button
                     type="button"
@@ -113,22 +104,7 @@ export function AgentList({
                     <span className="card-item__action-label">
                       {duplicateLabel}
                     </span>
-                    <svg
-                      className="card-item__action-icon"
-                      viewBox="0 0 16 16"
-                      width="14"
-                      height="14"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                      focusable="false"
-                    >
-                      <rect x="5.5" y="5.5" width="8" height="8" rx="1" />
-                      <path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" />
-                    </svg>
+                    <DuplicateActionIcon />
                   </button>
                   <button
                     type="button"
@@ -138,21 +114,7 @@ export function AgentList({
                     onClick={() => onDelete(a.id)}
                   >
                     <span className="card-item__action-label">{deleteLabel}</span>
-                    <svg
-                      className="card-item__action-icon"
-                      viewBox="0 0 16 16"
-                      width="14"
-                      height="14"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                      focusable="false"
-                    >
-                      <path d="M3 4.5h10M6 4.5V3.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1M5 4.5v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-8" />
-                    </svg>
+                    <DeleteActionIcon />
                   </button>
                 </div>
               </div>

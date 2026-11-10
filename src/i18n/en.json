@@ -176,7 +176,9 @@
         "custom": "Custom"
       },
       "addLlm": "Add model",
-      "addLlmHint": "Same {{provider}} account ({{host}}). Pick another model — your key stays as it is."
+      "addLlmHint": "Same {{provider}} account ({{host}}). Pick another model — your key stays as it is.",
+      "showKey": "Show",
+      "hideKey": "Hide"
     },
     "agents": {
       "title": "Agents",
@@ -263,7 +265,9 @@
           "name": "Concrete pad",
           "description": "A clean concrete floor you can dress up"
         }
-      }
+      },
+      "propCount_one": "{{count}} prop",
+      "propCount_other": "{{count}} props"
     },
     "graphics": {
       "title": "Graphics",

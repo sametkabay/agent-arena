@@ -176,7 +176,9 @@
         "custom": "Свой"
       },
       "addLlm": "Добавить модель",
-      "addLlmHint": "Тот же аккаунт {{provider}} ({{host}}). Выберите другую модель — ключ не изменится."
+      "addLlmHint": "Тот же аккаунт {{provider}} ({{host}}). Выберите другую модель — ключ не изменится.",
+      "showKey": "Показать",
+      "hideKey": "Скрыть"
     },
     "agents": {
       "title": "Агенты",
@@ -265,7 +267,11 @@
           "name": "Бетонный пол",
           "description": "Чистый бетон, который можно оформить"
         }
-      }
+      },
+      "propCount_one": "{{count}} объект",
+      "propCount_other": "{{count}} объекта",
+      "propCount_few": "{{count}} объекта",
+      "propCount_many": "{{count}} объектов"
     },
     "graphics": {
       "title": "Графика",

@@ -176,7 +176,9 @@
         "custom": "Özel"
       },
       "addLlm": "Model ekle",
-      "addLlmHint": "Aynı {{provider}} hesabı ({{host}}). Başka bir model seç — anahtarın aynı kalır."
+      "addLlmHint": "Aynı {{provider}} hesabı ({{host}}). Başka bir model seç — anahtarın aynı kalır.",
+      "showKey": "Göster",
+      "hideKey": "Gizle"
     },
     "agents": {
       "title": "Ajanlar",
@@ -263,7 +265,9 @@
           "name": "Beton zemin",
           "description": "Dilediğin gibi düzenleyeceğin boş beton zemin"
         }
-      }
+      },
+      "propCount_one": "{{count}} nesne",
+      "propCount_other": "{{count}} nesne"
     },
     "graphics": {
       "title": "Grafikler",

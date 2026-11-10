@@ -176,7 +176,9 @@
         "custom": "Personnalisée"
       },
       "addLlm": "Ajouter un modèle",
-      "addLlmHint": "Même compte {{provider}} ({{host}}). Choisis un autre modèle — ta clé reste la même."
+      "addLlmHint": "Même compte {{provider}} ({{host}}). Choisis un autre modèle — ta clé reste la même.",
+      "showKey": "Afficher",
+      "hideKey": "Masquer"
     },
     "agents": {
       "title": "Agents",
@@ -263,7 +265,9 @@
           "name": "Dalle de béton",
           "description": "Un sol de béton nu à aménager"
         }
-      }
+      },
+      "propCount_one": "{{count}} objet",
+      "propCount_other": "{{count}} objets"
     },
     "graphics": {
       "title": "Graphismes",

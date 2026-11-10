@@ -176,7 +176,9 @@
         "custom": "Personalizada"
       },
       "addLlm": "Añadir modelo",
-      "addLlmHint": "Misma cuenta de {{provider}} ({{host}}). Elige otro modelo: tu clave no cambia."
+      "addLlmHint": "Misma cuenta de {{provider}} ({{host}}). Elige otro modelo: tu clave no cambia.",
+      "showKey": "Mostrar",
+      "hideKey": "Ocultar"
     },
     "agents": {
       "title": "Agentes",
@@ -263,7 +265,9 @@
           "name": "Losa de hormigón",
           "description": "Un suelo de hormigón limpio para decorar"
         }
-      }
+      },
+      "propCount_one": "{{count}} objeto",
+      "propCount_other": "{{count}} objetos"
     },
     "graphics": {
       "title": "Gráficos",

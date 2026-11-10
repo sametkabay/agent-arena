@@ -176,7 +176,9 @@
         "custom": "사용자"
       },
       "addLlm": "모델 추가",
-      "addLlmHint": "같은 {{provider}} 계정({{host}}). 다른 모델을 골라도 키는 그대로입니다."
+      "addLlmHint": "같은 {{provider}} 계정({{host}}). 다른 모델을 골라도 키는 그대로입니다.",
+      "showKey": "표시",
+      "hideKey": "숨기기"
     },
     "agents": {
       "title": "에이전트",
@@ -263,7 +265,9 @@
           "name": "콘크리트 바닥",
           "description": "꾸밀 수 있는 깨끗한 콘크리트 바닥"
         }
-      }
+      },
+      "propCount_one": "오브젝트 {{count}}개",
+      "propCount_other": "오브젝트 {{count}}개"
     },
     "graphics": {
       "title": "그래픽",

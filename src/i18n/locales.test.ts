@@ -45,6 +45,9 @@ const REQUIRED_KEYS = [
   "settings.agents.duplicateAria",
   "settings.agents.duplicated",
   "settings.agents.copyLabel",
+  "settings.models.showKey",
+  "settings.models.hideKey",
+  "settings.map.propCount_other",
 ] as const;
 
 function getByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -61,8 +64,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 38 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(38);
+  it("lists exactly 41 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(41);
   });
 
   it("includes every configured language with matching placeholders", () => {

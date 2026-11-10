@@ -61,7 +61,7 @@ export function MapTab() {
               : activeMap.name
             : mapId}
         </strong> · {floorSize}m ·{" "}
-        {activeMap?.placeables.length ?? 0} props
+        {t("settings.map.propCount", { count: activeMap?.placeables.length ?? 0 })}
       </p>
 
       <div className="map-tab__actions">

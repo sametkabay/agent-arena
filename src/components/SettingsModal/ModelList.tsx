@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import type { AiModelConfig } from "@/lib/types";
 import type { ProviderGroup } from "@/components/SettingsModal/groupModels";
+import {
+  DeleteActionIcon,
+  EditActionIcon,
+} from "@/components/SettingsModal/CardActionIcons";
 
 function hostOf(url: string): string {
   try {
@@ -25,6 +29,8 @@ export function ModelList({
 }) {
   const { t } = useTranslation();
   const empty = groups.length === 0;
+  const editLabel = t("settings.edit");
+  const deleteLabel = t("settings.delete");
 
   return (
     <div>
@@ -75,16 +81,22 @@ export function ModelList({
                       <button
                         type="button"
                         className="btn btn--ghost"
+                        aria-label={editLabel}
+                        title={editLabel}
                         onClick={() => onEdit(m)}
                       >
-                        {t("settings.edit")}
+                        <span className="card-item__action-label">{editLabel}</span>
+                        <EditActionIcon />
                       </button>
                       <button
                         type="button"
                         className="btn btn--danger"
+                        aria-label={deleteLabel}
+                        title={deleteLabel}
                         onClick={() => onDelete(m.id)}
                       >
-                        {t("settings.delete")}
+                        <span className="card-item__action-label">{deleteLabel}</span>
+                        <DeleteActionIcon />
                       </button>
                     </div>
                   </li>
