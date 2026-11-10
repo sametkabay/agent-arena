@@ -85,6 +85,10 @@ export interface AppPersisted {
   dayNight: DayNightMode;
   /** When false, agents never idle-mutter (opt-in). Default off. */
   idleChatterEnabled: boolean;
+  /** First-run setup guide dismissed (or legacy user already past it). */
+  onboardingSeen: boolean;
+  /** Controls help auto-show dismissed (manual "?" still works). */
+  controlsHelpSeen: boolean;
   /** Favorite placeable ids for the map editor library. */
   favoriteAssets?: string[];
   /** Per-agent private chat history (localStorage). */

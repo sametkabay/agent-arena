@@ -21,13 +21,69 @@
     "day": "Tag",
     "night": "Nacht",
     "switchToDay": "Zu Tag wechseln",
-    "switchToNight": "Zu Nacht wechseln"
+    "switchToNight": "Zu Nacht wechseln",
+    "help": "Hilfe und Steuerung"
   },
   "agentList": {
     "title": "Agenten",
     "empty": "Noch keine Agenten. Öffne Agenten, um einen hinzuzufügen.",
     "talk": "Sprechen",
-    "edit": "Agent bearbeiten"
+    "edit": "Agent bearbeiten",
+    "emptyNoModel": "Noch kein KI-Modell. Öffne KI-Modelle, um eines hinzuzufügen."
+  },
+  "onboarding": {
+    "title": "Richte deine Arena ein",
+    "intro": "Drei Schritte bis zum ersten Gespräch. Deine Schlüssel bleiben in diesem Browser.",
+    "step1": "Füge ein KI-Modell mit deinem API-Schlüssel hinzu.",
+    "step2": "Füge einen Agenten hinzu und wähle dieses Modell.",
+    "step3": "Klicke oder tippe auf einen Agenten zum Chatten.",
+    "open": "{{tab}} öffnen",
+    "alive": "Soll die Welt lebendig sein? Aktiviere {{setting}} unter Einstellungen → {{tab}}. Das nutzt zusätzliche Modellaufrufe.",
+    "dontShowAgain": "Nicht mehr anzeigen"
+  },
+  "controlsHelp": {
+    "title": "Steuerung",
+    "action": "Aktion",
+    "how": "Wie",
+    "mouse": "Maus",
+    "touch": "Touch",
+    "rows": {
+      "chat": {
+        "action": "Mit einem Agenten chatten",
+        "mouse": "Klicke auf die Figur oder wähle sie in der Agentenliste",
+        "touch": "Tippe auf die Figur oder wähle sie in der Agentenliste"
+      },
+      "walk": {
+        "action": "Einen Agenten irgendwohin schicken",
+        "mouse": "Auswählen, dann Rechtsklick auf den Boden",
+        "touch": "Auswählen, dann den Boden gedrückt halten ohne zu bewegen"
+      },
+      "camera": {
+        "action": "Kamera bewegen",
+        "mouse": "Ziehen zum Orbitieren, scrollen zum Zoomen; Rechtsziehen zum Schwenken ohne ausgewählten Agenten",
+        "touch": "Ziehen zum Orbitieren, kneifen zum Zoomen; zwei Finger zum Schwenken ohne ausgewählten Agenten"
+      },
+      "arena": {
+        "action": "Mit allen sprechen",
+        "how": "In die untere Leiste tippen und {{send}} drücken"
+      },
+      "mention": {
+        "action": "Einen Agenten ansprechen",
+        "how": "@Name in die untere Leiste tippen und einen Vorschlag wählen"
+      },
+      "dayNight": {
+        "action": "Tag und Nacht wechseln",
+        "how": "Den Tag/Nacht-Schalter in der oberen Leiste nutzen"
+      },
+      "editMap": {
+        "action": "Die Karte bearbeiten",
+        "how": "Den Stift der aktiven Karte im Karten-Panel nutzen"
+      },
+      "idle": {
+        "action": "Agenten von allein sprechen lassen",
+        "how": "{{setting}} unter Einstellungen → {{tab}} einschalten"
+      }
+    }
   },
   "mapList": {
     "title": "Karten",

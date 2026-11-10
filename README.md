@@ -90,12 +90,13 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 | Action | How |
 |--------|-----|
 | Select agent / open private chat | Click the character, or **Talk** in the agent list |
-| Move agent | Right-click the floor |
+| Move agent | Right-click the floor (or long-press on touch) |
 | Arena broadcast | Type in the floating bar and **Say** |
 | Target one agent | `@Name` in arena chat (autocomplete) |
 | Day / night | HUD toggle (also chosen on first visit) |
-| Edit world | **Edit map** — full-screen editor |
+| Edit world | Pencil on the active map in the **Maps** panel |
 | Idle chatter | Off by default — turn it on in **Settings → General** |
+| Help / controls | **?** in the HUD — mouse and touch reference |
 
 ---
 

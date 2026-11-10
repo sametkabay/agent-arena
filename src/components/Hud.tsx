@@ -11,6 +11,7 @@ export function Hud() {
   const dayNight = useArenaStore((s) => s.dayNight);
   const toggleDayNight = useArenaStore((s) => s.toggleDayNight);
   const setSettingsOpen = useArenaStore((s) => s.setSettingsOpen);
+  const setControlsHelpOpen = useArenaStore((s) => s.setControlsHelpOpen);
 
   return (
     <header className="hud">
@@ -31,6 +32,15 @@ export function Hud() {
       </div>
       <div className="hud__actions">
         <DayNightSwitch mode={dayNight} onToggle={toggleDayNight} />
+        <button
+          type="button"
+          className="hud__settings hud__help"
+          aria-label={t("hud.help")}
+          title={t("hud.help")}
+          onClick={() => setControlsHelpOpen(true)}
+        >
+          ?
+        </button>
         <button
           type="button"
           className="hud__settings"
