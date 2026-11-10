@@ -1,15 +1,52 @@
 import { describe, expect, it } from "vitest";
 import type { AgentConfig } from "@/lib/types";
 import {
+  AGENT_COPY_LABELS,
   createAgentCopy,
   nextCopyName,
   normalizeAgentName,
+  stripCopySuffix,
 } from "@/lib/agentCopy";
 import { sampleAgent } from "@/test/fixtures";
 
 describe("normalizeAgentName", () => {
   it("trims, lowercases, and collapses spaces", () => {
     expect(normalizeAgentName("  Explorer  One ")).toBe("explorerone");
+  });
+});
+
+describe("AGENT_COPY_LABELS", () => {
+  it("includes every bundled locale copyLabel", () => {
+    for (const label of [
+      "copy",
+      "kopya",
+      "copia",
+      "副本",
+      "cópia",
+      "copie",
+      "Kopie",
+      "コピー",
+      "사본",
+      "копия",
+    ]) {
+      expect(AGENT_COPY_LABELS).toContain(label);
+    }
+    expect(AGENT_COPY_LABELS.length).toBeGreaterThanOrEqual(10);
+  });
+});
+
+describe("stripCopySuffix", () => {
+  it("strips any locale copy suffix", () => {
+    expect(stripCopySuffix("Explorer (copy)", "kopya")).toBe("Explorer");
+    expect(stripCopySuffix("Explorer (kopya)", "copy")).toBe("Explorer");
+    expect(stripCopySuffix("Explorer (копия 2)", "copy")).toBe("Explorer");
+    expect(stripCopySuffix("Explorer (コピー)", "copy")).toBe("Explorer");
+    expect(stripCopySuffix("Explorer (副本)", "copy")).toBe("Explorer");
+  });
+
+  it("leaves non-copy parentheticals intact", () => {
+    expect(stripCopySuffix("Bot (beta)", "copy")).toBe("Bot (beta)");
+    expect(stripCopySuffix("Agent (v2)", "kopya")).toBe("Agent (v2)");
   });
 });
 
@@ -46,10 +83,66 @@ describe("nextCopyName", () => {
     ).toBe("Explorer (copy 2)");
   });
 
+  it("strips an English suffix when renaming in Turkish (en→tr)", () => {
+    expect(
+      nextCopyName("Explorer (copy)", ["Explorer", "Explorer (copy)"], "kopya"),
+    ).toBe("Explorer (kopya)");
+  });
+
+  it("strips a Turkish suffix when renaming in English (tr→en)", () => {
+    expect(
+      nextCopyName(
+        "Explorer (kopya)",
+        ["Explorer", "Explorer (kopya)"],
+        "copy",
+      ),
+    ).toBe("Explorer (copy)");
+  });
+
+  it("uses the next free number in the current locale when that name is taken", () => {
+    expect(
+      nextCopyName(
+        "Explorer (copy)",
+        ["Explorer", "Explorer (copy)", "Explorer (kopya)"],
+        "kopya",
+      ),
+    ).toBe("Explorer (kopya 2)");
+  });
+
+  it("strips Russian and CJK copy suffixes", () => {
+    expect(
+      nextCopyName("Scout (копия)", ["Scout", "Scout (копия)"], "copy"),
+    ).toBe("Scout (copy)");
+    expect(
+      nextCopyName("Scout (コピー)", ["Scout", "Scout (コピー)"], "copy"),
+    ).toBe("Scout (copy)");
+    expect(
+      nextCopyName("Scout (副本)", ["Scout", "Scout (副本)"], "copy"),
+    ).toBe("Scout (copy)");
+    expect(
+      nextCopyName("Scout (사본 2)", ["Scout", "Scout (사본 2)"], "copy"),
+    ).toBe("Scout (copy)");
+  });
+
+  it("keeps legitimate non-copy parentheses intact", () => {
+    expect(nextCopyName("Bot (beta)", ["Bot (beta)"], "copy")).toBe(
+      "Bot (beta) (copy)",
+    );
+  });
+
   it("ignores case and spaces when checking taken names", () => {
     expect(
       nextCopyName("Explorer", ["Explorer", "explorer(COPY)"], "copy"),
     ).toBe("Explorer (copy 2)");
+  });
+
+  it("strips copy suffixes case-insensitively", () => {
+    expect(
+      nextCopyName("Explorer (COPY)", ["Explorer", "Explorer (COPY)"], "kopya"),
+    ).toBe("Explorer (kopya)");
+    expect(
+      nextCopyName("Explorer (Kopie)", ["Explorer", "Explorer (Kopie)"], "copy"),
+    ).toBe("Explorer (copy)");
   });
 
   it("handles a source literally named (copy)", () => {
@@ -112,5 +205,11 @@ describe("createAgentCopy", () => {
       "copy",
     );
     expect(copy.skills).toEqual([]);
+  });
+
+  it("uses cross-locale stripping when creating a copy", () => {
+    const source = sampleAgent({ displayName: "Explorer (copy)" });
+    const copy = createAgentCopy(source, [source], "kopya");
+    expect(copy.displayName).toBe("Explorer (kopya)");
   });
 });

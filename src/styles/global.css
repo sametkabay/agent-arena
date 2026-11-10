@@ -2497,6 +2497,10 @@ body.is-chat-panel-dragging .chat-popup__resize {
   flex-shrink: 0;
 }
 
+.card-item__action-icon {
+  display: none;
+}
+
 .header-row {
   display: flex;
   justify-content: space-between;
@@ -2656,6 +2660,43 @@ body.is-chat-panel-dragging .chat-popup__resize {
     width: 100%;
     flex-wrap: wrap;
     justify-content: flex-end;
+  }
+}
+
+/* Phone widths: keep switch + Edit / Duplicate / Delete on one row.
+   Compact padding first; icon-only labels for long locales (ru/de/pt/fr).
+   Tablet (768) stays on the 900px wrap rules above and is unchanged. */
+@media (max-width: 480px) {
+  .settings-modal .card-item__actions {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  /* Keep visual 48×28; extend vertical hit area to ≥36px for touch. */
+  .settings-modal .card-item__actions .aa-switch::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  .settings-modal .card-item__actions .btn {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    line-height: 1;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .settings-modal .card-item__actions .card-item__action-label {
+    display: none;
+  }
+
+  .settings-modal .card-item__actions .card-item__action-icon {
+    display: block;
   }
 }
 
