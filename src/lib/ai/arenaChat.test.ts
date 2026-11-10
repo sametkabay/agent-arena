@@ -42,6 +42,25 @@ describe("resolveArenaTargets", () => {
     expect(miss.targets).toHaveLength(0);
     expect(miss.unmatched).toEqual(["Nope"]);
   });
+
+  it("prefers an exact name even when a copy appears earlier", () => {
+    const ordered = [
+      sampleAgent({ id: "copy", displayName: "Explorer (copy)", modelConfigId: "m1" }),
+      sampleAgent({ id: "orig", displayName: "Explorer", modelConfigId: "m1" }),
+    ];
+    const hit = resolveArenaTargets("@Explorer", ordered);
+    expect(hit.targets.map((t) => t.id)).toEqual(["orig"]);
+  });
+
+  it("resolves @Explorer(copy) and @Explorer(copy2) distinctly", () => {
+    const ordered = [
+      sampleAgent({ id: "orig", displayName: "Explorer", modelConfigId: "m1" }),
+      sampleAgent({ id: "c1", displayName: "Explorer (copy)", modelConfigId: "m1" }),
+      sampleAgent({ id: "c2", displayName: "Explorer (copy 2)", modelConfigId: "m1" }),
+    ];
+    expect(resolveArenaTargets("@Explorer(copy)", ordered).targets[0]?.id).toBe("c1");
+    expect(resolveArenaTargets("@Explorer(copy2)", ordered).targets[0]?.id).toBe("c2");
+  });
 });
 
 describe("sendArenaChatMessage", () => {

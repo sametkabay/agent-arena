@@ -2467,14 +2467,27 @@ body.is-chat-panel-dragging .chat-popup__resize {
   opacity: 0.62;
 }
 
+.card-item__main {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.card-item__text {
+  min-width: 0;
+}
+
 .card-item__title {
   font-weight: 900;
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 .card-item__sub {
   font-size: 0.8rem;
   color: var(--ink-soft);
+  overflow-wrap: anywhere;
 }
 
 .card-item__actions {
@@ -2631,6 +2644,19 @@ body.is-chat-panel-dragging .chat-popup__resize {
   line-height: 1;
   font-size: 1.15rem;
   flex-shrink: 0;
+}
+
+/* Card actions wrap earlier than the full mobile layout so long locales
+   (e.g. Russian) keep buttons inside the modal on tablet widths. */
+@media (max-width: 900px) {
+  .settings-modal .card-item {
+    flex-wrap: wrap;
+  }
+  .settings-modal .card-item__actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 720px) {

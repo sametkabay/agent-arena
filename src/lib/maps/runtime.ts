@@ -73,10 +73,9 @@ function spawnPosition(
   def: ArenaMapDefinition,
   index: number,
 ): { position: [number, number, number]; rotationY: number } {
-  const spawns = def.spawnPoints;
-  if (!spawns.length) {
-    return { position: [0, 0, 0], rotationY: Math.PI };
-  }
+  const spawns = def.spawnPoints.length
+    ? def.spawnPoints
+    : [{ position: [0, 0, 0] as [number, number, number], rotationY: Math.PI }];
   const base = spawns[index % spawns.length]!;
   const ring = Math.floor(index / spawns.length);
   const angle = ring * appConfig.maps.spawnRingAngle;
@@ -89,6 +88,33 @@ function spawnPosition(
     ],
     rotationY: base.rotationY,
   };
+}
+
+function xzDistance(
+  a: [number, number, number],
+  b: [number, number, number],
+): number {
+  const dx = a[0] - b[0];
+  const dz = a[2] - b[2];
+  return Math.hypot(dx, dz);
+}
+
+/** First spawn index whose XY is free of occupied agent homes. */
+function freeSpawnIndex(
+  def: ArenaMapDefinition,
+  occupied: readonly ArenaAgent[],
+  fallback: number,
+): number {
+  const threshold = appConfig.maps.spawnRingOffset / 2;
+  const limit = Math.max((occupied.length + 1) * 8, fallback + 1);
+  for (let i = 0; i < limit; i++) {
+    const spawn = spawnPosition(def, i);
+    const taken = occupied.some(
+      (agent) => xzDistance(agent.homePosition, spawn.position) < threshold,
+    );
+    if (!taken) return i;
+  }
+  return fallback;
 }
 
 export function placeAgentsOnMap(
@@ -126,10 +152,19 @@ export function syncRuntimeAgents(
 ): ArenaAgent[] {
   const active = configs.filter((cfg) => cfg.enabled !== false);
   const prevById = new Map(prev.map((a) => [a.id, a]));
-  return active.map((cfg, i) => {
+  // Seed with every previously placed agent so newcomers (and later re-enables
+  // that land earlier in `active`) see homes that are still occupied.
+  const occupied = active.flatMap((c) => {
+    const e = prevById.get(c.id);
+    return e ? [e] : [];
+  });
+  const next: ArenaAgent[] = [];
+
+  for (let i = 0; i < active.length; i++) {
+    const cfg = active[i]!;
     const existing = prevById.get(cfg.id);
     if (existing) {
-      return {
+      const updated: ArenaAgent = {
         ...existing,
         displayName: cfg.displayName,
         modelConfigId: cfg.modelConfigId,
@@ -139,16 +174,22 @@ export function syncRuntimeAgents(
         color: cfg.color,
         bio: cfg.bio,
       };
+      next.push(updated);
+      continue;
     }
     const placed = placeAgentsOnMap([cfg], def)[0]!;
-    const spawn = spawnPosition(def, i);
-    return {
+    const spawn = spawnPosition(def, freeSpawnIndex(def, occupied, i));
+    const agent: ArenaAgent = {
       ...placed,
       position: [...spawn.position] as [number, number, number],
       homePosition: [...spawn.position] as [number, number, number],
       rotationY: spawn.rotationY,
     };
-  });
+    next.push(agent);
+    occupied.push(agent);
+  }
+
+  return next;
 }
 
 export function parseMapJson(raw: string): ArenaMapDefinition {

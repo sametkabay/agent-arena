@@ -9,6 +9,7 @@ export function AgentList({
   models,
   onAdd,
   onEdit,
+  onDuplicate,
   onDelete,
   onToggleEnabled,
 }: {
@@ -16,6 +17,7 @@ export function AgentList({
   models: AiModelConfig[];
   onAdd: () => void;
   onEdit: (agent: AgentConfig) => void;
+  onDuplicate: (agent: AgentConfig) => void;
   onDelete: (id: string) => void;
   onToggleEnabled: (agent: AgentConfig, enabled: boolean) => void;
 }) {
@@ -44,15 +46,16 @@ export function AgentList({
             return (
               <div
                 key={a.id}
+                id={`settings-agent-${a.id}`}
                 className={"card-item" + (enabled ? "" : " is-disabled")}
               >
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <div className="card-item__main">
                   <span
                     className="agent-list__swatch"
                     style={{ background: a.color }}
                     aria-hidden
                   />
-                  <div>
+                  <div className="card-item__text">
                     <div className="card-item__title">{a.displayName}</div>
                     <div className="card-item__sub">
                       {model?.name ?? "—"} · {t(look.nameKey)} · {t(role.nameKey)}
@@ -76,6 +79,16 @@ export function AgentList({
                     onClick={() => onEdit(a)}
                   >
                     {t("settings.edit")}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    aria-label={t("settings.agents.duplicateAria", {
+                      name: a.displayName,
+                    })}
+                    onClick={() => onDuplicate(a)}
+                  >
+                    {t("settings.agents.duplicate")}
                   </button>
                   <button
                     type="button"

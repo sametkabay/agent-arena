@@ -63,6 +63,109 @@ describe("runtime placement", () => {
     expect(synced[1]?.homePosition).toBeDefined();
   });
 
+  it("places a newcomer on a free spawn after delete-then-duplicate", () => {
+    const map = sampleMap({
+      spawnPoints: [
+        { id: "s0", position: [2, 0, 0], rotationY: 0 },
+        { id: "s1", position: [-2, 0, 0], rotationY: 0 },
+      ],
+    });
+    const a = sampleAgent({ id: "a", displayName: "A" });
+    const b = sampleAgent({ id: "b", displayName: "B" });
+    const placed = placeAgentsOnMap([a, b], map);
+    const withoutA = syncRuntimeAgents(placed, [b], map);
+    expect(withoutA).toHaveLength(1);
+
+    const copy = sampleAgent({ id: "b-copy", displayName: "B (copy)" });
+    const synced = syncRuntimeAgents(withoutA, [b, copy], map);
+    const homeB = synced.find((r) => r.id === "b")!.homePosition;
+    const homeCopy = synced.find((r) => r.id === "b-copy")!.homePosition;
+    const dx = homeB[0] - homeCopy[0];
+    const dz = homeB[2] - homeCopy[2];
+    expect(Math.hypot(dx, dz)).toBeGreaterThan(0.3);
+  });
+
+  it("keeps re-enabled agent off a copy that took its freed slot", () => {
+    const map = sampleMap({
+      spawnPoints: [
+        { id: "s0", position: [2, 0, 0], rotationY: 0 },
+        { id: "s1", position: [-2, 0, 0], rotationY: 0 },
+      ],
+    });
+    const a = sampleAgent({ id: "a", displayName: "A" });
+    const b = sampleAgent({ id: "b", displayName: "B" });
+    const placed = placeAgentsOnMap([a, b], map);
+    // Disable A — B keeps slot 1; A's home is freed.
+    const withoutA = syncRuntimeAgents(placed, [b], map);
+    const copy = sampleAgent({ id: "b-copy", displayName: "B (copy)" });
+    // Copy takes free slot 0.
+    const withCopy = syncRuntimeAgents(withoutA, [b, copy], map);
+    // Re-enable A (comes first in active). Must not land on the copy's home.
+    const reEnabled = syncRuntimeAgents(withCopy, [a, b, copy], map);
+    const homeA = reEnabled.find((r) => r.id === "a")!.homePosition;
+    const homeCopy = reEnabled.find((r) => r.id === "b-copy")!.homePosition;
+    const dx = homeA[0] - homeCopy[0];
+    const dz = homeA[2] - homeCopy[2];
+    expect(Math.hypot(dx, dz)).toBeGreaterThan(0.3);
+  });
+
+  it("ignores live wander position when choosing a free spawn", () => {
+    const map = sampleMap({
+      spawnPoints: [
+        { id: "s0", position: [2, 0, 0], rotationY: 0 },
+        { id: "s1", position: [-2, 0, 0], rotationY: 0 },
+      ],
+    });
+    const a = sampleAgent({ id: "a", displayName: "A" });
+    const placed = placeAgentsOnMap([a], map);
+    // Agent home stays on s0, but live position sits on free s1.
+    const wandering = [
+      {
+        ...placed[0]!,
+        position: [-2, 0, 0] as [number, number, number],
+        homePosition: [2, 0, 0] as [number, number, number],
+      },
+    ];
+    const copy = sampleAgent({ id: "b", displayName: "B" });
+    const synced = syncRuntimeAgents(wandering, [a, copy], map);
+    const homeCopy = synced.find((r) => r.id === "b")!.homePosition;
+    // Newcomer should still take s1 despite the wanderer standing there.
+    expect(homeCopy).toEqual([-2, 0, 0]);
+  });
+
+  it("gives distinct homes to two newcomers in one sync", () => {
+    const map = sampleMap({
+      spawnPoints: [
+        { id: "s0", position: [2, 0, 0], rotationY: 0 },
+        { id: "s1", position: [-2, 0, 0], rotationY: 0 },
+      ],
+    });
+    const synced = syncRuntimeAgents(
+      [],
+      [
+        sampleAgent({ id: "n1", displayName: "N1" }),
+        sampleAgent({ id: "n2", displayName: "N2" }),
+      ],
+      map,
+    );
+    expect(synced[0]!.homePosition).not.toEqual(synced[1]!.homePosition);
+  });
+
+  it("rings outward on maps with no spawn points after index 0", () => {
+    const map = sampleMap({ spawnPoints: [] });
+    const placed = placeAgentsOnMap(
+      [
+        sampleAgent({ id: "a", displayName: "A" }),
+        sampleAgent({ id: "b", displayName: "B" }),
+        sampleAgent({ id: "c", displayName: "C" }),
+      ],
+      map,
+    );
+    expect(placed[0]?.position).toEqual([0, 0, 0]);
+    expect(placed[1]?.position).not.toEqual(placed[0]?.position);
+    expect(placed[2]?.position).not.toEqual(placed[1]?.position);
+  });
+
   it("builds a runtime snapshot", () => {
     const map = sampleMap({
       placeables: [

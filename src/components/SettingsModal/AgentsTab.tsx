@@ -47,6 +47,7 @@ export function AgentsTab() {
   const agents = useArenaStore((s) => s.agents);
   const models = useArenaStore((s) => s.models);
   const upsertAgent = useArenaStore((s) => s.upsertAgent);
+  const duplicateAgent = useArenaStore((s) => s.duplicateAgent);
   const deleteAgent = useArenaStore((s) => s.deleteAgent);
   const showToast = useArenaStore((s) => s.showToast);
   const settingsFocusAgentId = useArenaStore((s) => s.settingsFocusAgentId);
@@ -54,7 +55,18 @@ export function AgentsTab() {
 
   const [editing, setEditing] = useState<AgentConfig | null>(null);
   const baselineKeyRef = useRef<string | null>(null);
+  const revealIdRef = useRef<string | null>(null);
   useSettingsBack(editing != null, () => setEditing(null));
+
+  useEffect(() => {
+    const id = revealIdRef.current;
+    if (!id) return;
+    if (!agents.some((a) => a.id === id)) return;
+    document.getElementById(`settings-agent-${id}`)?.scrollIntoView({
+      block: "nearest",
+    });
+    revealIdRef.current = null;
+  }, [agents]);
 
   function openEditor(agent: AgentConfig, isNew: boolean) {
     const next = normalizeAgentForm(agent);
@@ -115,6 +127,13 @@ export function AgentsTab() {
     showToast(t("settings.saved"));
   }
 
+  function duplicate(agent: AgentConfig) {
+    const copy = duplicateAgent(agent.id, t("settings.agents.copyLabel"));
+    if (!copy) return;
+    revealIdRef.current = copy.id;
+    showToast(t("settings.agents.duplicated", { name: copy.displayName }));
+  }
+
   const dirty =
     editing != null &&
     (baselineKeyRef.current === null ||
@@ -134,6 +153,7 @@ export function AgentsTab() {
       models={models}
       onAdd={startAdd}
       onEdit={(agent) => openEditor(agent, false)}
+      onDuplicate={duplicate}
       onDelete={(id) => deleteAgent(id)}
       onToggleEnabled={(a, next) =>
         upsertAgent({

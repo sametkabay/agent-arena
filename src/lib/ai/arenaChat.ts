@@ -4,14 +4,11 @@ import {
   getArenaWorldContext,
   withSituationUserMessage,
 } from "@/lib/ai/arenaContext";
+import { normalizeAgentName } from "@/lib/agentCopy";
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import i18n from "@/i18n";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig, fillPrompt, prompts, speechMsForText } from "@/lib/config";
-
-function normalizeName(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, "");
-}
 
 /** Extract @mentions (without the @). */
 export function extractMentions(text: string): string[] {
@@ -45,11 +42,19 @@ export function resolveArenaTargets(
   const matched = new Map<string, AgentConfig>();
 
   for (const mention of mentions) {
-    const key = normalizeName(mention);
-    const hit = withModel.find((a) => {
-      const n = normalizeName(a.displayName);
-      return n === key || n.startsWith(key) || a.displayName.toLowerCase().startsWith(mention.toLowerCase());
-    });
+    const key = normalizeAgentName(mention);
+    const exact = withModel.find(
+      (a) => normalizeAgentName(a.displayName) === key,
+    );
+    const hit =
+      exact ??
+      withModel.find((a) => {
+        const n = normalizeAgentName(a.displayName);
+        return (
+          n.startsWith(key) ||
+          a.displayName.toLowerCase().startsWith(mention.toLowerCase())
+        );
+      });
     if (hit) matched.set(hit.id, hit);
     else unmatched.push(mention);
   }
