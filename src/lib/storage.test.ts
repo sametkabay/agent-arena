@@ -177,6 +177,71 @@ describe("loadPersisted / savePersisted", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ mapId: "custom_gone" }));
     expect(loadPersisted().mapId).toBe(appConfig.defaults.mapId);
   });
+
+  it("defaults onboarding flags to false for new users", () => {
+    const data = defaultPersisted();
+    expect(data.onboardingSeen).toBe(false);
+    expect(data.controlsHelpSeen).toBe(false);
+  });
+
+  it("round-trips onboardingSeen and controlsHelpSeen", () => {
+    const data = defaultPersisted();
+    data.onboardingSeen = true;
+    data.controlsHelpSeen = true;
+    savePersisted(data);
+    const loaded = loadPersisted();
+    expect(loaded.onboardingSeen).toBe(true);
+    expect(loaded.controlsHelpSeen).toBe(true);
+  });
+
+  it("infers legacy blob flags from models/agents presence", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ models: [{ id: "m1" }], agents: [] }),
+    );
+    expect(loadPersisted().onboardingSeen).toBe(true);
+    expect(loadPersisted().controlsHelpSeen).toBe(false);
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [],
+        agents: [sampleAgent()],
+      }),
+    );
+    expect(loadPersisted().onboardingSeen).toBe(false);
+    expect(loadPersisted().controlsHelpSeen).toBe(true);
+  });
+
+  it("keeps explicit false even when models/agents exist", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [{ id: "m1" }],
+        agents: [sampleAgent()],
+        onboardingSeen: false,
+        controlsHelpSeen: false,
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.onboardingSeen).toBe(false);
+    expect(loaded.controlsHelpSeen).toBe(false);
+  });
+
+  it("treats non-boolean onboarding flags as missing", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [{ id: "m1" }],
+        agents: [sampleAgent()],
+        onboardingSeen: "yes",
+        controlsHelpSeen: 1,
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.onboardingSeen).toBe(true);
+    expect(loaded.controlsHelpSeen).toBe(true);
+  });
 });
 
 describe("uid", () => {

@@ -16,6 +16,7 @@
     "models": "Modelos",
     "map": "Mapa",
     "settings": "Ajustes",
+    "help": "Ayuda y controles",
     "hello": "Hola, {{name}}",
     "editMap": "Editar mapa",
     "day": "Día",
@@ -26,8 +27,63 @@
   "agentList": {
     "title": "Agentes",
     "empty": "Aún no hay agentes. Abre Agentes para añadir uno.",
+    "emptyNoModel": "Aún no hay modelo de IA. Abre Modelos de IA para añadir uno.",
     "talk": "Hablar",
     "edit": "Editar agente"
+  },
+  "onboarding": {
+    "title": "Configura tu arena",
+    "intro": "Tres pasos hasta tu primera conversación. Tus claves se quedan en este navegador.",
+    "step1": "Añade un modelo de IA con tu clave API.",
+    "step2": "Añade un agente y elige ese modelo.",
+    "step3": "Haz clic o toca un agente para chatear.",
+    "open": "Abrir {{tab}}",
+    "alive": "¿Quieres el mundo vivo? Activa {{setting}} en Ajustes → {{tab}}. Usa llamadas extra al modelo.",
+    "dontShowAgain": "No volver a mostrar"
+  },
+  "controlsHelp": {
+    "title": "Controles",
+    "action": "Acción",
+    "how": "Cómo",
+    "mouse": "Ratón",
+    "touch": "Táctil",
+    "rows": {
+      "chat": {
+        "action": "Chatear con un agente",
+        "mouse": "Haz clic en el personaje o elígelo en la lista de Agentes",
+        "touch": "Toca el personaje o elígelo en la lista de Agentes"
+      },
+      "walk": {
+        "action": "Enviar un agente a algún sitio",
+        "mouse": "Selecciona y haz clic derecho en el suelo",
+        "touch": "Selecciona y mantén pulsado el suelo sin mover el dedo"
+      },
+      "camera": {
+        "action": "Mover la cámara",
+        "mouse": "Arrastra para orbitar, rueda para zoom; arrastre derecho para pan si no hay agente seleccionado",
+        "touch": "Arrastra para orbitar, pellizca para zoom; dos dedos para pan si no hay agente seleccionado"
+      },
+      "arena": {
+        "action": "Hablar con todos",
+        "how": "Escribe en la barra inferior y pulsa {{send}}"
+      },
+      "mention": {
+        "action": "Dirigirte a un agente",
+        "how": "Escribe @Nombre en la barra inferior y elige una sugerencia"
+      },
+      "dayNight": {
+        "action": "Cambiar día y noche",
+        "how": "Usa el interruptor día/noche de la barra superior"
+      },
+      "editMap": {
+        "action": "Editar el mapa",
+        "how": "Usa el lápiz del mapa activo en el panel Mapas"
+      },
+      "idle": {
+        "action": "Dejar que los agentes hablen solos",
+        "how": "Activa {{setting}} en Ajustes → {{tab}}"
+      }
+    }
   },
   "mapList": {
     "title": "Mapas",

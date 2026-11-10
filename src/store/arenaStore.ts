@@ -23,6 +23,7 @@ import {
   placeAgentsOnMap,
 } from "@/lib/maps";
 import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
+import { isSetupComplete } from "@/lib/onboarding";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { placeableCanWander } from "@/lib/assets/catalog";
@@ -55,6 +56,10 @@ interface ArenaState extends AppPersisted {
   toast: string | null;
   /** Smooth 0 (day) → 1 (night) blend driven by tick. */
   dayNightBlend: number;
+  /** Manual "?" open — not persisted. */
+  controlsHelpOpen: boolean;
+  /** Session flag: auto controls help already shown this visit. */
+  controlsHelpAutoDone: boolean;
 
   hydrate: () => void;
   persist: () => void;
@@ -68,6 +73,9 @@ interface ArenaState extends AppPersisted {
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
   setIdleChatterEnabled: (enabled: boolean) => void;
+  dismissOnboarding: () => void;
+  setControlsHelpOpen: (open: boolean) => void;
+  closeControlsHelp: (dontShowAgain?: boolean) => void;
   toggleFavoriteAsset: (placeableId: string) => void;
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
@@ -120,6 +128,8 @@ function persistSlice(s: ArenaState): AppPersisted {
     graphics: s.graphics,
     dayNight: s.dayNight,
     idleChatterEnabled: s.idleChatterEnabled === true,
+    onboardingSeen: s.onboardingSeen === true,
+    controlsHelpSeen: s.controlsHelpSeen === true,
     favoriteAssets: s.favoriteAssets ?? [],
     chats: sanitizeChats(s.chats),
     arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),
@@ -172,6 +182,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   toast: null,
   dayNightBlend: 0,
   favoriteAssets: initial.favoriteAssets ?? [],
+  controlsHelpOpen: false,
+  controlsHelpAutoDone: false,
 
   hydrate: () => {
     const data = loadPersisted();
@@ -240,6 +252,24 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   setIdleChatterEnabled: (enabled) => {
     set({ idleChatterEnabled: enabled });
     get().persist();
+  },
+
+  dismissOnboarding: () => {
+    set({ onboardingSeen: true });
+    get().persist();
+  },
+
+  setControlsHelpOpen: (open) => {
+    set({ controlsHelpOpen: open });
+  },
+
+  closeControlsHelp: (dontShowAgain = true) => {
+    set((s) => ({
+      controlsHelpOpen: false,
+      controlsHelpAutoDone: true,
+      controlsHelpSeen: dontShowAgain ? true : s.controlsHelpSeen,
+    }));
+    if (dontShowAgain) get().persist();
   },
 
   toggleFavoriteAsset: (placeableId) => {
@@ -314,6 +344,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
         runtimeAgents: syncRuntimeAgents(s.runtimeAgents, agents, def),
         selectedAgentId: deselected ? null : s.selectedAgentId,
         chatOpen: deselected ? false : s.chatOpen,
+        onboardingSeen:
+          s.onboardingSeen || isSetupComplete(s.models, agents),
       };
     });
     get().persist();

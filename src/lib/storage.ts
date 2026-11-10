@@ -69,6 +69,8 @@ export function defaultPersisted(): AppPersisted {
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: appConfig.defaults.dayNight,
     idleChatterEnabled: appConfig.defaults.idleChatterEnabled,
+    onboardingSeen: false,
+    controlsHelpSeen: false,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -200,6 +202,16 @@ export function loadPersisted(): AppPersisted {
       graphics: sanitizeGraphics(parsed.graphics),
       dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : appConfig.defaults.dayNight,
       idleChatterEnabled: parsed.idleChatterEnabled === true,
+      // Legacy blobs omit these flags: treat existing setups as already seen
+      // so returning users are not interrupted. Non-booleans count as missing.
+      onboardingSeen:
+        typeof parsed.onboardingSeen === "boolean"
+          ? parsed.onboardingSeen
+          : (Array.isArray(parsed.models) ? parsed.models : []).length > 0,
+      controlsHelpSeen:
+        typeof parsed.controlsHelpSeen === "boolean"
+          ? parsed.controlsHelpSeen
+          : sanitizeAgents(parsed.agents).length > 0,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")

@@ -21,13 +21,69 @@
     "day": "Jour",
     "night": "Nuit",
     "switchToDay": "Passer au jour",
-    "switchToNight": "Passer à la nuit"
+    "switchToNight": "Passer à la nuit",
+    "help": "Aide et commandes"
   },
   "agentList": {
     "title": "Agents",
     "empty": "Pas encore d’agents. Ouvre Agents pour en ajouter un.",
     "talk": "Parler",
-    "edit": "Modifier l’agent"
+    "edit": "Modifier l’agent",
+    "emptyNoModel": "Pas encore de modèle IA. Ouvrez Modèles IA pour en ajouter un."
+  },
+  "onboarding": {
+    "title": "Configurez votre arène",
+    "intro": "Trois étapes jusqu’à votre première conversation. Vos clés restent dans ce navigateur.",
+    "step1": "Ajoutez un modèle IA avec votre clé API.",
+    "step2": "Ajoutez un agent et choisissez ce modèle.",
+    "step3": "Cliquez ou touchez un agent pour discuter.",
+    "open": "Ouvrir {{tab}}",
+    "alive": "Vous voulez un monde vivant ? Activez {{setting}} dans Paramètres → {{tab}}. Cela utilise des appels modèle supplémentaires.",
+    "dontShowAgain": "Ne plus afficher"
+  },
+  "controlsHelp": {
+    "title": "Commandes",
+    "action": "Action",
+    "how": "Comment",
+    "mouse": "Souris",
+    "touch": "Tactile",
+    "rows": {
+      "chat": {
+        "action": "Discuter avec un agent",
+        "mouse": "Cliquez sur le personnage ou choisissez-le dans la liste Agents",
+        "touch": "Touchez le personnage ou choisissez-le dans la liste Agents"
+      },
+      "walk": {
+        "action": "Envoyer un agent quelque part",
+        "mouse": "Sélectionnez-le, puis clic droit sur le sol",
+        "touch": "Sélectionnez-le, puis appuyez longuement sur le sol sans bouger"
+      },
+      "camera": {
+        "action": "Déplacer la caméra",
+        "mouse": "Glisser pour orbiter, molette pour zoomer ; glisser droit pour panoramiquer sans agent sélectionné",
+        "touch": "Glisser pour orbiter, pincer pour zoomer ; deux doigts pour panoramiquer sans agent sélectionné"
+      },
+      "arena": {
+        "action": "Parler à tout le monde",
+        "how": "Tapez dans la barre du bas et appuyez sur {{send}}"
+      },
+      "mention": {
+        "action": "S’adresser à un agent",
+        "how": "Tapez @Nom dans la barre du bas et choisissez une suggestion"
+      },
+      "dayNight": {
+        "action": "Basculer jour et nuit",
+        "how": "Utilisez le commutateur jour/nuit dans la barre du haut"
+      },
+      "editMap": {
+        "action": "Modifier la carte",
+        "how": "Utilisez le crayon de la carte active dans le panneau Cartes"
+      },
+      "idle": {
+        "action": "Laisser les agents parler seuls",
+        "how": "Activez {{setting}} dans Paramètres → {{tab}}"
+      }
+    }
   },
   "mapList": {
     "title": "Cartes",

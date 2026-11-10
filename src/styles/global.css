@@ -1198,6 +1198,134 @@ button {
   box-shadow: none !important;
 }
 
+.hud__help {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* —— First-run setup guide (#23) —— */
+.setup-guide {
+  position: absolute;
+  z-index: 95;
+  top: 76px;
+  right: 18px;
+  width: min(340px, calc(100vw - 36px));
+  max-height: calc(100dvh - 94px);
+  overflow: auto;
+  padding: 16px 16px 14px;
+  border-radius: 16px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: var(--modal-shadow);
+  color: var(--ink);
+  pointer-events: auto;
+}
+
+.setup-guide__title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.setup-guide__intro,
+.setup-guide__alive {
+  margin: 0 0 10px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.setup-guide__steps {
+  margin: 0 0 12px;
+  padding-left: 1.2rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.setup-guide__steps li + li {
+  margin-top: 4px;
+}
+
+.setup-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  padding-top: 8px;
+  background: var(--surface-raised);
+}
+
+/* —— Controls help overlay (#27) —— */
+.confirm-dialog__card.controls-help__card {
+  width: min(640px, 100%);
+  max-height: min(80vh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.controls-help__table-wrap {
+  overflow: auto;
+  margin: 0 0 14px;
+  flex: 1 1 auto;
+}
+
+.controls-help__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.controls-help__table th,
+.controls-help__table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  line-height: 1.4;
+}
+
+.controls-help__table th {
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.controls-help__table td:first-child {
+  font-weight: 750;
+  width: 28%;
+}
+
+.controls-help__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.controls-help__dont-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.controls-help__dont-show input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--sage);
+}
+
 /* —— Day / night decorative switch —— */
 .daynight-switch {
   position: relative;
@@ -2529,6 +2657,58 @@ body.is-chat-panel-dragging .chat-popup__resize {
      onto a second line on a narrow screen — drop them here. */
   .hud__stats {
     display: none;
+  }
+  /* Third HUD button (? + settings + day/night) wraps at 360px without this. */
+  .hud__brand {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .hud__sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .setup-guide {
+    top: auto;
+    right: 12px;
+    left: 12px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: min(42vh, 320px);
+    overflow: auto;
+  }
+  .controls-help__table thead {
+    display: none;
+  }
+  .controls-help__table,
+  .controls-help__table tbody,
+  .controls-help__table tr,
+  .controls-help__table td {
+    display: block;
+    width: 100%;
+  }
+  .controls-help__table tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .controls-help__table td {
+    border: none;
+    padding: 4px 0;
+    white-space: normal;
+  }
+  .controls-help__table td:first-child {
+    width: 100%;
+    white-space: normal;
+  }
+  .controls-help__table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    margin-bottom: 2px;
   }
 }
 

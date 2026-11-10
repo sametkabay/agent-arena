@@ -16,6 +16,7 @@
     "models": "Models",
     "map": "Map",
     "settings": "Settings",
+    "help": "Help and controls",
     "hello": "Hello, {{name}}",
     "editMap": "Edit map",
     "day": "Day",
@@ -26,8 +27,63 @@
   "agentList": {
     "title": "Agents",
     "empty": "No agents yet. Open Agents to add one.",
+    "emptyNoModel": "No AI model yet. Open AI Models to add one.",
     "talk": "Talk",
     "edit": "Edit agent"
+  },
+  "onboarding": {
+    "title": "Set up your arena",
+    "intro": "Three steps to your first conversation. Your keys stay in this browser.",
+    "step1": "Add an AI model with your API key.",
+    "step2": "Add an agent and pick that model.",
+    "step3": "Click or tap an agent to chat.",
+    "open": "Open {{tab}}",
+    "alive": "Want the world alive? Turn on {{setting}} in Settings → {{tab}}. It uses extra model calls.",
+    "dontShowAgain": "Don't show again"
+  },
+  "controlsHelp": {
+    "title": "Controls",
+    "action": "Action",
+    "how": "How",
+    "mouse": "Mouse",
+    "touch": "Touch",
+    "rows": {
+      "chat": {
+        "action": "Chat with an agent",
+        "mouse": "Click the character or pick it in the Agents list",
+        "touch": "Tap the character or pick it in the Agents list"
+      },
+      "walk": {
+        "action": "Send an agent somewhere",
+        "mouse": "Select it, then right-click the floor",
+        "touch": "Select it, then press and hold the floor without moving"
+      },
+      "camera": {
+        "action": "Move the camera",
+        "mouse": "Drag to orbit, scroll to zoom, right-drag to pan when no agent is selected",
+        "touch": "Drag to orbit, pinch to zoom, two-finger drag to pan when no agent is selected"
+      },
+      "arena": {
+        "action": "Talk to everyone",
+        "how": "Type in the bottom bar and press {{send}}"
+      },
+      "mention": {
+        "action": "Address one agent",
+        "how": "Type @Name in the bottom bar and pick a suggestion"
+      },
+      "dayNight": {
+        "action": "Switch day and night",
+        "how": "Use the day/night switch in the top bar"
+      },
+      "editMap": {
+        "action": "Edit the map",
+        "how": "Use the pencil on the active map in the Maps panel"
+      },
+      "idle": {
+        "action": "Let agents talk on their own",
+        "how": "Turn on {{setting}} in Settings → {{tab}}"
+      }
+    }
   },
   "mapList": {
     "title": "Maps",

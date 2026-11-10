@@ -6,6 +6,7 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { FloatingChatLog } from "@/components/FloatingChatLog";
 import { AgentChatterLoop } from "@/components/AgentChatterLoop";
 import { SettingsModal } from "@/components/SettingsModal";
+import { OnboardingOverlays } from "@/components/OnboardingOverlays";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
 import { useArenaStore } from "@/store/arenaStore";
@@ -72,6 +73,7 @@ export default function App() {
           <FloatingChatLog />
           <AgentChatterLoop />
           <SettingsModal />
+          <OnboardingOverlays />
         </>
       )}
       <MapEditor />

@@ -16,6 +16,7 @@
     "models": "Modeller",
     "map": "Harita",
     "settings": "Ayarlar",
+    "help": "Yardım ve kontroller",
     "hello": "Merhaba, {{name}}",
     "editMap": "Haritayı düzenle",
     "day": "Gündüz",
@@ -26,8 +27,63 @@
   "agentList": {
     "title": "Ajanlar",
     "empty": "Henüz ajan yok. Eklemek için Ajanlar’a tıkla.",
+    "emptyNoModel": "Henüz AI modeli yok. Eklemek için AI Modelleri’ni aç.",
     "talk": "Konuş",
     "edit": "Ajanı düzenle"
+  },
+  "onboarding": {
+    "title": "Arenanı kur",
+    "intro": "İlk sohbetine üç adım. Anahtarların bu tarayıcıda kalır.",
+    "step1": "API anahtarınla bir AI modeli ekle.",
+    "step2": "Bir ajan ekle ve o modeli seç.",
+    "step3": "Sohbet için bir ajana tıkla veya dokun.",
+    "open": "{{tab}} sekmesini aç",
+    "alive": "Dünya canlı olsun mu? Ayarlar → {{tab}} içinde {{setting}} seçeneğini aç. Ekstra model çağrısı kullanır.",
+    "dontShowAgain": "Bir daha gösterme"
+  },
+  "controlsHelp": {
+    "title": "Kontroller",
+    "action": "Eylem",
+    "how": "Nasıl",
+    "mouse": "Fare",
+    "touch": "Dokunmatik",
+    "rows": {
+      "chat": {
+        "action": "Bir ajanla sohbet et",
+        "mouse": "Karaktere tıkla veya Ajanlar listesinden seç",
+        "touch": "Karaktere dokun veya Ajanlar listesinden seç"
+      },
+      "walk": {
+        "action": "Ajanı bir yere gönder",
+        "mouse": "Seç, sonra zemine sağ tıkla",
+        "touch": "Seç, sonra hareket etmeden zemine basılı tut"
+      },
+      "camera": {
+        "action": "Kamerayı hareket ettir",
+        "mouse": "Sürükleyerek döndür, kaydırarak yakınlaştır; ajan seçili değilken sağ sürükle ile kaydır",
+        "touch": "Sürükleyerek döndür, kıstırarak yakınlaştır; ajan seçili değilken iki parmakla kaydır"
+      },
+      "arena": {
+        "action": "Herkese konuş",
+        "how": "Alt çubuğa yaz ve {{send}} düğmesine bas"
+      },
+      "mention": {
+        "action": "Tek bir ajana hitap et",
+        "how": "Alt çubuğa @Ad yaz ve öneriden seç"
+      },
+      "dayNight": {
+        "action": "Gündüz ve geceyi değiştir",
+        "how": "Üst çubuktaki gündüz/gece anahtarını kullan"
+      },
+      "editMap": {
+        "action": "Haritayı düzenle",
+        "how": "Haritalar panelinde aktif haritanın kalemini kullan"
+      },
+      "idle": {
+        "action": "Ajanların kendi kendine konuşmasına izin ver",
+        "how": "Ayarlar → {{tab}} içinde {{setting}} seçeneğini aç"
+      }
+    }
   },
   "mapList": {
     "title": "Haritalar",

@@ -21,13 +21,69 @@
     "day": "白天",
     "night": "夜晚",
     "switchToDay": "切换到白天",
-    "switchToNight": "切换到夜晚"
+    "switchToNight": "切换到夜晚",
+    "help": "帮助与操作"
   },
   "agentList": {
     "title": "智能体",
     "empty": "还没有智能体。打开「智能体」添加一个。",
     "talk": "交谈",
-    "edit": "编辑智能体"
+    "edit": "编辑智能体",
+    "emptyNoModel": "还没有 AI 模型。打开「AI 模型」添加一个。"
+  },
+  "onboarding": {
+    "title": "设置你的竞技场",
+    "intro": "三步完成第一次对话。密钥只保存在此浏览器中。",
+    "step1": "用你的 API 密钥添加一个 AI 模型。",
+    "step2": "添加一个智能体并选择该模型。",
+    "step3": "点击或轻触智能体开始聊天。",
+    "open": "打开{{tab}}",
+    "alive": "想让世界活起来？在设置 → {{tab}} 中打开{{setting}}。会额外调用模型。",
+    "dontShowAgain": "不再显示"
+  },
+  "controlsHelp": {
+    "title": "操作说明",
+    "action": "操作",
+    "how": "方法",
+    "mouse": "鼠标",
+    "touch": "触控",
+    "rows": {
+      "chat": {
+        "action": "与智能体聊天",
+        "mouse": "点击角色，或在智能体列表中选择",
+        "touch": "轻触角色，或在智能体列表中选择"
+      },
+      "walk": {
+        "action": "让智能体走到某处",
+        "mouse": "选中后，在地面右键点击",
+        "touch": "选中后，按住地面不移动"
+      },
+      "camera": {
+        "action": "移动镜头",
+        "mouse": "拖动环绕，滚轮缩放；未选中智能体时右键拖动平移",
+        "touch": "拖动环绕，捏合缩放；未选中智能体时双指拖动平移"
+      },
+      "arena": {
+        "action": "对所有人说话",
+        "how": "在底部栏输入并按 {{send}}"
+      },
+      "mention": {
+        "action": "对单个智能体说话",
+        "how": "在底部栏输入 @名称 并选择建议"
+      },
+      "dayNight": {
+        "action": "切换昼夜",
+        "how": "使用顶栏的昼夜开关"
+      },
+      "editMap": {
+        "action": "编辑地图",
+        "how": "在地图面板中点击当前地图的铅笔图标"
+      },
+      "idle": {
+        "action": "让智能体自行交谈",
+        "how": "在设置 → {{tab}} 中打开{{setting}}"
+      }
+    }
   },
   "mapList": {
     "title": "地图",
