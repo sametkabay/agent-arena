@@ -38,7 +38,7 @@
     "step2": "Bir ajan ekle ve o modeli seç.",
     "step3": "Sohbet için bir ajana tıkla veya dokun.",
     "open": "{{tab}} sekmesini aç",
-    "alive": "Dünya canlı olsun mu? Ayarlar → {{tab}} içinde {{setting}} seçeneğini aç. Ekstra model çağrısı kullanır.",
+    "alive": "Dünya canlı olsun mu? Ayarlar → {{tab}} içinde {{setting}} değerini Kendiliğinden sohbet veya Sohbet yap. Ekstra model çağrısı kullanır.",
     "dontShowAgain": "Bir daha gösterme"
   },
   "controlsHelp": {
@@ -81,7 +81,7 @@
       },
       "idle": {
         "action": "Ajanların kendi kendine konuşmasına izin ver",
-        "how": "Ayarlar → {{tab}} içinde {{setting}} seçeneğini aç"
+        "how": "Ayarlar → {{tab}} içinde {{setting}} seç"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "Geçmişi kapat",
       "empty": "Henüz arena sohbeti yok. Dene: @AjanAdı merhaba",
       "noMatch": "Eşleşen ajan yok: {{names}}",
-      "noAgents": "Modeli olan ajan yok."
+      "noAgents": "Modeli olan ajan yok.",
+      "conversationWaiting": "Ajanlar bekliyor — sohbeti sürdürmek için bir şey yaz."
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "Görünen ad",
       "language": "Dil",
       "languageHint": "Arayüz dili. Ajanlar senin yazdığın dilde yanıt verir.",
-      "idleChatter": "Kendiliğinden sohbet",
-      "idleChatterHint": "Ajanlar sen sormadan konuşma balonunda kendi kendine konuşur. Varsayılan kapalı; model çağrıları yalnızca sohbet ettiğinde gider.",
       "clearChats": "Sohbet geçmişi",
       "clearChatsHint": "Özel sohbetler ve ortak arena sohbeti bu tarayıcıda saklanır. İstediğin zaman buradan silebilirsin.",
       "clearChatsAction": "Sohbet geçmişini temizle",
       "clearChatsConfirmTitle": "Sohbet geçmişi temizlensin mi?",
       "clearChatsConfirmBody": "Bu tarayıcıdaki tüm özel ajan sohbetleri ve ortak arena sohbeti kalıcı olarak silinir.",
       "clearChatsConfirm": "Temizle",
-      "clearChatsDone": "Sohbet geçmişi temizlendi"
+      "clearChatsDone": "Sohbet geçmişi temizlendi",
+      "chatterMode": "Ortam sohbeti",
+      "chatterModeHint": "Sen yazmıyorken ajanlar ne yapsın.",
+      "chatterModeOff": "Kapalı",
+      "chatterModeIdle": "Kendiliğinden sohbet",
+      "chatterModeConversation": "Sohbet",
+      "chatterModeOffHint": "Ajanlar yalnızca sen yazınca yanıt verir. Ekstra model çağrısı yok.",
+      "chatterModeIdleHint": "Ajanlar konuşma balonunda kendi kendine mırıldanır. Ekstra model çağrısı kullanır.",
+      "chatterModeConversationHint_one": "Ajanlar sırayla birbirleriyle konuşur; sen yeniden yazana kadar {{count}} tur sonra durur. Ekstra model çağrısı kullanır.",
+      "chatterModeConversationHint_other": "Ajanlar sırayla birbirleriyle konuşur; sen yeniden yazana kadar {{count}} tur sonra durur. Ekstra model çağrısı kullanır."
     },
     "models": {
       "title": "AI Modelleri",
@@ -193,7 +201,7 @@
       "thinkingHint": "Destekliyorsa model yanıtı önce düşünür. Daha yavaş, ama genelde daha iyi.",
       "thinkingOn": "düşünme açık",
       "chattiness": "Gevezelik",
-      "chattinessHint": "Kendiliğinden sohbet açıkken ajanın kendi kendine ne sıklıkla konuşacağı. 0 = hiç, 100 ≈ dakikada iki kez.",
+      "chattinessHint": "Ajanın kendi kendine ne sıklıkla konuşacağı. Kendiliğinden sohbet: 100 ≈ dakikada iki. Sohbet: yüksek = daha sık seçilir. 0 = asla.",
       "skills": "Beceriler",
       "skillsHint": "Bu ajanın her zaman uyduğu kalıcı talimatlar — kod stili, dokümantasyon, araçlar vb.",
       "skillsEmpty": "Henüz beceri yok.",

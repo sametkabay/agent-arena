@@ -5,6 +5,7 @@ import type {
   AppPersisted,
   ArenaAgent,
   ChatMessage,
+  ChatterMode,
   DayNightMode,
   FloatingChatLine,
   GraphicsSettings,
@@ -61,6 +62,10 @@ interface ArenaState extends AppPersisted {
   controlsHelpOpen: boolean;
   /** Session flag: auto controls help already shown this visit. */
   controlsHelpAutoDone: boolean;
+  /** Runtime seed for conversation-mode human steering (not persisted). */
+  conversationSeed: { seq: number; mentionIds: string[] };
+  /** Runtime conversation scheduler status (not persisted). */
+  conversationStatus: "inactive" | "running" | "waitingForHuman" | "paused";
 
   hydrate: () => void;
   persist: () => void;
@@ -73,7 +78,11 @@ interface ArenaState extends AppPersisted {
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
-  setIdleChatterEnabled: (enabled: boolean) => void;
+  setChatterMode: (mode: ChatterMode) => void;
+  seedConversation: (mentionIds: string[]) => void;
+  setConversationStatus: (
+    status: ArenaState["conversationStatus"],
+  ) => void;
   dismissOnboarding: () => void;
   setControlsHelpOpen: (open: boolean) => void;
   closeControlsHelp: (dontShowAgain?: boolean) => void;
@@ -129,7 +138,7 @@ function persistSlice(s: ArenaState): AppPersisted {
     customMaps: s.customMaps,
     graphics: s.graphics,
     dayNight: s.dayNight,
-    idleChatterEnabled: s.idleChatterEnabled === true,
+    chatterMode: s.chatterMode,
     onboardingSeen: s.onboardingSeen === true,
     controlsHelpSeen: s.controlsHelpSeen === true,
     favoriteAssets: s.favoriteAssets ?? [],
@@ -186,6 +195,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   favoriteAssets: initial.favoriteAssets ?? [],
   controlsHelpOpen: false,
   controlsHelpAutoDone: false,
+  conversationSeed: { seq: 0, mentionIds: [] },
+  conversationStatus: "inactive",
 
   hydrate: () => {
     const data = loadPersisted();
@@ -251,9 +262,22 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     get().persist();
   },
 
-  setIdleChatterEnabled: (enabled) => {
-    set({ idleChatterEnabled: enabled });
+  setChatterMode: (mode) => {
+    set({ chatterMode: mode });
     get().persist();
+  },
+
+  seedConversation: (mentionIds) => {
+    set((s) => ({
+      conversationSeed: {
+        seq: s.conversationSeed.seq + 1,
+        mentionIds: [...mentionIds],
+      },
+    }));
+  },
+
+  setConversationStatus: (status) => {
+    set({ conversationStatus: status });
   },
 
   dismissOnboarding: () => {

@@ -127,7 +127,7 @@ export function ControlsHelp({ auto, onClose }: Props) {
                 }
                 const how = t(`controlsHelp.rows.${row.id}.how`, {
                   send: t("chat.arena.send"),
-                  setting: t("settings.general.idleChatter"),
+                  setting: t("settings.general.chatterMode"),
                   tab: t("settings.tabs.general"),
                 });
                 return (

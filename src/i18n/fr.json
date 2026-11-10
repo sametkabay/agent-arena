@@ -38,7 +38,7 @@
     "step2": "Ajoutez un agent et choisissez ce modèle.",
     "step3": "Cliquez ou touchez un agent pour discuter.",
     "open": "Ouvrir {{tab}}",
-    "alive": "Vous voulez un monde vivant ? Activez {{setting}} dans Paramètres → {{tab}}. Cela utilise des appels modèle supplémentaires.",
+    "alive": "Envie d’un monde vivant ? Règle {{setting}} sur Bavardage automatique ou Conversation dans Réglages → {{tab}}. Cela utilise des appels modèle en plus.",
     "dontShowAgain": "Ne plus afficher"
   },
   "controlsHelp": {
@@ -80,8 +80,8 @@
         "how": "Utilisez le crayon de la carte active dans le panneau Cartes"
       },
       "idle": {
-        "action": "Laisser les agents parler seuls",
-        "how": "Activez {{setting}} dans Paramètres → {{tab}}"
+        "action": "Laisser les agents parler tout seuls",
+        "how": "Choisis {{setting}} dans Réglages → {{tab}}"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "Fermer l’historique",
       "empty": "Pas encore de chat d’arène. Essaie @NomAgent bonjour",
       "noMatch": "Aucun agent correspondant : {{names}}",
-      "noAgents": "Aucun agent avec un modèle pour l’instant."
+      "noAgents": "Aucun agent avec un modèle pour l’instant.",
+      "conversationWaiting": "Les agents attendent — dis quelque chose pour continuer la conversation."
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "Nom affiché",
       "language": "Langue",
       "languageHint": "Langue de l’interface. Les agents répondent dans la langue que tu utilises.",
-      "idleChatter": "Bavardage automatique",
-      "idleChatterHint": "Les agents marmonnent tout seuls dans une bulle sans que tu demandes. Désactivé par défaut : les appels au modèle n’ont lieu que quand tu discutes.",
       "clearChats": "Historique du chat",
       "clearChatsHint": "Les chats privés et le chat partagé de l’arène sont enregistrés dans ce navigateur. Tu peux les effacer ici à tout moment.",
       "clearChatsAction": "Effacer l’historique",
       "clearChatsConfirmTitle": "Effacer l’historique du chat ?",
       "clearChatsConfirmBody": "Cela supprime définitivement tous les chats privés des agents et le chat partagé de l’arène dans ce navigateur.",
       "clearChatsConfirm": "Effacer",
-      "clearChatsDone": "Historique effacé"
+      "clearChatsDone": "Historique effacé",
+      "chatterMode": "Parole ambiante",
+      "chatterModeHint": "Ce que font les agents quand tu ne discutes pas.",
+      "chatterModeOff": "Désactivé",
+      "chatterModeIdle": "Bavardage automatique",
+      "chatterModeConversation": "Conversation",
+      "chatterModeOffHint": "Les agents ne répondent que quand tu écris. Pas d’appels modèle en plus.",
+      "chatterModeIdleHint": "Les agents marmonnent tout seuls dans une bulle. Utilise des appels modèle en plus.",
+      "chatterModeConversationHint_one": "Les agents parlent à tour de rôle, un à la fois, et s’arrêtent après {{count}} tour jusqu’à ce que tu réécrives. Utilise des appels modèle en plus.",
+      "chatterModeConversationHint_other": "Les agents parlent à tour de rôle, un à la fois, et s’arrêtent après {{count}} tours jusqu’à ce que tu réécrives. Utilise des appels modèle en plus."
     },
     "models": {
       "title": "Modèles d’IA",
@@ -193,7 +201,7 @@
       "thinkingHint": "Quand c’est possible, le modèle réfléchit avant de répondre. Plus lent, mais souvent meilleur.",
       "thinkingOn": "réflexion activée",
       "chattiness": "Bavardage",
-      "chattinessHint": "À quelle fréquence l’agent se parle tout seul quand le bavardage automatique est activé. 0 = jamais, 100 ≈ deux fois par minute.",
+      "chattinessHint": "À quelle fréquence l’agent parle de lui-même. Bavardage : 100 ≈ deux fois par minute. Conversation : plus haut = choisi plus souvent. 0 = jamais.",
       "skills": "Compétences",
       "skillsHint": "Instructions permanentes que cet agent suit toujours — style de code, docs, outils, etc.",
       "skillsEmpty": "Pas encore de compétences.",

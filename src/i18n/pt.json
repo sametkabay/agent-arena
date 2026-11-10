@@ -38,7 +38,7 @@
     "step2": "Adicione um agente e escolha esse modelo.",
     "step3": "Clique ou toque em um agente para conversar.",
     "open": "Abrir {{tab}}",
-    "alive": "Quer o mundo vivo? Ative {{setting}} em Ajustes → {{tab}}. Usa chamadas extras ao modelo.",
+    "alive": "Quer o mundo vivo? Defina {{setting}} como Conversa automática ou Conversação em Definições → {{tab}}. Usa chamadas extra ao modelo.",
     "dontShowAgain": "Não mostrar de novo"
   },
   "controlsHelp": {
@@ -81,7 +81,7 @@
       },
       "idle": {
         "action": "Deixar os agentes falarem sozinhos",
-        "how": "Ative {{setting}} em Ajustes → {{tab}}"
+        "how": "Escolha {{setting}} em Definições → {{tab}}"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "Fechar histórico",
       "empty": "Ainda não há chat da arena. Tente @NomeAgente olá",
       "noMatch": "Nenhum agente corresponde: {{names}}",
-      "noAgents": "Nenhum agente com modelo ainda."
+      "noAgents": "Nenhum agente com modelo ainda.",
+      "conversationWaiting": "Os agentes estão à espera — diga algo para continuar a conversa."
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "Nome de exibição",
       "language": "Idioma",
       "languageHint": "Idioma da interface. Os agentes respondem no idioma que você usa.",
-      "idleChatter": "Conversa automática",
-      "idleChatterHint": "Os agentes murmuram sozinhos em balões sem você pedir. Desligado por padrão para que as chamadas ao modelo só aconteçam quando você conversa.",
       "clearChats": "Histórico do chat",
       "clearChatsHint": "Os chats privados e o chat compartilhado da arena ficam neste navegador. Você pode apagá-los aqui a qualquer momento.",
       "clearChatsAction": "Apagar histórico",
       "clearChatsConfirmTitle": "Apagar o histórico do chat?",
       "clearChatsConfirmBody": "Isso apaga de forma permanente todos os chats privados dos agentes e o chat compartilhado da arena neste navegador.",
       "clearChatsConfirm": "Apagar",
-      "clearChatsDone": "Histórico apagado"
+      "clearChatsDone": "Histórico apagado",
+      "chatterMode": "Conversa ambiente",
+      "chatterModeHint": "O que os agentes fazem quando não estás a conversar.",
+      "chatterModeOff": "Desligado",
+      "chatterModeIdle": "Conversa automática",
+      "chatterModeConversation": "Conversação",
+      "chatterModeOffHint": "Os agentes só respondem quando escreves. Sem chamadas extra ao modelo.",
+      "chatterModeIdleHint": "Os agentes murmuram sozinhos em balões. Usa chamadas extra ao modelo.",
+      "chatterModeConversationHint_one": "Os agentes falam por turnos, um de cada vez, e param após {{count}} turno até voltares a escrever. Usa chamadas extra ao modelo.",
+      "chatterModeConversationHint_other": "Os agentes falam por turnos, um de cada vez, e param após {{count}} turnos até voltares a escrever. Usa chamadas extra ao modelo."
     },
     "models": {
       "title": "Modelos de IA",
@@ -193,7 +201,7 @@
       "thinkingHint": "Quando o modelo permite, ele pensa na resposta antes de falar. Mais lento, mas costuma ser melhor.",
       "thinkingOn": "reflexão ligada",
       "chattiness": "Tagarelice",
-      "chattinessHint": "Com que frequência o agente fala sozinho quando a conversa automática está ligada. 0 = nunca, 100 ≈ duas vezes por minuto.",
+      "chattinessHint": "Com que frequência o agente fala sozinho. Conversa automática: 100 ≈ duas vezes por minuto. Conversação: mais alto = escolhido mais. 0 = nunca.",
       "skills": "Habilidades",
       "skillsHint": "Instruções fixas que este agente sempre segue — estilo de código, docs, ferramentas etc.",
       "skillsEmpty": "Ainda não há habilidades.",

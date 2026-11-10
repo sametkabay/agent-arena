@@ -38,7 +38,7 @@
     "step2": "Füge einen Agenten hinzu und wähle dieses Modell.",
     "step3": "Klicke oder tippe auf einen Agenten zum Chatten.",
     "open": "{{tab}} öffnen",
-    "alive": "Soll die Welt lebendig sein? Aktiviere {{setting}} unter Einstellungen → {{tab}}. Das nutzt zusätzliche Modellaufrufe.",
+    "alive": "Soll die Welt lebendig sein? Stelle {{setting}} in Einstellungen → {{tab}} auf Selbstgespräche oder Gespräch. Nutzt zusätzliche Modellaufrufe.",
     "dontShowAgain": "Nicht mehr anzeigen"
   },
   "controlsHelp": {
@@ -80,8 +80,8 @@
         "how": "Den Stift der aktiven Karte im Karten-Panel nutzen"
       },
       "idle": {
-        "action": "Agenten von allein sprechen lassen",
-        "how": "{{setting}} unter Einstellungen → {{tab}} einschalten"
+        "action": "Agenten selbst sprechen lassen",
+        "how": "{{setting}} in Einstellungen → {{tab}} wählen"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "Verlauf schließen",
       "empty": "Noch kein Arena-Chat. Versuch @Agentenname hallo",
       "noMatch": "Kein Agent gefunden: {{names}}",
-      "noAgents": "Noch keine Agenten mit einem Modell."
+      "noAgents": "Noch keine Agenten mit einem Modell.",
+      "conversationWaiting": "Agenten warten — schreib etwas, um das Gespräch fortzusetzen."
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "Anzeigename",
       "language": "Sprache",
       "languageHint": "Sprache der Oberfläche. Agenten antworten in der Sprache, die du verwendest.",
-      "idleChatter": "Selbstgespräche",
-      "idleChatterHint": "Agenten murmeln von selbst in Sprechblasen. Standardmäßig aus, damit Modellaufrufe nur beim Chatten entstehen.",
       "clearChats": "Chatverlauf",
       "clearChatsHint": "Private Chats und der gemeinsame Arena-Chat werden in diesem Browser gespeichert. Du kannst sie hier jederzeit löschen.",
       "clearChatsAction": "Chatverlauf löschen",
       "clearChatsConfirmTitle": "Chatverlauf löschen?",
       "clearChatsConfirmBody": "Damit werden alle privaten Agenten-Chats und der gemeinsame Arena-Chat in diesem Browser dauerhaft gelöscht.",
       "clearChatsConfirm": "Löschen",
-      "clearChatsDone": "Chatverlauf gelöscht"
+      "clearChatsDone": "Chatverlauf gelöscht",
+      "chatterMode": "Umgebungstalk",
+      "chatterModeHint": "Was Agenten tun, wenn du nicht chattest.",
+      "chatterModeOff": "Aus",
+      "chatterModeIdle": "Selbstgespräche",
+      "chatterModeConversation": "Gespräch",
+      "chatterModeOffHint": "Agenten antworten nur, wenn du schreibst. Keine zusätzlichen Modellaufrufe.",
+      "chatterModeIdleHint": "Agenten murmeln von selbst in Sprechblasen. Nutzt zusätzliche Modellaufrufe.",
+      "chatterModeConversationHint_one": "Agenten sprechen abwechselnd miteinander, einer nach dem anderen, und halten nach {{count}} Zug an, bis du wieder schreibst. Nutzt zusätzliche Modellaufrufe.",
+      "chatterModeConversationHint_other": "Agenten sprechen abwechselnd miteinander, einer nach dem anderen, und halten nach {{count}} Zügen an, bis du wieder schreibst. Nutzt zusätzliche Modellaufrufe."
     },
     "models": {
       "title": "KI-Modelle",
@@ -193,7 +201,7 @@
       "thinkingHint": "Wenn möglich, denkt das Modell zuerst nach. Langsamer, oft aber besser.",
       "thinkingOn": "Denken an",
       "chattiness": "Gesprächigkeit",
-      "chattinessHint": "Wie oft der Agent von selbst redet, wenn Selbstgespräche an sind. 0 = nie, 100 ≈ zweimal pro Minute.",
+      "chattinessHint": "Wie oft der Agent von selbst spricht. Selbstgespräche: 100 ≈ zweimal pro Minute. Gespräch: höher = öfter gewählt. 0 = nie.",
       "skills": "Fähigkeiten",
       "skillsHint": "Feste Anweisungen, denen dieser Agent immer folgt — Codestil, Docs, Werkzeuge usw.",
       "skillsEmpty": "Noch keine Fähigkeiten.",

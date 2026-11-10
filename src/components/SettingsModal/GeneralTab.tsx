@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { LanguageCode } from "@/lib/types";
+import type { ChatterMode, LanguageCode } from "@/lib/types";
 import { LANGUAGES } from "@/i18n/languages";
+import { appConfig } from "@/lib/config";
 import { useArenaStore } from "@/store/arenaStore";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Select } from "@/components/ui/Select";
-import { Switch } from "@/components/ui/Switch";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 export function GeneralTab() {
   const { t } = useTranslation();
@@ -13,11 +14,20 @@ export function GeneralTab() {
   const language = useArenaStore((s) => s.language);
   const setUserName = useArenaStore((s) => s.setUserName);
   const setLanguage = useArenaStore((s) => s.setLanguage);
-  const idleChatterEnabled = useArenaStore((s) => s.idleChatterEnabled);
-  const setIdleChatterEnabled = useArenaStore((s) => s.setIdleChatterEnabled);
+  const chatterMode = useArenaStore((s) => s.chatterMode);
+  const setChatterMode = useArenaStore((s) => s.setChatterMode);
   const clearChats = useArenaStore((s) => s.clearChats);
   const showToast = useArenaStore((s) => s.showToast);
   const [confirmClear, setConfirmClear] = useState(false);
+  const chatterHeadingId = useId();
+  const chatterHintId = useId();
+
+  const modeHintKey =
+    chatterMode === "idle"
+      ? "settings.general.chatterModeIdleHint"
+      : chatterMode === "conversation"
+        ? "settings.general.chatterModeConversationHint"
+        : "settings.general.chatterModeOffHint";
 
   return (
     <div className="form-grid">
@@ -39,16 +49,29 @@ export function GeneralTab() {
           options={LANGUAGES.map((l) => ({ value: l.code, label: l.label }))}
         />
       </label>
-      <div className="settings-row settings-row--stack settings-row--inline">
+      <div className="settings-row settings-row--stack">
         <div>
-          <strong>{t("settings.general.idleChatter")}</strong>
-          <p className="settings-hint">{t("settings.general.idleChatterHint")}</p>
+          <strong id={chatterHeadingId}>{t("settings.general.chatterMode")}</strong>
+          <p className="settings-hint">{t("settings.general.chatterModeHint")}</p>
         </div>
-        <Switch
-          checked={idleChatterEnabled === true}
-          onChange={setIdleChatterEnabled}
-          aria-label={t("settings.general.idleChatter")}
+        <SegmentedControl
+          name="chatter-mode"
+          labelledBy={chatterHeadingId}
+          describedBy={chatterHintId}
+          value={chatterMode}
+          onChange={(v) => setChatterMode(v as ChatterMode)}
+          options={[
+            { value: "off", label: t("settings.general.chatterModeOff") },
+            { value: "idle", label: t("settings.general.chatterModeIdle") },
+            {
+              value: "conversation",
+              label: t("settings.general.chatterModeConversation"),
+            },
+          ]}
         />
+        <p id={chatterHintId} className="settings-hint" aria-live="polite">
+          {t(modeHintKey, { count: appConfig.conversation.maxAgentTurns })}
+        </p>
       </div>
       <div className="settings-row settings-row--stack settings-row--flush">
         <div>

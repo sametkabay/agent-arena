@@ -6,18 +6,30 @@ import {
   resumeChatterRuntime,
   tickAgentChatter,
 } from "@/lib/ai/chatter";
+import {
+  createConversationRuntime,
+  disposeConversationRuntime,
+  tickConversation,
+} from "@/lib/ai/conversationLoop";
+import { drainPendingArenaReplies } from "@/lib/ai/arenaChat";
 
-/** Background loop that asks each chatty agent for idle LLM mutters. */
+/** Background loop: idle mutters, conversation turns, and queued arena replies. */
 export function AgentChatterLoop() {
   useEffect(() => {
-    const rt = createChatterRuntime();
-    const id = window.setInterval(() => tickAgentChatter(rt), 1000);
+    const chatterRt = createChatterRuntime();
+    const conversationRt = createConversationRuntime();
+    const id = window.setInterval(() => {
+      tickAgentChatter(chatterRt);
+      tickConversation(conversationRt);
+      drainPendingArenaReplies();
+    }, 1000);
 
     const onVisibility = () => {
       if (document.visibilityState === "hidden") {
-        pauseChatterRuntime(rt);
+        pauseChatterRuntime(chatterRt);
+        tickConversation(conversationRt);
       } else {
-        resumeChatterRuntime(rt);
+        resumeChatterRuntime(chatterRt);
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
@@ -25,7 +37,8 @@ export function AgentChatterLoop() {
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
       window.clearInterval(id);
-      disposeChatterRuntime(rt);
+      disposeChatterRuntime(chatterRt);
+      disposeConversationRuntime(conversationRt);
     };
   }, []);
 

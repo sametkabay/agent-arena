@@ -38,7 +38,7 @@
     "step2": "エージェントを追加してそのモデルを選びます。",
     "step3": "エージェントをクリックまたはタップしてチャットします。",
     "open": "{{tab}}を開く",
-    "alive": "世界を動かしたい？設定 → {{tab}}で{{setting}}をオンに。追加のモデル呼び出しが発生します。",
+    "alive": "世界を活気づける？設定 → {{tab}} で{{setting}}をひとりごとまたは会話にしてください。追加のモデル呼び出しがあります。",
     "dontShowAgain": "今後表示しない"
   },
   "controlsHelp": {
@@ -80,8 +80,8 @@
         "how": "マップパネルでアクティブなマップの鉛筆を使う"
       },
       "idle": {
-        "action": "エージェントに独り言を許可する",
-        "how": "設定 → {{tab}}で{{setting}}をオンにする"
+        "action": "エージェントに勝手に話させる",
+        "how": "設定 → {{tab}} で{{setting}}を選ぶ"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "履歴を閉じる",
       "empty": "まだアリーナチャットがありません。@エージェント名 こんにちは と送ってみて",
       "noMatch": "一致するエージェントがありません：{{names}}",
-      "noAgents": "モデルのあるエージェントがまだいません。"
+      "noAgents": "モデルのあるエージェントがまだいません。",
+      "conversationWaiting": "エージェントが待っています — 何か書いて会話を続けてください。"
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "表示名",
       "language": "言語",
       "languageHint": "画面の言語です。エージェントはあなたが使う言語で返事します。",
-      "idleChatter": "ひとりごと",
-      "idleChatterHint": "聞かなくてもエージェントが吹き出しでひとりごとを言います。初期値はオフで、モデル呼び出しは会話したときだけです。",
       "clearChats": "チャット履歴",
       "clearChatsHint": "個別チャットと共有のアリーナチャットはこのブラウザに保存されます。いつでもここから消せます。",
       "clearChatsAction": "履歴を消去",
       "clearChatsConfirmTitle": "チャット履歴を消去しますか？",
       "clearChatsConfirmBody": "このブラウザ内のすべての個別チャットと共有アリーナチャットが完全に削除されます。",
       "clearChatsConfirm": "消去",
-      "clearChatsDone": "履歴を消去しました"
+      "clearChatsDone": "履歴を消去しました",
+      "chatterMode": "周囲の会話",
+      "chatterModeHint": "チャットしていないときにエージェントがすること。",
+      "chatterModeOff": "オフ",
+      "chatterModeIdle": "ひとりごと",
+      "chatterModeConversation": "会話",
+      "chatterModeOffHint": "エージェントはあなたが書くときだけ答えます。追加のモデル呼び出しはありません。",
+      "chatterModeIdleHint": "エージェントが吹き出しでひとりごとを言います。追加のモデル呼び出しがあります。",
+      "chatterModeConversationHint_one": "エージェントが順番に会話し、一度に一人、{{count}} ターン後に止まり、また書くまで待ちます。追加のモデル呼び出しがあります。",
+      "chatterModeConversationHint_other": "エージェントが順番に会話し、一度に一人、{{count}} ターン後に止まり、また書くまで待ちます。追加のモデル呼び出しがあります。"
     },
     "models": {
       "title": "AI モデル",
@@ -193,7 +201,7 @@
       "thinkingHint": "対応していれば、モデルは答える前に考えます。遅くなりますが、多くの場合より良くなります。",
       "thinkingOn": "思考オン",
       "chattiness": "おしゃべり度",
-      "chattinessHint": "ひとりごとがオンのとき、吹き出しで話す頻度。0 = なし、100 ≈ 1分に2回。",
+      "chattinessHint": "エージェントが自分から話す頻度。ひとりごと：100 ≈ 毎分2回。会話：高いほど選ばれやすい。0 = なし。",
       "skills": "スキル",
       "skillsHint": "このエージェントがいつも守る指示 — コードの書き方、ドキュメント、ツールなど。",
       "skillsEmpty": "まだスキルがありません。",

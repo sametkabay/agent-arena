@@ -435,6 +435,97 @@ button {
 }
 
 /* —— Switch —— */
+.aa-segmented {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+
+.aa-segmented--stack {
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.aa-segmented__option,
+.form-grid .aa-segmented__option {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 44px;
+  padding: 8px 6px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: center;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  box-shadow: none;
+  /* No color/background transitions: under main-thread pressure (3D scene)
+     pending transitions freeze on the prior option and the highlight sticks. */
+}
+
+.aa-segmented--stack .aa-segmented__option,
+.form-grid .aa-segmented--stack .aa-segmented__option {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  text-align: start;
+  padding-inline: 12px;
+}
+
+.aa-segmented__option input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.aa-segmented__label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.aa-segmented--stack .aa-segmented__label {
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.aa-segmented__option.is-selected,
+.aa-segmented__option:has(input:checked),
+.form-grid .aa-segmented__option.is-selected,
+.form-grid .aa-segmented__option:has(input:checked) {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(60, 45, 30, 0.12);
+}
+
+.aa-segmented__option:has(input:focus-visible) {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+.aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)),
+.form-grid .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)) {
+  color: var(--ink);
+}
+
 .aa-switch {
   position: relative;
   flex: 0 0 auto;
@@ -2980,6 +3071,25 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .arena-chat-dock__composer {
   position: relative;
   pointer-events: none;
+}
+
+.arena-chat-dock__waiting {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(20, 18, 16, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+:root[data-day-night="day"] .arena-chat-dock__waiting {
+  color: rgba(44, 38, 32, 0.78);
+  background: rgba(255, 254, 249, 0.55);
+  border-color: rgba(160, 130, 100, 0.28);
 }
 
 .arena-chat-dock__mentions {

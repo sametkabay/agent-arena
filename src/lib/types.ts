@@ -6,8 +6,10 @@ export type { DayNightMode } from "@/lib/dayNight";
 export type AiProviderKind = "openai" | "gemini" | "claude" | "ollama" | "custom";
 
 import type { LanguageCode } from "@/i18n/languages";
+import type { ChatterMode } from "@/lib/ai/conversation";
 
 export type { LanguageCode };
+export type { ChatterMode };
 
 /** Builtin id or custom_* user map id. */
 export type MapId = string;
@@ -83,8 +85,8 @@ export interface AppPersisted {
   graphics: GraphicsSettings;
   /** Arena + UI day/night preference (persisted). */
   dayNight: DayNightMode;
-  /** When false, agents never idle-mutter (opt-in). Default off. */
-  idleChatterEnabled: boolean;
+  /** Ambient talk: off | idle mutters | sequential conversation. Default off. */
+  chatterMode: ChatterMode;
   /** First-run setup guide dismissed (or legacy user already past it). */
   onboardingSeen: boolean;
   /** Controls help auto-show dismissed (manual "?" still works). */
