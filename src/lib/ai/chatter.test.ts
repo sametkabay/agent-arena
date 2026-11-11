@@ -21,7 +21,7 @@ function seedStore(partial: Record<string, unknown> = {}) {
   useArenaStore.setState({
     mapEditorOpen: false,
     settingsOpen: false,
-    idleChatterEnabled: true,
+    chatterMode: "idle",
     chatBusyById: {},
     agents: [sampleAgent({ chattiness: 80, modelConfigId: "model-1" })],
     models: [sampleModel()],
@@ -95,17 +95,50 @@ describe("tickAgentChatter", () => {
     expect(rt.nextAt.size).toBe(0);
   });
 
-  it("skips and clears timers when idle chatter is off", () => {
+  it("skips and clears timers when chatter mode is not idle", () => {
     const rt = createChatterRuntime();
     const ac = new AbortController();
     rt.nextAt.set("agent-1", 1);
     rt.inflight.set("agent-1", ac);
-    seedStore({ idleChatterEnabled: false });
+    seedStore({ chatterMode: "off" });
     tickAgentChatter(rt);
     expect(ac.signal.aborted).toBe(true);
     expect(rt.nextAt.size).toBe(0);
     expect(rt.inflight.size).toBe(0);
     expect(chatCompletion).not.toHaveBeenCalled();
+
+    rt.nextAt.set("agent-1", 1);
+    seedStore({ chatterMode: "conversation" });
+    tickAgentChatter(rt);
+    expect(rt.nextAt.size).toBe(0);
+  });
+
+  it("starts only one mutter when two agents are due", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(5000);
+    let resolveFirst!: (v: string) => void;
+    chatCompletion.mockImplementationOnce(
+      () =>
+        new Promise<string>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    const rt = createChatterRuntime();
+    seedStore({
+      agents: [
+        sampleAgent({ id: "a", chattiness: 80, modelConfigId: "model-1" }),
+        sampleAgent({ id: "b", chattiness: 80, modelConfigId: "model-1" }),
+      ],
+    });
+    rt.nextAt.set("a", 0);
+    rt.nextAt.set("b", 0);
+    tickAgentChatter(rt);
+    expect(chatCompletion).toHaveBeenCalledTimes(1);
+    tickAgentChatter(rt);
+    expect(chatCompletion).toHaveBeenCalledTimes(1);
+    resolveFirst("hmm");
+    await vi.runAllTimersAsync();
+    disposeChatterRuntime(rt);
   });
 
   it("schedules then fires a mutter", async () => {

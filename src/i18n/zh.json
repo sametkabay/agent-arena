@@ -38,7 +38,7 @@
     "step2": "添加一个智能体并选择该模型。",
     "step3": "点击或轻触智能体开始聊天。",
     "open": "打开{{tab}}",
-    "alive": "想让世界活起来？在设置 → {{tab}} 中打开{{setting}}。会额外调用模型。",
+    "alive": "想让世界更有生气？在设置 → {{tab}} 把{{setting}}设为闲聊自语或对话。会额外调用模型。",
     "dontShowAgain": "不再显示"
   },
   "controlsHelp": {
@@ -80,8 +80,8 @@
         "how": "在地图面板中点击当前地图的铅笔图标"
       },
       "idle": {
-        "action": "让智能体自行交谈",
-        "how": "在设置 → {{tab}} 中打开{{setting}}"
+        "action": "让智能体自己说话",
+        "how": "在设置 → {{tab}} 中选择{{setting}}"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "关闭记录",
       "empty": "还没有竞技场聊天。试试 @智能体名 你好",
       "noMatch": "没有匹配的智能体：{{names}}",
-      "noAgents": "还没有已配置模型的智能体。"
+      "noAgents": "还没有已配置模型的智能体。",
+      "conversationWaiting": "智能体在等待——说点什么继续对话。"
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "显示名称",
       "language": "语言",
       "languageHint": "界面语言。智能体会用你使用的语言回复。",
-      "idleChatter": "闲聊自语",
-      "idleChatterHint": "智能体会在气泡里自言自语，无需你提问。默认关闭，模型调用只在你聊天时发生。",
       "clearChats": "聊天记录",
       "clearChatsHint": "私聊和共享的竞技场聊天保存在此浏览器中。可随时在这里清除。",
       "clearChatsAction": "清除聊天记录",
       "clearChatsConfirmTitle": "清除聊天记录？",
       "clearChatsConfirmBody": "这将永久删除此浏览器中所有智能体私聊和共享的竞技场聊天。",
       "clearChatsConfirm": "清除",
-      "clearChatsDone": "聊天记录已清除"
+      "clearChatsDone": "聊天记录已清除",
+      "chatterMode": "环境交谈",
+      "chatterModeHint": "你不聊天时智能体做什么。",
+      "chatterModeOff": "关闭",
+      "chatterModeIdle": "闲聊自语",
+      "chatterModeConversation": "对话",
+      "chatterModeOffHint": "智能体只在你写字时回答。不会额外调用模型。",
+      "chatterModeIdleHint": "智能体在气泡里自言自语。会额外调用模型。",
+      "chatterModeConversationHint_one": "智能体轮流交谈，一次一个，写完 {{count}} 轮后停下直到你再写。会额外调用模型。",
+      "chatterModeConversationHint_other": "智能体轮流交谈，一次一个，写完 {{count}} 轮后停下直到你再写。会额外调用模型。"
     },
     "models": {
       "title": "AI 模型",
@@ -193,7 +201,7 @@
       "thinkingHint": "支持时，模型会先想再答。更慢，但往往更好。",
       "thinkingOn": "思考已开",
       "chattiness": "健谈程度",
-      "chattinessHint": "闲聊自语开启时，智能体在气泡里自言自语的频率。0 = 从不，100 ≈ 每分钟两次。",
+      "chattinessHint": "智能体自己说话的频率。闲聊自语：100 ≈ 每分钟两次。对话：越高越常被选中。0 = 从不。",
       "skills": "技能",
       "skillsHint": "这个智能体始终遵守的固定说明 — 代码风格、文档、工具等。",
       "skillsEmpty": "还没有技能。",

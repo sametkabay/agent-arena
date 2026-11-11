@@ -26,8 +26,8 @@ defaults:
   agentName: New agent
   agentColor: "#4A90A4"
   agentChattiness: 10
-  # Idle mutters are opt-in so LLM calls only fire when the visitor chats.
-  idleChatterEnabled: false
+  # Ambient talk: off | idle | conversation (opt-in so LLM calls only fire when wanted).
+  chatterMode: off
   agentEnabled: true
   agentThinking: false
   modelName: New model
@@ -63,6 +63,15 @@ graphics:
 
 chatter:
   maxMuttersPerMinute: 2
+
+# Conversation-mode turn budget (yaml only; no Settings UI in v1).
+conversation:
+  minGapMs: 5000
+  maxAgentTurns: 6
+  humanReplyDelayMs: 400
+  firstTurnDelayMs: 1500
+  historyLines: 12
+  historyMaxChars: 1600
 
 speech:
   maxChars: 256

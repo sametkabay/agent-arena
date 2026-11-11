@@ -91,7 +91,10 @@ function formatPeopleLines(
  * Full session facts for the system prompt.
  * Tagged block = industry-standard structured context (portable across providers).
  */
-export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
+export function buildArenaWorldContext(
+  ctx: ArenaWorldContext,
+  mode?: ArenaPromptMode,
+): string {
   const peopleLines = formatPeopleLines(ctx.otherAgents).join("\n");
   const areas =
     ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
@@ -106,11 +109,16 @@ export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
     peopleLines,
   }).trim();
 
+  const discipline =
+    mode === "arena_conversation"
+      ? prompts.session.speechDisciplineConversation
+      : prompts.session.speechDiscipline;
+
   return [
     prompts.session.heading,
     prompts.session.intro.trim(),
     session,
-    prompts.session.speechDiscipline.trim(),
+    discipline.trim(),
   ].join("\n");
 }
 
@@ -130,6 +138,11 @@ export function buildSituationUserPrefix(
     ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
   const ch = channelMeta(channel);
 
+  const footer =
+    channel === "arena_conversation"
+      ? prompts.situation.footerConversation
+      : prompts.situation.footer;
+
   return [
     fillPrompt(prompts.situation.block, {
       channelId: ch.id,
@@ -142,7 +155,7 @@ export function buildSituationUserPrefix(
       namedAreas: areas,
       peoplePresent: peers,
     }).trim(),
-    prompts.situation.footer,
+    footer,
   ].join("\n");
 }
 
@@ -193,7 +206,7 @@ export function buildAgentSystemPrompt(opts: {
   parts.push(...formatSkills(opts.skills ?? []));
 
   // Session facts last so they stay salient after identity/skills.
-  parts.push("", buildArenaWorldContext(world));
+  parts.push("", buildArenaWorldContext(world, mode));
 
   return parts.filter(Boolean).join("\n");
 }

@@ -67,7 +67,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 | OpenAI / Gemini / Claude | Yes (provider CORS permitting) | Yes |
 | Ollama / local gateways | No (no dev proxy) | Yes (`/ollama`, `/local-llm`) |
 | Map editor + `.aamf.json` export | Yes | Yes |
-| Idle chatter + private / arena chat | Yes | Yes |
+| Ambient talk (idle / conversation) + private / arena chat | Yes | Yes |
 
 | Script | Purpose |
 |--------|---------|
@@ -95,7 +95,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 | Target one agent | `@Name` in arena chat (autocomplete) |
 | Day / night | HUD toggle (also chosen on first visit) |
 | Edit world | Pencil on the active map in the **Maps** panel |
-| Idle chatter | Off by default — turn it on in **Settings → General** |
+| Ambient talk | Off by default — choose Idle chatter or Conversation in **Settings → General** |
 | Help / controls | **?** in the HUD — mouse and touch reference |
 
 ---
@@ -118,7 +118,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 - **Agents on a map** — they walk, idle, think, and talk in a low-poly world
 - **Private chat** — resizable, draggable panel; replies stream into the panel and a speech bubble
 - **Arena chat** — fading live feed + history; broadcast or `@mention`
-- **Idle mutter** — opt-in; short asides on a chattiness slider (pauses when the tab is hidden)
+- **Ambient talk** — Idle chatter or Conversation (opt-in; pauses when the tab is hidden)
 - **YAML-configured fork** — app defaults, prompt templates, characters, roles, and maps live in files you can edit
 - **10 UI languages** — English, Türkçe, Español, 简体中文, Português, Français, Deutsch, 日本語, 한국어, Русский
 
@@ -128,7 +128,7 @@ Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.po
 
 Most multi-agent demos are terminals, dashboards, or chat bots. Agent Arena treats agents as **characters in a place**:
 
-- They stand on a map, walk to targets, idle-mutter into speech bubbles, and answer when you click them
+- They stand on a map, walk to targets, mutter or take conversation turns into speech bubbles, and answer when you click them
 - Session context (your name, UI language, map, zones, day/night, other people) is available to the model — prompts also tell agents **not** to volunteer a scenery tour unless you steer there
 - Agents, models, and the map itself are **editable in-app** — no redeploy to try a new persona or layout
 
@@ -145,7 +145,7 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 - Spawn multiple agents on map spawn points
 - Each agent has a **GLB character look** (13 shipped faces, from `data/characters.yaml`) and a **role preset** (explorer, engineer, botanist, scholar, artisan, guardian, scout, muse, or custom)
 - Role fills default name, color, bio, and system prompt; **character look** (GLB) is independent of role
-- **Idle chatter loop** — opt-in in Settings (off by default); rate via *chattiness* (0–100; default 10; 100 ≈ 2 mutters/minute); pauses when the tab is hidden or Settings / Map Editor is open
+- **Ambient talk** — Settings → General: Off / Idle chatter / Conversation (off by default). Idle: rate via *chattiness* (0–100; default 10; 100 ≈ 2 mutters/minute). Conversation: one-at-a-time turns with a yaml budget (`minGapMs`, `maxAgentTurns`); pauses when the tab is hidden or Settings / Map Editor is open
 - Click to select; **right-click the floor** to send them walking
 - Thinking / talking visual states while replies stream (`🤔` bubble while a reply is in flight; optional **thinking / reasoning** toggle per agent — provider-specific)
 - Optional **skills** blocks (coding / docs / tools templates) appended to the system prompt
@@ -154,7 +154,7 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 
 - **Private chat** — resizable, draggable panel (from the agent list or the scene)
 - **Shared arena chat** — fading live feed + expandable history; `@mention` autocomplete
-- Four prompt channels in `prompts.yaml`: `private_chat`, `arena_broadcast`, `arena_mention`, `idle_mutter`
+- Five prompt channels in `prompts.yaml`: `private_chat`, `arena_broadcast`, `arena_mention`, `idle_mutter`, `arena_conversation`
 - World context in prompts: your name, reply language, map name/description, named zones, day/night, other agents
 
 ### Maps & editor
@@ -215,14 +215,17 @@ defaults:
   mapId: nature
   dayNight: night
   agentChattiness: 25
-  idleChatterEnabled: false
+  chatterMode: off         # off | idle | conversation
 chatter:
   maxMuttersPerMinute: 2   # 100 chattiness ≈ 2 mutters/min at default
+conversation:
+  minGapMs: 5000
+  maxAgentTurns: 6
 ```
 
 ### Prompt templates
 
-`prompts.yaml` is the behavioral core. Modes: **private chat**, **arena broadcast**, **@mention**, **idle mutter**. Session facts are wrapped in `<session>` / `<situation>`; a speech-discipline block tells agents not to narrate the scenery unless you ask.
+`prompts.yaml` is the behavioral core. Modes: **private chat**, **arena broadcast**, **@mention**, **idle mutter**, **arena conversation**. Session facts are wrapped in `<session>` / `<situation>`; a speech-discipline block tells agents not to narrate the scenery unless you ask (relaxed in conversation mode so agents may address each other).
 
 | Placeholder | Used for |
 |-------------|----------|

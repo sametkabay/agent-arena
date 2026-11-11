@@ -16,12 +16,16 @@ describe("prompts", () => {
       expect(spec.how).toBeTruthy();
       expect(spec.lines.length).toBeGreaterThan(0);
     }
+    expect(PROMPT_MODES).toContain("arena_conversation");
   });
 
   it("fills templates", () => {
     expect(fillPrompt("Hi {{userName}}", { userName: "Samet" })).toBe("Hi Samet");
     expect(fillPromptLines(["{{x}}"], { x: 2 })).toEqual(["2"]);
     expect(prompts.briefs.bioMax).toBeGreaterThan(0);
+    expect(prompts.user.arenaConversation).toContain("<recent_arena>");
+    expect(prompts.session.speechDisciplineConversation).toBeTruthy();
+    expect(prompts.situation.footerConversation).toBeTruthy();
   });
 });
 

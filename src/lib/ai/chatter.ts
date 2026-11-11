@@ -94,7 +94,7 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
   resumeChatterRuntime(rt);
 
   const s = useArenaStore.getState();
-  if (!s.idleChatterEnabled) {
+  if (s.chatterMode !== "idle") {
     if (rt.inflight.size || rt.nextAt.size) {
       for (const ac of rt.inflight.values()) ac.abort();
       rt.inflight.clear();
@@ -147,7 +147,17 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
       rt.nextAt.set(agent.id, scheduleNextChatterAt(chattiness, now));
       continue;
     }
+  }
 
+  // Global single in-flight: due agents stay due and fire on a later tick.
+  if (rt.inflight.size > 0) return;
+
+  for (const agent of s.agents) {
+    if (agent.enabled === false) continue;
+    const chattiness = agent.chattiness ?? 0;
+    if (chattiness <= 0) continue;
+    if (!rt.nextAt.has(agent.id)) continue;
+    if (s.chatBusyById[agent.id]) continue;
     if (rt.inflight.has(agent.id)) continue;
 
     const due = rt.nextAt.get(agent.id)!;
@@ -160,6 +170,8 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
     }
 
     void runChatterTurn(rt, agent, model, chattiness);
+    // Only one mutter at a time across all agents.
+    break;
   }
 }
 

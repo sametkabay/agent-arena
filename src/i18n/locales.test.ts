@@ -48,6 +48,16 @@ const REQUIRED_KEYS = [
   "settings.models.showKey",
   "settings.models.hideKey",
   "settings.map.propCount_other",
+  "settings.general.chatterMode",
+  "settings.general.chatterModeHint",
+  "settings.general.chatterModeOff",
+  "settings.general.chatterModeIdle",
+  "settings.general.chatterModeConversation",
+  "settings.general.chatterModeOffHint",
+  "settings.general.chatterModeIdleHint",
+  "settings.general.chatterModeConversationHint_one",
+  "settings.general.chatterModeConversationHint_other",
+  "chat.arena.conversationWaiting",
 ] as const;
 
 function getByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -64,8 +74,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 41 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(41);
+  it("lists exactly 51 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(51);
   });
 
   it("includes every configured language with matching placeholders", () => {
@@ -88,5 +98,23 @@ describe("onboarding locale keys", () => {
         expect(placeholders(value as string)).toEqual(placeholders(enValue as string));
       }
     }
+  });
+
+  it("provides Russian few/many plurals for the conversation turn hint", () => {
+    const ru = localeModules["./ru.json"]!;
+    for (const form of ["few", "many"] as const) {
+      const value = getByPath(ru, `settings.general.chatterModeConversationHint_${form}`);
+      expect(typeof value).toBe("string");
+      expect(placeholders(value as string)).toEqual(["count"]);
+    }
+  });
+
+  it("English one/other forms differ for a single turn vs many", () => {
+    const en = localeModules["./en.json"]!;
+    const one = getByPath(en, "settings.general.chatterModeConversationHint_one") as string;
+    const other = getByPath(en, "settings.general.chatterModeConversationHint_other") as string;
+    expect(one).toContain("{{count}} turn ");
+    expect(other).toContain("{{count}} turns ");
+    expect(one).not.toBe(other);
   });
 });

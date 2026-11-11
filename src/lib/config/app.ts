@@ -35,7 +35,7 @@ export interface AppConfig {
     agentName: string;
     agentColor: string;
     agentChattiness: number;
-    idleChatterEnabled: boolean;
+    chatterMode: "off" | "idle" | "conversation";
     agentEnabled: boolean;
     agentThinking: boolean;
     modelName: string;
@@ -60,6 +60,14 @@ export interface AppConfig {
   };
   chatter: {
     maxMuttersPerMinute: number;
+  };
+  conversation: {
+    minGapMs: number;
+    maxAgentTurns: number;
+    humanReplyDelayMs: number;
+    firstTurnDelayMs: number;
+    historyLines: number;
+    historyMaxChars: number;
   };
   speech: {
     maxChars: number;

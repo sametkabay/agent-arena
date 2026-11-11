@@ -38,6 +38,15 @@ modes:
       - 'The human present is "{{userName}}" — never address them in idle mutters.'
       - "You sometimes mutter short asides to yourself while idle."
       - "Stay on your own mood, habits, opinions, or idle thoughts — not the place, time of day, or other people."
+  arena_conversation:
+    channelId: arena_chat
+    how: "Shared arena chat; you are taking a turn in a group conversation."
+    lines:
+      - "Channel: shared arena chat — group conversation turn."
+      - 'You are talking with the other people present and "{{userName}}".'
+      - "Reply to the latest lines with one short spoken line (~25 words max)."
+      - "You may address one person with @Name; never address yourself."
+      - "Do not repeat what was already said. Follow {{userName}}'s steering when given."
 
 session:
   heading: "## Session context"
@@ -60,6 +69,11 @@ session:
     - Answer the human's message (or stay on your own idle thought). That is the priority.
     - Do NOT mention the place, time of day, weather/lighting, named areas, or other people unless the human clearly steers there or directly asks.
     - Never volunteer a scenery tour, roll-call of agents, or unsolicited setting commentary.
+  speechDisciplineConversation: |
+    Speech discipline:
+    - Take your turn in the group conversation. That is the priority.
+    - You may refer to and address other people present (including with @Name).
+    - Do NOT volunteer a scenery tour or unsolicited setting commentary about the place, weather, or lighting.
 
 situation:
   block: |
@@ -75,6 +89,7 @@ situation:
     people_present: {{peoplePresent}}
     </situation>
   footer: "The <situation> block is silent context only. Do not summarize or quote it. Ignore place/time/peers unless the human's message is clearly about them."
+  footerConversation: "The <situation> block is silent context only. Do not summarize or quote it. You may address people present; ignore place/time unless the conversation is clearly about them."
 
 user:
   idleMutter: |
@@ -85,6 +100,12 @@ user:
   arenaBroadcast: |
     {{userName}} said in shared arena chat (broadcast, no @mention): "{{userText}}"
     If it fits, chime in with one short in-character line on their topic. Do not bring up place, day/night, or other people unless their message is clearly about those. Output only that line.
+  arenaConversation: |
+    Recent arena chat (oldest first):
+    <recent_arena>
+    {{history}}
+    </recent_arena>
+    It is your turn. Output only your line.
 
 connectionTest:
   system: "Reply with exactly: OK"

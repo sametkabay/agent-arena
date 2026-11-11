@@ -14,6 +14,7 @@ import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId }
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { parseChatterMode } from "@/lib/ai/conversation";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 
 export { DEFAULT_GRAPHICS };
@@ -68,7 +69,7 @@ export function defaultPersisted(): AppPersisted {
     customMaps: [],
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: appConfig.defaults.dayNight,
-    idleChatterEnabled: appConfig.defaults.idleChatterEnabled,
+    chatterMode: parseChatterMode(appConfig.defaults.chatterMode),
     onboardingSeen: false,
     controlsHelpSeen: false,
     favoriteAssets: [],
@@ -201,7 +202,10 @@ export function loadPersisted(): AppPersisted {
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
       dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : appConfig.defaults.dayNight,
-      idleChatterEnabled: parsed.idleChatterEnabled === true,
+      chatterMode: parseChatterMode(
+        (parsed as { chatterMode?: unknown }).chatterMode,
+        (parsed as { idleChatterEnabled?: unknown }).idleChatterEnabled,
+      ),
       // Legacy blobs omit these flags: treat existing setups as already seen
       // so returning users are not interrupted. Non-booleans count as missing.
       onboardingSeen:

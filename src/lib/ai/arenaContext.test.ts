@@ -57,7 +57,21 @@ describe("world context builders", () => {
 
     const prefix = buildSituationUserPrefix(world, "private_chat");
     expect(prefix).toContain("Samet");
-    expect(prefix).toContain(prompts.situation.footer.trim().slice(0, 12));
+    expect(prefix).toContain(prompts.situation.footer.trim());
+    expect(prefix).not.toContain(prompts.situation.footerConversation.trim());
+
+    const conversation = buildSituationUserPrefix(world, "arena_conversation");
+    expect(conversation).toContain(prompts.situation.footerConversation.trim());
+    expect(conversation).not.toContain(prompts.situation.footer.trim());
+    expect(buildArenaWorldContext(world, "arena_conversation")).toContain(
+      prompts.session.speechDisciplineConversation.trim(),
+    );
+    expect(buildArenaWorldContext(world, "private_chat")).toContain(
+      prompts.session.speechDiscipline.trim(),
+    );
+    expect(buildArenaWorldContext(world, "private_chat")).not.toContain(
+      prompts.session.speechDisciplineConversation.trim(),
+    );
 
     const night = buildSituationUserPrefix(
       { ...world, dayNight: "night", otherAgents: [], mapAreas: [] },

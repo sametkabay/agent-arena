@@ -38,7 +38,7 @@
     "step2": "Add an agent and pick that model.",
     "step3": "Click or tap an agent to chat.",
     "open": "Open {{tab}}",
-    "alive": "Want the world alive? Turn on {{setting}} in Settings → {{tab}}. It uses extra model calls.",
+    "alive": "Want the world alive? Set {{setting}} to Idle chatter or Conversation in Settings → {{tab}}. It uses extra model calls.",
     "dontShowAgain": "Don't show again"
   },
   "controlsHelp": {
@@ -81,7 +81,7 @@
       },
       "idle": {
         "action": "Let agents talk on their own",
-        "how": "Turn on {{setting}} in Settings → {{tab}}"
+        "how": "Choose {{setting}} in Settings → {{tab}}"
       }
     }
   },
@@ -108,7 +108,8 @@
       "closeHistory": "Close history",
       "empty": "No arena chat yet. Try @AgentName hello",
       "noMatch": "No agent matched: {{names}}",
-      "noAgents": "No agents with a model yet."
+      "noAgents": "No agents with a model yet.",
+      "conversationWaiting": "Agents are waiting — say something to keep the conversation going."
     }
   },
   "settings": {
@@ -132,15 +133,22 @@
       "displayName": "Display name",
       "language": "Language",
       "languageHint": "Interface language. Agents reply in the language you use.",
-      "idleChatter": "Idle chatter",
-      "idleChatterHint": "Agents mutter to themselves in speech bubbles without you asking. Off by default so model calls only happen when you chat.",
+      "chatterMode": "Ambient talk",
+      "chatterModeHint": "What agents do when you are not chatting.",
+      "chatterModeOff": "Off",
+      "chatterModeIdle": "Idle chatter",
+      "chatterModeConversation": "Conversation",
+      "chatterModeOffHint": "Agents only answer when you write. No extra model calls.",
+      "chatterModeIdleHint": "Agents mutter to themselves in speech bubbles. Uses extra model calls.",
       "clearChats": "Chat history",
       "clearChatsHint": "Private chats and the shared arena chat are saved in this browser. Clear them here anytime.",
       "clearChatsAction": "Clear chat history",
       "clearChatsConfirmTitle": "Clear chat history?",
       "clearChatsConfirmBody": "This permanently deletes all private agent chats and the shared arena chat in this browser.",
       "clearChatsConfirm": "Clear",
-      "clearChatsDone": "Chat history cleared"
+      "clearChatsDone": "Chat history cleared",
+      "chatterModeConversationHint_one": "Agents take turns talking to each other, one at a time, and stop after {{count}} turn until you write again. Uses extra model calls.",
+      "chatterModeConversationHint_other": "Agents take turns talking to each other, one at a time, and stop after {{count}} turns until you write again. Uses extra model calls."
     },
     "models": {
       "title": "AI Models",
@@ -193,7 +201,7 @@
       "thinkingHint": "The model thinks through the answer first when it can. Slower, but often better.",
       "thinkingOn": "thinking on",
       "chattiness": "Chattiness",
-      "chattinessHint": "How often the agent talks to itself when idle chatter is on. 0 = never, 100 ≈ twice a minute.",
+      "chattinessHint": "How often the agent talks on its own. Idle chatter: 100 ≈ twice a minute. Conversation: higher = picked more often. 0 = never.",
       "skills": "Skills",
       "skillsHint": "Standing instructions this agent always follows — coding style, docs, tools, and so on.",
       "skillsEmpty": "No skills yet.",

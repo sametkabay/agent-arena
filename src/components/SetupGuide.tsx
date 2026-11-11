@@ -27,7 +27,7 @@ export function SetupGuide() {
         </ol>
         <p className="setup-guide__alive">
           {t("onboarding.alive", {
-            setting: t("settings.general.idleChatter"),
+            setting: t("settings.general.chatterMode"),
             tab: t("settings.tabs.general"),
           })}
         </p>

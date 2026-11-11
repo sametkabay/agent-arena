@@ -83,19 +83,49 @@ describe("sanitizeArenaChatHistory", () => {
 describe("loadPersisted / savePersisted", () => {
   it("returns defaults when empty or invalid JSON", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());
-    expect(loadPersisted().idleChatterEnabled).toBe(false);
+    expect(loadPersisted().chatterMode).toBe("off");
     localStorage.setItem(STORAGE_KEY, "{not json");
     expect(loadPersisted()).toEqual(defaultPersisted());
   });
 
-  it("treats missing idle chatter as off (opt-in)", () => {
+  it("migrates chatterMode from legacy idleChatterEnabled", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ userName: "Samet" }));
-    expect(loadPersisted().idleChatterEnabled).toBe(false);
+    expect(loadPersisted().chatterMode).toBe("off");
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ idleChatterEnabled: true }),
     );
-    expect(loadPersisted().idleChatterEnabled).toBe(true);
+    expect(loadPersisted().chatterMode).toBe("idle");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ idleChatterEnabled: false }),
+    );
+    expect(loadPersisted().chatterMode).toBe("off");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ chatterMode: "conversation", idleChatterEnabled: true }),
+    );
+    expect(loadPersisted().chatterMode).toBe("conversation");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ chatterMode: "loud", idleChatterEnabled: true }),
+    );
+    expect(loadPersisted().chatterMode).toBe("idle");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ chatterMode: "nope" }),
+    );
+    expect(loadPersisted().chatterMode).toBe("off");
+  });
+
+  it("round-trips chatterMode without the legacy field", () => {
+    const data = defaultPersisted();
+    data.chatterMode = "conversation";
+    savePersisted(data);
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(raw.chatterMode).toBe("conversation");
+    expect(raw.idleChatterEnabled).toBeUndefined();
+    expect(loadPersisted().chatterMode).toBe("conversation");
   });
 
   it("round-trips sanitized persisted state", () => {
