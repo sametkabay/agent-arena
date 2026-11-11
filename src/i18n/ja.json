@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Agent Arena",
-    "tagline": "自分のパソコンで動くマルチエージェント空間"
+    "tagline": "自分のパソコンで動くマルチエージェント空間",
+    "loading": "アリーナを読み込み中…"
   },
   "nameGate": {
     "badge": "ようこそ",

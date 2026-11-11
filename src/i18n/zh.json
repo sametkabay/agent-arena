@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Agent Arena",
-    "tagline": "你的本地多智能体空间"
+    "tagline": "你的本地多智能体空间",
+    "loading": "正在加载竞技场…"
   },
   "nameGate": {
     "badge": "欢迎",

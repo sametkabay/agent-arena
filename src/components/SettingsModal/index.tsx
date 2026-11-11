@@ -20,6 +20,7 @@ import {
   centeredScrollLeft,
   resolveTabKeyIndex,
   resolveTablistBlurFocusIndex,
+  tabStripFadeMaskGradient,
   tabStripScrollEdgeAttr,
   tabStripScrollEdges,
 } from "@/lib/settingsTabs";
@@ -38,6 +39,9 @@ function SettingsModalChrome() {
     Math.max(0, TABS.indexOf(tab as (typeof TABS)[number])),
   );
   const [scrollEdgeAttr, setScrollEdgeAttr] = useState("");
+  const [fadeMask, setFadeMask] = useState(() =>
+    tabStripFadeMaskGradient({ left: false, right: false }),
+  );
 
   useEffect(() => {
     const idx = TABS.indexOf(tab as (typeof TABS)[number]);
@@ -53,6 +57,7 @@ function SettingsModalChrome() {
       scrollWidth: nav.scrollWidth,
     });
     setScrollEdgeAttr(tabStripScrollEdgeAttr(edges));
+    setFadeMask(tabStripFadeMaskGradient(edges));
   }, []);
 
   useLayoutEffect(() => {
@@ -121,6 +126,10 @@ function SettingsModalChrome() {
           aria-label={t("settings.title")}
           ref={navRef}
           data-scroll-edge={scrollEdgeAttr || undefined}
+          style={{
+            maskImage: fadeMask,
+            WebkitMaskImage: fadeMask,
+          }}
           onBlur={onTablistBlur}
         >
           <div className="settings-modal__nav-title" aria-hidden="true">

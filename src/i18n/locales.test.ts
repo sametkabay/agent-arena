@@ -7,6 +7,7 @@ const localeModules = import.meta.glob("./*.json", { eager: true, import: "defau
 >;
 
 const REQUIRED_KEYS = [
+  "app.loading",
   "hud.help",
   "agentList.emptyNoModel",
   "onboarding.title",
@@ -74,8 +75,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 51 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(51);
+  it("lists exactly 52 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(52);
   });
 
   it("includes every configured language with matching placeholders", () => {

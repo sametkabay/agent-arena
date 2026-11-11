@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Agent Arena",
-    "tagline": "내 컴퓨터에서 쓰는 멀티 에이전트 공간"
+    "tagline": "내 컴퓨터에서 쓰는 멀티 에이전트 공간",
+    "loading": "아레나를 불러오는 중…"
   },
   "nameGate": {
     "badge": "환영합니다",

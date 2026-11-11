@@ -179,6 +179,155 @@
     </script>
   </head>
   <body>
+    <div
+      id="app-loading"
+      class="app-loading"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      data-loading="true"
+    >
+      <div class="app-loading__brand">Agent Arena</div>
+      <div class="app-loading__spinner" aria-hidden="true"></div>
+      <div class="app-loading__text">Loading the arena…</div>
+    </div>
+    <style>
+      .app-loading {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.85rem;
+        margin: 0;
+        padding: 1.5rem;
+        font-family: Nunito, system-ui, sans-serif;
+        color: #2c2620;
+        background:
+          radial-gradient(1200px 700px at 20% 0%, #f7f2e8 0%, #f2ede4 45%, #ddd3c2 100%);
+        opacity: 1;
+        transition: opacity 0.28s ease;
+        pointer-events: none;
+      }
+      html[data-day-night="night"] .app-loading {
+        color: #e6e2d8;
+        background:
+          radial-gradient(1200px 700px at 20% 0%, #1c2230 0%, #12151c 45%, #0a0c12 100%);
+      }
+      .app-loading.is-done {
+        opacity: 0;
+      }
+      .app-loading__brand {
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        color: #5f7f63;
+      }
+      html[data-day-night="night"] .app-loading__brand {
+        color: #8fb894;
+      }
+      .app-loading__text {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #5a5248;
+      }
+      html[data-day-night="night"] .app-loading__text {
+        color: #a8a296;
+      }
+      .app-loading__spinner {
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 999px;
+        border: 2px solid rgba(122, 158, 126, 0.28);
+        border-top-color: #7a9e7e;
+        animation: aa-boot-spin 0.85s linear infinite;
+      }
+      html[data-day-night="night"] .app-loading__spinner {
+        border-color: rgba(143, 184, 148, 0.25);
+        border-top-color: #8fb894;
+      }
+      @keyframes aa-boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .app-loading {
+          transition: none;
+        }
+        .app-loading__spinner {
+          animation: none;
+          border-top-color: #7a9e7e;
+          opacity: 0.85;
+        }
+      }
+    </style>
+    <script type="application/json" id="aa-boot-loading-i18n">
+      {
+        "en": "Loading the arena…",
+        "tr": "Arena yükleniyor…",
+        "es": "Cargando la arena…",
+        "zh": "正在加载竞技场…",
+        "pt": "Carregando a arena…",
+        "fr": "Chargement de l’arène…",
+        "de": "Arena wird geladen…",
+        "ja": "アリーナを読み込み中…",
+        "ko": "아레나를 불러오는 중…",
+        "ru": "Загрузка арены…"
+      }
+    </script>
+    <script>
+      (function () {
+        var STORAGE_KEY = "agent-arena-data";
+        var table = {};
+        try {
+          table = JSON.parse(
+            document.getElementById("aa-boot-loading-i18n").textContent || "{}",
+          );
+        } catch (e) {}
+        var storedLang;
+        var dayNight;
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            var data = JSON.parse(raw);
+            storedLang = data && data.language;
+            dayNight = data && data.dayNight;
+          }
+        } catch (e) {}
+        if (dayNight === "night") {
+          document.documentElement.setAttribute("data-day-night", "night");
+        }
+        function pickLocale() {
+          if (storedLang && table[storedLang]) return storedLang;
+          var langs = [];
+          if (typeof navigator !== "undefined") {
+            if (navigator.language) langs.push(navigator.language);
+            if (navigator.languages && navigator.languages.length) {
+              for (var i = 0; i < navigator.languages.length; i++) {
+                langs.push(navigator.languages[i]);
+              }
+            }
+          }
+          for (var j = 0; j < langs.length; j++) {
+            var low = String(langs[j] || "")
+              .trim()
+              .toLowerCase();
+            if (!low) continue;
+            var exact = low.split("-")[0];
+            if (table[exact]) return exact;
+          }
+          return "en";
+        }
+        var locale = pickLocale();
+        var text = table[locale] || table.en || "Loading the arena…";
+        var textEl = document.querySelector(".app-loading__text");
+        if (textEl) textEl.textContent = text;
+        document.documentElement.lang = locale;
+      })();
+    </script>
     <div id="root"></div>
     <noscript>
       <style>

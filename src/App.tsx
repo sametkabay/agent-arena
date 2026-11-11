@@ -11,6 +11,7 @@ import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig } from "@/lib/config";
+import { dismissBootLoading } from "@/lib/bootLoading";
 
 export default function App() {
   const hydrate = useArenaStore((s) => s.hydrate);
@@ -22,6 +23,18 @@ export default function App() {
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  // Remove the inline index.html splash after the first React paint.
+  useEffect(() => {
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => dismissBootLoading());
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.dayNight = dayNight;
