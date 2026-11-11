@@ -241,7 +241,37 @@
       "needModel": "Add an AI model first.",
       "rebuildNote": "Agents appear on the current map. The map itself stays as it is.",
       "customRole": "Custom role",
-      "customRoleHint": "Pick a role to fill the display name, or choose Custom and type your own."
+      "customRoleHint": "Pick a role to fill the display name, or choose Custom and type your own.",
+      "exportRoster": "Export",
+      "exportRosterAria": "Export agent roster",
+      "exported": "Agents exported",
+      "exportEmpty": "No agents to export.",
+      "exportFailed": "Could not export agents.",
+      "importRoster": "Import",
+      "importRosterAria": "Import agent roster",
+      "imported_one": "Imported {{count}} agent",
+      "imported_other": "Imported {{count}} agents",
+      "importDialog": {
+        "title": "Assign models",
+        "summary_one": "Found {{count}} agent to import.",
+        "summary_other": "Found {{count}} agents to import.",
+        "skipped_one": "Skipped {{count}} invalid agent.",
+        "skipped_other": "Skipped {{count}} invalid agents.",
+        "applyAll": "Apply model to all",
+        "modelFor": "Model for {{name}}",
+        "confirm_one": "Import {{count}} agent",
+        "confirm_other": "Import {{count}} agents",
+        "cancel": "Cancel",
+        "errors": {
+          "tooLarge": "File is too large (max 512 KB).",
+          "invalidJson": "Could not read that file as JSON.",
+          "wrongFormat": "That file is not an Agent Arena roster.",
+          "unsupportedVersion": "This roster file version is not supported.",
+          "empty": "No valid agents found in that file.",
+          "tooMany": "Too many agents in that file (max 50).",
+          "tooManyTotal": "Import would exceed the 100-agent limit."
+        }
+      }
     },
     "map": {
       "title": "Map",

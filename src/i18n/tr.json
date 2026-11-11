@@ -241,7 +241,37 @@
       "needModel": "Önce bir AI modeli ekle.",
       "rebuildNote": "Ajanlar mevcut haritada görünür. Haritanın kendisi değişmez.",
       "customRole": "Özel rol",
-      "customRoleHint": "Rol seçince görünen ad otomatik dolar; Özel’de kendi adını yazabilirsin."
+      "customRoleHint": "Rol seçince görünen ad otomatik dolar; Özel’de kendi adını yazabilirsin.",
+      "exportRoster": "Dışa aktar",
+      "exportRosterAria": "Ajan listesini dışa aktar",
+      "exported": "Ajanlar dışa aktarıldı",
+      "exportEmpty": "Dışa aktarılacak ajan yok.",
+      "exportFailed": "Ajanlar dışa aktarılamadı.",
+      "importRoster": "İçe aktar",
+      "importRosterAria": "Ajan listesini içe aktar",
+      "imported_one": "{{count}} ajan içe aktarıldı",
+      "imported_other": "{{count}} ajan içe aktarıldı",
+      "importDialog": {
+        "title": "Modelleri ata",
+        "summary_one": "İçe aktarılacak {{count}} ajan bulundu.",
+        "summary_other": "İçe aktarılacak {{count}} ajan bulundu.",
+        "skipped_one": "{{count}} geçersiz ajan atlandı.",
+        "skipped_other": "{{count}} geçersiz ajan atlandı.",
+        "applyAll": "Tümüne uygula",
+        "modelFor": "{{name}} için model",
+        "confirm_one": "{{count}} ajanı içe aktar",
+        "confirm_other": "{{count}} ajanı içe aktar",
+        "cancel": "İptal",
+        "errors": {
+          "tooLarge": "Dosya çok büyük (en fazla 512 KB).",
+          "invalidJson": "Dosya JSON olarak okunamadı.",
+          "wrongFormat": "Bu dosya bir Agent Arena ajan listesi değil.",
+          "unsupportedVersion": "Bu ajan listesi sürümü desteklenmiyor.",
+          "empty": "Dosyada geçerli ajan bulunamadı.",
+          "tooMany": "Dosyada çok fazla ajan var (en fazla 50).",
+          "tooManyTotal": "İçe aktarma 100 ajan sınırını aşar."
+        }
+      }
     },
     "map": {
       "title": "Harita",

@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import { getPolyPreset } from "@/lib/poly/presets";
@@ -13,6 +14,9 @@ export function AgentList({
   agents,
   models,
   onAdd,
+  onExport,
+  onImport,
+  importButtonRef,
   onEdit,
   onDuplicate,
   onDelete,
@@ -21,6 +25,9 @@ export function AgentList({
   agents: AgentConfig[];
   models: AiModelConfig[];
   onAdd: () => void;
+  onExport: () => void;
+  onImport: () => void;
+  importButtonRef?: Ref<HTMLButtonElement>;
   onEdit: (agent: AgentConfig) => void;
   onDuplicate: (agent: AgentConfig) => void;
   onDelete: (id: string) => void;
@@ -30,13 +37,32 @@ export function AgentList({
 
   return (
     <div>
-      <div className="header-row">
+      <div className="header-row agents-tab__header">
         <p className="settings-hint" style={{ margin: 0 }}>
           {t("settings.agents.hint")}
         </p>
-        <button type="button" className="btn btn--primary" onClick={onAdd}>
-          {t("settings.add")}
-        </button>
+        <div className="agents-tab__actions">
+          <button
+            type="button"
+            className="btn btn--ghost agents-tab__io-btn"
+            aria-label={t("settings.agents.exportRosterAria")}
+            onClick={onExport}
+          >
+            {t("settings.agents.exportRoster")}
+          </button>
+          <button
+            ref={importButtonRef}
+            type="button"
+            className="btn btn--ghost agents-tab__io-btn"
+            aria-label={t("settings.agents.importRosterAria")}
+            onClick={onImport}
+          >
+            {t("settings.agents.importRoster")}
+          </button>
+          <button type="button" className="btn btn--primary" onClick={onAdd}>
+            {t("settings.add")}
+          </button>
+        </div>
       </div>
       {agents.length === 0 ? (
         <p className="settings-hint">{t("settings.agents.empty")}</p>

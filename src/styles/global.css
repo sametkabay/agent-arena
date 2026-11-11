@@ -2688,6 +2688,168 @@ body.is-chat-panel-dragging .chat-popup__resize {
   margin-bottom: 10px;
 }
 
+.agents-tab__header {
+  flex-wrap: wrap;
+}
+
+.agents-tab__header > :first-child {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.agents-tab__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.agents-tab__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+}
+
+/* Match ghost 1px border so Export/Import/Add share the same outer height. */
+.agents-tab__actions .btn--primary {
+  border: 1px solid transparent;
+}
+
+.agents-tab__io-btn {
+  padding: 0.55rem 0.9rem;
+}
+
+/* Agent roster import remap dialog (#20) */
+.agent-import-dialog__card {
+  width: min(520px, 100%);
+  max-height: min(85dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.agent-import-dialog__body {
+  padding: 20px 20px 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.agent-import-dialog__summary {
+  margin-bottom: 14px;
+}
+
+.agent-import-dialog__apply-all {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.agent-import-dialog__apply-all > span {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* Same compact Select size for apply-all and per-row model picks. */
+.agent-import-dialog .aa-select {
+  width: 100%;
+}
+
+.agent-import-dialog .aa-select__trigger {
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 0.45rem 0.7rem;
+  min-height: 36px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.agent-import-dialog__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.agent-import-dialog__row {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) minmax(120px, 1.2fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-chip);
+  border: 1px solid var(--border);
+}
+
+.agent-import-dialog__name {
+  font-size: 0.9rem;
+  font-weight: 750;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-import-dialog__footer {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+@media (max-width: 480px) {
+  .agents-tab__header {
+    align-items: flex-start;
+  }
+
+  .agents-tab__actions {
+    width: 100%;
+  }
+
+  .agents-tab__actions .btn,
+  .agents-tab__io-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .agent-import-dialog {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .agent-import-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .agent-import-dialog__row {
+    grid-template-columns: 14px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+
+  .agent-import-dialog__row .aa-select {
+    grid-column: 1 / -1;
+  }
+
+  .agent-import-dialog .aa-select__trigger {
+    min-height: 44px;
+    height: 44px;
+  }
+}
+
 .poly-grid {
   display: flex;
   flex-wrap: nowrap;

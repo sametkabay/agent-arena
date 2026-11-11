@@ -241,7 +241,37 @@
       "needModel": "Añade primero un modelo de IA.",
       "rebuildNote": "Los agentes aparecen en el mapa actual. El mapa no cambia.",
       "customRole": "Rol personalizado",
-      "customRoleHint": "Elige un rol para rellenar el nombre, o Personalizado y escribe el tuyo."
+      "customRoleHint": "Elige un rol para rellenar el nombre, o Personalizado y escribe el tuyo.",
+      "exportRoster": "Exportar",
+      "exportRosterAria": "Exportar lista de agentes",
+      "exported": "Agentes exportados",
+      "exportEmpty": "No hay agentes para exportar.",
+      "exportFailed": "No se pudieron exportar los agentes.",
+      "importRoster": "Importar",
+      "importRosterAria": "Importar lista de agentes",
+      "imported_one": "Se importó {{count}} agente",
+      "imported_other": "Se importaron {{count}} agentes",
+      "importDialog": {
+        "title": "Asignar modelos",
+        "summary_one": "Se encontró {{count}} agente para importar.",
+        "summary_other": "Se encontraron {{count}} agentes para importar.",
+        "skipped_one": "Se omitió {{count}} agente no válido.",
+        "skipped_other": "Se omitieron {{count}} agentes no válidos.",
+        "applyAll": "Aplicar modelo a todos",
+        "modelFor": "Modelo para {{name}}",
+        "confirm_one": "Importar {{count}} agente",
+        "confirm_other": "Importar {{count}} agentes",
+        "cancel": "Cancelar",
+        "errors": {
+          "tooLarge": "El archivo es demasiado grande (máx. 512 KB).",
+          "invalidJson": "No se pudo leer el archivo como JSON.",
+          "wrongFormat": "Ese archivo no es una lista de Agent Arena.",
+          "unsupportedVersion": "Esta versión del archivo no es compatible.",
+          "empty": "No se encontraron agentes válidos en el archivo.",
+          "tooMany": "Demasiados agentes en el archivo (máx. 50).",
+          "tooManyTotal": "La importación superaría el límite de 100 agentes."
+        }
+      }
     },
     "map": {
       "title": "Mapa",
