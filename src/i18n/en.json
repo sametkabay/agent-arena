@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Agent Arena",
-    "tagline": "Your local multi-agent playground"
+    "tagline": "Your local multi-agent playground",
+    "loading": "Loading the arena…"
   },
   "nameGate": {
     "badge": "Welcome",

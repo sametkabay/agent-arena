@@ -2,9 +2,16 @@ import { Html } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { forwardRef, useMemo, useRef } from "react";
 import * as THREE from "three";
+import {
+  AGENT_OVERLAY_STACK_GAP_PX,
+  agentOverlayStackWorldY,
+} from "@/lib/agentOverlay";
 import { getPolyPreset } from "@/lib/poly/presets";
 import type { ArenaAgent } from "@/lib/types";
 import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
+
+/** Approximate jelly figure height used for the name/speech stack anchor. */
+const JELLY_HEIGHT = 1.83;
 
 interface Props {
   agent: ArenaAgent;
@@ -143,34 +150,33 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
       )}
       {showLabels && (
         <Html
-          position={[0, 2.05, 0]}
-          center
+          position={[0, agentOverlayStackWorldY(JELLY_HEIGHT), 0]}
+          center={false}
           zIndexRange={[45, 10]}
+          style={{
+            transform: "translate3d(-50%, -100%, 0)",
+            pointerEvents: "none",
+          }}
           className="agent-html-overlay"
         >
-          <button
-            type="button"
-            className={
-              "agent-label" + (selected ? " agent-label--selected" : "")
-            }
-            onClick={(ev) => {
-              ev.stopPropagation();
-              useArenaStore.getState().selectAgent(agent.id);
-            }}
+          <div
+            className="agent-overlay-stack"
+            style={{ gap: AGENT_OVERLAY_STACK_GAP_PX }}
           >
-            {agent.displayName}
-          </button>
-        </Html>
-      )}
-      {showLabels && bubble && (
-        <Html
-          position={[0, 2.45, 0]}
-          center
-          zIndexRange={[45, 10]}
-          style={{ pointerEvents: "none" }}
-          className="agent-html-overlay"
-        >
-          <div className="agent-speech">{bubble}</div>
+            {bubble ? <div className="agent-speech">{bubble}</div> : null}
+            <button
+              type="button"
+              className={
+                "agent-label" + (selected ? " agent-label--selected" : "")
+              }
+              onClick={(ev) => {
+                ev.stopPropagation();
+                useArenaStore.getState().selectAgent(agent.id);
+              }}
+            >
+              {agent.displayName}
+            </button>
+          </div>
         </Html>
       )}
     </group>

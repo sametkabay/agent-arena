@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Agent Arena",
-    "tagline": "Kendi bilgisayarındaki çoklu ajan alanı"
+    "tagline": "Kendi bilgisayarındaki çoklu ajan alanı",
+    "loading": "Arena yükleniyor…"
   },
   "nameGate": {
     "badge": "Hoş geldin",

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  TAB_STRIP_EDGE_FADE_PX,
   centeredScrollLeft,
   resolveTabKeyIndex,
   resolveTablistBlurFocusIndex,
+  tabStripFadeMaskGradient,
   tabStripScrollEdgeAttr,
   tabStripScrollEdges,
 } from "@/lib/settingsTabs";
@@ -150,5 +152,28 @@ describe("tabStripScrollEdgeAttr", () => {
     expect(tabStripScrollEdgeAttr({ left: true, right: false })).toBe("left");
     expect(tabStripScrollEdgeAttr({ left: false, right: true })).toBe("right");
     expect(tabStripScrollEdgeAttr({ left: true, right: true })).toBe("left right");
+  });
+});
+
+describe("tabStripFadeMaskGradient", () => {
+  it("keeps both edges solid when nothing overflows", () => {
+    expect(tabStripFadeMaskGradient({ left: false, right: false })).toBe(
+      `linear-gradient(90deg, #000, #000 ${TAB_STRIP_EDGE_FADE_PX}px, #000 calc(100% - ${TAB_STRIP_EDGE_FADE_PX}px), #000)`,
+    );
+  });
+
+  it("fades only the side(s) that can scroll", () => {
+    expect(tabStripFadeMaskGradient({ left: false, right: true })).toContain(
+      "transparent)",
+    );
+    expect(tabStripFadeMaskGradient({ left: false, right: true })).toMatch(
+      /^linear-gradient\(90deg, #000,/,
+    );
+    expect(tabStripFadeMaskGradient({ left: true, right: false })).toMatch(
+      /^linear-gradient\(90deg, transparent,/,
+    );
+    expect(tabStripFadeMaskGradient({ left: true, right: true })).toBe(
+      `linear-gradient(90deg, transparent, #000 ${TAB_STRIP_EDGE_FADE_PX}px, #000 calc(100% - ${TAB_STRIP_EDGE_FADE_PX}px), transparent)`,
+    );
   });
 });

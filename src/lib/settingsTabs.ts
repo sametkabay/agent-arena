@@ -100,3 +100,25 @@ export function tabStripScrollEdgeAttr(edges: {
   if (edges.right) parts.push("right");
   return parts.join(" ");
 }
+
+/** Edge fade width for the horizontal settings tab strip (CSS px). */
+export const TAB_STRIP_EDGE_FADE_PX = 32;
+
+/**
+ * CSS `mask-image` / `-webkit-mask-image` gradient for tab-strip overflow cues.
+ * Transparent stops only on edges that can still scroll, so the active tab in
+ * the solid middle band is not clipped.
+ */
+export function tabStripFadeMaskGradient({
+  left,
+  right,
+  fadePx = TAB_STRIP_EDGE_FADE_PX,
+}: {
+  left: boolean;
+  right: boolean;
+  fadePx?: number;
+}): string {
+  const start = left ? "transparent" : "#000";
+  const end = right ? "transparent" : "#000";
+  return `linear-gradient(90deg, ${start}, #000 ${fadePx}px, #000 calc(100% - ${fadePx}px), ${end})`;
+}

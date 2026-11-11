@@ -449,6 +449,10 @@ button {
 .aa-segmented--stack {
   flex-direction: column;
   flex-wrap: nowrap;
+  gap: 8px;
+  padding: 8px;
+  background: transparent;
+  border-color: transparent;
 }
 
 .aa-segmented__option,
@@ -462,6 +466,7 @@ button {
   gap: 0;
   min-height: 44px;
   padding: 8px 6px;
+  border: 1px solid transparent;
   border-radius: 7px;
   cursor: pointer;
   text-align: center;
@@ -479,9 +484,13 @@ button {
   flex: 0 0 auto;
   width: 100%;
   min-width: 0;
+  min-height: 44px;
   justify-content: flex-start;
   text-align: start;
-  padding-inline: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(60, 45, 30, 0.06);
 }
 
 .aa-segmented__option input {
@@ -503,8 +512,22 @@ button {
 }
 
 .aa-segmented--stack .aa-segmented__label {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   overflow: visible;
   text-overflow: unset;
+}
+
+.aa-segmented--stack .aa-segmented__option.is-selected .aa-segmented__label::after,
+.aa-segmented--stack .aa-segmented__option:has(input:checked) .aa-segmented__label::after {
+  content: "✓";
+  flex: 0 0 auto;
+  color: var(--sage-dark);
+  font-weight: 800;
+  line-height: 1;
 }
 
 .aa-segmented__option.is-selected,
@@ -516,6 +539,16 @@ button {
   box-shadow: 0 1px 3px rgba(60, 45, 30, 0.12);
 }
 
+.aa-segmented--stack .aa-segmented__option.is-selected,
+.aa-segmented--stack .aa-segmented__option:has(input:checked),
+.form-grid .aa-segmented--stack .aa-segmented__option.is-selected,
+.form-grid .aa-segmented--stack .aa-segmented__option:has(input:checked) {
+  border-color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 18%, var(--surface));
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sage) 35%, transparent);
+}
+
 .aa-segmented__option:has(input:focus-visible) {
   outline: 2px solid var(--sage);
   outline-offset: 1px;
@@ -524,6 +557,12 @@ button {
 .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)),
 .form-grid .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)) {
   color: var(--ink);
+}
+
+.aa-segmented--stack .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)),
+.form-grid .aa-segmented--stack .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)) {
+  background: var(--surface-soft-hover);
+  border-color: var(--border-strong);
 }
 
 .aa-switch {
@@ -1989,6 +2028,17 @@ body.is-chat-panel-dragging .chat-popup__resize {
   z-index: 40 !important;
 }
 
+.agent-overlay-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.agent-overlay-stack .agent-label {
+  pointer-events: auto;
+}
+
 .agent-label {
   display: inline-block;
   margin: 0;
@@ -2857,35 +2907,27 @@ body.is-chat-panel-dragging .chat-popup__resize {
     scrollbar-width: none;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    /* Edge fade cues: data-scroll-edge updated from JS on scroll/resize. */
-    --nav-fade-left: transparent;
-    --nav-fade-right: transparent;
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      var(--nav-fade-left),
-      #000 14px,
-      #000 calc(100% - 14px),
-      var(--nav-fade-right)
-    );
-    mask-image: linear-gradient(
-      90deg,
-      var(--nav-fade-left),
-      #000 14px,
-      #000 calc(100% - 14px),
-      var(--nav-fade-right)
-    );
+    /* Mask gradient is set inline from tabStripFadeMaskGradient (src/lib). */
+    --nav-fade-ink: rgba(44, 38, 32, 0.5);
+    --nav-fade-left: #000;
+    --nav-fade-right: #000;
   }
+  :root[data-day-night="night"] .settings-modal__nav {
+    --nav-fade-ink: rgba(0, 0, 0, 0.78);
+  }
+  /* Inset shadows reinforce the mask so the cue reads on muted beige / night. */
   .settings-modal__nav[data-scroll-edge~="left"] {
     --nav-fade-left: transparent;
-  }
-  .settings-modal__nav:not([data-scroll-edge~="left"]) {
-    --nav-fade-left: #000;
+    box-shadow: inset 36px 0 22px -8px var(--nav-fade-ink);
   }
   .settings-modal__nav[data-scroll-edge~="right"] {
     --nav-fade-right: transparent;
+    box-shadow: inset -36px 0 22px -8px var(--nav-fade-ink);
   }
-  .settings-modal__nav:not([data-scroll-edge~="right"]) {
-    --nav-fade-right: #000;
+  .settings-modal__nav[data-scroll-edge="left right"] {
+    box-shadow:
+      inset 36px 0 22px -8px var(--nav-fade-ink),
+      inset -36px 0 22px -8px var(--nav-fade-ink);
   }
   .settings-modal__nav::-webkit-scrollbar {
     width: 0;
