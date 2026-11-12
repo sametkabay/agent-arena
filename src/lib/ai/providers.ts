@@ -20,27 +20,68 @@ export function providerDefaults(
   return { name: d.name, baseUrl: d.baseUrl, modelId: d.modelId };
 }
 
-/** In Vite DEV, rewrite local LLM URLs to same-origin proxies (CORS + less SSE buffering). */
+export function openaiCompatiblePresets(): Array<{
+  id: string;
+  name: string;
+  baseUrl: string;
+  modelId: string;
+}> {
+  return appConfig.providers.openai.compatiblePresets ?? [];
+}
+
+/**
+ * OpenAI-compatible clients append `/chat/completions`. Strip a pasted full
+ * endpoint so we do not request `/chat/completions/chat/completions`.
+ */
+export function normalizeOpenAiCompatibleBaseUrl(baseUrl: string): string {
+  let s = baseUrl.trim().replace(/\/+$/, "");
+  s = s.replace(/\/chat\/completions$/i, "");
+  s = s.replace(/\/completions$/i, "");
+  return s.replace(/\/+$/, "");
+}
+
+export function isLocalLlmBaseUrl(baseUrl: string): boolean {
+  try {
+    const u = new URL(normalizeOpenAiCompatibleBaseUrl(baseUrl));
+    return u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
+  } catch {
+    return false;
+  }
+}
+
+/** In Vite DEV, rewrite LLM URLs to same-origin proxies (CORS + less SSE buffering). */
 function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): string {
-  const trimmed = baseUrl.trim().replace(/\/+$/, "");
-  if (!import.meta.env.DEV) return trimmed;
-  if (trimmed.startsWith("/ollama") || trimmed.startsWith("/local-llm/")) return trimmed;
+  const trimmed = normalizeOpenAiCompatibleBaseUrl(baseUrl);
+  if (
+    trimmed.startsWith("/ollama") ||
+    trimmed.startsWith("/local-llm/") ||
+    trimmed.startsWith("/remote-llm/")
+  ) {
+    return trimmed;
+  }
 
   try {
     const u = new URL(trimmed);
-    const isLocal =
-      u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "[::1]";
-    if (!isLocal) return trimmed;
+    const isLocal = isLocalLlmBaseUrl(trimmed);
 
-    if (provider === "ollama" && (u.port === String(OLLAMA_DEFAULT_PORT) || !u.port)) {
+    if (!import.meta.env.DEV) return trimmed;
+
+    if (provider === "ollama" && isLocal && (u.port === String(OLLAMA_DEFAULT_PORT) || !u.port)) {
       return "/ollama";
     }
 
     if (provider === "openai" || provider === "custom" || provider === "ollama") {
       const host = u.hostname === "[::1]" || u.hostname === "localhost" ? "127.0.0.1" : u.hostname;
-      const port = u.port || (u.protocol === "https:" ? "443" : "80");
       const pathPart = u.pathname.replace(/\/+$/, "");
-      return `/local-llm/${host}/${port}${pathPart}`;
+      if (isLocal) {
+        const port = u.port || (u.protocol === "https:" ? "443" : "80");
+        return `/local-llm/${host}/${port}${pathPart}`;
+      }
+      // Remote HTTPS OpenAI-compatible APIs often lack browser CORS.
+      if (u.protocol === "https:") {
+        const port = u.port || "443";
+        return `/remote-llm/${host}/${port}${pathPart}`;
+      }
     }
   } catch {
     // keep as-is
@@ -138,16 +179,11 @@ async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
     stream,
   };
 
-  // Local / custom gateways may think by default — send an explicit effort.
-  // Skip for hosted api.openai.com chat models (they 400 on unknown params).
+  // Local gateways may think by default — send an explicit effort.
+  // Skip remote hosted APIs unless thinking is on (many 400 on unknown params).
   const effort = thinkingEnabled === true ? "medium" : "none";
-  const hostedOpenAi = /api\.openai\.com/i.test(model.baseUrl);
-  const sendEffort =
-    model.provider === "ollama" ||
-    model.provider === "custom" ||
-    (model.provider === "openai" && !hostedOpenAi) ||
-    thinkingEnabled === true ||
-    isLikelyReasoningModel(model.modelId);
+  const localGateway = model.provider === "ollama" || isLocalLlmBaseUrl(model.baseUrl);
+  const sendEffort = localGateway || thinkingEnabled === true;
   if (sendEffort) {
     body.reasoning_effort = effort;
     if (model.provider === "ollama") {
@@ -155,16 +191,20 @@ async function chatOpenAiCompatible(req: ChatRequest): Promise<string> {
     }
   }
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-    signal,
-  });
+  const res = await fetchProvider(
+    url,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+      signal,
+    },
+    model.baseUrl,
+  );
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(formatHttpError(res.status, text));
+    throw new Error(formatHttpError(res.status, text, model.baseUrl));
   }
 
   if (!onToken || !res.body) {
@@ -501,14 +541,14 @@ export async function fetchModels(
   }
 
   if (provider === "openai" || provider === "custom") {
-    const base = model.baseUrl.replace(/\/+$/, "");
+    const base = resolveRequestBaseUrl(provider, model.baseUrl);
     const url = joinUrl(base, "/models");
     const headers: Record<string, string> = {
       ...headersToRecord(model.extraHeaders),
     };
     if (model.apiKey) headers.Authorization = `Bearer ${model.apiKey}`;
-    const res = await fetch(url, { headers, signal });
-    if (!res.ok) throw new Error(formatHttpError(res.status, await res.text()));
+    const res = await fetchProvider(url, { headers, signal }, model.baseUrl);
+    if (!res.ok) throw new Error(formatHttpError(res.status, await res.text(), model.baseUrl));
     const data = (await res.json()) as { data?: Array<{ id?: string }> };
     return (data.data ?? []).map((m) => m.id!).filter(Boolean).sort();
   }
@@ -540,7 +580,7 @@ export async function testConnection(
   try {
     const list = await fetchModels(model, signal);
     if (list.length > 0) {
-      return { ok: true, detail: `Found ${list.length} model(s)` };
+      return { ok: true, detail: `Connected. Found ${list.length} model(s)` };
     }
     // Fallback: tiny completion
     const reply = await chatCompletion({
@@ -557,17 +597,32 @@ export async function testConnection(
   }
 }
 
-function isLikelyReasoningModel(modelId: string): boolean {
-  const id = modelId.toLowerCase();
-  return (
-    /(^|[/:_-])o[1-9]([.-]|$)/.test(id) ||
-    id.includes("gpt-5") ||
-    id.includes("reason")
-  );
+async function fetchProvider(
+  url: string,
+  init: RequestInit,
+  corsHintUrl: string,
+): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch (e) {
+    throw wrapNetworkError(e, corsHintUrl);
+  }
 }
 
-function formatHttpError(status: number, body: string): string {
+export function wrapNetworkError(error: unknown, baseUrl: string): Error {
+  const raw = error instanceof Error ? error.message : String(error);
+  if (!/failed to fetch|networkerror|load failed|network request failed/i.test(raw)) {
+    return error instanceof Error ? error : new Error(raw);
+  }
+  return new Error(corsHelpMessage(baseUrl));
+}
+
+export function corsHelpMessage(_baseUrl?: string): string {
+  return "Network or CORS error. This origin cannot call that API. Run npm run dev (proxies remote OpenAI-compatible HTTPS hosts) or put your own CORS-enabled gateway in Base URL. GitHub Pages has no proxy.";
+}
+
+function formatHttpError(status: number, body: string, baseUrl?: string): string {
   const snippet = body.slice(0, 180).replace(/\s+/g, " ");
-  if (status === 0) return "Network or CORS error. Use a custom gateway or local proxy.";
+  if (status === 0) return corsHelpMessage(baseUrl ?? "");
   return `HTTP ${status}${snippet ? `: ${snippet}` : ""}`;
 }
