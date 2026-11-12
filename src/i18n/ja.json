@@ -241,7 +241,37 @@
       "needModel": "先に AI モデルを追加してください。",
       "rebuildNote": "エージェントは今のマップに現れます。マップ自体は変わりません。",
       "customRole": "カスタム役割",
-      "customRoleHint": "役割を選ぶと表示名が入ります。カスタムなら自分で入力できます。"
+      "customRoleHint": "役割を選ぶと表示名が入ります。カスタムなら自分で入力できます。",
+      "exportRoster": "エクスポート",
+      "exportRosterAria": "エージェント一覧をエクスポート",
+      "exported": "エージェントをエクスポートしました",
+      "exportEmpty": "エクスポートするエージェントがありません。",
+      "exportFailed": "エージェントをエクスポートできませんでした。",
+      "importRoster": "インポート",
+      "importRosterAria": "エージェント一覧をインポート",
+      "imported_one": "{{count}} 体のエージェントをインポートしました",
+      "imported_other": "{{count}} 体のエージェントをインポートしました",
+      "importDialog": {
+        "title": "モデルを割り当て",
+        "summary_one": "インポートするエージェントが {{count}} 体見つかりました。",
+        "summary_other": "インポートするエージェントが {{count}} 体見つかりました。",
+        "skipped_one": "無効なエージェント {{count}} 体をスキップしました。",
+        "skipped_other": "無効なエージェント {{count}} 体をスキップしました。",
+        "applyAll": "すべてに同じモデルを適用",
+        "modelFor": "{{name}} のモデル",
+        "confirm_one": "{{count}} 体をインポート",
+        "confirm_other": "{{count}} 体をインポート",
+        "cancel": "キャンセル",
+        "errors": {
+          "tooLarge": "ファイルが大きすぎます（最大 512 KB）。",
+          "invalidJson": "ファイルを JSON として読めませんでした。",
+          "wrongFormat": "このファイルは Agent Arena の一覧ではありません。",
+          "unsupportedVersion": "この一覧ファイルのバージョンは未対応です。",
+          "empty": "ファイルに有効なエージェントがありません。",
+          "tooMany": "ファイル内のエージェントが多すぎます（最大 50）。",
+          "tooManyTotal": "インポートすると 100 体の上限を超えます。"
+        }
+      }
     },
     "map": {
       "title": "マップ",

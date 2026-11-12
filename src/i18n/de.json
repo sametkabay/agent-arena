@@ -241,7 +241,37 @@
       "needModel": "Füge zuerst ein KI-Modell hinzu.",
       "rebuildNote": "Agenten erscheinen auf der aktuellen Karte. Die Karte selbst bleibt unverändert.",
       "customRole": "Eigene Rolle",
-      "customRoleHint": "Wähle eine Rolle, um den Namen zu füllen, oder Eigen und tippe deinen."
+      "customRoleHint": "Wähle eine Rolle, um den Namen zu füllen, oder Eigen und tippe deinen.",
+      "exportRoster": "Exportieren",
+      "exportRosterAria": "Agentenliste exportieren",
+      "exported": "Agenten exportiert",
+      "exportEmpty": "Keine Agenten zum Exportieren.",
+      "exportFailed": "Agenten konnten nicht exportiert werden.",
+      "importRoster": "Importieren",
+      "importRosterAria": "Agentenliste importieren",
+      "imported_one": "{{count}} Agent importiert",
+      "imported_other": "{{count}} Agenten importiert",
+      "importDialog": {
+        "title": "Modelle zuweisen",
+        "summary_one": "{{count}} Agent zum Importieren gefunden.",
+        "summary_other": "{{count}} Agenten zum Importieren gefunden.",
+        "skipped_one": "{{count}} ungültiger Agent übersprungen.",
+        "skipped_other": "{{count}} ungültige Agenten übersprungen.",
+        "applyAll": "Modell auf alle anwenden",
+        "modelFor": "Modell für {{name}}",
+        "confirm_one": "{{count}} Agent importieren",
+        "confirm_other": "{{count}} Agenten importieren",
+        "cancel": "Abbrechen",
+        "errors": {
+          "tooLarge": "Datei ist zu groß (max. 512 KB).",
+          "invalidJson": "Datei konnte nicht als JSON gelesen werden.",
+          "wrongFormat": "Diese Datei ist keine Agent-Arena-Liste.",
+          "unsupportedVersion": "Diese Listenversion wird nicht unterstützt.",
+          "empty": "Keine gültigen Agenten in der Datei gefunden.",
+          "tooMany": "Zu viele Agenten in der Datei (max. 50).",
+          "tooManyTotal": "Import würde das Limit von 100 Agenten überschreiten."
+        }
+      }
     },
     "map": {
       "title": "Karte",

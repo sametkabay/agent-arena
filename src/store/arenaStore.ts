@@ -25,6 +25,11 @@ import {
 } from "@/lib/maps";
 import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
 import { createAgentCopy } from "@/lib/agentCopy";
+import {
+  remapModelIds,
+  resolveImportNames,
+  type ImportedAgent,
+} from "@/lib/agentRoster";
 import { isSetupComplete } from "@/lib/onboarding";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
@@ -94,6 +99,11 @@ interface ArenaState extends AppPersisted {
   deleteModel: (id: string) => void;
   upsertAgent: (agent: AgentConfig) => void;
   duplicateAgent: (id: string, copyLabel: string) => AgentConfig | null;
+  importAgents: (
+    items: ImportedAgent[],
+    modelIds: string[],
+    copyLabel: string,
+  ) => AgentConfig[];
   deleteAgent: (id: string) => void;
 
   upsertCustomMap: (def: ArenaMapDefinition) => void;
@@ -383,6 +393,45 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     const copy = createAgentCopy(source, get().agents, copyLabel);
     get().upsertAgent(copy);
     return copy;
+  },
+
+  importAgents: (items, modelIds, copyLabel) => {
+    if (items.length === 0) return [];
+    const state = get();
+    const availableIds = state.models.map((m) => m.id);
+    if (availableIds.length === 0) return [];
+    const resolvedModels = remapModelIds(modelIds, availableIds);
+    const names = resolveImportNames(
+      items.map((item) => item.displayName),
+      state.agents.map((a) => a.displayName),
+      copyLabel,
+    );
+    const createdAt = Date.now();
+    const created: AgentConfig[] = items.map((item, i) => ({
+      ...item,
+      id: uid("agent"),
+      displayName: names[i] ?? item.displayName,
+      modelConfigId: resolvedModels[i] ?? availableIds[0] ?? "",
+      enabled: item.enabled !== false,
+      thinkingEnabled: item.thinkingEnabled === true,
+      chattiness: clampChattiness(item.chattiness),
+      skills: item.skills ?? [],
+      characterId: item.characterId || DEFAULT_CHARACTER_ID,
+      createdAt,
+    }));
+
+    set((s) => {
+      const agents = [...s.agents, ...created];
+      const def = resolveMapDefinition(s.mapId, s.customMaps);
+      return {
+        agents,
+        runtimeAgents: syncRuntimeAgents(s.runtimeAgents, agents, def),
+        onboardingSeen:
+          s.onboardingSeen || isSetupComplete(s.models, agents),
+      };
+    });
+    get().persist();
+    return created;
   },
 
   deleteAgent: (id) => {

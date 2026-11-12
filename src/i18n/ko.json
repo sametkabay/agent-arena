@@ -241,7 +241,37 @@
       "needModel": "먼저 AI 모델을 추가하세요.",
       "rebuildNote": "에이전트는 현재 맵에 나타납니다. 맵 자체는 그대로입니다.",
       "customRole": "사용자 역할",
-      "customRoleHint": "역할을 고르면 표시 이름이 채워집니다. 사용자를 고르면 직접 입력합니다."
+      "customRoleHint": "역할을 고르면 표시 이름이 채워집니다. 사용자를 고르면 직접 입력합니다.",
+      "exportRoster": "내보내기",
+      "exportRosterAria": "에이전트 목록 내보내기",
+      "exported": "에이전트를 내보냈습니다",
+      "exportEmpty": "내보낼 에이전트가 없습니다.",
+      "exportFailed": "에이전트를 내보낼 수 없습니다.",
+      "importRoster": "가져오기",
+      "importRosterAria": "에이전트 목록 가져오기",
+      "imported_one": "에이전트 {{count}}개를 가져왔습니다",
+      "imported_other": "에이전트 {{count}}개를 가져왔습니다",
+      "importDialog": {
+        "title": "모델 지정",
+        "summary_one": "가져올 에이전트 {{count}}개를 찾았습니다.",
+        "summary_other": "가져올 에이전트 {{count}}개를 찾았습니다.",
+        "skipped_one": "잘못된 에이전트 {{count}}개를 건너뛰었습니다.",
+        "skipped_other": "잘못된 에이전트 {{count}}개를 건너뛰었습니다.",
+        "applyAll": "모두에 모델 적용",
+        "modelFor": "{{name}}의 모델",
+        "confirm_one": "에이전트 {{count}}개 가져오기",
+        "confirm_other": "에이전트 {{count}}개 가져오기",
+        "cancel": "취소",
+        "errors": {
+          "tooLarge": "파일이 너무 큽니다(최대 512KB).",
+          "invalidJson": "파일을 JSON으로 읽을 수 없습니다.",
+          "wrongFormat": "Agent Arena 에이전트 목록 파일이 아닙니다.",
+          "unsupportedVersion": "이 목록 파일 버전은 지원되지 않습니다.",
+          "empty": "파일에서 유효한 에이전트를 찾지 못했습니다.",
+          "tooMany": "파일의 에이전트가 너무 많습니다(최대 50).",
+          "tooManyTotal": "가져오면 에이전트 100개 한도를 초과합니다."
+        }
+      }
     },
     "map": {
       "title": "맵",

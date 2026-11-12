@@ -6,11 +6,20 @@ import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
 import { clampChattiness } from "@/lib/storage";
 import {
+  ROSTER_LIMITS,
+  RosterImportError,
+  buildRosterExport,
+  parseRosterImport,
+  rosterExportFileName,
+  type ImportedAgent,
+} from "@/lib/agentRoster";
+import {
   useSettingsBack,
   useSettingsHeaderSave,
 } from "@/components/SettingsModal/settingsNav";
 import { AgentForm } from "@/components/SettingsModal/AgentForm";
 import { AgentList } from "@/components/SettingsModal/AgentList";
+import { AgentImportDialog } from "@/components/SettingsModal/AgentImportDialog";
 
 function agentFormKey(agent: AgentConfig): string {
   return JSON.stringify({
@@ -48,6 +57,7 @@ export function AgentsTab() {
   const models = useArenaStore((s) => s.models);
   const upsertAgent = useArenaStore((s) => s.upsertAgent);
   const duplicateAgent = useArenaStore((s) => s.duplicateAgent);
+  const importAgents = useArenaStore((s) => s.importAgents);
   const deleteAgent = useArenaStore((s) => s.deleteAgent);
   const showToast = useArenaStore((s) => s.showToast);
   const settingsFocusAgentId = useArenaStore((s) => s.settingsFocusAgentId);
@@ -56,6 +66,13 @@ export function AgentsTab() {
   const [editing, setEditing] = useState<AgentConfig | null>(null);
   const baselineKeyRef = useRef<string | null>(null);
   const revealIdRef = useRef<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const importBtnRef = useRef<HTMLButtonElement>(null);
+  const confirmingRef = useRef(false);
+  const [pendingImport, setPendingImport] = useState<{
+    agents: ImportedAgent[];
+    skipped: number;
+  } | null>(null);
   useSettingsBack(editing != null, () => setEditing(null));
 
   useEffect(() => {
@@ -71,6 +88,7 @@ export function AgentsTab() {
   function openEditor(agent: AgentConfig, isNew: boolean) {
     const next = normalizeAgentForm(agent);
     baselineKeyRef.current = isNew ? null : agentFormKey(next);
+    setPendingImport(null);
     setEditing(next);
   }
 
@@ -134,6 +152,76 @@ export function AgentsTab() {
     showToast(t("settings.agents.duplicated", { name: copy.displayName }));
   }
 
+  function exportRoster() {
+    if (agents.length === 0) {
+      showToast(t("settings.agents.exportEmpty"));
+      return;
+    }
+    try {
+      const json = buildRosterExport(agents);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = rosterExportFileName();
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(t("settings.agents.exported"));
+    } catch {
+      showToast(t("settings.agents.exportFailed"));
+    }
+  }
+
+  function startImport() {
+    if (editing != null) return;
+    if (models.length === 0) {
+      showToast(t("settings.agents.needModel"));
+      return;
+    }
+    fileRef.current?.click();
+  }
+
+  async function onImportFile(file: File) {
+    if (file.size > ROSTER_LIMITS.maxFileBytes) {
+      showToast(t("settings.agents.importDialog.errors.tooLarge"));
+      return;
+    }
+    try {
+      const text = await file.text();
+      const result = parseRosterImport(text, {
+        fileSize: file.size,
+        existingCount: agents.length,
+      });
+      setPendingImport(result);
+    } catch (err) {
+      const code =
+        err instanceof RosterImportError
+          ? err.code
+          : "invalidJson";
+      showToast(t(`settings.agents.importDialog.errors.${code}`));
+    }
+  }
+
+  function confirmImport(modelIds: string[]) {
+    if (!pendingImport || confirmingRef.current) return;
+    confirmingRef.current = true;
+    const created = importAgents(
+      pendingImport.agents,
+      modelIds,
+      t("settings.agents.copyLabel"),
+    );
+    setPendingImport(null);
+    confirmingRef.current = false;
+    if (created.length === 0) {
+      showToast(t("settings.agents.needModel"));
+      importBtnRef.current?.focus();
+      return;
+    }
+    if (created[0]) revealIdRef.current = created[0].id;
+    showToast(t("settings.agents.imported", { count: created.length }));
+    importBtnRef.current?.focus();
+  }
+
   const dirty =
     editing != null &&
     (baselineKeyRef.current === null ||
@@ -141,6 +229,7 @@ export function AgentsTab() {
   const saveDisabled = !editing?.displayName.trim() || !editing.modelConfigId;
   useSettingsHeaderSave(editing != null, dirty, save, saveDisabled);
 
+  // Import is only on the list view, so it stays hidden while the edit form is open.
   if (editing) {
     return (
       <AgentForm editing={editing} models={models} onChange={setEditing} />
@@ -148,23 +237,53 @@ export function AgentsTab() {
   }
 
   return (
-    <AgentList
-      agents={agents}
-      models={models}
-      onAdd={startAdd}
-      onEdit={(agent) => openEditor(agent, false)}
-      onDuplicate={duplicate}
-      onDelete={(id) => deleteAgent(id)}
-      onToggleEnabled={(a, next) =>
-        upsertAgent({
-          ...a,
-          enabled: next,
-          thinkingEnabled: a.thinkingEnabled === true,
-          chattiness: clampChattiness(a.chattiness),
-          skills: a.skills ?? [],
-          characterId: a.characterId || DEFAULT_CHARACTER_ID,
-        })
-      }
-    />
+    <>
+      <AgentList
+        agents={agents}
+        models={models}
+        onAdd={startAdd}
+        onExport={exportRoster}
+        onImport={startImport}
+        importButtonRef={importBtnRef}
+        onEdit={(agent) => openEditor(agent, false)}
+        onDuplicate={duplicate}
+        onDelete={(id) => deleteAgent(id)}
+        onToggleEnabled={(a, next) =>
+          upsertAgent({
+            ...a,
+            enabled: next,
+            thinkingEnabled: a.thinkingEnabled === true,
+            chattiness: clampChattiness(a.chattiness),
+            skills: a.skills ?? [],
+            characterId: a.characterId || DEFAULT_CHARACTER_ID,
+          })
+        }
+      />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="application/json,.json,.aa-agents.json"
+        hidden
+        data-testid="agent-roster-file"
+        onChange={async (e) => {
+          const f = e.target.files?.[0];
+          e.target.value = "";
+          if (!f) return;
+          await onImportFile(f);
+        }}
+      />
+      {pendingImport && (
+        <AgentImportDialog
+          agents={pendingImport.agents}
+          skipped={pendingImport.skipped}
+          models={models}
+          onCancel={() => {
+            setPendingImport(null);
+            importBtnRef.current?.focus();
+          }}
+          onConfirm={confirmImport}
+        />
+      )}
+    </>
   );
 }

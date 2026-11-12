@@ -241,7 +241,37 @@
       "needModel": "请先添加一个 AI 模型。",
       "rebuildNote": "智能体会出现在当前地图上。地图本身不变。",
       "customRole": "自定义角色",
-      "customRoleHint": "选择角色可自动填入显示名称，或选「自定义」自己输入。"
+      "customRoleHint": "选择角色可自动填入显示名称，或选「自定义」自己输入。",
+      "exportRoster": "导出",
+      "exportRosterAria": "导出智能体列表",
+      "exported": "已导出智能体",
+      "exportEmpty": "没有可导出的智能体。",
+      "exportFailed": "无法导出智能体。",
+      "importRoster": "导入",
+      "importRosterAria": "导入智能体列表",
+      "imported_one": "已导入 {{count}} 个智能体",
+      "imported_other": "已导入 {{count}} 个智能体",
+      "importDialog": {
+        "title": "分配模型",
+        "summary_one": "找到 {{count}} 个要导入的智能体。",
+        "summary_other": "找到 {{count}} 个要导入的智能体。",
+        "skipped_one": "已跳过 {{count}} 个无效智能体。",
+        "skipped_other": "已跳过 {{count}} 个无效智能体。",
+        "applyAll": "全部应用同一模型",
+        "modelFor": "{{name}} 的模型",
+        "confirm_one": "导入 {{count}} 个智能体",
+        "confirm_other": "导入 {{count}} 个智能体",
+        "cancel": "取消",
+        "errors": {
+          "tooLarge": "文件过大（最大 512 KB）。",
+          "invalidJson": "无法将该文件读取为 JSON。",
+          "wrongFormat": "该文件不是 Agent Arena 智能体列表。",
+          "unsupportedVersion": "不支持此智能体列表文件版本。",
+          "empty": "文件中没有有效的智能体。",
+          "tooMany": "文件中的智能体过多（最多 50 个）。",
+          "tooManyTotal": "导入将超过 100 个智能体的上限。"
+        }
+      }
     },
     "map": {
       "title": "地图",

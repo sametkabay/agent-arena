@@ -46,6 +46,32 @@ const REQUIRED_KEYS = [
   "settings.agents.duplicateAria",
   "settings.agents.duplicated",
   "settings.agents.copyLabel",
+  "settings.agents.exportRoster",
+  "settings.agents.exportRosterAria",
+  "settings.agents.exported",
+  "settings.agents.exportEmpty",
+  "settings.agents.exportFailed",
+  "settings.agents.importRoster",
+  "settings.agents.importRosterAria",
+  "settings.agents.imported_one",
+  "settings.agents.imported_other",
+  "settings.agents.importDialog.title",
+  "settings.agents.importDialog.summary_one",
+  "settings.agents.importDialog.summary_other",
+  "settings.agents.importDialog.skipped_one",
+  "settings.agents.importDialog.skipped_other",
+  "settings.agents.importDialog.applyAll",
+  "settings.agents.importDialog.modelFor",
+  "settings.agents.importDialog.confirm_one",
+  "settings.agents.importDialog.confirm_other",
+  "settings.agents.importDialog.cancel",
+  "settings.agents.importDialog.errors.tooLarge",
+  "settings.agents.importDialog.errors.invalidJson",
+  "settings.agents.importDialog.errors.wrongFormat",
+  "settings.agents.importDialog.errors.unsupportedVersion",
+  "settings.agents.importDialog.errors.empty",
+  "settings.agents.importDialog.errors.tooMany",
+  "settings.agents.importDialog.errors.tooManyTotal",
   "settings.models.showKey",
   "settings.models.hideKey",
   "settings.map.propCount_other",
@@ -75,8 +101,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 52 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(52);
+  it("lists exactly 78 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(78);
   });
 
   it("includes every configured language with matching placeholders", () => {
@@ -110,12 +136,37 @@ describe("onboarding locale keys", () => {
     }
   });
 
+  it("provides Russian few/many plurals for agent roster import copy", () => {
+    const ru = localeModules["./ru.json"]!;
+    for (const key of [
+      "settings.agents.imported",
+      "settings.agents.importDialog.summary",
+      "settings.agents.importDialog.skipped",
+      "settings.agents.importDialog.confirm",
+    ] as const) {
+      for (const form of ["few", "many"] as const) {
+        const value = getByPath(ru, `${key}_${form}`);
+        expect(typeof value, `ru:${key}_${form}`).toBe("string");
+        expect(placeholders(value as string)).toEqual(["count"]);
+      }
+    }
+  });
+
   it("English one/other forms differ for a single turn vs many", () => {
     const en = localeModules["./en.json"]!;
     const one = getByPath(en, "settings.general.chatterModeConversationHint_one") as string;
     const other = getByPath(en, "settings.general.chatterModeConversationHint_other") as string;
     expect(one).toContain("{{count}} turn ");
     expect(other).toContain("{{count}} turns ");
+    expect(one).not.toBe(other);
+  });
+
+  it("English one/other forms differ for imported agent counts", () => {
+    const en = localeModules["./en.json"]!;
+    const one = getByPath(en, "settings.agents.imported_one") as string;
+    const other = getByPath(en, "settings.agents.imported_other") as string;
+    expect(one).toContain("{{count}} agent");
+    expect(other).toContain("{{count}} agents");
     expect(one).not.toBe(other);
   });
 });
