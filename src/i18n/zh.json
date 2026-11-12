@@ -187,7 +187,44 @@
       "addLlm": "添加模型",
       "addLlmHint": "同一 {{provider}} 账号（{{host}}）。另选一个模型 — 密钥保持不变。",
       "showKey": "显示",
-      "hideKey": "隐藏"
+      "hideKey": "隐藏",
+      "exportConfigs": "导出",
+      "exportConfigsAria": "导出 AI 模型配置",
+      "importConfigs": "导入",
+      "importConfigsAria": "导入 AI 模型配置",
+      "exportDialog": {
+        "title": "导出模型配置",
+        "includeKeys": "包含 API 密钥 — 请勿分享此文件",
+        "keysWarning": "此文件将以纯文本包含 API 密钥和请求头值。任何获得该文件的人都可以使用你的凭据。",
+        "confirm": "导出",
+        "confirmWithKeys": "导出（含密钥）",
+        "cancel": "取消"
+      },
+      "exported": "模型已导出",
+      "exportEmpty": "没有可导出的模型。",
+      "exportFailed": "无法导出模型。",
+      "imported_one": "已导入 {{count}} 个模型",
+      "imported_other": "已导入 {{count}} 个模型",
+      "allDuplicates": "该文件中的所有模型均已存在。",
+      "invalidSkipped_one": "已跳过 {{count}} 个无效模型。",
+      "invalidSkipped_other": "已跳过 {{count}} 个无效模型。",
+      "importKeysNotice": {
+        "title": "文件包含 API 密钥",
+        "body": "此文件包含 API 密钥或请求头值。请仅从信任的来源导入。",
+        "confirm": "仍然导入"
+      },
+      "errors": {
+        "tooLarge": "文件过大（最大 256 KB）。",
+        "invalidJson": "无法将该文件读取为 JSON。",
+        "wrongFormat": "该文件不是 Agent Arena 模型配置导出。",
+        "unsupportedVersion": "不支持此模型配置文件版本。",
+        "empty": "该文件中未找到有效模型。",
+        "tooMany": "该文件中的模型过多（最多 50 个）。",
+        "tooManyTotal": "导入将超过 100 个模型的上限。"
+      },
+      "importedSkipped_one": "已导入 {{count}} 个配置 · 跳过重复项：{{skipped}}",
+      "importedSkipped_other": "已导入 {{count}} 个配置 · 跳过重复项：{{skipped}}",
+      "emptyHeadersHint": "使用这些模型前请填写空的请求头值。"
     },
     "agents": {
       "title": "智能体",

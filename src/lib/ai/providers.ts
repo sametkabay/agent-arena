@@ -48,10 +48,16 @@ function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): strin
   return trimmed;
 }
 
-function headersToRecord(extras: ExtraHeader[]): Record<string, string> {
+/** Build request headers; skip empty values so keyless-import stubs are not sent. */
+export function headersToRecord(
+  extras: ExtraHeader[],
+): Record<string, string> {
   const out: Record<string, string> = {};
   for (const h of extras) {
-    if (h.key.trim()) out[h.key.trim()] = h.value;
+    const key = h.key.trim();
+    if (!key) continue;
+    if (h.value === "") continue;
+    out[key] = h.value;
   }
   return out;
 }

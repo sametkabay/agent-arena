@@ -2688,16 +2688,19 @@ body.is-chat-panel-dragging .chat-popup__resize {
   margin-bottom: 10px;
 }
 
-.agents-tab__header {
+.agents-tab__header,
+.models-tab__header {
   flex-wrap: wrap;
 }
 
-.agents-tab__header > :first-child {
+.agents-tab__header > :first-child,
+.models-tab__header > :first-child {
   flex: 1 1 220px;
   min-width: 0;
 }
 
-.agents-tab__actions {
+.agents-tab__actions,
+.models-tab__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -2706,7 +2709,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   flex: 0 0 auto;
 }
 
-.agents-tab__actions .btn {
+.agents-tab__actions .btn,
+.models-tab__actions .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2715,12 +2719,75 @@ body.is-chat-panel-dragging .chat-popup__resize {
 }
 
 /* Match ghost 1px border so Export/Import/Add share the same outer height. */
-.agents-tab__actions .btn--primary {
+.agents-tab__actions .btn--primary,
+.models-tab__actions .btn--primary {
   border: 1px solid transparent;
 }
 
-.agents-tab__io-btn {
+.agents-tab__io-btn,
+.models-tab__io-btn {
   padding: 0.55rem 0.9rem;
+}
+
+/* Model config export dialog (#21) */
+.model-export-dialog__card {
+  width: min(440px, 100%);
+  max-height: min(85dvh, 520px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.model-export-dialog__body {
+  padding: 20px 20px 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.model-export-dialog__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.model-export-dialog__check input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.model-export-dialog__warning {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger, #c44) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger, #c44) 35%, transparent);
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.model-export-dialog__footer {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.model-export-dialog__footer .btn {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 /* Agent roster import remap dialog (#20) */
@@ -2847,24 +2914,41 @@ body.is-chat-panel-dragging .chat-popup__resize {
 }
 
 @media (max-width: 480px) {
-  .agents-tab__header {
+  .agents-tab__header,
+  .models-tab__header {
     align-items: flex-start;
   }
 
-  .agents-tab__actions {
+  .agents-tab__actions,
+  .models-tab__actions {
     width: 100%;
   }
 
   .agents-tab__actions .btn,
-  .agents-tab__io-btn {
+  .agents-tab__io-btn,
+  .models-tab__actions .btn,
+  .models-tab__io-btn {
     flex: 1 1 auto;
     min-height: 44px;
     min-width: 44px;
   }
 
-  .agent-import-dialog {
+  .agent-import-dialog,
+  .model-export-dialog {
     place-items: end center;
     padding: 0;
+  }
+
+  .model-export-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .model-export-dialog__check {
+    min-height: 44px;
+    align-items: center;
   }
 
   .agent-import-dialog__card {

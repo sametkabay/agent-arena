@@ -3,6 +3,7 @@ import {
   buildSystemPrompt,
   chatCompletion,
   fetchModels,
+  headersToRecord,
   providerDefaults,
   testConnection,
   truncateChatHistory,
@@ -321,5 +322,18 @@ describe("fetchModels / testConnection", () => {
 
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
     await expect(testConnection(sampleModel())).resolves.toMatchObject({ ok: false, detail: "offline" });
+  });
+});
+
+describe("headersToRecord", () => {
+  it("omits headers whose values are empty strings", () => {
+    expect(
+      headersToRecord([
+        { key: "X-Org", value: "" },
+        { key: "  ", value: "nope" },
+        { key: "X-Ok", value: "yes" },
+        { key: "X-Zero", value: "0" },
+      ]),
+    ).toEqual({ "X-Ok": "yes", "X-Zero": "0" });
   });
 });

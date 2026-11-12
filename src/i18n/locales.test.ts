@@ -74,6 +74,37 @@ const REQUIRED_KEYS = [
   "settings.agents.importDialog.errors.tooManyTotal",
   "settings.models.showKey",
   "settings.models.hideKey",
+  "settings.models.exportConfigs",
+  "settings.models.exportConfigsAria",
+  "settings.models.importConfigs",
+  "settings.models.importConfigsAria",
+  "settings.models.exportDialog.title",
+  "settings.models.exportDialog.includeKeys",
+  "settings.models.exportDialog.keysWarning",
+  "settings.models.exportDialog.confirm",
+  "settings.models.exportDialog.confirmWithKeys",
+  "settings.models.exportDialog.cancel",
+  "settings.models.exported",
+  "settings.models.exportEmpty",
+  "settings.models.exportFailed",
+  "settings.models.imported_one",
+  "settings.models.imported_other",
+  "settings.models.importedSkipped_one",
+  "settings.models.importedSkipped_other",
+  "settings.models.allDuplicates",
+  "settings.models.invalidSkipped_one",
+  "settings.models.invalidSkipped_other",
+  "settings.models.emptyHeadersHint",
+  "settings.models.importKeysNotice.title",
+  "settings.models.importKeysNotice.body",
+  "settings.models.importKeysNotice.confirm",
+  "settings.models.errors.tooLarge",
+  "settings.models.errors.invalidJson",
+  "settings.models.errors.wrongFormat",
+  "settings.models.errors.unsupportedVersion",
+  "settings.models.errors.empty",
+  "settings.models.errors.tooMany",
+  "settings.models.errors.tooManyTotal",
   "settings.map.propCount_other",
   "settings.map.importConflict.title",
   "settings.map.importConflict.body",
@@ -116,8 +147,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 92 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(93);
+  it("lists exactly 124 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(124);
   });
 
   it("includes every configured language with matching placeholders", () => {
@@ -167,6 +198,36 @@ describe("onboarding locale keys", () => {
     }
   });
 
+  it("provides Russian few/many plurals for model config import copy", () => {
+    const ru = localeModules["./ru.json"]!;
+    for (const key of [
+      "settings.models.imported",
+      "settings.models.invalidSkipped",
+    ] as const) {
+      for (const form of ["few", "many"] as const) {
+        const value = getByPath(ru, `${key}_${form}`);
+        expect(typeof value, `ru:${key}_${form}`).toBe("string");
+        expect(placeholders(value as string)).toEqual(["count"]);
+      }
+    }
+    for (const form of ["one", "few", "many", "other"] as const) {
+      const value = getByPath(ru, `settings.models.importedSkipped_${form}`);
+      expect(typeof value, `ru:importedSkipped_${form}`).toBe("string");
+      expect(placeholders(value as string)).toEqual(["count", "skipped"]);
+    }
+  });
+
+  it("English one/other forms differ for importedSkipped counts", () => {
+    const en = localeModules["./en.json"]!;
+    const one = getByPath(en, "settings.models.importedSkipped_one") as string;
+    const other = getByPath(en, "settings.models.importedSkipped_other") as string;
+    expect(one).toContain("{{count}} config");
+    expect(other).toContain("{{count}} configs");
+    expect(one).toContain("duplicates skipped: {{skipped}}");
+    expect(other).toContain("duplicates skipped: {{skipped}}");
+    expect(one).not.toBe(other);
+  });
+
   it("English one/other forms differ for a single turn vs many", () => {
     const en = localeModules["./en.json"]!;
     const one = getByPath(en, "settings.general.chatterModeConversationHint_one") as string;
@@ -182,6 +243,15 @@ describe("onboarding locale keys", () => {
     const other = getByPath(en, "settings.agents.imported_other") as string;
     expect(one).toContain("{{count}} agent");
     expect(other).toContain("{{count}} agents");
+    expect(one).not.toBe(other);
+  });
+
+  it("English one/other forms differ for imported model counts", () => {
+    const en = localeModules["./en.json"]!;
+    const one = getByPath(en, "settings.models.imported_one") as string;
+    const other = getByPath(en, "settings.models.imported_other") as string;
+    expect(one).toContain("{{count}} model");
+    expect(other).toContain("{{count}} models");
     expect(one).not.toBe(other);
   });
 });

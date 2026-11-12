@@ -187,7 +187,44 @@
       "addLlm": "Model ekle",
       "addLlmHint": "Aynı {{provider}} hesabı ({{host}}). Başka bir model seç — anahtarın aynı kalır.",
       "showKey": "Göster",
-      "hideKey": "Gizle"
+      "hideKey": "Gizle",
+      "exportConfigs": "Dışa aktar",
+      "exportConfigsAria": "AI model ayarlarını dışa aktar",
+      "importConfigs": "İçe aktar",
+      "importConfigsAria": "AI model ayarlarını içe aktar",
+      "exportDialog": {
+        "title": "Model ayarlarını dışa aktar",
+        "includeKeys": "API anahtarlarını dahil et — bu dosyayı paylaşma",
+        "keysWarning": "Bu dosya API anahtarlarını ve başlık değerlerini düz metin olarak içerir. Dosyaya sahip olan herkes kimlik bilgilerini kullanabilir.",
+        "confirm": "Dışa aktar",
+        "confirmWithKeys": "Anahtarlarla dışa aktar",
+        "cancel": "İptal"
+      },
+      "exported": "Modeller dışa aktarıldı",
+      "exportEmpty": "Dışa aktarılacak model yok.",
+      "exportFailed": "Modeller dışa aktarılamadı.",
+      "imported_one": "{{count}} model içe aktarıldı",
+      "imported_other": "{{count}} model içe aktarıldı",
+      "allDuplicates": "Dosyadaki tüm modeller zaten mevcut.",
+      "invalidSkipped_one": "{{count}} geçersiz model atlandı.",
+      "invalidSkipped_other": "{{count}} geçersiz model atlandı.",
+      "importKeysNotice": {
+        "title": "Dosya API anahtarı içeriyor",
+        "body": "Bu dosya API anahtarları veya başlık değerleri içeriyor. Yalnızca güvendiğin bir kaynaktan içe aktar.",
+        "confirm": "Yine de içe aktar"
+      },
+      "errors": {
+        "tooLarge": "Dosya çok büyük (en fazla 256 KB).",
+        "invalidJson": "Dosya JSON olarak okunamadı.",
+        "wrongFormat": "Bu dosya bir Agent Arena model ayarı dışa aktarımı değil.",
+        "unsupportedVersion": "Bu model ayarı dosya sürümü desteklenmiyor.",
+        "empty": "Dosyada geçerli model bulunamadı.",
+        "tooMany": "Dosyada çok fazla model var (en fazla 50).",
+        "tooManyTotal": "İçe aktarım 100 model sınırını aşar."
+      },
+      "importedSkipped_one": "{{count}} yapılandırma içe aktarıldı · atlanan yinelenen: {{skipped}}",
+      "importedSkipped_other": "{{count}} yapılandırma içe aktarıldı · atlanan yinelenen: {{skipped}}",
+      "emptyHeadersHint": "Bu modelleri kullanmadan önce boş başlık değerlerini doldurun."
     },
     "agents": {
       "title": "Ajanlar",

@@ -187,7 +187,44 @@
       "addLlm": "Añadir modelo",
       "addLlmHint": "Misma cuenta de {{provider}} ({{host}}). Elige otro modelo: tu clave no cambia.",
       "showKey": "Mostrar",
-      "hideKey": "Ocultar"
+      "hideKey": "Ocultar",
+      "exportConfigs": "Exportar",
+      "exportConfigsAria": "Exportar configuraciones de modelos de IA",
+      "importConfigs": "Importar",
+      "importConfigsAria": "Importar configuraciones de modelos de IA",
+      "exportDialog": {
+        "title": "Exportar configuraciones de modelos",
+        "includeKeys": "Incluir claves API — no compartas este archivo",
+        "keysWarning": "Este archivo contendrá claves API y valores de encabezado en texto plano. Quien lo tenga puede usar tus credenciales.",
+        "confirm": "Exportar",
+        "confirmWithKeys": "Exportar con claves",
+        "cancel": "Cancelar"
+      },
+      "exported": "Modelos exportados",
+      "exportEmpty": "No hay modelos para exportar.",
+      "exportFailed": "No se pudieron exportar los modelos.",
+      "imported_one": "Se importó {{count}} modelo",
+      "imported_other": "Se importaron {{count}} modelos",
+      "allDuplicates": "Todos los modelos de ese archivo ya existen.",
+      "invalidSkipped_one": "Se omitió {{count}} modelo no válido.",
+      "invalidSkipped_other": "Se omitieron {{count}} modelos no válidos.",
+      "importKeysNotice": {
+        "title": "El archivo contiene claves API",
+        "body": "Este archivo incluye claves API o valores de encabezado. Impórtalo solo desde una fuente de confianza.",
+        "confirm": "Importar de todos modos"
+      },
+      "errors": {
+        "tooLarge": "El archivo es demasiado grande (máx. 256 KB).",
+        "invalidJson": "No se pudo leer el archivo como JSON.",
+        "wrongFormat": "Ese archivo no es una exportación de modelos de Agent Arena.",
+        "unsupportedVersion": "Esta versión del archivo de modelos no es compatible.",
+        "empty": "No se encontraron modelos válidos en ese archivo.",
+        "tooMany": "Hay demasiados modelos en ese archivo (máx. 50).",
+        "tooManyTotal": "La importación superaría el límite de 100 modelos."
+      },
+      "importedSkipped_one": "Importada {{count}} configuración · duplicados omitidos: {{skipped}}",
+      "importedSkipped_other": "Importadas {{count}} configuraciones · duplicados omitidos: {{skipped}}",
+      "emptyHeadersHint": "Completa los valores de cabecera vacíos antes de usar estos modelos."
     },
     "agents": {
       "title": "Agentes",

@@ -47,6 +47,11 @@ import {
   resolveImportNames,
   type ImportedAgent,
 } from "@/lib/agentRoster";
+import {
+  dedupeImportedModels,
+  toAiModelConfigs,
+  type ImportedModel,
+} from "@/lib/modelConfigIO";
 import { isSetupComplete } from "@/lib/onboarding";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
@@ -90,8 +95,14 @@ interface ArenaState extends AppPersisted {
   conversationStatus: "inactive" | "running" | "waitingForHuman" | "paused";
 
   hydrate: () => void;
-  /** Writes persisted slice; never throws. On failure shows a throttled toast. */
-  persist: (opts?: { toast?: "storage" | "map" | false }) => StoragePersistResult;
+  /**
+   * Writes persisted slice; never throws.
+   * Toast modes: `"storage"` (default, 10s throttle), `"map"` / `"explicit"`
+   * (always show — user-initiated), `false` (silent).
+   */
+  persist: (opts?: {
+    toast?: "storage" | "map" | "explicit" | false;
+  }) => StoragePersistResult;
   setUserName: (name: string) => void;
   setLanguage: (language: LanguageCode) => void;
   setSettingsOpen: (open: boolean) => void;
@@ -115,6 +126,10 @@ interface ArenaState extends AppPersisted {
 
   upsertModel: (model: AiModelConfig) => StoragePersistResult;
   deleteModel: (id: string) => void;
+  /** Append sanitized models with fresh ids. Rolls back on persist failure. */
+  importModels: (
+    items: ImportedModel[],
+  ) => { models: AiModelConfig[]; result: StoragePersistResult };
   upsertAgent: (agent: AgentConfig) => StoragePersistResult;
   duplicateAgent: (id: string, copyLabel: string) => AgentConfig | null;
   importAgents: (
@@ -305,9 +320,14 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     if (!result.ok) {
       const mode = opts?.toast ?? "storage";
       if (mode !== false) {
-        const msg = i18n.t(storageFailureMessageKey(result.reason, mode));
+        const msg = i18n.t(
+          storageFailureMessageKey(
+            result.reason,
+            mode === "map" ? "map" : "storage",
+          ),
+        );
         // Explicit map/user actions always toast; background writes stay throttled.
-        if (mode === "map") {
+        if (mode === "map" || mode === "explicit") {
           get().showToast(msg, 8_000);
         } else {
           const now = Date.now();
@@ -433,6 +453,39 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       return { models };
     });
     return get().persist();
+  },
+
+  importModels: (items) => {
+    if (items.length === 0) return { models: [], result: { ok: true } };
+
+    const state = get();
+    const { models: unique } = dedupeImportedModels(items, state.models);
+    if (unique.length === 0) return { models: [], result: { ok: true } };
+
+    const created = toAiModelConfigs(unique);
+
+    const snapshot = {
+      models: state.models,
+      agents: state.agents,
+      onboardingSeen: state.onboardingSeen,
+    };
+
+    set((s) => {
+      const models = [...s.models, ...created];
+      return {
+        models,
+        onboardingSeen:
+          s.onboardingSeen || isSetupComplete(models, s.agents),
+      };
+    });
+
+    // User-initiated import must always surface persist failures (#40 throttle).
+    const result = get().persist({ toast: "explicit" });
+    if (!result.ok) {
+      set(snapshot);
+      return { models: [], result };
+    }
+    return { models: created, result };
   },
 
   deleteModel: (id) => {
