@@ -285,6 +285,16 @@
       "custom": "自定义",
       "export": "导出 JSON",
       "exported": "地图已导出",
+      "importConflict": {
+        "title": "地图已存在",
+        "body": "已有名为“{{name}}”的自定义地图使用此 ID。要覆盖它，还是作为副本导入？",
+        "unsavedWarning": "打开的编辑器中未保存的更改将会丢失。",
+        "overwrite": "覆盖",
+        "copy": "作为副本导入",
+        "cancel": "取消"
+      },
+      "importedAsCopy": "已导入为 {{name}}",
+      "overwritten": "地图已覆盖",
       "mapsTitle": "地图",
       "presetApplied": "已添加 {{name}}",
       "presets": {

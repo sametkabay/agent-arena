@@ -285,6 +285,16 @@
       "custom": "カスタム",
       "export": "JSON を書き出す",
       "exported": "マップを書き出しました",
+      "importConflict": {
+        "title": "マップは既に存在します",
+        "body": "「{{name}}」というカスタムマップが既にこの ID を使用しています。上書きしますか、それともコピーとしてインポートしますか？",
+        "unsavedWarning": "開いているエディターの未保存の変更は失われます。",
+        "overwrite": "上書き",
+        "copy": "コピーとしてインポート",
+        "cancel": "キャンセル"
+      },
+      "importedAsCopy": "{{name}} としてインポートしました",
+      "overwritten": "マップを上書きしました",
       "mapsTitle": "マップ",
       "presetApplied": "{{name}} を追加しました",
       "presets": {

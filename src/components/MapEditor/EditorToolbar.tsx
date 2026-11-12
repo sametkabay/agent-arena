@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
 import type { DayNightMode } from "@/lib/dayNight";
@@ -19,6 +19,7 @@ export function EditorToolbar({
   onToggleDayNight,
   onSave,
   onClose,
+  importButtonRef,
 }: {
   mapName: string;
   builtin: boolean;
@@ -34,6 +35,7 @@ export function EditorToolbar({
   onToggleDayNight: () => void;
   onSave: () => void;
   onClose: () => void;
+  importButtonRef?: RefObject<HTMLButtonElement | null>;
 }) {
   const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -82,7 +84,11 @@ export function EditorToolbar({
         <button type="button" onClick={onExport}>
           {t("mapEditor.export")}
         </button>
-        <button type="button" onClick={() => fileRef.current?.click()}>
+        <button
+          ref={importButtonRef}
+          type="button"
+          onClick={() => fileRef.current?.click()}
+        >
           {t("mapEditor.import")}
         </button>
         <input

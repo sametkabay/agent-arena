@@ -285,6 +285,16 @@
       "custom": "Eigene",
       "export": "JSON exportieren",
       "exported": "Karte exportiert",
+      "importConflict": {
+        "title": "Karte existiert bereits",
+        "body": "Eine benutzerdefinierte Karte namens „{{name}}“ verwendet bereits diese ID. Überschreiben oder als Kopie importieren?",
+        "unsavedWarning": "Nicht gespeicherte Änderungen im geöffneten Editor gehen verloren.",
+        "overwrite": "Überschreiben",
+        "copy": "Als Kopie importieren",
+        "cancel": "Abbrechen"
+      },
+      "importedAsCopy": "Als {{name}} importiert",
+      "overwritten": "Karte überschrieben",
       "mapsTitle": "Karten",
       "presetApplied": "{{name}} hinzugefügt",
       "presets": {

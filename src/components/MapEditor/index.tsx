@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { useTranslation } from "react-i18next";
 import { PLACEABLE_SPECS, type AssetCategory, type PlaceableId } from "@/lib/assets/catalog";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
 import {
   EditorContextMenu,
   type ContextMenuState,
@@ -53,6 +54,7 @@ export function MapEditor() {
   const [paintId, setPaintId] = useState<PlaceableId | null>(null);
   const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null);
   const [confirmClose, setConfirmClose] = useState(false);
+  const importBtnRef = useRef<HTMLButtonElement>(null);
   const viewportApi = useRef<{
     camera: THREE.Camera;
     gl: THREE.WebGLRenderer;
@@ -62,6 +64,10 @@ export function MapEditor() {
     onSave,
     onExport,
     onImportFile,
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
+    isDirty,
     requestClose,
     confirmDiscardClose,
     showToast,
@@ -78,6 +84,7 @@ export function MapEditor() {
     setPaintId,
     setTool,
     setCtxMenu,
+    importButtonRef: importBtnRef,
   });
 
   const {
@@ -109,6 +116,7 @@ export function MapEditor() {
 
   useEditorHotkeys({
     open,
+    suspended: Boolean(pendingImport) || confirmClose,
     draft,
     selectedIds,
     rotateSelected,
@@ -202,6 +210,7 @@ export function MapEditor() {
           onToggleDayNight={toggleDayNight}
           onSave={onSave}
           onClose={requestClose}
+          importButtonRef={importBtnRef}
         />
         {saveError && (
           <div
@@ -343,6 +352,18 @@ export function MapEditor() {
         onCancel={() => setConfirmClose(false)}
         onConfirm={confirmDiscardClose}
       />
+
+      {pendingImport?.collision && (
+        <MapImportConflictDialog
+          existingName={pendingImport.collision.name}
+          warnUnsavedChanges={
+            isDirty && pendingImport.collision.id === sourceId
+          }
+          onCancel={cancelPendingImport}
+          onOverwrite={() => finishImport("overwrite", pendingImport)}
+          onCopy={() => finishImport("copy", pendingImport)}
+        />
+      )}
     </div>
   );
 }
