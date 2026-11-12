@@ -4444,6 +4444,16 @@ body.is-chat-panel-dragging .chat-popup__resize {
   }
 }
 
+/* While a confirm / bottom-sheet dialog is open, pin toast above the sheet so
+   it never covers Overwrite / Cancel / Import actions (follow-up to #41).
+   `:has` applies immediately; `.toast--above-modal` mirrors the same rule from
+   the Toast host (src/lib/toastPlacement.ts) for an explicit class path. */
+.toast.toast--above-modal,
+.app:has(.confirm-dialog) .toast {
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  bottom: auto;
+}
+
 @media (max-width: 960px) {
   .map-editor__toolbar {
     flex-wrap: wrap;

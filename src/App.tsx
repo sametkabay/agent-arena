@@ -9,6 +9,7 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { OnboardingOverlays } from "@/components/OnboardingOverlays";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
+import { Toast } from "@/components/ui/Toast";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig } from "@/lib/config";
 import { dismissBootLoading } from "@/lib/bootLoading";
@@ -90,7 +91,7 @@ export default function App() {
         </>
       )}
       <MapEditor />
-      {toast && <div className="toast">{toast}</div>}
+      {toast && <Toast message={toast} />}
     </div>
   );
 }
