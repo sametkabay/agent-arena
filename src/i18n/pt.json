@@ -508,6 +508,15 @@
       "animals": "Animais",
       "food": "Comida",
       "space": "Espaço"
-    }
+    },
+    "saveFailed": "Não foi possível guardar — o armazenamento deste navegador está cheio. Liberte espaço (p. ex. limpe o histórico de chat em Definições › Geral) e tente novamente.",
+    "saveFailedUnavailable": "Não foi possível guardar — o armazenamento do navegador está indisponível. Verifique a navegação privada e tente novamente.",
+    "saveFailedUnknown": "Não foi possível guardar no armazenamento do navegador. Tente novamente.",
+    "dismissSaveError": "Dispensar"
+  },
+  "storage": {
+    "quotaExceeded": "O armazenamento está cheio. Liberte espaço (p. ex. limpe o histórico de chat em Definições › Geral) e tente novamente.",
+    "unavailable": "O armazenamento do navegador está indisponível. Verifique a navegação privada e tente novamente.",
+    "writeFailed": "Não foi possível escrever no armazenamento do navegador. Tente novamente."
   }
 }

@@ -508,6 +508,15 @@
       "animals": "Tiere",
       "food": "Essen",
       "space": "Weltraum"
-    }
+    },
+    "saveFailed": "Speichern fehlgeschlagen — der Speicher dieses Browsers ist voll. Platz schaffen (z. B. Chat-Verlauf unter Einstellungen › Allgemein löschen) und erneut versuchen.",
+    "saveFailedUnavailable": "Speichern fehlgeschlagen — Browserspeicher ist nicht verfügbar. Privaten Modus prüfen und erneut versuchen.",
+    "saveFailedUnknown": "Speichern im Browserspeicher fehlgeschlagen. Erneut versuchen.",
+    "dismissSaveError": "Schließen"
+  },
+  "storage": {
+    "quotaExceeded": "Der Speicher ist voll. Platz schaffen (z. B. Chat-Verlauf unter Einstellungen › Allgemein löschen) und erneut versuchen.",
+    "unavailable": "Browserspeicher ist nicht verfügbar. Privaten Modus prüfen und erneut versuchen.",
+    "writeFailed": "Schreiben in den Browserspeicher fehlgeschlagen. Erneut versuchen."
   }
 }

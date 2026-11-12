@@ -508,6 +508,15 @@
       "animals": "Animals",
       "food": "Food",
       "space": "Space"
-    }
+    },
+    "saveFailed": "Couldn't save — this browser's storage is full. Free up space (e.g. clear chat history in Settings › General) and try again.",
+    "saveFailedUnavailable": "Couldn't save — browser storage is unavailable. Check private browsing settings and try again.",
+    "saveFailedUnknown": "Couldn't save to browser storage. Try again.",
+    "dismissSaveError": "Dismiss"
+  },
+  "storage": {
+    "quotaExceeded": "Storage is full. Free up space (e.g. clear chat history in Settings › General) and try again.",
+    "unavailable": "Browser storage is unavailable. Check private browsing settings and try again.",
+    "writeFailed": "Couldn't write to browser storage. Try again."
   }
 }

@@ -62,7 +62,7 @@ describe("arenaStore importAgents", () => {
     const setItem = vi.spyOn(localStorage, "setItem");
     setItem.mockClear();
 
-    const created = useArenaStore.getState().importAgents(
+    const { agents: created, result } = useArenaStore.getState().importAgents(
       [
         imported({ displayName: "Ada" }),
         imported({ displayName: "Bo", polyPresetId: "engineer" }),
@@ -74,6 +74,7 @@ describe("arenaStore importAgents", () => {
     expect(setItem).toHaveBeenCalledTimes(1);
     setItem.mockRestore();
 
+    expect(result).toEqual({ ok: true });
     expect(created).toHaveLength(2);
     expect(created[0]!.displayName).toBe("Ada (copy)");
     expect(created[1]!.displayName).toBe("Bo");
@@ -94,21 +95,25 @@ describe("arenaStore importAgents", () => {
     );
   });
 
-  it("returns [] when no models exist", () => {
+  it("returns empty agents when no models exist", () => {
     const beforeRaw = localStorage.getItem(STORAGE_KEY);
-    const created = useArenaStore
+    const { agents: created, result } = useArenaStore
       .getState()
       .importAgents([imported()], ["missing"], "copy");
     expect(created).toEqual([]);
+    expect(result).toEqual({ ok: true });
     expect(useArenaStore.getState().agents).toEqual([]);
     expect(localStorage.getItem(STORAGE_KEY)).toBe(beforeRaw);
   });
 
-  it("returns [] for an empty import without changing storage", () => {
+  it("returns empty agents for an empty import without changing storage", () => {
     useArenaStore.getState().upsertAgent(sampleAgent());
     const beforeAgents = useArenaStore.getState().agents;
     const beforeRaw = localStorage.getItem(STORAGE_KEY);
-    expect(useArenaStore.getState().importAgents([], [], "copy")).toEqual([]);
+    expect(useArenaStore.getState().importAgents([], [], "copy")).toEqual({
+      agents: [],
+      result: { ok: true },
+    });
     expect(useArenaStore.getState().agents).toEqual(beforeAgents);
     expect(localStorage.getItem(STORAGE_KEY)).toBe(beforeRaw);
   });

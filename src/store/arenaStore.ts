@@ -23,7 +23,17 @@ import {
   syncRuntimeAgents,
   placeAgentsOnMap,
 } from "@/lib/maps";
-import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
+import {
+  loadPersisted,
+  sanitizeChats,
+  savePersisted,
+  uid,
+  clampChattiness,
+  MAX_ARENA_CHAT_HISTORY,
+  PersistFailedError,
+  storageFailureMessageKey,
+  type StoragePersistResult,
+} from "@/lib/storage";
 import { createAgentCopy } from "@/lib/agentCopy";
 import {
   remapModelIds,
@@ -73,7 +83,8 @@ interface ArenaState extends AppPersisted {
   conversationStatus: "inactive" | "running" | "waitingForHuman" | "paused";
 
   hydrate: () => void;
-  persist: () => void;
+  /** Writes persisted slice; never throws. On failure shows a throttled toast. */
+  persist: (opts?: { toast?: "storage" | "map" | false }) => StoragePersistResult;
   setUserName: (name: string) => void;
   setLanguage: (language: LanguageCode) => void;
   setSettingsOpen: (open: boolean) => void;
@@ -95,23 +106,26 @@ interface ArenaState extends AppPersisted {
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
 
-  upsertModel: (model: AiModelConfig) => void;
+  upsertModel: (model: AiModelConfig) => StoragePersistResult;
   deleteModel: (id: string) => void;
-  upsertAgent: (agent: AgentConfig) => void;
+  upsertAgent: (agent: AgentConfig) => StoragePersistResult;
   duplicateAgent: (id: string, copyLabel: string) => AgentConfig | null;
   importAgents: (
     items: ImportedAgent[],
     modelIds: string[],
     copyLabel: string,
-  ) => AgentConfig[];
+  ) => { agents: AgentConfig[]; result: StoragePersistResult };
   deleteAgent: (id: string) => void;
 
-  upsertCustomMap: (def: ArenaMapDefinition) => void;
+  upsertCustomMap: (def: ArenaMapDefinition) => StoragePersistResult;
   deleteCustomMap: (id: string) => void;
   importMapJson: (raw: string) => string;
   openMapEditor: (mapId?: string) => void;
   closeMapEditor: () => void;
-  saveMapFromEditor: (def: ArenaMapDefinition, activate?: boolean) => void;
+  saveMapFromEditor: (
+    def: ArenaMapDefinition,
+    activate?: boolean,
+  ) => StoragePersistResult;
   createNewMap: () => void;
   duplicateActiveMap: () => void;
 
@@ -121,8 +135,8 @@ interface ArenaState extends AppPersisted {
   appendChat: (agentId: string, message: ChatMessage) => void;
   replaceLastAssistant: (agentId: string, content: string) => void;
   setChatBusy: (agentId: string, busy: boolean) => void;
-  clearChats: () => void;
-  clearArenaChatHistory: () => void;
+  clearChats: () => StoragePersistResult;
+  clearArenaChatHistory: () => StoragePersistResult;
   pushFloatingChatLog: (entry: {
     agentId?: string;
     agentName: string;
@@ -135,7 +149,7 @@ interface ArenaState extends AppPersisted {
   setAgentSpeech: (agentId: string, text: string | undefined, ms?: number) => void;
   setAgentState: (agentId: string, patch: Partial<ArenaAgent>) => void;
   tick: (dt: number, now: number) => void;
-  showToast: (msg: string) => void;
+  showToast: (msg: string, ms?: number) => void;
 }
 
 function persistSlice(s: ArenaState): AppPersisted {
@@ -158,10 +172,39 @@ function persistSlice(s: ArenaState): AppPersisted {
 }
 
 let arenaChatPersistTimer = 0;
+/** Throttle repeated *background* persist-failure toasts (e.g. chat streaming). */
+const PERSIST_TOAST_THROTTLE_MS = 10_000;
+let lastStoragePersistToastAt = 0;
+
+/** Exposed for unit tests — reset throttle clock between cases. */
+export function resetPersistToastThrottle(): void {
+  lastStoragePersistToastAt = 0;
+}
 
 function scheduleArenaChatPersist(persist: () => void): void {
   window.clearTimeout(arenaChatPersistTimer);
   arenaChatPersistTimer = window.setTimeout(() => persist(), 800);
+}
+
+type MapPersistSnapshot = Pick<
+  ArenaState,
+  | "customMaps"
+  | "mapId"
+  | "activeMap"
+  | "floorSize"
+  | "placeables"
+  | "runtimeAgents"
+>;
+
+function snapshotMapPersistState(s: ArenaState): MapPersistSnapshot {
+  return {
+    customMaps: s.customMaps,
+    mapId: s.mapId,
+    activeMap: s.activeMap,
+    floorSize: s.floorSize,
+    placeables: s.placeables,
+    runtimeAgents: s.runtimeAgents,
+  };
 }
 
 function applyMapSlice(
@@ -226,8 +269,26 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     applyDocumentLang(data.language);
   },
 
-  persist: () => {
-    savePersisted(persistSlice(get()));
+  persist: (opts) => {
+    const result = savePersisted(persistSlice(get()));
+    if (!result.ok) {
+      const mode = opts?.toast ?? "storage";
+      if (mode !== false) {
+        const msg = i18n.t(storageFailureMessageKey(result.reason, mode));
+        // Explicit map/user actions always toast; background writes stay throttled.
+        if (mode === "map") {
+          get().showToast(msg, 8_000);
+        } else {
+          const now = Date.now();
+          if (now - lastStoragePersistToastAt >= PERSIST_TOAST_THROTTLE_MS) {
+            lastStoragePersistToastAt = now;
+            // Longer than the default toast — recovery copy is long and easy to miss.
+            get().showToast(msg, 8_000);
+          }
+        }
+      }
+    }
+    return result;
   },
 
   setUserName: (name) => {
@@ -340,7 +401,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           : [...s.models, model];
       return { models };
     });
-    get().persist();
+    return get().persist();
   },
 
   deleteModel: (id) => {
@@ -384,22 +445,27 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           s.onboardingSeen || isSetupComplete(s.models, agents),
       };
     });
-    get().persist();
+    return get().persist();
   },
 
   duplicateAgent: (id, copyLabel) => {
     const source = get().agents.find((a) => a.id === id);
     if (!source) return null;
     const copy = createAgentCopy(source, get().agents, copyLabel);
-    get().upsertAgent(copy);
+    const result = get().upsertAgent(copy);
+    // Null on persist failure so callers skip the success toast (failure toast
+    // already shown). The in-memory copy remains for the next successful write.
+    if (!result.ok) return null;
     return copy;
   },
 
   importAgents: (items, modelIds, copyLabel) => {
-    if (items.length === 0) return [];
+    if (items.length === 0) return { agents: [], result: { ok: true } };
     const state = get();
     const availableIds = state.models.map((m) => m.id);
-    if (availableIds.length === 0) return [];
+    if (availableIds.length === 0) {
+      return { agents: [], result: { ok: true } };
+    }
     const resolvedModels = remapModelIds(modelIds, availableIds);
     const names = resolveImportNames(
       items.map((item) => item.displayName),
@@ -430,8 +496,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           s.onboardingSeen || isSetupComplete(s.models, agents),
       };
     });
-    get().persist();
-    return created;
+    return { agents: created, result: get().persist() };
   },
 
   deleteAgent: (id) => {
@@ -450,6 +515,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   upsertCustomMap: (def) => {
+    const prev = snapshotMapPersistState(get());
     set((s) => {
       const cleaned = { ...def, builtin: false, version: 1 as const };
       const idx = s.customMaps.findIndex((m) => m.id === cleaned.id);
@@ -463,7 +529,9 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           : {};
       return { customMaps, ...patch };
     });
-    get().persist();
+    const result = get().persist({ toast: "map" });
+    if (!result.ok) set(prev);
+    return result;
   },
 
   deleteCustomMap: (id) => {
@@ -491,7 +559,10 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       builtin: false,
       name: parsed.name || "Imported map",
     };
-    get().upsertCustomMap(def);
+    const upserted = get().upsertCustomMap(def);
+    if (!upserted.ok) {
+      throw new PersistFailedError();
+    }
     get().setMapId(def.id);
     if (get().mapEditorOpen) {
       set({ mapEditorSourceId: def.id });
@@ -513,29 +584,56 @@ export const useArenaStore = create<ArenaState>((set, get) => {
 
   saveMapFromEditor: (def, activate = true) => {
     const name = def.name.trim() || "Untitled map";
-    // Close first so the editor's load effect cannot reset the draft when
-    // customMaps updates (that path used to fall back to the office builtin).
-    set({ mapEditorOpen: false, mapEditorSourceId: null });
+    const prev = snapshotMapPersistState(get());
+
+    // Keep the editor open until persist succeeds so a quota failure cannot
+    // wipe the draft (closing first used to look like a successful save).
+    let saved: ArenaMapDefinition;
     if (def.builtin) {
-      // Builtin edits must become a custom copy; keep the name the user set
       const copy = createCustomMapFromBuiltin(def.id, get().customMaps);
-      const saved: ArenaMapDefinition = {
+      saved = {
         ...def,
         id: copy.id,
         name,
         builtin: false,
+        version: 1 as const,
       };
-      get().upsertCustomMap(saved);
-      if (activate) get().setMapId(saved.id);
     } else {
-      get().upsertCustomMap({ ...def, name, builtin: false });
-      if (activate) get().setMapId(def.id);
+      saved = { ...def, name, builtin: false, version: 1 as const };
     }
+
+    set((s) => {
+      const idx = s.customMaps.findIndex((m) => m.id === saved.id);
+      const customMaps =
+        idx >= 0
+          ? s.customMaps.map((m, i) => (i === idx ? saved : m))
+          : [...s.customMaps, saved];
+      const mapId = activate ? saved.id : s.mapId;
+      const shouldApply = activate || s.mapId === saved.id;
+      return {
+        customMaps,
+        mapId,
+        ...(shouldApply
+          ? applyMapSlice({ ...s, customMaps, mapId }, true)
+          : {}),
+      };
+    });
+
+    // Silent toast here — the editor shows a sticky inline saveError banner.
+    const result = get().persist({ toast: false });
+    if (!result.ok) {
+      set(prev);
+      return result;
+    }
+
+    set({ mapEditorOpen: false, mapEditorSourceId: null });
+    return result;
   },
 
   createNewMap: () => {
     const blank = createBlankCustomMap();
-    get().upsertCustomMap(blank);
+    const result = get().upsertCustomMap(blank);
+    if (!result.ok) return;
     set({
       mapEditorOpen: true,
       mapEditorSourceId: blank.id,
@@ -546,7 +644,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   duplicateActiveMap: () => {
     const s = get();
     const copy = createCustomMapFromBuiltin(s.mapId, s.customMaps);
-    get().upsertCustomMap(copy);
+    const result = get().upsertCustomMap(copy);
+    if (!result.ok) return;
     set({
       mapEditorOpen: true,
       mapEditorSourceId: copy.id,
@@ -617,12 +716,12 @@ export const useArenaStore = create<ArenaState>((set, get) => {
 
   clearChats: () => {
     set({ chats: {}, arenaChatHistory: [], floatingChatLog: [] });
-    get().persist();
+    return get().persist();
   },
 
   clearArenaChatHistory: () => {
     set({ arenaChatHistory: [], floatingChatLog: [] });
-    get().persist();
+    return get().persist();
   },
 
   pushFloatingChatLog: ({ agentId, agentName, color, text, kind }) => {
@@ -828,11 +927,11 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     });
   },
 
-  showToast: (msg) => {
+  showToast: (msg, ms = appConfig.chat.toastMs) => {
     set({ toast: msg });
     window.setTimeout(() => {
       if (get().toast === msg) set({ toast: null });
-    }, appConfig.chat.toastMs);
+    }, ms);
   },
   };
 });

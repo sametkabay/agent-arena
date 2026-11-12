@@ -120,7 +120,7 @@ export function ModelsTab() {
     const modelId = draft.modelId.trim();
     const name = draft.name.trim() || modelId;
     if (!name || !draft.baseUrl.trim() || !modelId) return;
-    upsertModel({
+    const result = upsertModel({
       ...draft,
       name,
       baseUrl: draft.baseUrl.trim(),
@@ -128,6 +128,7 @@ export function ModelsTab() {
       apiKey: draft.apiKey?.trim() || undefined,
       extraHeaders: draft.extraHeaders.filter((h) => h.key.trim()),
     });
+    if (!result.ok) return;
     closeForm();
     showToast(t("settings.saved"));
   }

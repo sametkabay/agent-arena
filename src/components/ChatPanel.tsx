@@ -10,6 +10,7 @@ import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig } from "@/lib/config";
 import { dockClearanceFor } from "@/lib/chatPanelLayout";
+import { safeSetItem } from "@/lib/storage";
 
 const STORAGE_KEY = appConfig.storage.chatPanelKey;
 const MIN_W = appConfig.chat.panel.minWidth;
@@ -148,7 +149,7 @@ export function ChatPanel() {
   }, [selectedAgentId, chatOpen, stickNow]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+    safeSetItem(STORAGE_KEY, JSON.stringify(layout));
   }, [layout]);
 
   useEffect(() => {

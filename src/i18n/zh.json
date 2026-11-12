@@ -508,6 +508,15 @@
       "animals": "动物",
       "food": "食物",
       "space": "太空"
-    }
+    },
+    "saveFailed": "无法保存 — 此浏览器的存储空间已满。请腾出空间（例如在设置 › 通用中清除聊天记录）后重试。",
+    "saveFailedUnavailable": "无法保存 — 浏览器存储不可用。请检查隐私浏览设置后重试。",
+    "saveFailedUnknown": "无法保存到浏览器存储。请重试。",
+    "dismissSaveError": "关闭"
+  },
+  "storage": {
+    "quotaExceeded": "存储空间已满。请腾出空间（例如在设置 › 通用中清除聊天记录）后重试。",
+    "unavailable": "浏览器存储不可用。请检查隐私浏览设置后重试。",
+    "writeFailed": "无法写入浏览器存储。请重试。"
   }
 }

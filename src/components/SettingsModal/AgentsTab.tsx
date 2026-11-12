@@ -126,7 +126,7 @@ export function AgentsTab() {
     if (!editing) return;
     const name = editing.displayName.trim();
     if (!name || !editing.modelConfigId) return;
-    upsertAgent({
+    const result = upsertAgent({
       ...editing,
       displayName: name,
       enabled: editing.enabled !== false,
@@ -141,6 +141,7 @@ export function AgentsTab() {
         .filter((s) => s.name || s.content),
       bio: editing.bio?.trim() || undefined,
     });
+    if (!result.ok) return;
     setEditing(null);
     showToast(t("settings.saved"));
   }
@@ -205,7 +206,7 @@ export function AgentsTab() {
   function confirmImport(modelIds: string[]) {
     if (!pendingImport || confirmingRef.current) return;
     confirmingRef.current = true;
-    const created = importAgents(
+    const { agents: created, result } = importAgents(
       pendingImport.agents,
       modelIds,
       t("settings.agents.copyLabel"),
@@ -214,6 +215,10 @@ export function AgentsTab() {
     confirmingRef.current = false;
     if (created.length === 0) {
       showToast(t("settings.agents.needModel"));
+      importBtnRef.current?.focus();
+      return;
+    }
+    if (!result.ok) {
       importBtnRef.current?.focus();
       return;
     }

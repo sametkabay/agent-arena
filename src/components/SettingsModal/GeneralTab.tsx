@@ -96,9 +96,9 @@ export function GeneralTab() {
         danger
         onCancel={() => setConfirmClear(false)}
         onConfirm={() => {
-          clearChats();
+          const result = clearChats();
           setConfirmClear(false);
-          showToast(t("settings.general.clearChatsDone"));
+          if (result.ok) showToast(t("settings.general.clearChatsDone"));
         }}
       />
     </div>
