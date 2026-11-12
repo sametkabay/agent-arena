@@ -187,7 +187,44 @@
       "addLlm": "モデルを追加",
       "addLlmHint": "同じ {{provider}} アカウント（{{host}}）。別のモデルを選んでもキーはそのままです。",
       "showKey": "表示",
-      "hideKey": "非表示"
+      "hideKey": "非表示",
+      "exportConfigs": "エクスポート",
+      "exportConfigsAria": "AIモデル設定をエクスポート",
+      "importConfigs": "インポート",
+      "importConfigsAria": "AIモデル設定をインポート",
+      "exportDialog": {
+        "title": "モデル設定をエクスポート",
+        "includeKeys": "APIキーを含める — このファイルを共有しないでください",
+        "keysWarning": "このファイルにはAPIキーとヘッダー値が平文で含まれます。ファイルを入手した人は認証情報を使えます。",
+        "confirm": "エクスポート",
+        "confirmWithKeys": "キー付きでエクスポート",
+        "cancel": "キャンセル"
+      },
+      "exported": "モデルをエクスポートしました",
+      "exportEmpty": "エクスポートするモデルがありません。",
+      "exportFailed": "モデルをエクスポートできませんでした。",
+      "imported_one": "{{count}}件のモデルをインポートしました",
+      "imported_other": "{{count}}件のモデルをインポートしました",
+      "allDuplicates": "そのファイル内のモデルはすべて既に存在します。",
+      "invalidSkipped_one": "無効なモデル{{count}}件をスキップしました。",
+      "invalidSkipped_other": "無効なモデル{{count}}件をスキップしました。",
+      "importKeysNotice": {
+        "title": "ファイルにAPIキーが含まれています",
+        "body": "このファイルにはAPIキーまたはヘッダー値が含まれています。信頼できるソースからのみインポートしてください。",
+        "confirm": "それでもインポート"
+      },
+      "errors": {
+        "tooLarge": "ファイルが大きすぎます（最大256 KB）。",
+        "invalidJson": "そのファイルをJSONとして読み取れませんでした。",
+        "wrongFormat": "そのファイルはAgent Arenaのモデル設定エクスポートではありません。",
+        "unsupportedVersion": "このモデル設定ファイルのバージョンはサポートされていません。",
+        "empty": "そのファイルに有効なモデルが見つかりませんでした。",
+        "tooMany": "そのファイルのモデルが多すぎます（最大50）。",
+        "tooManyTotal": "インポートすると100モデルの上限を超えます。"
+      },
+      "importedSkipped_one": "{{count}}件の設定をインポート · 重複スキップ: {{skipped}}",
+      "importedSkipped_other": "{{count}}件の設定をインポート · 重複スキップ: {{skipped}}",
+      "emptyHeadersHint": "これらのモデルを使う前に、空のヘッダー値を入力してください。"
     },
     "agents": {
       "title": "エージェント",

@@ -187,7 +187,44 @@
       "addLlm": "Add model",
       "addLlmHint": "Same {{provider}} account ({{host}}). Pick another model — your key stays as it is.",
       "showKey": "Show",
-      "hideKey": "Hide"
+      "hideKey": "Hide",
+      "exportConfigs": "Export",
+      "exportConfigsAria": "Export AI model configs",
+      "importConfigs": "Import",
+      "importConfigsAria": "Import AI model configs",
+      "exportDialog": {
+        "title": "Export model configs",
+        "includeKeys": "Include API keys — don't share this file",
+        "keysWarning": "This file will contain API keys and header values in plain text. Anyone with the file can use your credentials.",
+        "confirm": "Export",
+        "confirmWithKeys": "Export with keys",
+        "cancel": "Cancel"
+      },
+      "exported": "Models exported",
+      "exportEmpty": "No models to export.",
+      "exportFailed": "Could not export models.",
+      "imported_one": "Imported {{count}} model",
+      "imported_other": "Imported {{count}} models",
+      "allDuplicates": "All models in that file already exist.",
+      "invalidSkipped_one": "Skipped {{count}} invalid model.",
+      "invalidSkipped_other": "Skipped {{count}} invalid models.",
+      "importKeysNotice": {
+        "title": "File contains API keys",
+        "body": "This file includes API keys or header values. Import only from a source you trust.",
+        "confirm": "Import anyway"
+      },
+      "errors": {
+        "tooLarge": "File is too large (max 256 KB).",
+        "invalidJson": "Could not read that file as JSON.",
+        "wrongFormat": "That file is not an Agent Arena model config export.",
+        "unsupportedVersion": "This model config file version is not supported.",
+        "empty": "No valid models found in that file.",
+        "tooMany": "Too many models in that file (max 50).",
+        "tooManyTotal": "Import would exceed the 100-model limit."
+      },
+      "importedSkipped_one": "Imported {{count}} config · duplicates skipped: {{skipped}}",
+      "importedSkipped_other": "Imported {{count}} configs · duplicates skipped: {{skipped}}",
+      "emptyHeadersHint": "Fill in empty header values before using these models."
     },
     "agents": {
       "title": "Agents",

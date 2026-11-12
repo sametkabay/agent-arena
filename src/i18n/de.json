@@ -187,7 +187,44 @@
       "addLlm": "Modell hinzufügen",
       "addLlmHint": "Dasselbe {{provider}}-Konto ({{host}}). Wähle ein anderes Modell — dein Schlüssel bleibt gleich.",
       "showKey": "Anzeigen",
-      "hideKey": "Ausblenden"
+      "hideKey": "Ausblenden",
+      "exportConfigs": "Exportieren",
+      "exportConfigsAria": "KI-Modellkonfigurationen exportieren",
+      "importConfigs": "Importieren",
+      "importConfigsAria": "KI-Modellkonfigurationen importieren",
+      "exportDialog": {
+        "title": "Modellkonfigurationen exportieren",
+        "includeKeys": "API-Schlüssel einschließen — diese Datei nicht teilen",
+        "keysWarning": "Diese Datei enthält API-Schlüssel und Header-Werte im Klartext. Jeder mit der Datei kann deine Zugangsdaten nutzen.",
+        "confirm": "Exportieren",
+        "confirmWithKeys": "Mit Schlüsseln exportieren",
+        "cancel": "Abbrechen"
+      },
+      "exported": "Modelle exportiert",
+      "exportEmpty": "Keine Modelle zum Exportieren.",
+      "exportFailed": "Modelle konnten nicht exportiert werden.",
+      "imported_one": "{{count}} Modell importiert",
+      "imported_other": "{{count}} Modelle importiert",
+      "allDuplicates": "Alle Modelle in dieser Datei sind bereits vorhanden.",
+      "invalidSkipped_one": "{{count}} ungültiges Modell übersprungen.",
+      "invalidSkipped_other": "{{count}} ungültige Modelle übersprungen.",
+      "importKeysNotice": {
+        "title": "Datei enthält API-Schlüssel",
+        "body": "Diese Datei enthält API-Schlüssel oder Header-Werte. Importiere nur aus einer vertrauenswürdigen Quelle.",
+        "confirm": "Trotzdem importieren"
+      },
+      "errors": {
+        "tooLarge": "Datei ist zu groß (max. 256 KB).",
+        "invalidJson": "Datei konnte nicht als JSON gelesen werden.",
+        "wrongFormat": "Diese Datei ist kein Agent-Arena-Modellexport.",
+        "unsupportedVersion": "Diese Version der Modellkonfigurationsdatei wird nicht unterstützt.",
+        "empty": "Keine gültigen Modelle in dieser Datei gefunden.",
+        "tooMany": "Zu viele Modelle in dieser Datei (max. 50).",
+        "tooManyTotal": "Import würde das Limit von 100 Modellen überschreiten."
+      },
+      "importedSkipped_one": "{{count}} Konfiguration importiert · Duplikate übersprungen: {{skipped}}",
+      "importedSkipped_other": "{{count}} Konfigurationen importiert · Duplikate übersprungen: {{skipped}}",
+      "emptyHeadersHint": "Leere Header-Werte vor der Nutzung dieser Modelle ausfüllen."
     },
     "agents": {
       "title": "Agenten",
