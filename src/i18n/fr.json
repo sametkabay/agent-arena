@@ -508,6 +508,15 @@
       "animals": "Animaux",
       "food": "Nourriture",
       "space": "Espace"
-    }
+    },
+    "saveFailed": "Enregistrement impossible — le stockage de ce navigateur est plein. Libérez de l'espace (p. ex. effacez l'historique de chat dans Paramètres › Général) puis réessayez.",
+    "saveFailedUnavailable": "Enregistrement impossible — le stockage du navigateur est indisponible. Vérifiez le mode de navigation privée et réessayez.",
+    "saveFailedUnknown": "Impossible d'enregistrer dans le stockage du navigateur. Réessayez.",
+    "dismissSaveError": "Fermer"
+  },
+  "storage": {
+    "quotaExceeded": "Le stockage est plein. Libérez de l'espace (p. ex. effacez l'historique de chat dans Paramètres › Général) puis réessayez.",
+    "unavailable": "Le stockage du navigateur est indisponible. Vérifiez le mode de navigation privée et réessayez.",
+    "writeFailed": "Impossible d'écrire dans le stockage du navigateur. Réessayez."
   }
 }

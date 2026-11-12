@@ -508,6 +508,15 @@
       "animals": "Animales",
       "food": "Comida",
       "space": "Espacio"
-    }
+    },
+    "saveFailed": "No se pudo guardar: el almacenamiento de este navegador está lleno. Libera espacio (p. ej. borra el historial de chat en Ajustes › General) e inténtalo de nuevo.",
+    "saveFailedUnavailable": "No se pudo guardar: el almacenamiento del navegador no está disponible. Revisa el modo privado e inténtalo de nuevo.",
+    "saveFailedUnknown": "No se pudo guardar en el almacenamiento del navegador. Inténtalo de nuevo.",
+    "dismissSaveError": "Cerrar"
+  },
+  "storage": {
+    "quotaExceeded": "El almacenamiento está lleno. Libera espacio (p. ej. borra el historial de chat en Ajustes › General) e inténtalo de nuevo.",
+    "unavailable": "El almacenamiento del navegador no está disponible. Revisa el modo privado e inténtalo de nuevo.",
+    "writeFailed": "No se pudo escribir en el almacenamiento del navegador. Inténtalo de nuevo."
   }
 }

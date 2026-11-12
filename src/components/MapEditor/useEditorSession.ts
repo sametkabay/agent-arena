@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { cloneMap, exportMapJson } from "@/lib/maps";
@@ -6,6 +14,10 @@ import { resolveMapDefinition } from "@/lib/maps/runtime";
 import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu";
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
 import type { EditorTool } from "@/components/MapEditor/types";
+import {
+  isPersistFailedError,
+  storageFailureMessageKey,
+} from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
 import type { PlaceableId } from "@/lib/assets/catalog";
 
@@ -39,14 +51,19 @@ export function useEditorSession({
   const baselineJson = useRef<string | null>(null);
   const draftRef = useRef(draft);
   draftRef.current = draft;
+  const [saveError, setSaveError] = useState<string | null>(null);
+  /** Bumps on each failed save so role="alert" re-announces identical copy. */
+  const [saveErrorKey, setSaveErrorKey] = useState(0);
 
   useEffect(() => {
     if (!open || !sourceId) {
       reset(null);
       baselineJson.current = null;
       setConfirmClose(false);
+      setSaveError(null);
       return;
     }
+    setSaveError(null);
     // Read customs from the store at load time only — do NOT depend on
     // `customMaps` or every upsert/import while editing will wipe the draft
     // (and unknown custom ids fall back to office).
@@ -88,12 +105,23 @@ export function useEditorSession({
     };
   }, [open]);
 
+  const dismissSaveError = useCallback(() => {
+    setSaveError(null);
+  }, []);
+
   const onSave = () => {
     const current = draftRef.current;
     if (!current) return;
     const name = current.name.trim() || t("mapEditor.untitled");
-    saveMapFromEditor({ ...current, name }, true);
-    showToast(t("mapEditor.saved"));
+    const result = saveMapFromEditor({ ...current, name }, true);
+    if (result.ok) {
+      setSaveError(null);
+      showToast(t("mapEditor.saved"));
+      return;
+    }
+    // Keep an inline banner — short toasts are easy to miss under the inspector.
+    setSaveError(t(storageFailureMessageKey(result.reason, "map")));
+    setSaveErrorKey((k) => k + 1);
   };
 
   const isDirty = useMemo(() => {
@@ -144,7 +172,9 @@ export function useEditorSession({
       const def = resolveMapDefinition(id, useArenaStore.getState().customMaps);
       reset(cloneMap(def));
       showToast(t("mapEditor.imported"));
-    } catch {
+    } catch (err) {
+      // Persist failure already toasted via upsertCustomMap / persist().
+      if (isPersistFailedError(err)) return;
       showToast(t("mapEditor.importError"));
     }
   };
@@ -158,5 +188,8 @@ export function useEditorSession({
     requestClose,
     confirmDiscardClose,
     showToast,
+    saveError,
+    saveErrorKey,
+    dismissSaveError,
   };
 }

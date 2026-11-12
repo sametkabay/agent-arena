@@ -65,6 +65,9 @@ export function MapEditor() {
     requestClose,
     confirmDiscardClose,
     showToast,
+    saveError,
+    saveErrorKey,
+    dismissSaveError,
   } = useEditorSession({
     open,
     sourceId,
@@ -174,31 +177,50 @@ export function MapEditor() {
 
   return (
     <div className="map-editor" onContextMenu={(e) => e.preventDefault()}>
-      <EditorToolbar
-        mapName={draft.name}
-        builtin={Boolean(draft.builtin)}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        tool={tool}
-        dayNight={dayNight}
-        onUndo={() => {
-          undo();
-          setCtxMenu(null);
-        }}
-        onRedo={() => {
-          redo();
-          setCtxMenu(null);
-        }}
-        onSetTool={(next) => {
-          setTool(next);
-          if (next === "spawn") setPaintId(null);
-        }}
-        onExport={onExport}
-        onImportFile={(file) => void onImportFile(file)}
-        onToggleDayNight={toggleDayNight}
-        onSave={onSave}
-        onClose={requestClose}
-      />
+      <div className="map-editor__top">
+        <EditorToolbar
+          mapName={draft.name}
+          builtin={Boolean(draft.builtin)}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          tool={tool}
+          dayNight={dayNight}
+          onUndo={() => {
+            undo();
+            setCtxMenu(null);
+          }}
+          onRedo={() => {
+            redo();
+            setCtxMenu(null);
+          }}
+          onSetTool={(next) => {
+            setTool(next);
+            if (next === "spawn") setPaintId(null);
+          }}
+          onExport={onExport}
+          onImportFile={(file) => void onImportFile(file)}
+          onToggleDayNight={toggleDayNight}
+          onSave={onSave}
+          onClose={requestClose}
+        />
+        {saveError && (
+          <div
+            key={saveErrorKey}
+            className="map-editor__save-error"
+            role="alert"
+          >
+            <span className="map-editor__save-error-text">{saveError}</span>
+            <button
+              type="button"
+              className="map-editor__save-error-dismiss"
+              aria-label={t("mapEditor.dismissSaveError")}
+              onClick={dismissSaveError}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="map-editor__body">
         <AssetLibrary

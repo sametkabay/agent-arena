@@ -508,6 +508,15 @@
       "animals": "Hayvanlar",
       "food": "Yiyecek",
       "space": "Uzay"
-    }
+    },
+    "saveFailed": "Kaydedilemedi — bu tarayıcının depolaması dolu. Yer açın (ör. Ayarlar › Genel'de sohbet geçmişini temizleyin) ve yeniden deneyin.",
+    "saveFailedUnavailable": "Kaydedilemedi — tarayıcı depolaması kullanılamıyor. Gizli sekme ayarlarını kontrol edip yeniden deneyin.",
+    "saveFailedUnknown": "Tarayıcı depolamasına kaydedilemedi. Yeniden deneyin.",
+    "dismissSaveError": "Kapat"
+  },
+  "storage": {
+    "quotaExceeded": "Depolama dolu. Yer açın (ör. Ayarlar › Genel'de sohbet geçmişini temizleyin) ve yeniden deneyin.",
+    "unavailable": "Tarayıcı depolaması kullanılamıyor. Gizli sekme ayarlarını kontrol edip yeniden deneyin.",
+    "writeFailed": "Tarayıcı depolamasına yazılamadı. Yeniden deneyin."
   }
 }

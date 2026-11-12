@@ -6,6 +6,7 @@ import {
   exportMapJson,
 } from "@/lib/maps";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
+import { isPersistFailedError } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
 
 const MAP_DESCRIPTION_MAX = 80;
@@ -92,6 +93,8 @@ export function MapTab() {
               importMapJson(await f.text());
               showToast(t("mapEditor.imported"));
             } catch (err) {
+              // Persist failure already toasted via upsertCustomMap / persist().
+              if (isPersistFailedError(err)) return;
               const msg =
                 err instanceof Error ? err.message : t("mapEditor.importError");
               showToast(msg);

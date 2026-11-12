@@ -1,14 +1,19 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { appConfig } from "@/lib/config";
 import { blankMap } from "@/lib/maps/schema";
 import {
   STORAGE_KEY,
+  PersistFailedError,
   clampChattiness,
+  classifyStorageError,
   defaultPersisted,
+  isPersistFailedError,
   loadPersisted,
+  safeSetItem,
   savePersisted,
   sanitizeArenaChatHistory,
   sanitizeChats,
+  storageFailureMessageKey,
   uid,
 } from "@/lib/storage";
 import { sampleAgent } from "@/test/fixtures";
@@ -80,6 +85,41 @@ describe("sanitizeArenaChatHistory", () => {
   });
 });
 
+describe("classifyStorageError", () => {
+  it("detects quota across browsers", () => {
+    expect(
+      classifyStorageError(
+        Object.assign(new Error("full"), { name: "QuotaExceededError", code: 22 }),
+      ),
+    ).toBe("quota");
+    expect(
+      classifyStorageError(
+        Object.assign(new Error("full"), {
+          name: "NS_ERROR_DOM_QUOTA_REACHED",
+          code: 1014,
+        }),
+      ),
+    ).toBe("quota");
+    expect(classifyStorageError({ name: "Error", code: 22 })).toBe("quota");
+    expect(classifyStorageError({ name: "Error", code: 1014 })).toBe("quota");
+  });
+
+  it("detects unavailable / SecurityError", () => {
+    expect(
+      classifyStorageError(
+        Object.assign(new Error("denied"), { name: "SecurityError", code: 18 }),
+      ),
+    ).toBe("unavailable");
+    expect(classifyStorageError({ name: "SecurityError" })).toBe("unavailable");
+  });
+
+  it("returns unknown for other errors", () => {
+    expect(classifyStorageError(null)).toBe("unknown");
+    expect(classifyStorageError(new Error("boom"))).toBe("unknown");
+    expect(classifyStorageError({ name: "TypeError", code: 0 })).toBe("unknown");
+  });
+});
+
 describe("loadPersisted / savePersisted", () => {
   it("returns defaults when empty or invalid JSON", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());
@@ -121,11 +161,95 @@ describe("loadPersisted / savePersisted", () => {
   it("round-trips chatterMode without the legacy field", () => {
     const data = defaultPersisted();
     data.chatterMode = "conversation";
-    savePersisted(data);
+    expect(savePersisted(data)).toEqual({ ok: true });
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
     expect(raw.chatterMode).toBe("conversation");
     expect(raw.idleChatterEnabled).toBeUndefined();
     expect(loadPersisted().chatterMode).toBe("conversation");
+  });
+
+  it("returns quota when setItem throws QuotaExceededError", () => {
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      const err =
+        typeof DOMException === "function"
+          ? new DOMException("The quota has been exceeded.", "QuotaExceededError")
+          : Object.assign(new Error("The quota has been exceeded."), {
+              name: "QuotaExceededError",
+              code: 22,
+            });
+      throw err;
+    });
+    expect(savePersisted(defaultPersisted())).toEqual({
+      ok: false,
+      reason: "quota",
+    });
+    spy.mockRestore();
+  });
+
+  it("returns unavailable when setItem throws SecurityError", () => {
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw Object.assign(new Error("denied"), {
+        name: "SecurityError",
+        code: 18,
+      });
+    });
+    expect(savePersisted(defaultPersisted())).toEqual({
+      ok: false,
+      reason: "unavailable",
+    });
+    spy.mockRestore();
+  });
+
+  it("returns unknown for other setItem failures", () => {
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw new TypeError("nope");
+    });
+    expect(savePersisted(defaultPersisted())).toEqual({
+      ok: false,
+      reason: "unknown",
+    });
+    spy.mockRestore();
+  });
+
+  it("safeSetItem never throws and classifies quota", () => {
+    expect(safeSetItem("aa-safe", "ok")).toEqual({ ok: true });
+    expect(localStorage.getItem("aa-safe")).toBe("ok");
+
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw new DOMException(
+        "The quota has been exceeded.",
+        "QuotaExceededError",
+      );
+    });
+    expect(safeSetItem("aa-safe", "nope")).toEqual({
+      ok: false,
+      reason: "quota",
+    });
+    spy.mockRestore();
+  });
+
+  it("isPersistFailedError recognizes PersistFailedError and code shape", () => {
+    expect(isPersistFailedError(new PersistFailedError())).toBe(true);
+    expect(
+      isPersistFailedError(
+        Object.assign(new Error("persist_failed"), { code: "persist_failed" }),
+      ),
+    ).toBe(true);
+    expect(isPersistFailedError(new Error("other"))).toBe(false);
+    expect(isPersistFailedError(null)).toBe(false);
+  });
+
+  it("storageFailureMessageKey picks quota / unavailable / unknown copy", () => {
+    expect(storageFailureMessageKey("quota")).toBe("storage.quotaExceeded");
+    expect(storageFailureMessageKey("unavailable")).toBe("storage.unavailable");
+    expect(storageFailureMessageKey("unknown")).toBe("storage.writeFailed");
+    expect(storageFailureMessageKey("quota", "map")).toBe("mapEditor.saveFailed");
+    expect(storageFailureMessageKey("unavailable", "map")).toBe(
+      "mapEditor.saveFailedUnavailable",
+    );
+    expect(storageFailureMessageKey("unknown", "map")).toBe(
+      "mapEditor.saveFailedUnknown",
+    );
   });
 
   it("round-trips sanitized persisted state", () => {

@@ -85,6 +85,13 @@ const REQUIRED_KEYS = [
   "settings.general.chatterModeConversationHint_one",
   "settings.general.chatterModeConversationHint_other",
   "chat.arena.conversationWaiting",
+  "storage.quotaExceeded",
+  "storage.unavailable",
+  "storage.writeFailed",
+  "mapEditor.saveFailed",
+  "mapEditor.saveFailedUnavailable",
+  "mapEditor.saveFailedUnknown",
+  "mapEditor.dismissSaveError",
 ] as const;
 
 function getByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -101,8 +108,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 78 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(78);
+  it("lists exactly 85 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(85);
   });
 
   it("includes every configured language with matching placeholders", () => {

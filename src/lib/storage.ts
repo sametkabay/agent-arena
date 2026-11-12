@@ -134,7 +134,7 @@ function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
   }));
   // Legacy "checker" meant surface default — migrate once so explicit checker works later.
   if (typeof localStorage !== "undefined" && !localStorage.getItem(FLOOR_STYLE_MIGRATE_KEY)) {
-    localStorage.setItem(FLOOR_STYLE_MIGRATE_KEY, "1");
+    safeSetItem(FLOOR_STYLE_MIGRATE_KEY, "1");
     return maps.map(migrateLegacyMapFloorStyles);
   }
   return maps;
@@ -229,8 +229,90 @@ export function loadPersisted(): AppPersisted {
   }
 }
 
-export function savePersisted(data: AppPersisted): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+/** Result of writing AppPersisted to localStorage — never throws. */
+export type StoragePersistReason = "quota" | "unavailable" | "unknown";
+export type StoragePersistResult =
+  | { ok: true }
+  | { ok: false; reason: StoragePersistReason };
+
+/** Thrown when a map/agent write was rolled back after persist failure. */
+export class PersistFailedError extends Error {
+  readonly code = "persist_failed" as const;
+  constructor(message = "persist_failed") {
+    super(message);
+    this.name = "PersistFailedError";
+  }
+}
+
+export function isPersistFailedError(err: unknown): boolean {
+  if (err instanceof PersistFailedError) return true;
+  return (
+    !!err &&
+    typeof err === "object" &&
+    "code" in err &&
+    (err as { code: unknown }).code === "persist_failed"
+  );
+}
+
+/**
+ * Classify a storage write failure across browsers.
+ * Quota: QuotaExceededError / NS_ERROR_DOM_QUOTA_REACHED / code 22 / 1014.
+ * Unavailable: SecurityError (private mode, disabled storage) / code 18.
+ */
+export function classifyStorageError(err: unknown): StoragePersistReason {
+  if (err == null) return "unknown";
+
+  const name =
+    typeof err === "object" && err !== null && "name" in err
+      ? String((err as { name: unknown }).name)
+      : "";
+  const codeRaw =
+    typeof err === "object" && err !== null && "code" in err
+      ? (err as { code: unknown }).code
+      : undefined;
+  const code = typeof codeRaw === "number" ? codeRaw : Number(codeRaw);
+
+  if (
+    name === "QuotaExceededError" ||
+    name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+    code === 22 ||
+    code === 1014
+  ) {
+    return "quota";
+  }
+  if (name === "SecurityError" || code === 18) {
+    return "unavailable";
+  }
+  return "unknown";
+}
+
+/** i18n key for a failed write — map scope uses editor copy; storage is the toast. */
+export function storageFailureMessageKey(
+  reason: StoragePersistReason,
+  scope: "storage" | "map" = "storage",
+): string {
+  if (scope === "map") {
+    if (reason === "quota") return "mapEditor.saveFailed";
+    if (reason === "unavailable") return "mapEditor.saveFailedUnavailable";
+    return "mapEditor.saveFailedUnknown";
+  }
+  if (reason === "quota") return "storage.quotaExceeded";
+  if (reason === "unavailable") return "storage.unavailable";
+  return "storage.writeFailed";
+}
+
+/** localStorage.setItem that never throws (quota / private mode / etc.). */
+export function safeSetItem(key: string, value: string): StoragePersistResult {
+  try {
+    localStorage.setItem(key, value);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, reason: classifyStorageError(err) };
+  }
+}
+
+export function savePersisted(data: AppPersisted): StoragePersistResult {
+  return safeSetItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 export function uid(prefix = "id"): string {
