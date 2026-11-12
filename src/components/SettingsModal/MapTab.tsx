@@ -6,8 +6,9 @@ import {
   exportMapJson,
 } from "@/lib/maps";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
-import { isPersistFailedError } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
+import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
+import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
 
 const MAP_DESCRIPTION_MAX = 80;
 
@@ -27,9 +28,15 @@ export function MapTab() {
   const createNewMap = useArenaStore((s) => s.createNewMap);
   const duplicateActiveMap = useArenaStore((s) => s.duplicateActiveMap);
   const deleteCustomMap = useArenaStore((s) => s.deleteCustomMap);
-  const importMapJson = useArenaStore((s) => s.importMapJson);
   const showToast = useArenaStore((s) => s.showToast);
   const fileRef = useRef<HTMLInputElement>(null);
+  const importBtnRef = useRef<HTMLButtonElement>(null);
+  const {
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
+    onImportFile,
+  } = useMapImportFlow({ importButtonRef: importBtnRef });
 
   const maps = mapsToMeta(customMaps);
 
@@ -78,7 +85,11 @@ export function MapTab() {
         <button type="button" onClick={exportActive}>
           {t("settings.map.export")}
         </button>
-        <button type="button" onClick={() => fileRef.current?.click()}>
+        <button
+          ref={importBtnRef}
+          type="button"
+          onClick={() => fileRef.current?.click()}
+        >
           {t("settings.map.import")}
         </button>
         <input
@@ -88,18 +99,9 @@ export function MapTab() {
           hidden
           onChange={async (e) => {
             const f = e.target.files?.[0];
-            if (!f) return;
-            try {
-              importMapJson(await f.text());
-              showToast(t("mapEditor.imported"));
-            } catch (err) {
-              // Persist failure already toasted via upsertCustomMap / persist().
-              if (isPersistFailedError(err)) return;
-              const msg =
-                err instanceof Error ? err.message : t("mapEditor.importError");
-              showToast(msg);
-            }
             e.target.value = "";
+            if (!f) return;
+            await onImportFile(f);
           }}
         />
       </div>
@@ -173,6 +175,15 @@ export function MapTab() {
           );
         })}
       </div>
+
+      {pendingImport?.collision && (
+        <MapImportConflictDialog
+          existingName={pendingImport.collision.name}
+          onCancel={cancelPendingImport}
+          onOverwrite={() => finishImport("overwrite", pendingImport)}
+          onCopy={() => finishImport("copy", pendingImport)}
+        />
+      )}
     </div>
   );
 }

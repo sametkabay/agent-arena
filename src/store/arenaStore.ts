@@ -16,12 +16,19 @@ import type {
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import {
   buildMapRuntime,
+  buildMapImportCopy,
   createBlankCustomMap,
   createCustomMapFromBuiltin,
+  listBuiltinMaps,
   parseMapJson,
+  prepareMapImport,
   resolveMapDefinition,
   syncRuntimeAgents,
   placeAgentsOnMap,
+} from "@/lib/maps";
+import type {
+  MapImportCommitMode,
+  PreparedMapImport,
 } from "@/lib/maps";
 import {
   loadPersisted,
@@ -119,7 +126,19 @@ interface ArenaState extends AppPersisted {
 
   upsertCustomMap: (def: ArenaMapDefinition) => StoragePersistResult;
   deleteCustomMap: (id: string) => void;
-  importMapJson: (raw: string) => string;
+  /** Parse/validate map JSON and detect id collision — no side effects. */
+  parseMapImport: (raw: string) => PreparedMapImport;
+  /**
+   * Commit a prepared import. `overwrite` upserts by id; `copy` inserts with a
+   * fresh id + localized copy name. On persist failure rolls back and throws
+   * PersistFailedError (existing map untouched for overwrite failures).
+   * Takes `PreparedMapImport` so id normalization from parse cannot be bypassed.
+   */
+  commitMapImport: (
+    prepared: PreparedMapImport,
+    mode: MapImportCommitMode,
+    copyLabel: string,
+  ) => string;
   openMapEditor: (mapId?: string) => void;
   closeMapEditor: () => void;
   saveMapFromEditor: (
@@ -196,6 +215,9 @@ type MapPersistSnapshot = Pick<
   | "runtimeAgents"
 >;
 
+type MapImportPersistSnapshot = MapPersistSnapshot &
+  Pick<ArenaState, "mapEditorSourceId">;
+
 function snapshotMapPersistState(s: ArenaState): MapPersistSnapshot {
   return {
     customMaps: s.customMaps,
@@ -204,6 +226,15 @@ function snapshotMapPersistState(s: ArenaState): MapPersistSnapshot {
     floorSize: s.floorSize,
     placeables: s.placeables,
     runtimeAgents: s.runtimeAgents,
+  };
+}
+
+function snapshotMapImportPersistState(
+  s: ArenaState,
+): MapImportPersistSnapshot {
+  return {
+    ...snapshotMapPersistState(s),
+    mapEditorSourceId: s.mapEditorSourceId,
   };
 }
 
@@ -548,26 +579,46 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     get().persist();
   },
 
-  importMapJson: (raw) => {
+  parseMapImport: (raw) => {
     const parsed = parseMapJson(raw);
-    const id = parsed.id.startsWith("custom_")
-      ? parsed.id
-      : `custom_${Math.random().toString(36).slice(2, 10)}`;
-    const def: ArenaMapDefinition = {
-      ...parsed,
-      id,
-      builtin: false,
-      name: parsed.name || "Imported map",
-    };
-    const upserted = get().upsertCustomMap(def);
-    if (!upserted.ok) {
+    return prepareMapImport(parsed, get().customMaps);
+  },
+
+  commitMapImport: (prepared, mode, copyLabel) => {
+    const def = prepared.def;
+    const toSave: ArenaMapDefinition =
+      mode === "copy"
+        ? buildMapImportCopy(
+            def,
+            get().customMaps,
+            copyLabel,
+            listBuiltinMaps().map((m) => m.name),
+          )
+        : { ...def, builtin: false, version: 1 as const };
+
+    const prev = snapshotMapImportPersistState(get());
+
+    set((s) => {
+      const idx = s.customMaps.findIndex((m) => m.id === toSave.id);
+      const customMaps =
+        idx >= 0
+          ? s.customMaps.map((m, i) => (i === idx ? toSave : m))
+          : [...s.customMaps, toSave];
+      const mapId = toSave.id;
+      return {
+        customMaps,
+        mapId,
+        mapEditorSourceId: s.mapEditorOpen ? toSave.id : s.mapEditorSourceId,
+        ...applyMapSlice({ ...s, customMaps, mapId }, true),
+      };
+    });
+
+    const result = get().persist({ toast: "map" });
+    if (!result.ok) {
+      set(prev);
       throw new PersistFailedError();
     }
-    get().setMapId(def.id);
-    if (get().mapEditorOpen) {
-      set({ mapEditorSourceId: def.id });
-    }
-    return def.id;
+    return toSave.id;
   },
 
   openMapEditor: (mapId) => {

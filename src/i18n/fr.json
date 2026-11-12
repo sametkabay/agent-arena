@@ -285,6 +285,16 @@
       "custom": "Personnalisée",
       "export": "Exporter JSON",
       "exported": "Carte exportée",
+      "importConflict": {
+        "title": "La carte existe déjà",
+        "body": "Une carte personnalisée nommée « {{name}} » utilise déjà cet id. L’écraser ou l’importer en tant que copie ?",
+        "unsavedWarning": "Les modifications non enregistrées dans l’éditeur ouvert seront perdues.",
+        "overwrite": "Écraser",
+        "copy": "Importer comme copie",
+        "cancel": "Annuler"
+      },
+      "importedAsCopy": "Importée sous le nom {{name}}",
+      "overwritten": "Carte écrasée",
       "mapsTitle": "Cartes",
       "presetApplied": "{{name}} ajouté",
       "presets": {

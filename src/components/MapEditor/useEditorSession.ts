@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type Dispatch,
+  type RefObject,
   type SetStateAction,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,8 +15,8 @@ import { resolveMapDefinition } from "@/lib/maps/runtime";
 import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu";
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
 import type { EditorTool } from "@/components/MapEditor/types";
+import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
 import {
-  isPersistFailedError,
   storageFailureMessageKey,
 } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
@@ -31,6 +32,7 @@ type UseEditorSessionArgs = {
   setPaintId: Dispatch<SetStateAction<PlaceableId | null>>;
   setTool: Dispatch<SetStateAction<EditorTool>>;
   setCtxMenu: Dispatch<SetStateAction<ContextMenuState | null>>;
+  importButtonRef?: RefObject<HTMLButtonElement | null>;
 };
 
 export function useEditorSession({
@@ -43,6 +45,7 @@ export function useEditorSession({
   setPaintId,
   setTool,
   setCtxMenu,
+  importButtonRef,
 }: UseEditorSessionArgs) {
   const { t } = useTranslation();
   const closeMapEditor = useArenaStore((s) => s.closeMapEditor);
@@ -162,28 +165,54 @@ export function useEditorSession({
     URL.revokeObjectURL(url);
   };
 
-  const onImportFile = async (file: File) => {
-    try {
-      const text = await file.text();
-      const id = useArenaStore.getState().importMapJson(text);
+  const applyImportedMap = useCallback(
+    (id: string) => {
       // Point the editor at the imported map so a later customMaps-driven
       // reload (if any) cannot snap back to the previous source / office.
       useArenaStore.setState({ mapEditorSourceId: id });
       const def = resolveMapDefinition(id, useArenaStore.getState().customMaps);
-      reset(cloneMap(def));
-      showToast(t("mapEditor.imported"));
-    } catch (err) {
-      // Persist failure already toasted via upsertCustomMap / persist().
-      if (isPersistFailedError(err)) return;
-      showToast(t("mapEditor.importError"));
-    }
-  };
+      const loaded = cloneMap(def);
+      baselineJson.current = JSON.stringify(loaded);
+      reset(loaded);
+      setSelectedIds([]);
+      setPaintId(null);
+      setTool("select");
+      setCtxMenu(null);
+      // Overwriting the open map keeps the same sourceId, so the load effect
+      // does not re-run — clear #40 save banner / close confirm explicitly.
+      setSaveError(null);
+      setConfirmClose(false);
+    },
+    [
+      reset,
+      setSelectedIds,
+      setPaintId,
+      setTool,
+      setCtxMenu,
+      setConfirmClose,
+    ],
+  );
+
+  const {
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
+    onImportFile,
+  } = useMapImportFlow({
+    importButtonRef,
+    onCommitted: ({ id }) => {
+      applyImportedMap(id);
+    },
+  });
 
   return {
     draftRef,
     onSave,
     onExport,
     onImportFile,
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
     isDirty,
     requestClose,
     confirmDiscardClose,

@@ -285,6 +285,16 @@
       "custom": "Custom",
       "export": "Export JSON",
       "exported": "Map exported",
+      "importConflict": {
+        "title": "Map already exists",
+        "body": "A custom map named \"{{name}}\" already uses this id. Overwrite it, or import as a copy?",
+        "unsavedWarning": "Unsaved edits in the open editor will be lost.",
+        "overwrite": "Overwrite",
+        "copy": "Import as copy",
+        "cancel": "Cancel"
+      },
+      "importedAsCopy": "Imported as {{name}}",
+      "overwritten": "Map overwritten",
       "mapsTitle": "Maps",
       "presetApplied": "Added {{name}}",
       "presets": {

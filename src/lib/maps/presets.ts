@@ -1,5 +1,6 @@
 import raw from "@data/map-presets.yaml";
 import { cloneMap, blankMap, type ArenaMapDefinition } from "@/lib/maps/schema";
+import { newCustomMapId } from "@/lib/maps/importCollision";
 import { getBuiltinMap } from "@/lib/maps/runtime";
 import { appConfig } from "@/lib/config";
 
@@ -22,7 +23,7 @@ export const MAP_PRESETS: MapPresetMeta[] = (raw as MapPresetsYaml).presets;
 
 /** Spawn a custom map from a gallery preset (always a new custom_* id). */
 export function createMapFromPreset(presetId: MapPresetId): ArenaMapDefinition {
-  const id = `custom_${Math.random().toString(36).slice(2, 10)}`;
+  const id = newCustomMapId();
   const meta = MAP_PRESETS.find((p) => p.id === presetId);
 
   if (meta?.map) {

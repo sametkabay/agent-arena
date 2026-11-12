@@ -56,3 +56,14 @@ export type {
 } from "@/lib/maps/mapRegions";
 export { MAP_PRESETS, createMapFromPreset } from "@/lib/maps/presets";
 export type { MapPresetId, MapPresetMeta } from "@/lib/maps/presets";
+export {
+  newCustomMapId,
+  resolveImportedMapId,
+  findMapIdCollision,
+  prepareMapImport,
+  buildMapImportCopy,
+} from "@/lib/maps/importCollision";
+export type {
+  PreparedMapImport,
+  MapImportCommitMode,
+} from "@/lib/maps/importCollision";

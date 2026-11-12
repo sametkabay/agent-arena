@@ -75,6 +75,14 @@ const REQUIRED_KEYS = [
   "settings.models.showKey",
   "settings.models.hideKey",
   "settings.map.propCount_other",
+  "settings.map.importConflict.title",
+  "settings.map.importConflict.body",
+  "settings.map.importConflict.unsavedWarning",
+  "settings.map.importConflict.overwrite",
+  "settings.map.importConflict.copy",
+  "settings.map.importConflict.cancel",
+  "settings.map.importedAsCopy",
+  "settings.map.overwritten",
   "settings.general.chatterMode",
   "settings.general.chatterModeHint",
   "settings.general.chatterModeOff",
@@ -108,8 +116,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 85 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(85);
+  it("lists exactly 92 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(93);
   });
 
   it("includes every configured language with matching placeholders", () => {

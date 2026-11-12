@@ -2807,6 +2807,45 @@ body.is-chat-panel-dragging .chat-popup__resize {
   background: var(--surface-raised);
 }
 
+/* Map import id-collision dialog (#41) */
+.map-import-conflict-dialog {
+  /* Above .map-editor (250) chrome when rendered inside the editor tree. */
+  z-index: 280;
+}
+
+.map-import-conflict-dialog__card {
+  width: min(440px, 100%);
+  max-height: min(85dvh, 520px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-import-conflict-dialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 20px 12px;
+}
+
+.map-import-conflict-dialog__footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+  gap: 10px;
+}
+
+.map-import-conflict-dialog__footer .btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
 @media (max-width: 480px) {
   .agents-tab__header {
     align-items: flex-start;
@@ -2833,6 +2872,28 @@ body.is-chat-panel-dragging .chat-popup__resize {
     max-width: none;
     max-height: 85dvh;
     border-radius: 18px 18px 0 0;
+  }
+
+  .map-import-conflict-dialog {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .map-import-conflict-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .map-import-conflict-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .map-import-conflict-dialog__footer .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .agent-import-dialog__row {

@@ -285,6 +285,16 @@
       "custom": "Özel",
       "export": "JSON dışa aktar",
       "exported": "Harita dışa aktarıldı",
+      "importConflict": {
+        "title": "Harita zaten var",
+        "body": "\"{{name}}\" adlı özel bir harita bu kimliği kullanıyor. Üzerine yazılsın mı, yoksa kopya olarak mı içe aktarılsın?",
+        "unsavedWarning": "Açık düzenleyicideki kaydedilmemiş değişiklikler kaybolacak.",
+        "overwrite": "Üzerine yaz",
+        "copy": "Kopya olarak içe aktar",
+        "cancel": "İptal"
+      },
+      "importedAsCopy": "{{name}} olarak içe aktarıldı",
+      "overwritten": "Haritanın üzerine yazıldı",
       "mapsTitle": "Haritalar",
       "presetApplied": "{{name}} eklendi",
       "presets": {

@@ -170,15 +170,16 @@ describe("arenaStore persist / map save quota", () => {
     ).toBe(false);
   });
 
-  it("importMapJson throws persist_failed and does not setMapId", () => {
+  it("commitMapImport throws persist_failed and does not setMapId", () => {
     const beforeId = useArenaStore.getState().mapId;
+    const prepared = useArenaStore.getState().parseMapImport(
+      JSON.stringify(
+        blankMap({ id: "custom_import_fail", name: "Import Fail" }),
+      ),
+    );
     const spy = throwQuotaOnSetItem();
     expect(() =>
-      useArenaStore.getState().importMapJson(
-        JSON.stringify(
-          blankMap({ id: "custom_import_fail", name: "Import Fail" }),
-        ),
-      ),
+      useArenaStore.getState().commitMapImport(prepared, "overwrite", "copy"),
     ).toThrow(/persist_failed/);
     spy.mockRestore();
     expect(useArenaStore.getState().mapId).toBe(beforeId);

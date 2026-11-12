@@ -1,6 +1,7 @@
 import type { AgentConfig, ArenaAgent, PlaceableInstance } from "@/lib/types";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { blankMap, clampFloorSize, cloneMap, isArenaMapDefinition } from "@/lib/maps/schema";
+import { newCustomMapId } from "@/lib/maps/importCollision";
 import { appConfig } from "@/lib/config";
 
 const builtinMapModules = import.meta.glob("../../../data/maps/*.json", {
@@ -224,9 +225,8 @@ export function createCustomMapFromBuiltin(
   customMaps: ArenaMapDefinition[],
 ): ArenaMapDefinition {
   const source = resolveMapDefinition(sourceId, customMaps);
-  const id = `custom_${Math.random().toString(36).slice(2, 10)}`;
   return cloneMap(source, {
-    id,
+    id: newCustomMapId(),
     name: `${source.name}${appConfig.maps.copySuffix}`,
     builtin: false,
     description: source.description,
@@ -235,7 +235,7 @@ export function createCustomMapFromBuiltin(
 
 export function createBlankCustomMap(): ArenaMapDefinition {
   return blankMap({
-    id: `custom_${Math.random().toString(36).slice(2, 10)}`,
+    id: newCustomMapId(),
     name: appConfig.maps.defaultCustomName,
     builtin: false,
   });

@@ -285,6 +285,16 @@
       "custom": "Personalizado",
       "export": "Exportar JSON",
       "exported": "Mapa exportado",
+      "importConflict": {
+        "title": "El mapa ya existe",
+        "body": "Ya hay un mapa personalizado llamado \"{{name}}\" con este id. ¿Sobrescribirlo o importarlo como copia?",
+        "unsavedWarning": "Se perderán los cambios sin guardar del editor abierto.",
+        "overwrite": "Sobrescribir",
+        "copy": "Importar como copia",
+        "cancel": "Cancelar"
+      },
+      "importedAsCopy": "Importado como {{name}}",
+      "overwritten": "Mapa sobrescrito",
       "mapsTitle": "Mapas",
       "presetApplied": "Se añadió {{name}}",
       "presets": {
