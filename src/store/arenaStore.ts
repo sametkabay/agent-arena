@@ -19,9 +19,11 @@ import {
   buildMapImportCopy,
   createBlankCustomMap,
   createCustomMapFromBuiltin,
+  createMapFromPreset,
   listBuiltinMaps,
   parseMapJson,
   prepareMapImport,
+  presetTakenNames,
   resolveMapDefinition,
   syncRuntimeAgents,
   placeAgentsOnMap,
@@ -182,6 +184,15 @@ interface ArenaState extends AppPersisted {
   ) => StoragePersistResult;
   createNewMap: () => void;
   duplicateActiveMap: () => void;
+  /**
+   * Create a custom map from a gallery preset and open the editor.
+   * On persist failure: rolls back, shows failure toast, leaves Settings open.
+   */
+  createMapFromPresetAndEdit: (
+    presetId: string,
+    name: string,
+    copyLabel: string,
+  ) => StoragePersistResult;
 
   selectAgent: (id: string | null) => void;
   commandAgentTo: (agentId: string, pos: [number, number, number]) => void;
@@ -850,6 +861,24 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       mapEditorSourceId: copy.id,
       settingsOpen: false,
     });
+  },
+
+  createMapFromPresetAndEdit: (presetId, name, copyLabel) => {
+    const s = get();
+    const def = createMapFromPreset(presetId, {
+      name,
+      copyLabel,
+      takenNames: presetTakenNames(s.customMaps),
+      existingIds: s.customMaps.map((m) => m.id),
+    });
+    const result = get().upsertCustomMap(def);
+    if (!result.ok) return result;
+    set({
+      mapEditorOpen: true,
+      mapEditorSourceId: def.id,
+      settingsOpen: false,
+    });
+    return result;
   },
 
   selectAgent: (id) => {

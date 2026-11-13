@@ -351,23 +351,25 @@
       "importedAsCopy": "Als {{name}} importiert",
       "overwritten": "Karte überschrieben",
       "mapsTitle": "Karten",
-      "presetApplied": "{{name}} hinzugefügt",
+      "presetsTitle": "Mit Vorgabe starten",
+      "presetsHint": "Erstellt eine neue eigene Karte und öffnet den Editor.",
+      "presetCreateAria": "Karte aus Vorgabe {{name}} erstellen",
       "presets": {
         "starter_camp": {
-          "name": "Startcamp",
-          "description": "Eine Kopie des Naturcamps"
+          "name": "Starterlager",
+          "description": "Naturcamp-Layout zum Anpassen"
         },
         "space_outpost": {
-          "name": "Weltraumbasis",
-          "description": "Eine Kopie der Weltraumbasis"
+          "name": "Weltraumaußenposten",
+          "description": "Orbitaler Außenposten mit Sci-Fi-Objekten"
         },
         "office_lounge": {
-          "name": "Büro-Lounge",
-          "description": "Eine Kopie des Büros"
+          "name": "Bürolounge",
+          "description": "Bürogrundriss mit Schreibtischen und Sitzplätzen"
         },
         "blank_concrete": {
-          "name": "Betonplatte",
-          "description": "Ein leerer Betonboden zum Einrichten"
+          "name": "Betonfläche",
+          "description": "Ein sauberer Betonboden zum Einrichten"
         }
       },
       "propCount_one": "{{count}} Objekt",

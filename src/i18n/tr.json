@@ -351,19 +351,21 @@
       "importedAsCopy": "{{name}} olarak içe aktarıldı",
       "overwritten": "Haritanın üzerine yazıldı",
       "mapsTitle": "Haritalar",
-      "presetApplied": "{{name}} eklendi",
+      "presetsTitle": "Hazır şablonla başla",
+      "presetsHint": "Yeni bir özel harita oluşturur ve düzenleyiciyi açar.",
+      "presetCreateAria": "{{name}} şablonundan harita oluştur",
       "presets": {
         "starter_camp": {
           "name": "Başlangıç kampı",
-          "description": "Doğa kampının bir kopyası"
+          "description": "Özelleştirmeye hazır doğa kampı düzeni"
         },
         "space_outpost": {
           "name": "Uzay üssü",
-          "description": "Uzay üssünün bir kopyası"
+          "description": "Bilimkurgu nesneleriyle yörünge üssü"
         },
         "office_lounge": {
           "name": "Ofis salonu",
-          "description": "Ofisin bir kopyası"
+          "description": "Masalar ve oturma alanı olan ofis planı"
         },
         "blank_concrete": {
           "name": "Beton zemin",

@@ -54,8 +54,32 @@ export type {
   MapZoneKind,
   MapLightPoint,
 } from "@/lib/maps/mapRegions";
-export { MAP_PRESETS, createMapFromPreset } from "@/lib/maps/presets";
-export type { MapPresetId, MapPresetMeta } from "@/lib/maps/presets";
+export {
+  MAP_PRESETS,
+  createMapFromPreset,
+  resolvePresetDefinition,
+  presetTakenNames,
+} from "@/lib/maps/presets";
+export type {
+  MapPresetId,
+  MapPresetMeta,
+  CreateMapFromPresetOptions,
+} from "@/lib/maps/presets";
+export {
+  buildMapThumbnail,
+  worldToView,
+  MAP_THUMBNAIL_PROP_CAP,
+} from "@/lib/maps/mapThumbnail";
+export type {
+  MapThumbnailModel,
+  MapThumbnailFloor,
+  MapThumbnailZone,
+  MapThumbnailProp,
+} from "@/lib/maps/mapThumbnail";
+export {
+  MAP_DESCRIPTION_MAX,
+  clipMapDescription,
+} from "@/lib/maps/clipMapDescription";
 export {
   newCustomMapId,
   resolveImportedMapId,

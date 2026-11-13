@@ -351,23 +351,25 @@
       "importedAsCopy": "{{name}}(으)로 가져왔습니다",
       "overwritten": "맵을 덮어썼습니다",
       "mapsTitle": "맵",
-      "presetApplied": "{{name}}을(를) 추가했습니다",
+      "presetsTitle": "프리셋으로 시작",
+      "presetsHint": "새 맞춤 맵을 만들고 편집기를 엽니다.",
+      "presetCreateAria": "{{name}} 프리셋으로 맵 만들기",
       "presets": {
         "starter_camp": {
-          "name": "시작 캠프",
-          "description": "자연 캠프의 복사본"
+          "name": "스타터 캠프",
+          "description": "꾸밀 수 있는 자연 캠프 레이아웃"
         },
         "space_outpost": {
-          "name": "우주 전초",
-          "description": "우주 전초의 복사본"
+          "name": "우주 전초기지",
+          "description": "SF 소품이 있는 궤도 전초기지"
         },
         "office_lounge": {
-          "name": "사무실 라운지",
-          "description": "사무실의 복사본"
+          "name": "오피스 라운지",
+          "description": "책상과 라운지 좌석이 있는 사무실 평면도"
         },
         "blank_concrete": {
           "name": "콘크리트 바닥",
-          "description": "꾸밀 수 있는 깨끗한 콘크리트 바닥"
+          "description": "꾸밀 수 있는 깔끔한 콘크리트 바닥"
         }
       },
       "propCount_one": "오브젝트 {{count}}개",

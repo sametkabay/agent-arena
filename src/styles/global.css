@@ -3196,6 +3196,85 @@ body.is-chat-panel-dragging .chat-popup__resize {
   gap: 10px;
 }
 
+.map-preset-gallery {
+  margin: 0 0 4px;
+  min-width: 0;
+}
+
+.map-preset-gallery__hint {
+  margin: -0.25rem 0 0.55rem;
+}
+
+.map-preset-gallery__grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.map-preset-card {
+  padding: 10px;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.map-preset-card .map-card__select {
+  min-height: 44px;
+}
+
+.map-preset-card .map-card__select:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.map-preset-card .map-card__preview {
+  /* Full card width, 4:3 box. height:0 + padding-bottom beats the shared
+     .map-card__preview { height: 72px } and prevents SVG intrinsic size from
+     shrinking the preview to a left-aligned ~100px strip. */
+  width: 100%;
+  height: 0;
+  padding-bottom: 75%;
+  max-height: none;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-preset-card__svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.map-preset-card .card-item__title {
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+
+.map-preset-card .card-item__sub {
+  font-size: 0.75rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .map-preset-gallery__hint {
+    display: none;
+  }
+
+  .map-preset-card {
+    padding: 8px;
+  }
+
+  .map-preset-card .card-item__sub {
+    -webkit-line-clamp: 1;
+  }
+}
+
 .map-card {
   border: 2px solid var(--border);
   border-radius: 14px;
@@ -4649,6 +4728,15 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .app:has(.confirm-dialog) .toast {
   top: calc(12px + env(safe-area-inset-top, 0px));
   bottom: auto;
+}
+
+/* Settings Map gallery is tall on phones; keep failure toasts off the preset
+   / map action buttons (same top pin as confirm-dialog). */
+@media (max-width: 720px) {
+  .app:has(.settings-modal) .toast {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
 }
 
 @media (max-width: 960px) {

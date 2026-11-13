@@ -351,23 +351,25 @@
       "importedAsCopy": "Importée sous le nom {{name}}",
       "overwritten": "Carte écrasée",
       "mapsTitle": "Cartes",
-      "presetApplied": "{{name}} ajouté",
+      "presetsTitle": "Partir d’un préréglage",
+      "presetsHint": "Crée une nouvelle carte personnalisée et ouvre l’éditeur.",
+      "presetCreateAria": "Créer une carte à partir du préréglage {{name}}",
       "presets": {
         "starter_camp": {
           "name": "Camp de départ",
-          "description": "Une copie du camp Nature"
+          "description": "Camp nature prêt à personnaliser"
         },
         "space_outpost": {
           "name": "Avant-poste spatial",
-          "description": "Une copie de l’avant-poste spatial"
+          "description": "Avant-poste orbital avec objets de science-fiction"
         },
         "office_lounge": {
-          "name": "Bureau lounge",
-          "description": "Une copie du Bureau"
+          "name": "Salon de bureau",
+          "description": "Plan de bureau avec bureaux et sièges"
         },
         "blank_concrete": {
           "name": "Dalle de béton",
-          "description": "Un sol de béton nu à aménager"
+          "description": "Un sol en béton propre à aménager"
         }
       },
       "propCount_one": "{{count}} objet",

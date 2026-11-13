@@ -4,19 +4,14 @@ import {
   mapsToMeta,
   resolveMapDefinition,
   exportMapJson,
+  clipMapDescription,
 } from "@/lib/maps";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import { useArenaStore } from "@/store/arenaStore";
 import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
 import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
 import { useFocusExport } from "@/components/SettingsModal/useFocusExport";
-
-const MAP_DESCRIPTION_MAX = 80;
-
-function clipMapDescription(text: string): string {
-  if (text.length <= MAP_DESCRIPTION_MAX) return text;
-  return `${text.slice(0, MAP_DESCRIPTION_MAX - 1).trimEnd()}…`;
-}
+import { MapPresetGallery } from "@/components/SettingsModal/MapPresetGallery";
 
 export function MapTab() {
   const { t } = useTranslation();
@@ -113,6 +108,8 @@ export function MapTab() {
           }}
         />
       </div>
+
+      <MapPresetGallery />
 
       <h4 className="map-tab__section-title">{t("settings.map.mapsTitle")}</h4>
       <div className="map-grid">
