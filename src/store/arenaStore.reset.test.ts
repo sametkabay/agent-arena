@@ -145,7 +145,7 @@ describe("arenaStore.resetPlayground", () => {
     expect(s.userName).toBe("Samet");
     expect(s.language).toBe("tr");
     expect(s.dayNight).toBe("night");
-    expect(s.chatterMode).toBe("idle");
+    expect(s.chatterMode).toBe(appConfig.defaults.chatterMode);
     expect(s.onboardingSeen).toBe(true);
     expect(s.controlsHelpSeen).toBe(true);
     expect(s.models).toEqual([]);
@@ -179,6 +179,20 @@ describe("arenaStore.resetPlayground", () => {
     expect(persisted.userName).toBe("Samet");
     expect(persisted.language).toBe("tr");
     expect(persisted.dayNight).toBe("night");
+    expect(persisted.chatterMode).toBe(appConfig.defaults.chatterMode);
+  });
+
+  it("resets chatterMode to default even when seeded non-default", () => {
+    expect(useArenaStore.getState().chatterMode).toBe("idle");
+    expect(useArenaStore.getState().chatterMode).not.toBe(
+      appConfig.defaults.chatterMode,
+    );
+    const result = useArenaStore.getState().resetPlayground({ keepModels: false });
+    expect(result).toEqual({ ok: true });
+    expect(useArenaStore.getState().chatterMode).toBe(
+      appConfig.defaults.chatterMode,
+    );
+    expect(loadPersisted().chatterMode).toBe(appConfig.defaults.chatterMode);
   });
 
   it("keeps models and api keys when keepModels is on", () => {

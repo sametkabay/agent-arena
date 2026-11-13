@@ -58,15 +58,21 @@ describe("resetPersisted", () => {
     expect(next.models[0]?.apiKey).toBe("sk-test-FAKE-0001");
   });
 
-  it("keeps name, language, dayNight, chatterMode, and seen flags", () => {
+  it("keeps name, language, dayNight, and seen flags", () => {
     const cur = seededPersisted();
     const next = resetPersisted(cur, { keepModels: false });
     expect(next.userName).toBe("Samet");
     expect(next.language).toBe("tr");
     expect(next.dayNight).toBe("night");
-    expect(next.chatterMode).toBe("idle");
     expect(next.onboardingSeen).toBe(true);
     expect(next.controlsHelpSeen).toBe(true);
+  });
+
+  it("returns chatterMode to defaultPersisted() even when it was non-default", () => {
+    const cur = seededPersisted();
+    expect(cur.chatterMode).not.toBe(defaultPersisted().chatterMode);
+    const next = resetPersisted(cur, { keepModels: false });
+    expect(next.chatterMode).toBe(defaultPersisted().chatterMode);
   });
 
   it("resets mapId to the builtin default and clears custom maps", () => {

@@ -17,7 +17,6 @@ export function resetPersisted(
     userName: cur.userName,
     language: cur.language,
     dayNight: cur.dayNight,
-    chatterMode: cur.chatterMode,
     onboardingSeen: cur.onboardingSeen,
     controlsHelpSeen: cur.controlsHelpSeen,
     models: opts.keepModels ? cur.models : [],
