@@ -32,12 +32,22 @@ export type ConversationRuntime = {
   modeActive: boolean;
 };
 
+/** Live runtimes registered by AgentChatterLoop — aborted synchronously on reset. */
+const liveConversationRuntimes = new Set<ConversationRuntime>();
+let conversationResetEpoch = 0;
+
 function budget(): ConversationBudget {
   return appConfig.conversation;
 }
 
 export function createConversationRuntime(): ConversationRuntime {
-  return { state: null, abort: null, modeActive: false };
+  const rt: ConversationRuntime = {
+    state: null,
+    abort: null,
+    modeActive: false,
+  };
+  liveConversationRuntimes.add(rt);
+  return rt;
 }
 
 export function disposeConversationRuntime(rt: ConversationRuntime): void {
@@ -45,6 +55,20 @@ export function disposeConversationRuntime(rt: ConversationRuntime): void {
   rt.abort = null;
   rt.state = null;
   rt.modeActive = false;
+  liveConversationRuntimes.delete(rt);
+}
+
+/** Abort in-flight conversation turns immediately (do not wait for React cleanup). */
+export function abortLiveConversationRuntimes(): void {
+  conversationResetEpoch += 1;
+  for (const rt of liveConversationRuntimes) {
+    rt.abort?.abort();
+    rt.abort = null;
+  }
+}
+
+export function getConversationResetEpoch(): number {
+  return conversationResetEpoch;
 }
 
 function readPauseFlags(): PauseFlags {
@@ -196,6 +220,7 @@ export async function runConversationTurn(
   if (!rt.state || rt.abort) return;
 
   const ac = new AbortController();
+  const epoch = conversationResetEpoch;
   rt.abort = ac;
   rt.state = beginTurn(rt.state, agent.id);
   useArenaStore.getState().setChatBusy(agent.id, true);
@@ -207,6 +232,7 @@ export async function runConversationTurn(
   const flushBubble = () => {
     raf = 0;
     if (!assembled.trim()) return;
+    if (ac.signal.aborted || epoch !== conversationResetEpoch) return;
     setAgentSpeech(
       agent.id,
       sanitizeReply(assembled) || "…",
@@ -258,7 +284,11 @@ export async function runConversationTurn(
     });
 
     if (raf) cancelAnimationFrame(raf);
-    if (ac.signal.aborted || rt.abort !== ac) {
+    if (
+      ac.signal.aborted ||
+      rt.abort !== ac ||
+      epoch !== conversationResetEpoch
+    ) {
       setAgentSpeech(agent.id, undefined);
       return;
     }

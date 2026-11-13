@@ -2790,6 +2790,90 @@ body.is-chat-panel-dragging .chat-popup__resize {
   min-width: 44px;
 }
 
+/* Factory reset playground dialog (#26) */
+.reset-playground-dialog__card {
+  width: min(480px, 100%);
+  max-height: min(85dvh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.reset-playground-dialog__body {
+  padding: 20px 20px 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.reset-playground-dialog__keeps {
+  margin: 8px 0 0;
+}
+
+.reset-playground-dialog__backup {
+  margin: 14px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-chip);
+}
+
+.reset-playground-dialog__backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.reset-playground-dialog__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.reset-playground-dialog__check input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.reset-playground-dialog__check-label {
+  display: block;
+}
+
+.reset-playground-dialog__check-hint {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.reset-playground-dialog__footer {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.reset-playground-dialog__footer .btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.settings-export-focus {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sage) 28%, transparent);
+}
+
 /* Agent roster import remap dialog (#20) */
 .agent-import-dialog__card {
   width: min(520px, 100%);
@@ -2934,7 +3018,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   }
 
   .agent-import-dialog,
-  .model-export-dialog {
+  .model-export-dialog,
+  .reset-playground-dialog {
     place-items: end center;
     padding: 0;
   }
@@ -2949,6 +3034,34 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .model-export-dialog__check {
     min-height: 44px;
     align-items: center;
+  }
+
+  .reset-playground-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .reset-playground-dialog__backup-actions {
+    flex-direction: column;
+  }
+
+  .reset-playground-dialog__backup-actions .btn,
+  .reset-playground-dialog__check,
+  .reset-playground-dialog__footer .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .reset-playground-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .reset-playground-dialog__footer .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .agent-import-dialog__card {

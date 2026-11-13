@@ -1,4 +1,4 @@
-import { Html, useAnimations, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import {
   Component,
@@ -28,6 +28,7 @@ import {
 import type { ArenaAgent } from "@/lib/types";
 import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
 import { JellyAgent } from "@/components/scene/JellyAgent";
+import { SafeHtml } from "@/components/scene/SafeHtml";
 
 interface CharacterAgentProps {
   agent: ArenaAgent;
@@ -91,17 +92,18 @@ function AgentLabels({
   const showLabels = !settingsOpen;
   const thinking = agent.state === "thinking" || agent.thinkingIntensity > 0.35;
   const bubble = agent.speechBubble || (thinking ? THINKING_BUBBLE : undefined);
-  if (!showLabels) return null;
 
-  // Bottom-anchored CSS column: bubble grows upward and never covers the name.
+  // Keep SafeHtml mounted while settings are open (hide via CSS) so toggling
+  // settings does not tear down the nested React root mid-frame.
   return (
-    <Html
+    <SafeHtml
       position={[0, agentOverlayStackWorldY(height), 0]}
       center={false}
       zIndexRange={[45, 10]}
       style={{
         transform: "translate3d(-50%, -100%, 0)",
         pointerEvents: "none",
+        visibility: showLabels ? "visible" : "hidden",
       }}
       className="agent-html-overlay"
     >
@@ -123,7 +125,7 @@ function AgentLabels({
           {agent.displayName}
         </button>
       </div>
-    </Html>
+    </SafeHtml>
   );
 }
 

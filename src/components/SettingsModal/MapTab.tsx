@@ -9,6 +9,7 @@ import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import { useArenaStore } from "@/store/arenaStore";
 import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
 import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
+import { useFocusExport } from "@/components/SettingsModal/useFocusExport";
 
 const MAP_DESCRIPTION_MAX = 80;
 
@@ -31,6 +32,8 @@ export function MapTab() {
   const showToast = useArenaStore((s) => s.showToast);
   const fileRef = useRef<HTMLInputElement>(null);
   const importBtnRef = useRef<HTMLButtonElement>(null);
+  const exportBtnRef = useRef<HTMLButtonElement>(null);
+  useFocusExport("map", exportBtnRef);
   const {
     pendingImport,
     finishImport,
@@ -82,7 +85,12 @@ export function MapTab() {
         <button type="button" onClick={duplicateActiveMap}>
           {t("settings.map.duplicate")}
         </button>
-        <button type="button" onClick={exportActive}>
+        <button
+          ref={exportBtnRef}
+          type="button"
+          data-testid="map-export-btn"
+          onClick={exportActive}
+        >
           {t("settings.map.export")}
         </button>
         <button

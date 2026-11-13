@@ -149,7 +149,25 @@
       "chatterModeOffHint": "Ajanlar yalnızca sen yazınca yanıt verir. Ekstra model çağrısı yok.",
       "chatterModeIdleHint": "Ajanlar konuşma balonunda kendi kendine mırıldanır. Ekstra model çağrısı kullanır.",
       "chatterModeConversationHint_one": "Ajanlar sırayla birbirleriyle konuşur; sen yeniden yazana kadar {{count}} tur sonra durur. Ekstra model çağrısı kullanır.",
-      "chatterModeConversationHint_other": "Ajanlar sırayla birbirleriyle konuşur; sen yeniden yazana kadar {{count}} tur sonra durur. Ekstra model çağrısı kullanır."
+      "chatterModeConversationHint_other": "Ajanlar sırayla birbirleriyle konuşur; sen yeniden yazana kadar {{count}} tur sonra durur. Ekstra model çağrısı kullanır.",
+      "reset": {
+        "title": "Oyun alanını sıfırla",
+        "hint": "Bu tarayıcıdaki ajanları, haritaları, sohbetleri ve modelleri temizler. Adın ve dilin kalır.",
+        "action": "Oyun alanını sıfırla",
+        "confirmTitle": "Oyun alanı sıfırlansın mı?",
+        "confirmBody": "Ajanlar, özel haritalar, favoriler, sohbet geçmişi, arena sohbeti ve grafik ayarları temizlenir. Aşağıda tutmazsan modeller de silinir.",
+        "keeps": "Görünen adın, dil, gündüz/gece, Ortam sohbeti modu ve kurulum bayrakları kalır.",
+        "backupTitle": "Önce yedekle",
+        "backupHint": "Sıfırlamadan önce saklamak istediklerini dışa aktar.",
+        "backupAgents": "Ajanlar",
+        "backupModels": "Modeller",
+        "backupMaps": "Haritalar",
+        "backupMapsHint": "Harita dışa aktarma yalnızca etkin haritayı kapsar — her özel haritayı seçip ayrı ayrı dışa aktar.",
+        "keepModels": "AI modellerini tut",
+        "keepModelsHint": "İşaretlenirse model ayarları ve API anahtarları kalır.",
+        "confirm": "Sıfırla",
+        "done": "Oyun alanı sıfırlandı"
+      }
     },
     "models": {
       "title": "AI Modelleri",

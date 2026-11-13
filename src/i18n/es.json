@@ -149,7 +149,25 @@
       "chatterModeOffHint": "Los agentes solo responden cuando escribes. Sin llamadas extra al modelo.",
       "chatterModeIdleHint": "Los agentes murmuran solos en globos. Usa llamadas extra al modelo.",
       "chatterModeConversationHint_one": "Los agentes hablan por turnos, de uno en uno, y paran tras {{count}} turno hasta que escribas otra vez. Usa llamadas extra al modelo.",
-      "chatterModeConversationHint_other": "Los agentes hablan por turnos, de uno en uno, y paran tras {{count}} turnos hasta que escribas otra vez. Usa llamadas extra al modelo."
+      "chatterModeConversationHint_other": "Los agentes hablan por turnos, de uno en uno, y paran tras {{count}} turnos hasta que escribas otra vez. Usa llamadas extra al modelo.",
+      "reset": {
+        "title": "Restablecer el playground",
+        "hint": "Borra agentes, mapas, chats y modelos de este navegador. Tu nombre e idioma se conservan.",
+        "action": "Restablecer playground",
+        "confirmTitle": "¿Restablecer el playground?",
+        "confirmBody": "Se borran agentes, mapas personalizados, favoritos, historial de chat, chat de la arena y ajustes gráficos. Los modelos se borran salvo que los conserves abajo.",
+        "keeps": "Se conservan tu nombre, idioma, día/noche, el modo Charla ambiental y las marcas de incorporación.",
+        "backupTitle": "Haz una copia primero",
+        "backupHint": "Exporta lo que quieras conservar antes de restablecer.",
+        "backupAgents": "Agentes",
+        "backupModels": "Modelos",
+        "backupMaps": "Mapas",
+        "backupMapsHint": "La exportación de mapa solo incluye el mapa activo: selecciona cada mapa personalizado y expórtalo.",
+        "keepModels": "Conservar modelos de IA",
+        "keepModelsHint": "Si está marcado, se conservan las configs y sus claves API.",
+        "confirm": "Restablecer",
+        "done": "Playground restablecido"
+      }
     },
     "models": {
       "title": "Modelos de IA",

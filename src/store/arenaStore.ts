@@ -53,6 +53,13 @@ import {
   type ImportedModel,
 } from "@/lib/modelConfigIO";
 import { isSetupComplete } from "@/lib/onboarding";
+import { resetPersisted, type ResetOptions } from "@/lib/reset";
+import {
+  abortArenaReplies,
+  clearPendingArenaReplies,
+} from "@/lib/ai/arenaChat";
+import { abortLiveChatterRuntimes } from "@/lib/ai/chatter";
+import { abortLiveConversationRuntimes } from "@/lib/ai/conversationLoop";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { placeableCanWander } from "@/lib/assets/catalog";
@@ -74,6 +81,8 @@ interface ArenaState extends AppPersisted {
   settingsTab: "general" | "models" | "agents" | "map" | "graphics";
   /** When set, Agents settings tab opens that agent’s editor. */
   settingsFocusAgentId: string | null;
+  /** When set, target settings tab focuses its Export control. */
+  settingsFocusExport: "agents" | "models" | "map" | null;
   mapEditorOpen: boolean;
   mapEditorSourceId: string | null;
   chats: Record<string, ChatMessage[]>;
@@ -93,6 +102,11 @@ interface ArenaState extends AppPersisted {
   conversationSeed: { seq: number; mentionIds: string[] };
   /** Runtime conversation scheduler status (not persisted). */
   conversationStatus: "inactive" | "running" | "waitingForHuman" | "paused";
+  /**
+   * Bumped after a successful factory reset so chatter / chat panels
+   * dispose in-flight work and recreate runtimes.
+   */
+  resetSeq: number;
 
   hydrate: () => void;
   /**
@@ -109,6 +123,12 @@ interface ArenaState extends AppPersisted {
   setSettingsTab: (tab: ArenaState["settingsTab"]) => void;
   openAgentSettings: (agentId: string) => void;
   clearSettingsFocusAgent: () => void;
+  setSettingsFocusExport: (
+    target: ArenaState["settingsFocusExport"],
+  ) => void;
+  clearSettingsFocusExport: () => void;
+  /** Factory-reset playground; rolls back on persist failure. */
+  resetPlayground: (opts: ResetOptions) => StoragePersistResult;
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
@@ -217,7 +237,15 @@ export function resetPersistToastThrottle(): void {
 
 function scheduleArenaChatPersist(persist: () => void): void {
   window.clearTimeout(arenaChatPersistTimer);
-  arenaChatPersistTimer = window.setTimeout(() => persist(), 800);
+  arenaChatPersistTimer = window.setTimeout(() => {
+    arenaChatPersistTimer = 0;
+    persist();
+  }, 800);
+}
+
+/** Exposed for unit tests — whether a debounced arena-chat persist is armed. */
+export function isArenaChatPersistPending(): boolean {
+  return arenaChatPersistTimer !== 0;
 }
 
 type MapPersistSnapshot = Pick<
@@ -283,6 +311,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   settingsOpen: false,
   settingsTab: "general",
   settingsFocusAgentId: null,
+  settingsFocusExport: null,
   mapEditorOpen: false,
   mapEditorSourceId: null,
   chats: initial.chats ?? {},
@@ -296,6 +325,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   controlsHelpAutoDone: false,
   conversationSeed: { seq: 0, mentionIds: [] },
   conversationStatus: "inactive",
+  resetSeq: 0,
 
   hydrate: () => {
     const data = loadPersisted();
@@ -358,7 +388,11 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     set(
       open
         ? { settingsOpen: true }
-        : { settingsOpen: false, settingsFocusAgentId: null },
+        : {
+            settingsOpen: false,
+            settingsFocusAgentId: null,
+            settingsFocusExport: null,
+          },
     ),
   setSettingsTab: (tab) => set({ settingsTab: tab, settingsOpen: true }),
   openAgentSettings: (agentId) =>
@@ -368,6 +402,67 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       settingsFocusAgentId: agentId,
     }),
   clearSettingsFocusAgent: () => set({ settingsFocusAgentId: null }),
+  setSettingsFocusExport: (target) => set({ settingsFocusExport: target }),
+  clearSettingsFocusExport: () => set({ settingsFocusExport: null }),
+
+  resetPlayground: (opts) => {
+    const s = get();
+    // Snapshot via persistSlice: chats are sanitized and arenaChatHistory is
+    // trimmed to MAX — lossless in practice for rollback after persist failure.
+    const snapshot = {
+      ...persistSlice(s),
+      activeMap: s.activeMap,
+      floorSize: s.floorSize,
+      placeables: s.placeables,
+      runtimeAgents: s.runtimeAgents,
+      selectedAgentId: s.selectedAgentId,
+      chatOpen: s.chatOpen,
+      chatBusyById: s.chatBusyById,
+      floatingChatLog: s.floatingChatLog,
+      mapEditorOpen: s.mapEditorOpen,
+      mapEditorSourceId: s.mapEditorSourceId,
+      settingsFocusAgentId: s.settingsFocusAgentId,
+      settingsFocusExport: s.settingsFocusExport,
+      conversationSeed: s.conversationSeed,
+      conversationStatus: s.conversationStatus,
+      resetSeq: s.resetSeq,
+      controlsHelpOpen: s.controlsHelpOpen,
+    };
+    const next = resetPersisted(persistSlice(s), opts);
+    const layout = applyMapSlice({ ...next, runtimeAgents: [] }, true);
+    // Single store update: SafeHtml defers nested-root unmount so agent+map
+    // teardown in one commit no longer races React DOM removeChild.
+    set({
+      ...next,
+      ...layout,
+      selectedAgentId: null,
+      chatOpen: false,
+      chatBusyById: {},
+      floatingChatLog: [],
+      mapEditorOpen: false,
+      mapEditorSourceId: null,
+      settingsFocusAgentId: null,
+      settingsFocusExport: null,
+      conversationSeed: { seq: 0, mentionIds: [] },
+      conversationStatus: "inactive",
+      controlsHelpOpen: false,
+    });
+
+    const result = get().persist({ toast: "explicit" });
+    if (!result.ok) {
+      set(snapshot);
+      return result;
+    }
+
+    window.clearTimeout(arenaChatPersistTimer);
+    arenaChatPersistTimer = 0;
+    abortArenaReplies();
+    clearPendingArenaReplies();
+    abortLiveChatterRuntimes();
+    abortLiveConversationRuntimes();
+    set((state) => ({ resetSeq: state.resetSeq + 1 }));
+    return result;
+  },
 
   setGraphics: (partial) => {
     set((s) => ({ graphics: { ...s.graphics, ...partial } }));
@@ -789,6 +884,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   setChatOpen: (open) => set({ chatOpen: open }),
 
   appendChat: (agentId, message) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => ({
       chats: {
         ...s.chats,
@@ -798,6 +894,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   replaceLastAssistant: (agentId, content) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => {
       const list = [...(s.chats[agentId] ?? [])];
       for (let i = list.length - 1; i >= 0; i--) {
@@ -811,6 +908,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   setChatBusy: (agentId, busy) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => ({
       chatBusyById: { ...s.chatBusyById, [agentId]: busy },
     }));
@@ -831,6 +929,8 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   pushFloatingChatLog: ({ agentId, agentName, color, text, kind }) => {
     const trimmed = text.trim();
     if (!trimmed) return;
+    // Drop late agent lines after the agent was removed (e.g. mid-reset).
+    if (agentId && !get().agents.some((a) => a.id === agentId)) return;
     const line: FloatingChatLine = {
       id: uid("flog"),
       agentId,
@@ -858,6 +958,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   setAgentSpeech: (agentId, text, ms = 4000) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     const until = text ? Date.now() + ms : 0;
     const speechBubble = text ? formatSpeechBubble(text) : undefined;
     set((s) => ({
@@ -875,6 +976,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   setAgentState: (agentId, patch) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => ({
       runtimeAgents: s.runtimeAgents.map((a) =>
         a.id === agentId ? { ...a, ...patch } : a,

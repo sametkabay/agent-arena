@@ -149,7 +149,25 @@
       "chatterModeOffHint": "智能体只在你写字时回答。不会额外调用模型。",
       "chatterModeIdleHint": "智能体在气泡里自言自语。会额外调用模型。",
       "chatterModeConversationHint_one": "智能体轮流交谈，一次一个，写完 {{count}} 轮后停下直到你再写。会额外调用模型。",
-      "chatterModeConversationHint_other": "智能体轮流交谈，一次一个，写完 {{count}} 轮后停下直到你再写。会额外调用模型。"
+      "chatterModeConversationHint_other": "智能体轮流交谈，一次一个，写完 {{count}} 轮后停下直到你再写。会额外调用模型。",
+      "reset": {
+        "title": "重置游乐场",
+        "hint": "清除此浏览器中的智能体、地图、聊天和模型。保留你的名称和语言。",
+        "action": "重置游乐场",
+        "confirmTitle": "要重置游乐场吗？",
+        "confirmBody": "将清除智能体、自定义地图、收藏、聊天记录、场地聊天和图形设置。除非在下方选择保留，否则模型也会被清除。",
+        "keeps": "保留显示名称、语言、昼夜、环境交谈模式以及引导标记。",
+        "backupTitle": "先备份",
+        "backupHint": "重置前先导出想保留的内容。",
+        "backupAgents": "智能体",
+        "backupModels": "模型",
+        "backupMaps": "地图",
+        "backupMapsHint": "地图导出仅包含当前地图——请分别选择每个自定义地图再导出。",
+        "keepModels": "保留 AI 模型",
+        "keepModelsHint": "勾选后将保留模型配置及其 API 密钥。",
+        "confirm": "重置",
+        "done": "游乐场已重置"
+      }
     },
     "models": {
       "title": "AI 模型",
