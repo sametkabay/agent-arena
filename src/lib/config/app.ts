@@ -108,6 +108,26 @@ export interface AppConfig {
     spawnRingAngle: number;
     spawnRingOffset: number;
     indoorSurfaces: string[];
+    regions: {
+      maxZones: number;
+      maxLights: number;
+      zoneNameMax: number;
+      zoneRadiusMin: number;
+      zoneRadiusDefault: number;
+      zoneSizeMin: number;
+      zoneSizeDefault: number;
+      lightIntensityMin: number;
+      lightIntensityMax: number;
+      lightIntensityStep: number;
+      lightIntensityDefault: number;
+      lightDistanceMin: number;
+      lightDistanceMax: number;
+      lightDistanceDefault: number;
+      lightHeightMin: number;
+      lightHeightMax: number;
+      lightHeightDefault: number;
+      lightColorDefault: string;
+    };
     defaultTheme: {
       accent: string;
       background: string;
