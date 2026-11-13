@@ -149,7 +149,25 @@
       "chatterModeOffHint": "에이전트는 당신이 쓸 때만 답합니다. 추가 모델 호출 없음.",
       "chatterModeIdleHint": "에이전트가 말풍선으로 혼잣말합니다. 추가 모델 호출이 있습니다.",
       "chatterModeConversationHint_one": "에이전트가 한 번에 하나씩 번갈아 말하고, {{count}}턴 후 당신이 다시 쓸 때까지 멈춥니다. 추가 모델 호출이 있습니다.",
-      "chatterModeConversationHint_other": "에이전트가 한 번에 하나씩 번갈아 말하고, {{count}}턴 후 당신이 다시 쓸 때까지 멈춥니다. 추가 모델 호출이 있습니다."
+      "chatterModeConversationHint_other": "에이전트가 한 번에 하나씩 번갈아 말하고, {{count}}턴 후 당신이 다시 쓸 때까지 멈춥니다. 추가 모델 호출이 있습니다.",
+      "reset": {
+        "title": "플레이그라운드 초기화",
+        "hint": "이 브라우저의 에이전트, 맵, 채팅, 모델을 지웁니다. 이름과 언어는 유지됩니다.",
+        "action": "플레이그라운드 초기화",
+        "confirmTitle": "플레이그라운드를 초기화할까요?",
+        "confirmBody": "에이전트, 사용자 지정 맵, 즐겨찾기, 채팅 기록, 아레나 채팅, 그래픽 설정을 지웁니다. 주변 대화는 기본값으로 돌아갑니다. 아래에서 유지하지 않으면 모델도 지워집니다.",
+        "keeps": "표시 이름, 언어, 낮/밤, 온보딩 플래그는 유지됩니다.",
+        "backupTitle": "먼저 백업",
+        "backupHint": "초기화하기 전에 남기고 싶은 항목을 내보내세요.",
+        "backupAgents": "에이전트",
+        "backupModels": "모델",
+        "backupMaps": "맵",
+        "backupMapsHint": "맵 내보내기는 활성 맵만 포함합니다. 각 사용자 지정 맵을 선택해 내보내세요.",
+        "keepModels": "AI 모델 유지",
+        "keepModelsHint": "선택하면 모델 설정과 API 키가 유지됩니다.",
+        "confirm": "초기화",
+        "done": "플레이그라운드가 초기화됨"
+      }
     },
     "models": {
       "title": "AI 모델",

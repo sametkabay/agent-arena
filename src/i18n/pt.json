@@ -149,7 +149,25 @@
       "chatterModeOffHint": "Os agentes só respondem quando escreves. Sem chamadas extra ao modelo.",
       "chatterModeIdleHint": "Os agentes murmuram sozinhos em balões. Usa chamadas extra ao modelo.",
       "chatterModeConversationHint_one": "Os agentes falam por turnos, um de cada vez, e param após {{count}} turno até voltares a escrever. Usa chamadas extra ao modelo.",
-      "chatterModeConversationHint_other": "Os agentes falam por turnos, um de cada vez, e param após {{count}} turnos até voltares a escrever. Usa chamadas extra ao modelo."
+      "chatterModeConversationHint_other": "Os agentes falam por turnos, um de cada vez, e param após {{count}} turnos até voltares a escrever. Usa chamadas extra ao modelo.",
+      "reset": {
+        "title": "Redefinir playground",
+        "hint": "Limpa agentes, mapas, chats e modelos neste navegador. Seu nome e idioma permanecem.",
+        "action": "Redefinir playground",
+        "confirmTitle": "Redefinir o playground?",
+        "confirmBody": "Isso limpa agentes, mapas personalizados, favoritos, histórico de chat, chat da arena e configurações gráficas. Conversa ambiente volta ao padrão. Os modelos são limpos a menos que você os mantenha abaixo.",
+        "keeps": "Seu nome de exibição, idioma, dia/noite e marcadores de onboarding permanecem.",
+        "backupTitle": "Faça backup primeiro",
+        "backupHint": "Exporte o que quiser manter antes de redefinir.",
+        "backupAgents": "Agentes",
+        "backupModels": "Modelos",
+        "backupMaps": "Mapas",
+        "backupMapsHint": "A exportação de mapa cobre só o mapa ativo — selecione cada mapa personalizado e exporte.",
+        "keepModels": "Manter modelos de IA",
+        "keepModelsHint": "Quando marcado, as configs e suas chaves de API permanecem.",
+        "confirm": "Redefinir",
+        "done": "Playground redefinido"
+      }
     },
     "models": {
       "title": "Modelos de IA",

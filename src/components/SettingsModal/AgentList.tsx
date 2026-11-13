@@ -17,6 +17,7 @@ export function AgentList({
   onExport,
   onImport,
   importButtonRef,
+  exportButtonRef,
   onEdit,
   onDuplicate,
   onDelete,
@@ -28,6 +29,7 @@ export function AgentList({
   onExport: () => void;
   onImport: () => void;
   importButtonRef?: Ref<HTMLButtonElement>;
+  exportButtonRef?: Ref<HTMLButtonElement>;
   onEdit: (agent: AgentConfig) => void;
   onDuplicate: (agent: AgentConfig) => void;
   onDelete: (id: string) => void;
@@ -43,9 +45,11 @@ export function AgentList({
         </p>
         <div className="agents-tab__actions">
           <button
+            ref={exportButtonRef}
             type="button"
             className="btn btn--ghost agents-tab__io-btn"
             aria-label={t("settings.agents.exportRosterAria")}
+            data-testid="agent-export-btn"
             onClick={onExport}
           >
             {t("settings.agents.exportRoster")}

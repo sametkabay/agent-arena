@@ -123,6 +123,22 @@ const REQUIRED_KEYS = [
   "settings.general.chatterModeIdleHint",
   "settings.general.chatterModeConversationHint_one",
   "settings.general.chatterModeConversationHint_other",
+  "settings.general.reset.title",
+  "settings.general.reset.hint",
+  "settings.general.reset.action",
+  "settings.general.reset.confirmTitle",
+  "settings.general.reset.confirmBody",
+  "settings.general.reset.keeps",
+  "settings.general.reset.backupTitle",
+  "settings.general.reset.backupHint",
+  "settings.general.reset.backupAgents",
+  "settings.general.reset.backupModels",
+  "settings.general.reset.backupMaps",
+  "settings.general.reset.backupMapsHint",
+  "settings.general.reset.keepModels",
+  "settings.general.reset.keepModelsHint",
+  "settings.general.reset.confirm",
+  "settings.general.reset.done",
   "chat.arena.conversationWaiting",
   "storage.quotaExceeded",
   "storage.unavailable",
@@ -147,8 +163,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 124 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(124);
+  it("lists exactly 140 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(140);
   });
 
   it("includes every configured language with matching placeholders", () => {

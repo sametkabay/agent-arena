@@ -149,7 +149,25 @@
       "clearChatsConfirm": "Clear",
       "clearChatsDone": "Chat history cleared",
       "chatterModeConversationHint_one": "Agents take turns talking to each other, one at a time, and stop after {{count}} turn until you write again. Uses extra model calls.",
-      "chatterModeConversationHint_other": "Agents take turns talking to each other, one at a time, and stop after {{count}} turns until you write again. Uses extra model calls."
+      "chatterModeConversationHint_other": "Agents take turns talking to each other, one at a time, and stop after {{count}} turns until you write again. Uses extra model calls.",
+      "reset": {
+        "title": "Reset playground",
+        "hint": "Clear agents, maps, chats, and models in this browser. Your name and language stay.",
+        "action": "Reset playground",
+        "confirmTitle": "Reset playground?",
+        "confirmBody": "This clears agents, custom maps, favorites, chat history, arena chat, and graphics settings. Ambient talk returns to its default. Models are cleared unless you keep them below.",
+        "keeps": "Your display name, language, day/night, and onboarding flags stay.",
+        "backupTitle": "Back up first",
+        "backupHint": "Export what you want to keep before resetting.",
+        "backupAgents": "Agents",
+        "backupModels": "Models",
+        "backupMaps": "Maps",
+        "backupMapsHint": "Map export covers the active map only — select each custom map and export it.",
+        "keepModels": "Keep AI models",
+        "keepModelsHint": "When checked, model configs and their API keys stay.",
+        "confirm": "Reset",
+        "done": "Playground reset"
+      }
     },
     "models": {
       "title": "AI Models",

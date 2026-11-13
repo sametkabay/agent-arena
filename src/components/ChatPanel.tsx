@@ -121,6 +121,7 @@ export function ChatPanel() {
   const setAgentSpeech = useArenaStore((s) => s.setAgentSpeech);
   const selectAgent = useArenaStore((s) => s.selectAgent);
   const setChatOpen = useArenaStore((s) => s.setChatOpen);
+  const resetSeq = useArenaStore((s) => s.resetSeq);
 
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState<ChatLayout>(() => loadLayout());
@@ -147,6 +148,10 @@ export function ChatPanel() {
   useEffect(() => {
     if (chatOpen && selectedAgentId) stickNow();
   }, [selectedAgentId, chatOpen, stickNow]);
+
+  useEffect(() => {
+    abortRef.current?.abort();
+  }, [resetSeq]);
 
   useEffect(() => {
     safeSetItem(STORAGE_KEY, JSON.stringify(layout));

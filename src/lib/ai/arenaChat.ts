@@ -223,7 +223,7 @@ async function runArenaReply(
 
   const flushBubble = () => {
     raf = 0;
-    if (!assembled.trim()) return;
+    if (!assembled.trim() || ac.signal.aborted) return;
     setAgentSpeech(agent.id, sanitizeReply(assembled) || "…", appConfig.speech.streamingHoldMs);
   };
 
@@ -255,6 +255,10 @@ async function runArenaReply(
     });
 
     if (raf) cancelAnimationFrame(raf);
+    if (ac.signal.aborted) {
+      setAgentSpeech(agent.id, undefined);
+      return;
+    }
     const text = sanitizeReply((reply || assembled).trim());
     if (text) {
       setAgentSpeech(agent.id, text, speechMsForText(text));

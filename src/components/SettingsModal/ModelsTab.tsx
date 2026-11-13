@@ -29,6 +29,10 @@ export function ModelsTab() {
   const importModels = useArenaStore((s) => s.importModels);
   const deleteModel = useArenaStore((s) => s.deleteModel);
   const showToast = useArenaStore((s) => s.showToast);
+  const settingsFocusExport = useArenaStore((s) => s.settingsFocusExport);
+  const clearSettingsFocusExport = useArenaStore(
+    (s) => s.clearSettingsFocusExport,
+  );
 
   const [editing, setEditing] = useState<AiModelConfig | null>(null);
   const [formMode, setFormMode] = useState<FormMode>("full");
@@ -43,6 +47,10 @@ export function ModelsTab() {
   );
   const fileRef = useRef<HTMLInputElement>(null);
   const importBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Backup → Models opens the export dialog via store focus (no effect setState).
+  const showExportDialog =
+    exportOpen || (settingsFocusExport === "models" && models.length > 0);
 
   function closeForm() {
     setEditing(null);
@@ -160,6 +168,11 @@ export function ModelsTab() {
     setExportOpen(true);
   }
 
+  function closeExportDialog() {
+    setExportOpen(false);
+    if (settingsFocusExport === "models") clearSettingsFocusExport();
+  }
+
   function confirmExport(includeApiKeys: boolean) {
     try {
       const json = buildModelExport(models, includeApiKeys);
@@ -175,7 +188,7 @@ export function ModelsTab() {
     } catch {
       showToast(t("settings.models.exportFailed"));
     } finally {
-      setExportOpen(false);
+      closeExportDialog();
     }
   }
 
@@ -303,9 +316,9 @@ export function ModelsTab() {
           await onImportFile(f);
         }}
       />
-      {exportOpen && (
+      {showExportDialog && (
         <ModelExportDialog
-          onCancel={() => setExportOpen(false)}
+          onCancel={closeExportDialog}
           onConfirm={confirmExport}
         />
       )}

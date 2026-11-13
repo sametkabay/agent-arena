@@ -149,7 +149,25 @@
       "chatterModeOffHint": "Les agents ne répondent que quand tu écris. Pas d’appels modèle en plus.",
       "chatterModeIdleHint": "Les agents marmonnent tout seuls dans une bulle. Utilise des appels modèle en plus.",
       "chatterModeConversationHint_one": "Les agents parlent à tour de rôle, un à la fois, et s’arrêtent après {{count}} tour jusqu’à ce que tu réécrives. Utilise des appels modèle en plus.",
-      "chatterModeConversationHint_other": "Les agents parlent à tour de rôle, un à la fois, et s’arrêtent après {{count}} tours jusqu’à ce que tu réécrives. Utilise des appels modèle en plus."
+      "chatterModeConversationHint_other": "Les agents parlent à tour de rôle, un à la fois, et s’arrêtent après {{count}} tours jusqu’à ce que tu réécrives. Utilise des appels modèle en plus.",
+      "reset": {
+        "title": "Réinitialiser le terrain de jeu",
+        "hint": "Efface agents, cartes, chats et modèles dans ce navigateur. Votre nom et votre langue restent.",
+        "action": "Réinitialiser le terrain de jeu",
+        "confirmTitle": "Réinitialiser le terrain de jeu ?",
+        "confirmBody": "Cela efface agents, cartes personnalisées, favoris, historique de chat, chat d’arène et réglages graphiques. Parole ambiante revient à sa valeur par défaut. Les modèles sont effacés sauf si vous les conservez ci-dessous.",
+        "keeps": "Votre nom affiché, la langue, jour/nuit et les drapeaux d’onboarding restent.",
+        "backupTitle": "Sauvegarder d’abord",
+        "backupHint": "Exportez ce que vous voulez garder avant de réinitialiser.",
+        "backupAgents": "Agents",
+        "backupModels": "Modèles",
+        "backupMaps": "Cartes",
+        "backupMapsHint": "L’export de carte ne couvre que la carte active — sélectionnez chaque carte personnalisée et exportez-la.",
+        "keepModels": "Conserver les modèles d’IA",
+        "keepModelsHint": "Si coché, les configs et leurs clés API restent.",
+        "confirm": "Réinitialiser",
+        "done": "Terrain de jeu réinitialisé"
+      }
     },
     "models": {
       "title": "Modèles d’IA",

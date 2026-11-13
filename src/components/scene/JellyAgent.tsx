@@ -1,4 +1,3 @@
-import { Html } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { forwardRef, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -9,6 +8,7 @@ import {
 import { getPolyPreset } from "@/lib/poly/presets";
 import type { ArenaAgent } from "@/lib/types";
 import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
+import { SafeHtml } from "@/components/scene/SafeHtml";
 
 /** Approximate jelly figure height used for the name/speech stack anchor. */
 const JELLY_HEIGHT = 1.83;
@@ -148,37 +148,36 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
           <meshBasicMaterial color="#7a9e7e" transparent opacity={0.85} depthWrite={false} />
         </mesh>
       )}
-      {showLabels && (
-        <Html
-          position={[0, agentOverlayStackWorldY(JELLY_HEIGHT), 0]}
-          center={false}
-          zIndexRange={[45, 10]}
-          style={{
-            transform: "translate3d(-50%, -100%, 0)",
-            pointerEvents: "none",
-          }}
-          className="agent-html-overlay"
+      <SafeHtml
+        position={[0, agentOverlayStackWorldY(JELLY_HEIGHT), 0]}
+        center={false}
+        zIndexRange={[45, 10]}
+        style={{
+          transform: "translate3d(-50%, -100%, 0)",
+          pointerEvents: "none",
+          visibility: showLabels ? "visible" : "hidden",
+        }}
+        className="agent-html-overlay"
+      >
+        <div
+          className="agent-overlay-stack"
+          style={{ gap: AGENT_OVERLAY_STACK_GAP_PX }}
         >
-          <div
-            className="agent-overlay-stack"
-            style={{ gap: AGENT_OVERLAY_STACK_GAP_PX }}
+          {bubble ? <div className="agent-speech">{bubble}</div> : null}
+          <button
+            type="button"
+            className={
+              "agent-label" + (selected ? " agent-label--selected" : "")
+            }
+            onClick={(ev) => {
+              ev.stopPropagation();
+              useArenaStore.getState().selectAgent(agent.id);
+            }}
           >
-            {bubble ? <div className="agent-speech">{bubble}</div> : null}
-            <button
-              type="button"
-              className={
-                "agent-label" + (selected ? " agent-label--selected" : "")
-              }
-              onClick={(ev) => {
-                ev.stopPropagation();
-                useArenaStore.getState().selectAgent(agent.id);
-              }}
-            >
-              {agent.displayName}
-            </button>
-          </div>
-        </Html>
-      )}
+            {agent.displayName}
+          </button>
+        </div>
+      </SafeHtml>
     </group>
   );
 }

@@ -17,6 +17,7 @@ import {
   useSettingsBack,
   useSettingsHeaderSave,
 } from "@/components/SettingsModal/settingsNav";
+import { useFocusExport } from "@/components/SettingsModal/useFocusExport";
 import { AgentForm } from "@/components/SettingsModal/AgentForm";
 import { AgentList } from "@/components/SettingsModal/AgentList";
 import { AgentImportDialog } from "@/components/SettingsModal/AgentImportDialog";
@@ -68,6 +69,8 @@ export function AgentsTab() {
   const revealIdRef = useRef<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const importBtnRef = useRef<HTMLButtonElement>(null);
+  const exportBtnRef = useRef<HTMLButtonElement>(null);
+  useFocusExport("agents", exportBtnRef);
   const confirmingRef = useRef(false);
   const [pendingImport, setPendingImport] = useState<{
     agents: ImportedAgent[];
@@ -250,6 +253,7 @@ export function AgentsTab() {
         onExport={exportRoster}
         onImport={startImport}
         importButtonRef={importBtnRef}
+        exportButtonRef={exportBtnRef}
         onEdit={(agent) => openEditor(agent, false)}
         onDuplicate={duplicate}
         onDelete={(id) => deleteAgent(id)}

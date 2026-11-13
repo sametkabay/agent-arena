@@ -149,7 +149,25 @@
       "chatterModeOffHint": "Agenten antworten nur, wenn du schreibst. Keine zusätzlichen Modellaufrufe.",
       "chatterModeIdleHint": "Agenten murmeln von selbst in Sprechblasen. Nutzt zusätzliche Modellaufrufe.",
       "chatterModeConversationHint_one": "Agenten sprechen abwechselnd miteinander, einer nach dem anderen, und halten nach {{count}} Zug an, bis du wieder schreibst. Nutzt zusätzliche Modellaufrufe.",
-      "chatterModeConversationHint_other": "Agenten sprechen abwechselnd miteinander, einer nach dem anderen, und halten nach {{count}} Zügen an, bis du wieder schreibst. Nutzt zusätzliche Modellaufrufe."
+      "chatterModeConversationHint_other": "Agenten sprechen abwechselnd miteinander, einer nach dem anderen, und halten nach {{count}} Zügen an, bis du wieder schreibst. Nutzt zusätzliche Modellaufrufe.",
+      "reset": {
+        "title": "Spielplatz zurücksetzen",
+        "hint": "Löscht Agenten, Karten, Chats und Modelle in diesem Browser. Name und Sprache bleiben.",
+        "action": "Spielplatz zurücksetzen",
+        "confirmTitle": "Spielplatz zurücksetzen?",
+        "confirmBody": "Dadurch werden Agenten, eigene Karten, Favoriten, Chatverlauf, Arena-Chat und Grafikeinstellungen gelöscht. Umgebungstalk kehrt zum Standard zurück. Modelle werden gelöscht, sofern du sie unten nicht behältst.",
+        "keeps": "Anzeigename, Sprache, Tag/Nacht und Onboarding-Flags bleiben.",
+        "backupTitle": "Zuerst sichern",
+        "backupHint": "Exportiere, was du behalten willst, bevor du zurücksetzt.",
+        "backupAgents": "Agenten",
+        "backupModels": "Modelle",
+        "backupMaps": "Karten",
+        "backupMapsHint": "Kartenexport betrifft nur die aktive Karte — wähle jede eigene Karte und exportiere sie.",
+        "keepModels": "KI-Modelle behalten",
+        "keepModelsHint": "Wenn aktiv, bleiben Modellconfigs und ihre API-Schlüssel erhalten.",
+        "confirm": "Zurücksetzen",
+        "done": "Spielplatz zurückgesetzt"
+      }
     },
     "models": {
       "title": "KI-Modelle",

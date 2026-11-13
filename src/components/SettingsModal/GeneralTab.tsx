@@ -5,6 +5,7 @@ import { LANGUAGES } from "@/i18n/languages";
 import { appConfig } from "@/lib/config";
 import { useArenaStore } from "@/store/arenaStore";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ResetPlaygroundDialog } from "@/components/SettingsModal/ResetPlaygroundDialog";
 import { Select } from "@/components/ui/Select";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
@@ -19,6 +20,7 @@ export function GeneralTab() {
   const clearChats = useArenaStore((s) => s.clearChats);
   const showToast = useArenaStore((s) => s.showToast);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const chatterHeadingId = useId();
   const chatterHintId = useId();
 
@@ -87,6 +89,21 @@ export function GeneralTab() {
         </button>
       </div>
 
+      <div className="settings-row settings-row--stack settings-row--flush">
+        <div>
+          <strong>{t("settings.general.reset.title")}</strong>
+          <p className="settings-hint">{t("settings.general.reset.hint")}</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn--danger"
+          data-testid="reset-playground-btn"
+          onClick={() => setConfirmReset(true)}
+        >
+          {t("settings.general.reset.action")}
+        </button>
+      </div>
+
       <ConfirmDialog
         open={confirmClear}
         title={t("settings.general.clearChatsConfirmTitle")}
@@ -101,6 +118,13 @@ export function GeneralTab() {
           if (result.ok) showToast(t("settings.general.clearChatsDone"));
         }}
       />
+
+      {confirmReset ? (
+        <ResetPlaygroundDialog
+          onCancel={() => setConfirmReset(false)}
+          onSuccess={() => setConfirmReset(false)}
+        />
+      ) : null}
     </div>
   );
 }
