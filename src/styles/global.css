@@ -689,6 +689,8 @@ button {
   position: relative;
   z-index: 1;
   width: 100%;
+  /* ≥44px touch target; overflows the 28px visual box without changing track look */
+  height: 44px;
   margin: 0;
   appearance: none;
   background: transparent;
@@ -1120,21 +1122,6 @@ button {
 
 .aa-personality__ends > span:last-child {
   text-align: right;
-}
-
-/*
- * ≥44px hit via input/track height. Keep the shared 18px thumb (no size/border
- * override) so the disc and --aa-slider-pct fill match Chattiness. A transparent
- * thumb border was tried for a wider hit disc but wedged headless WebGL; height
- * alone meets the touch target without changing travel/fill.
- */
-.aa-personality .aa-slider {
-  height: 44px;
-  min-height: 44px;
-}
-
-.aa-personality .aa-slider__input {
-  height: 44px;
 }
 
 /* —— Name gate —— */
@@ -2414,7 +2401,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.88rem;
 }
 
-.form-grid input,
+/* Exclude range: Slider paints track via .aa-slider::before/::after */
+.form-grid input:not([type="range"]),
 .form-grid textarea {
   width: 100%;
   border: 1px solid var(--border-strong);
@@ -2531,7 +2519,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.8rem;
 }
 
-.form-grid input:focus,
+.form-grid input:not([type="range"]):focus,
 .form-grid textarea:focus {
   border-color: var(--sage);
   box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.16);
