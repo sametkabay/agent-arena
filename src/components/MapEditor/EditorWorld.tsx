@@ -26,6 +26,8 @@ export function EditorWorld({
   onMoveIds,
   onPlaceAsset,
   onPlaceSpawn,
+  onPlaceZone,
+  onPlaceLight,
   paintPlaceableId,
   onDragGestureStart,
   onDragGestureEnd,
@@ -41,6 +43,8 @@ export function EditorWorld({
   ) => void;
   onPlaceAsset: (placeableId: PlaceableId, pos: [number, number, number]) => void;
   onPlaceSpawn: (pos: [number, number, number]) => void;
+  onPlaceZone: (pos: [number, number, number]) => void;
+  onPlaceLight: (pos: [number, number, number]) => void;
   paintPlaceableId: PlaceableId | null;
   onDragGestureStart: () => void;
   onDragGestureEnd: () => void;
@@ -67,6 +71,9 @@ export function EditorWorld({
 
   const beginSelect = (e: ThreeEvent<PointerEvent>) => {
     if (e.button === 2) return;
+    // Placement tools own the click — do not steal it from the floor mesh
+    // (Office furniture often sits under the canvas center).
+    if (tool === "spawn" || tool === "zone" || tool === "light") return;
     e.stopPropagation();
     const stack = idsFromIntersections(e.intersections, "editorTargetId");
     const additive = e.nativeEvent.shiftKey;
@@ -77,6 +84,8 @@ export function EditorWorld({
 
     const isSpawn = draft.spawnPoints.some((s) => s.id === picked);
     const isPlaceable = draft.placeables.some((p) => p.id === picked);
+    const isZone = (draft.zones ?? []).some((z) => z.id === picked);
+    const isLight = (draft.lights ?? []).some((L) => L.id === picked);
 
     if (additive && isPlaceable) {
       onSelect(picked, { additive: true });
@@ -103,14 +112,16 @@ export function EditorWorld({
       dragIds = [picked];
     }
 
-    // Spawns never multi-drag with placeables
-    if (isSpawn) dragIds = [picked];
+    // Spawns / zones / lights never multi-drag with placeables
+    if (isSpawn || isZone || isLight) dragIds = [picked];
 
     const origins: Record<string, [number, number, number]> = {};
     for (const id of dragIds) {
       const p = draft.placeables.find((x) => x.id === id);
       const s = draft.spawnPoints.find((x) => x.id === id);
-      const pos = p?.position ?? s?.position;
+      const z = (draft.zones ?? []).find((x) => x.id === id);
+      const L = (draft.lights ?? []).find((x) => x.id === id);
+      const pos = p?.position ?? s?.position ?? z?.center ?? L?.position;
       if (pos) origins[id] = [pos[0], pos[1], pos[2]];
     }
 
@@ -125,7 +136,7 @@ export function EditorWorld({
   };
 
   const openCtx = (
-    kind: "placeable" | "spawn",
+    kind: "placeable" | "spawn" | "zone" | "light",
     e: ThreeEvent<MouseEvent>,
   ) => {
     e.stopPropagation();
@@ -198,6 +209,18 @@ export function EditorWorld({
       if (pos) onPlaceSpawn(pos);
       return;
     }
+    if (tool === "zone") {
+      e.stopPropagation();
+      const pos = hitFloor(e, floorSize, snapStep);
+      if (pos) onPlaceZone(pos);
+      return;
+    }
+    if (tool === "light") {
+      e.stopPropagation();
+      const pos = hitFloor(e, floorSize, snapStep);
+      if (pos) onPlaceLight(pos);
+      return;
+    }
     if (paintPlaceableId) {
       e.stopPropagation();
       const pos = hitFloor(e, floorSize, snapStep);
@@ -255,7 +278,12 @@ export function EditorWorld({
       ))}
 
       <ArenaFloor floor={draft.floor} />
-      <MapZones zones={draft.zones ?? []} visible opacity={0.16} />
+      <MapZones
+        zones={draft.zones ?? []}
+        visible
+        opacity={0.16}
+        selectedIds={selectedSet}
+      />
       <gridHelper
         args={[
           floorSize,
@@ -296,6 +324,29 @@ export function EditorWorld({
           selected={selectedSet.has(sp.id)}
           onPointerDown={beginSelect}
           onContextMenu={(e) => openCtx("spawn", e)}
+        />
+      ))}
+
+      {(draft.zones ?? []).map((z) => (
+        <ZoneGizmo
+          key={`zg_${z.id}`}
+          id={z.id}
+          center={z.center}
+          selected={selectedSet.has(z.id)}
+          onPointerDown={beginSelect}
+          onContextMenu={(e) => openCtx("zone", e)}
+        />
+      ))}
+
+      {(draft.lights ?? []).map((L) => (
+        <LightGizmo
+          key={`lg_${L.id}`}
+          id={L.id}
+          position={L.position}
+          color={L.color}
+          selected={selectedSet.has(L.id)}
+          onPointerDown={beginSelect}
+          onContextMenu={(e) => openCtx("light", e)}
         />
       ))}
 
@@ -464,6 +515,133 @@ function SpawnGizmo({
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
           <ringGeometry args={[0.62, 0.72, 40]} />
           <meshBasicMaterial color="#4A90A4" transparent opacity={0.55} depthWrite={false} />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+/** Center handle only — full zone mesh stays non-pickable so floor clicks work. */
+function ZoneGizmo({
+  id,
+  center,
+  selected,
+  onPointerDown,
+  onContextMenu,
+}: {
+  id: string;
+  center: [number, number, number];
+  selected: boolean;
+  onPointerDown: (e: ThreeEvent<PointerEvent>) => void;
+  onContextMenu: (e: ThreeEvent<MouseEvent>) => void;
+}) {
+  const tint = selected ? "#6ecf8a" : "#88ccaa";
+  return (
+    <group
+      position={[center[0], 0, center[2]]}
+      userData={{ editorTargetId: id }}
+    >
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.05, 0]}
+        onPointerDown={onPointerDown}
+        onClick={(e) => e.stopPropagation()}
+        onContextMenu={onContextMenu}
+      >
+        <circleGeometry args={[0.55, 32]} />
+        <meshBasicMaterial
+          color={tint}
+          transparent
+          opacity={selected ? 0.5 : 0.3}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {selected && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+          <ringGeometry args={[0.58, 0.72, 40]} />
+          <meshBasicMaterial
+            color="#4A7566"
+            transparent
+            opacity={0.75}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+function LightGizmo({
+  id,
+  position,
+  color,
+  selected,
+  onPointerDown,
+  onContextMenu,
+}: {
+  id: string;
+  position: [number, number, number];
+  color: string;
+  selected: boolean;
+  onPointerDown: (e: ThreeEvent<PointerEvent>) => void;
+  onContextMenu: (e: ThreeEvent<MouseEvent>) => void;
+}) {
+  const tint = selected ? "#ffe08a" : color || "#ffe8cc";
+  const height = Math.max(0.3, position[1]);
+  const pickProps = {
+    onPointerDown,
+    onClick: (e: ThreeEvent<MouseEvent>) => e.stopPropagation(),
+    onContextMenu,
+  };
+  return (
+    <group
+      position={[position[0], 0, position[2]]}
+      userData={{ editorTargetId: id }}
+    >
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.04, 0]}
+        {...pickProps}
+      >
+        <circleGeometry args={[0.55, 32]} />
+        <meshBasicMaterial
+          color={tint}
+          transparent
+          opacity={selected ? 0.45 : 0.28}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh position={[0, height / 2, 0]} {...pickProps}>
+        <cylinderGeometry args={[0.03, 0.03, height, 8]} />
+        <meshBasicMaterial
+          color={tint}
+          transparent
+          opacity={selected ? 0.7 : 0.4}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh position={[0, height, 0]} {...pickProps}>
+        <sphereGeometry args={[0.18, 16, 16]} />
+        <meshBasicMaterial
+          color={tint}
+          transparent
+          opacity={selected ? 0.9 : 0.7}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {selected && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+          <ringGeometry args={[0.58, 0.7, 40]} />
+          <meshBasicMaterial
+            color="#E8C070"
+            transparent
+            opacity={0.65}
+            depthWrite={false}
+          />
         </mesh>
       )}
     </group>

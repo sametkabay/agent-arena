@@ -164,6 +164,40 @@ const REQUIRED_KEYS = [
   "mapEditor.saveFailedUnavailable",
   "mapEditor.saveFailedUnknown",
   "mapEditor.dismissSaveError",
+  "mapEditor.toolZone",
+  "mapEditor.toolLight",
+  "mapEditor.toolbarMore",
+  "mapEditor.zoneMode",
+  "mapEditor.lightMode",
+  "mapEditor.zone",
+  "mapEditor.light",
+  "mapEditor.zoneName",
+  "mapEditor.zoneDefaultName",
+  "mapEditor.zoneNameStem",
+  "mapEditor.zoneKind",
+  "mapEditor.zoneRadius",
+  "mapEditor.zoneWidth",
+  "mapEditor.zoneDepth",
+  "mapEditor.zoneConvertToRect",
+  "mapEditor.zoneKinds.camp",
+  "mapEditor.zoneKinds.yard",
+  "mapEditor.zoneKinds.indoor",
+  "mapEditor.zoneKinds.path",
+  "mapEditor.zoneKinds.platform",
+  "mapEditor.zoneKinds.custom",
+  "mapEditor.lightColor",
+  "mapEditor.lightIntensity",
+  "mapEditor.lightRange",
+  "mapEditor.lightHeight",
+  "mapEditor.deleteZone",
+  "mapEditor.deleteLight",
+  "mapEditor.zonesList",
+  "mapEditor.lightsList",
+  "mapEditor.lightListItem",
+  "mapEditor.zoneLimit",
+  "mapEditor.lightLimit",
+  "mapEditor.zoneSelectedBanner",
+  "mapEditor.lightSelectedBanner",
 ] as const;
 
 function getByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -180,8 +214,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 151 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(157);
+  it("lists exactly 190 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(191);
   });
 
   it("includes every configured language with matching placeholders", () => {

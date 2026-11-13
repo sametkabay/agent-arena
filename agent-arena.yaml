@@ -114,6 +114,25 @@ maps:
     - office
     - concrete
     - factory
+  regions:
+    maxZones: 24
+    maxLights: 12
+    zoneNameMax: 40
+    zoneRadiusMin: 0.5
+    zoneRadiusDefault: 2
+    zoneSizeMin: 0.5
+    zoneSizeDefault: 4
+    lightIntensityMin: 0
+    lightIntensityMax: 3
+    lightIntensityStep: 0.05
+    lightIntensityDefault: 0.6
+    lightDistanceMin: 2
+    lightDistanceMax: 40
+    lightDistanceDefault: 12
+    lightHeightMin: 0.3
+    lightHeightMax: 8
+    lightHeightDefault: 3
+    lightColorDefault: "#ffe8cc"
   defaultTheme:
     accent: "#4A7566"
     background: "#A8A59E"
