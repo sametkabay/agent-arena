@@ -57,6 +57,11 @@ export interface AgentConfig {
    * 0 = never; 100 ≈ 2 LLM asides per minute on average.
    */
   chattiness: number;
+  /**
+   * Conversation temperament 1–10.
+   * 1 = agreeable; 5 = neutral (no prompt line); 10 = aggressive.
+   */
+  temperament: number;
   /** Optional skill blocks injected into the system prompt. */
   skills: AgentSkill[];
   color: string;

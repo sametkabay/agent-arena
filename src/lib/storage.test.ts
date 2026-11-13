@@ -5,6 +5,7 @@ import {
   STORAGE_KEY,
   PersistFailedError,
   clampChattiness,
+  clampTemperament,
   classifyStorageError,
   defaultPersisted,
   isPersistFailedError,
@@ -32,6 +33,34 @@ describe("clampChattiness", () => {
     expect(clampChattiness("40")).toBe(40);
     expect(clampChattiness("nope")).toBe(0);
     expect(clampChattiness(undefined)).toBe(0);
+  });
+});
+
+describe("clampTemperament", () => {
+  it("defaults missing/null/empty/NaN to 5 and clamps 1–10", () => {
+    expect(clampTemperament(undefined)).toBe(5);
+    expect(clampTemperament(null)).toBe(5);
+    expect(clampTemperament("")).toBe(5);
+    expect(clampTemperament("abc")).toBe(5);
+    expect(clampTemperament(0)).toBe(1);
+    expect(clampTemperament(11)).toBe(10);
+    expect(clampTemperament(7.6)).toBe(8);
+    expect(clampTemperament("3")).toBe(3);
+    expect(clampTemperament(" 7 ")).toBe(7);
+  });
+
+  it("rejects blank strings, booleans, arrays, objects, Infinity, and NaN", () => {
+    expect(clampTemperament("   ")).toBe(5);
+    expect(clampTemperament("\t")).toBe(5);
+    expect(clampTemperament(true)).toBe(5);
+    expect(clampTemperament(false)).toBe(5);
+    expect(clampTemperament([])).toBe(5);
+    expect(clampTemperament([7])).toBe(5);
+    expect(clampTemperament({})).toBe(5);
+    expect(clampTemperament({ n: 7 })).toBe(5);
+    expect(clampTemperament(Infinity)).toBe(5);
+    expect(clampTemperament(-Infinity)).toBe(5);
+    expect(clampTemperament(NaN)).toBe(5);
   });
 });
 
@@ -261,6 +290,7 @@ describe("loadPersisted / savePersisted", () => {
     data.agents = [
       sampleAgent({
         chattiness: 200,
+        temperament: 99 as never,
         enabled: undefined as unknown as boolean,
         characterId: "not-a-character",
         skills: [{ id: "", name: "Scout", content: "Look around" }] as never,
@@ -281,6 +311,7 @@ describe("loadPersisted / savePersisted", () => {
     expect(loaded.dayNight).toBe("night");
     expect(loaded.favoriteAssets).toContain("space_boulder");
     expect(loaded.agents[0]?.chattiness).toBe(100);
+    expect(loaded.agents[0]?.temperament).toBe(10);
     expect(loaded.agents[0]?.enabled).toBe(true);
     expect(loaded.agents[0]?.characterId).toBeTruthy();
     expect(loaded.agents[0]?.skills[0]?.id).toMatch(/^skill_/);

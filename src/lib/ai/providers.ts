@@ -86,6 +86,7 @@ export function buildSystemPrompt(
   agentName: string,
   skills: AgentSkill[] = [],
   world: ArenaWorldContext,
+  temperament: number,
 ): string {
   return buildAgentSystemPrompt({
     agentPrompt,
@@ -93,6 +94,7 @@ export function buildSystemPrompt(
     skills,
     world,
     mode: "private_chat",
+    temperament,
   });
 }
 

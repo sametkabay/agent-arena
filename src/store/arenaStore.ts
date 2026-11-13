@@ -38,6 +38,7 @@ import {
   savePersisted,
   uid,
   clampChattiness,
+  clampTemperament,
   MAX_ARENA_CHAT_HISTORY,
   PersistFailedError,
   storageFailureMessageKey,
@@ -616,6 +617,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       ...agent,
       enabled: agent.enabled !== false,
       chattiness: clampChattiness(agent.chattiness),
+      temperament: clampTemperament(agent.temperament),
     };
     set((s) => {
       const idx = s.agents.findIndex((a) => a.id === normalized.id);
@@ -671,6 +673,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       enabled: item.enabled !== false,
       thinkingEnabled: item.thinkingEnabled === true,
       chattiness: clampChattiness(item.chattiness),
+      temperament: clampTemperament(item.temperament),
       skills: item.skills ?? [],
       characterId: item.characterId || DEFAULT_CHARACTER_ID,
       createdAt,
@@ -1202,6 +1205,7 @@ export function createAgentDraft(
     enabled: appConfig.defaults.agentEnabled,
     thinkingEnabled: appConfig.defaults.agentThinking,
     chattiness: appConfig.defaults.agentChattiness,
+    temperament: appConfig.defaults.agentTemperament,
     skills: [],
     color: appConfig.defaults.agentColor,
     bio: "",

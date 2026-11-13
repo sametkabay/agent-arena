@@ -179,6 +179,7 @@ describe("createAgentCopy", () => {
     expect(copy.enabled).toBe(source.enabled);
     expect(copy.thinkingEnabled).toBe(true);
     expect(copy.chattiness).toBe(70);
+    expect(copy.temperament).toBe(source.temperament);
     expect(copy.color).toBe(source.color);
     expect(copy.bio).toBe(source.bio);
     expect(copy.skills).toEqual(source.skills);

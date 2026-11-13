@@ -15,6 +15,7 @@ describe("barrel exports", () => {
       /open-source, browser-native multi-agent playground/i,
     );
     expect(appConfig.defaults.chatterMode).toBe("off");
+    expect(appConfig.defaults.agentTemperament).toBe(5);
     expect(appConfig.conversation.maxAgentTurns).toBe(6);
   });
 });

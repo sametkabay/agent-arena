@@ -32,6 +32,7 @@ function imported(partial: Partial<ImportedAgent> = {}): ImportedAgent {
     systemPrompt: "You are Ada.",
     color: "#e07070",
     chattiness: 50,
+    temperament: 5,
     thinkingEnabled: false,
     enabled: true,
     skills: [],

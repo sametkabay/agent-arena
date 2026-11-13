@@ -4,7 +4,7 @@ import type { AgentConfig } from "@/lib/types";
 import { getPolyPreset } from "@/lib/poly/presets";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
-import { clampChattiness } from "@/lib/storage";
+import { clampChattiness, clampTemperament } from "@/lib/storage";
 import {
   ROSTER_LIMITS,
   RosterImportError,
@@ -32,6 +32,7 @@ function agentFormKey(agent: AgentConfig): string {
     enabled: agent.enabled !== false,
     thinkingEnabled: agent.thinkingEnabled === true,
     chattiness: clampChattiness(agent.chattiness),
+    temperament: clampTemperament(agent.temperament),
     skills: (agent.skills ?? []).map((s) => ({
       name: s.name,
       content: s.content,
@@ -47,6 +48,7 @@ function normalizeAgentForm(agent: AgentConfig): AgentConfig {
     enabled: agent.enabled !== false,
     thinkingEnabled: agent.thinkingEnabled === true,
     chattiness: clampChattiness(agent.chattiness),
+    temperament: clampTemperament(agent.temperament),
     skills: agent.skills ?? [],
     characterId: agent.characterId || DEFAULT_CHARACTER_ID,
   };
@@ -135,6 +137,7 @@ export function AgentsTab() {
       enabled: editing.enabled !== false,
       thinkingEnabled: editing.thinkingEnabled === true,
       chattiness: clampChattiness(editing.chattiness),
+      temperament: clampTemperament(editing.temperament),
       skills: (editing.skills ?? [])
         .map((s) => ({
           ...s,
@@ -263,6 +266,7 @@ export function AgentsTab() {
             enabled: next,
             thinkingEnabled: a.thinkingEnabled === true,
             chattiness: clampChattiness(a.chattiness),
+            temperament: clampTemperament(a.temperament),
             skills: a.skills ?? [],
             characterId: a.characterId || DEFAULT_CHARACTER_ID,
           })

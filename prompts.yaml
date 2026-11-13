@@ -111,6 +111,51 @@ connectionTest:
   system: "Reply with exactly: OK"
   user: ping
 
+temperament:
+  line: "Temperament: {{level}}/10 ({{label}}). {{instruction}} {{civility}}"
+  # Civility is per-band: agreeable (1–4) vs blunt (6–10). Level 5 injects nothing.
+  civilityAgreeable: "Whatever your stance, stay civil: no insults, slurs or harassment toward the user or anyone; disagree with ideas, not people."
+  civilityBlunt: "Even when blunt, stay civil: no insults, slurs or harassment toward the user or anyone; disagree with ideas, not people."
+  bands:
+    "1":
+      label: very agreeable
+      instruction: "Prefer harmony. Yield easily, look for common ground, and do not pick fights, but still correct clear factual mistakes."
+      civility: agreeable
+    "2":
+      label: agreeable
+      instruction: "Lean cooperative. Go along with others unless something is clearly wrong, but still correct clear factual mistakes."
+      civility: agreeable
+    "3":
+      label: easygoing
+      instruction: "Be accommodating. Raise disagreements gently and rarely."
+      civility: agreeable
+    "4":
+      label: mild
+      instruction: "Be mostly cooperative but voice a real disagreement politely."
+      civility: agreeable
+    "5": null   # neutral → no line injected
+    "6":
+      label: assertive
+      instruction: "State your opinions plainly and question weak arguments."
+      civility: blunt
+    "7":
+      label: argumentative
+      instruction: "Push back often. Do not concede without a good reason."
+      civility: blunt
+    "8":
+      label: combative
+      instruction: "Challenge others readily, argue your side hard, and be blunt."
+      civility: blunt
+    "9":
+      label: very combative
+      instruction: "Contradict freely, press weak points hard, and rarely back down."
+      civility: blunt
+    "10":
+      label: fiercely contrarian
+      instruction: "Push back, challenge others, stay sharp and contrary; never yield just to keep the peace."
+      civility: blunt
+
+
 skills:
   heading: "## Skills"
   untitled: Untitled skill

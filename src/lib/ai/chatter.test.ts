@@ -144,6 +144,15 @@ describe("tickAgentChatter", () => {
   it("schedules then fires a mutter", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(5000);
+    seedStore({
+      agents: [
+        sampleAgent({
+          chattiness: 80,
+          temperament: 9,
+          modelConfigId: "model-1",
+        }),
+      ],
+    });
     const rt = createChatterRuntime();
     tickAgentChatter(rt);
     expect(rt.nextAt.has("agent-1")).toBe(true);
@@ -151,6 +160,14 @@ describe("tickAgentChatter", () => {
     tickAgentChatter(rt);
     await vi.runAllTimersAsync();
     expect(chatCompletion).toHaveBeenCalled();
+    const req = chatCompletion.mock.calls[0]?.[0] as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    const system = req.messages.find((m) => m.role === "system")?.content ?? "";
+    expect(system).toContain(
+      "Temperament: 9/10 (very combative). Contradict freely, press weak points hard, and rarely back down.",
+    );
+    expect(system).toContain("Even when blunt, stay civil");
     disposeChatterRuntime(rt);
   });
 

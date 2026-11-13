@@ -21,6 +21,7 @@ function importedAgent(
     enabled: true,
     thinkingEnabled: false,
     chattiness: 50,
+    temperament: 5,
     skills: [],
     color: "#abcabc",
     ...partial,

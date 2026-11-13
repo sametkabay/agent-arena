@@ -689,6 +689,8 @@ button {
   position: relative;
   z-index: 1;
   width: 100%;
+  /* ≥44px touch target; overflows the 28px visual box without changing track look */
+  height: 44px;
   margin: 0;
   appearance: none;
   background: transparent;
@@ -1071,6 +1073,55 @@ button {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--ink-soft);
+}
+
+.aa-personality {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-chip);
+}
+
+.aa-personality__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aa-personality__value {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+.aa-personality h3.aa-toggle-card__title {
+  margin: 0;
+}
+
+.aa-personality__ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.aa-personality__ends > span {
+  max-width: 46%;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.aa-personality__ends > span:last-child {
+  text-align: right;
 }
 
 /* —— Name gate —— */
@@ -2350,7 +2401,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.88rem;
 }
 
-.form-grid input,
+/* Exclude range: Slider paints track via .aa-slider::before/::after */
+.form-grid input:not([type="range"]),
 .form-grid textarea {
   width: 100%;
   border: 1px solid var(--border-strong);
@@ -2467,7 +2519,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.8rem;
 }
 
-.form-grid input:focus,
+.form-grid input:not([type="range"]):focus,
 .form-grid textarea:focus {
   border-color: var(--sage);
   box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.16);

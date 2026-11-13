@@ -292,6 +292,7 @@ describe("round-trip", () => {
     const source = sampleAgent({
       displayName: "Ada",
       thinkingEnabled: true,
+      temperament: 8,
       skills: [{ id: "s1", name: "Code", content: "Be clear." }],
       bio: "Curious.",
     });
@@ -304,10 +305,47 @@ describe("round-trip", () => {
     expect(imported.bio).toBe(source.bio);
     expect(imported.color).toBe(source.color);
     expect(imported.chattiness).toBe(source.chattiness);
+    expect(imported.temperament).toBe(8);
     expect(imported.thinkingEnabled).toBe(true);
     expect(imported.enabled).toBe(true);
     expect(imported.skills[0]!.name).toBe("Code");
     expect(imported.skills[0]!.content).toBe("Be clear.");
     expect(imported.skills[0]!.id).not.toBe("s1");
+  });
+
+  it("defaults missing temperament to 5 and clamps out-of-range", () => {
+    const oldFile = JSON.stringify({
+      format: "agent-arena/agents",
+      version: 1,
+      exportedAt: "2026-01-01T00:00:00.000Z",
+      agents: [
+        {
+          displayName: "Legacy",
+          polyPresetId: "explorer",
+          characterId: "generic-male",
+          systemPrompt: "Hi",
+          color: "#4A90A4",
+          chattiness: 40,
+          thinkingEnabled: false,
+          enabled: true,
+          skills: [],
+        },
+        {
+          displayName: "Hot",
+          polyPresetId: "explorer",
+          characterId: "generic-male",
+          systemPrompt: "Hi",
+          color: "#4A90A4",
+          chattiness: 40,
+          temperament: 99,
+          thinkingEnabled: false,
+          enabled: true,
+          skills: [],
+        },
+      ],
+    });
+    const { agents } = parseRosterImport(oldFile);
+    expect(agents[0]!.temperament).toBe(5);
+    expect(agents[1]!.temperament).toBe(10);
   });
 });

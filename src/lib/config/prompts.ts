@@ -44,6 +44,15 @@ export interface PromptsFile {
     system: string;
     user: string;
   };
+  temperament: {
+    line: string;
+    civilityAgreeable: string;
+    civilityBlunt: string;
+    bands: Record<
+      string,
+      { label: string; instruction: string; civility: "agreeable" | "blunt" } | null
+    >;
+  };
   skills: {
     heading: string;
     untitled: string;
