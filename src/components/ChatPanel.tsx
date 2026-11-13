@@ -244,6 +244,7 @@ export function ChatPanel() {
       agent.displayName,
       agent.skills ?? [],
       getArenaWorldContext(agent.id),
+      agent.temperament,
     );
     abortRef.current?.abort();
     const ac = new AbortController();

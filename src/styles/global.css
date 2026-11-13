@@ -1073,6 +1073,72 @@ button {
   color: var(--ink-soft);
 }
 
+.aa-personality {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-chip);
+}
+
+.aa-personality__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aa-personality__value {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+.aa-personality h3.aa-toggle-card__title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.aa-personality__ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.aa-personality__ends > span {
+  max-width: 46%;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.aa-personality__ends > span:last-child {
+  text-align: right;
+}
+
+/*
+ * ≥44px hit via input/track height. Keep the shared 18px thumb (no size/border
+ * override) so the disc and --aa-slider-pct fill match Chattiness. A transparent
+ * thumb border was tried for a wider hit disc but wedged headless WebGL; height
+ * alone meets the touch target without changing travel/fill.
+ */
+.aa-personality .aa-slider {
+  height: 44px;
+  min-height: 44px;
+}
+
+.aa-personality .aa-slider__input {
+  height: 44px;
+}
+
 /* —— Name gate —— */
 .name-gate {
   min-height: 100%;

@@ -12,6 +12,7 @@ import {
   prompts,
   type ArenaPromptMode,
 } from "@/lib/config";
+import { clampTemperament } from "@/lib/storage";
 
 export type { ArenaPromptMode };
 
@@ -182,9 +183,27 @@ function formatSkills(skills: AgentSkill[]): string[] {
   return lines;
 }
 
+/** Build the temperament system-prompt line, or "" for neutral (5). */
+export function buildTemperamentLine(level: number): string {
+  const clamped = clampTemperament(level);
+  const band = prompts.temperament.bands[String(clamped)];
+  if (!band) return "";
+  const civility =
+    band.civility === "blunt"
+      ? prompts.temperament.civilityBlunt
+      : prompts.temperament.civilityAgreeable;
+  return fillPrompt(prompts.temperament.line, {
+    level: clamped,
+    label: band.label,
+    instruction: band.instruction,
+    civility,
+  });
+}
+
 /**
  * Shared system prompt shell for private chat, arena chat, and idle mutters.
  * Keeps identity / language / session facts consistent across call sites.
+ * `temperament` is required so every call site opts in at compile time.
  */
 export function buildAgentSystemPrompt(opts: {
   agentPrompt: string;
@@ -192,16 +211,19 @@ export function buildAgentSystemPrompt(opts: {
   skills?: AgentSkill[];
   world: ArenaWorldContext;
   mode: ArenaPromptMode;
+  temperament: number;
 }): string {
   const { agentPrompt, agentName, world, mode } = opts;
   const vars = { agentName, language: languageLabel(world.language), userName: world.userName };
-  const parts: string[] = [
-    agentPrompt.trim(),
+  const parts: string[] = [agentPrompt.trim()];
+  const temperamentLine = buildTemperamentLine(opts.temperament);
+  if (temperamentLine) parts.push(temperamentLine);
+  parts.push(
     fillPrompt(prompts.identity, vars),
     fillPrompt(prompts.language, vars),
     ...fillPromptLines(promptMode(mode).lines, vars),
     prompts.internals,
-  ];
+  );
 
   parts.push(...formatSkills(opts.skills ?? []));
 

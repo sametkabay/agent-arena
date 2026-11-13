@@ -2,7 +2,7 @@ import type { AgentConfig, AgentSkill } from "@/lib/types";
 import { normalizeAgentName, nextCopyName } from "@/lib/agentCopy";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
 import { ALL_POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
-import { clampChattiness, uid } from "@/lib/storage";
+import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
 
 export const ROSTER_FORMAT = "agent-arena/agents" as const;
 export const ROSTER_VERSION = 1 as const;
@@ -29,6 +29,7 @@ export type RosterExportAgent = {
   bio?: string;
   color: string;
   chattiness: number;
+  temperament: number;
   thinkingEnabled: boolean;
   enabled: boolean;
   skills: { name: string; content: string }[];
@@ -69,6 +70,7 @@ export type ImportedAgent = {
   bio?: string;
   color: string;
   chattiness: number;
+  temperament: number;
   thinkingEnabled: boolean;
   enabled: boolean;
   skills: AgentSkill[];
@@ -154,6 +156,7 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
     ...(bio ? { bio } : {}),
     color,
     chattiness: clampChattiness(a.chattiness),
+    temperament: clampTemperament(a.temperament),
     thinkingEnabled: a.thinkingEnabled === true,
     enabled: a.enabled !== false,
     skills: sanitizeImportSkills(a.skills),
@@ -175,6 +178,7 @@ export function buildRosterExport(agents: readonly AgentConfig[]): string {
         systemPrompt: a.systemPrompt,
         color: a.color,
         chattiness: clampChattiness(a.chattiness),
+        temperament: clampTemperament(a.temperament),
         thinkingEnabled: a.thinkingEnabled === true,
         enabled: a.enabled !== false,
         skills: (a.skills ?? []).map((s) => ({

@@ -46,6 +46,12 @@ const REQUIRED_KEYS = [
   "settings.agents.duplicateAria",
   "settings.agents.duplicated",
   "settings.agents.copyLabel",
+  "settings.agents.personality",
+  "settings.agents.personalityHint",
+  "settings.agents.temperament",
+  "settings.agents.temperamentAgreeable",
+  "settings.agents.temperamentAggressive",
+  "settings.agents.temperamentValueText",
   "settings.agents.exportRoster",
   "settings.agents.exportRosterAria",
   "settings.agents.exported",
@@ -175,7 +181,7 @@ function placeholders(value: string): string[] {
 
 describe("onboarding locale keys", () => {
   it("lists exactly 151 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(151);
+    expect(REQUIRED_KEYS).toHaveLength(157);
   });
 
   it("includes every configured language with matching placeholders", () => {

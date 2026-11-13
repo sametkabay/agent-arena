@@ -174,6 +174,7 @@ function sanitizeAgents(raw: unknown): AgentConfig[] {
       enabled: a.enabled !== false,
       thinkingEnabled: a.thinkingEnabled === true,
       chattiness: clampChattiness(a.chattiness),
+      temperament: clampTemperament(a.temperament),
       skills: sanitizeSkills(a.skills),
       characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
         ? (a.characterId as string)
@@ -185,6 +186,25 @@ export function clampChattiness(v: unknown): number {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return 0;
   return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/**
+ * Temperament 1–10; only finite numbers and non-blank numeric strings are accepted.
+ * Everything else (missing/null/blank/booleans/arrays/objects/Infinity/NaN) → 5.
+ */
+export function clampTemperament(v: unknown): number {
+  if (typeof v === "number") {
+    if (!Number.isFinite(v)) return 5;
+    return Math.max(1, Math.min(10, Math.round(v)));
+  }
+  if (typeof v === "string") {
+    const trimmed = v.trim();
+    if (trimmed === "") return 5;
+    const n = Number(trimmed);
+    if (!Number.isFinite(n)) return 5;
+    return Math.max(1, Math.min(10, Math.round(n)));
+  }
+  return 5;
 }
 
 export function loadPersisted(): AppPersisted {

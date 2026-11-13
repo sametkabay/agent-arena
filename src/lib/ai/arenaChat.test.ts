@@ -116,6 +116,58 @@ describe("sendArenaChatMessage", () => {
     expect(chatCompletion).not.toHaveBeenCalled();
   });
 
+  it("includes temperament in arena broadcast and mention system prompts", async () => {
+    useArenaStore.setState({
+      userName: "Samet",
+      language: "en",
+      dayNight: "day",
+      mapId: "office",
+      customMaps: [],
+      activeMap: null,
+      chatterMode: "idle",
+      agents: [
+        sampleAgent({
+          displayName: "Explorer",
+          modelConfigId: "model-1",
+          temperament: 9,
+        }),
+      ],
+      models: [sampleModel()],
+      chatBusyById: {},
+      pushFloatingChatLog: vi.fn(),
+      setAgentSpeech: vi.fn(),
+      setChatBusy: (agentId: string, busy: boolean) => {
+        useArenaStore.setState((s) => ({
+          chatBusyById: { ...s.chatBusyById, [agentId]: busy },
+        }));
+      },
+    } as never);
+    const level9 =
+      "Temperament: 9/10 (very combative). Contradict freely, press weak points hard, and rarely back down.";
+    chatCompletion.mockResolvedValue("ok");
+    await sendArenaChatMessage("hello all");
+    await vi.waitFor(() => expect(chatCompletion).toHaveBeenCalled());
+    const broadcast = chatCompletion.mock.calls[0]?.[0] as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    const broadcastSystem =
+      broadcast.messages.find((m) => m.role === "system")?.content ?? "";
+    expect(broadcastSystem).toContain(level9);
+    expect(broadcastSystem).toContain("Even when blunt, stay civil");
+
+    chatCompletion.mockClear();
+    chatCompletion.mockResolvedValue("ok");
+    await sendArenaChatMessage("@Explorer ping");
+    await vi.waitFor(() => expect(chatCompletion).toHaveBeenCalled());
+    const mention = chatCompletion.mock.calls[0]?.[0] as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    const mentionSystem =
+      mention.messages.find((m) => m.role === "system")?.content ?? "";
+    expect(mentionSystem).toContain(level9);
+    expect(mentionSystem).toContain("Even when blunt, stay civil");
+  });
+
   it("queues a busy agent and drains after setChatBusy(false); latest wins", async () => {
     const push = vi.fn();
     const setAgentSpeech = vi.fn();

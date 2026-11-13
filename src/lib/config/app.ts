@@ -35,6 +35,7 @@ export interface AppConfig {
     agentName: string;
     agentColor: string;
     agentChattiness: number;
+    agentTemperament: number;
     chatterMode: "off" | "idle" | "conversation";
     agentEnabled: boolean;
     agentThinking: boolean;

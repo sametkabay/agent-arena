@@ -27,6 +27,32 @@ describe("prompts", () => {
     expect(prompts.session.speechDisciplineConversation).toBeTruthy();
     expect(prompts.situation.footerConversation).toBeTruthy();
   });
+
+  it("defines temperament bands for levels 1–10", () => {
+    for (let level = 1; level <= 10; level++) {
+      expect(Object.prototype.hasOwnProperty.call(prompts.temperament.bands, String(level))).toBe(
+        true,
+      );
+    }
+    expect(prompts.temperament.bands["5"]).toBeNull();
+    expect(prompts.temperament.bands["1"]).toMatchObject({
+      label: expect.any(String),
+      instruction: expect.any(String),
+      civility: "agreeable",
+    });
+    expect(prompts.temperament.bands["9"]).toMatchObject({
+      civility: "blunt",
+      label: "very combative",
+    });
+    expect(prompts.temperament.bands["10"]).toMatchObject({
+      label: "fiercely contrarian",
+      civility: "blunt",
+    });
+    expect(prompts.temperament.line).toContain("{{level}}");
+    expect(prompts.temperament.line).toContain("{{civility}}");
+    expect(prompts.temperament.civilityAgreeable).toMatch(/Whatever your stance/i);
+    expect(prompts.temperament.civilityBlunt).toMatch(/Even when blunt/i);
+  });
 });
 
 describe("speechMsForText", () => {

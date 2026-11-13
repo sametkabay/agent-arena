@@ -24,6 +24,7 @@ export function sampleAgent(overrides: Partial<AgentConfig> = {}): AgentConfig {
     enabled: true,
     thinkingEnabled: false,
     chattiness: 40,
+    temperament: 5,
     skills: [],
     color: "#4a90d9",
     bio: "Maps caves and talks to rocks.",

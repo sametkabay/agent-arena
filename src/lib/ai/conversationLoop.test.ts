@@ -31,12 +31,14 @@ function seedStore(partial: Record<string, unknown> = {}) {
         id: "ada",
         displayName: "Ada",
         chattiness: 50,
+        temperament: 9,
         modelConfigId: "model-1",
       }),
       sampleAgent({
         id: "bo",
         displayName: "Bo",
         chattiness: 50,
+        temperament: 9,
         modelConfigId: "model-1",
       }),
     ],
@@ -438,6 +440,10 @@ describe("tickConversation", () => {
     expect(system).toContain(
       prompts.session.speechDisciplineConversation.trim().slice(0, 24),
     );
+    expect(system).toContain(
+      "Temperament: 9/10 (very combative). Contradict freely, press weak points hard, and rarely back down.",
+    );
+    expect(system).toContain("Even when blunt, stay civil");
     expect(user).toContain("<recent_arena>");
     disposeConversationRuntime(rt);
   });

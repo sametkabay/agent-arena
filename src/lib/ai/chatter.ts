@@ -30,6 +30,7 @@ function buildChatterSystemPrompt(agent: AgentConfig): string {
     skills: agent.skills ?? [],
     world: getArenaWorldContext(agent.id),
     mode: "idle_mutter",
+    temperament: agent.temperament,
   });
 }
 

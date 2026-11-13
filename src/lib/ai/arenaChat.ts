@@ -81,6 +81,7 @@ function buildArenaReplySystem(
     skills: agent.skills ?? [],
     world: getArenaWorldContext(agent.id),
     mode: mentioned ? "arena_mention" : "arena_broadcast",
+    temperament: agent.temperament,
   });
 }
 

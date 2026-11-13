@@ -266,6 +266,7 @@ export async function runConversationTurn(
             skills: agent.skills ?? [],
             world: getArenaWorldContext(agent.id),
             mode: "arena_conversation",
+            temperament: agent.temperament,
           }),
         },
         {

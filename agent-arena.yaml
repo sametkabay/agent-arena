@@ -26,6 +26,7 @@ defaults:
   agentName: New agent
   agentColor: "#4A90A4"
   agentChattiness: 10
+  agentTemperament: 5
   # Ambient talk: off | idle | conversation (opt-in so LLM calls only fire when wanted).
   chatterMode: off
   agentEnabled: true
