@@ -351,19 +351,21 @@
       "importedAsCopy": "{{name}} としてインポートしました",
       "overwritten": "マップを上書きしました",
       "mapsTitle": "マップ",
-      "presetApplied": "{{name}} を追加しました",
+      "presetsTitle": "プリセットから始める",
+      "presetsHint": "新しいカスタムマップを作成してエディターを開きます。",
+      "presetCreateAria": "{{name}} プリセットからマップを作成",
       "presets": {
         "starter_camp": {
           "name": "スターターキャンプ",
-          "description": "自然キャンプのコピー"
+          "description": "カスタマイズできる自然キャンプのレイアウト"
         },
         "space_outpost": {
           "name": "宇宙前哨",
-          "description": "宇宙前哨のコピー"
+          "description": "SF小物付きの軌道前哨基地"
         },
         "office_lounge": {
           "name": "オフィラウンジ",
-          "description": "オフィスのコピー"
+          "description": "デスクとラウンジ席のあるオフィス平面図"
         },
         "blank_concrete": {
           "name": "コンクリート床",

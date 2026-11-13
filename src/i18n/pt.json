@@ -351,23 +351,25 @@
       "importedAsCopy": "Importado como {{name}}",
       "overwritten": "Mapa substituído",
       "mapsTitle": "Mapas",
-      "presetApplied": "{{name}} adicionado",
+      "presetsTitle": "Começar com um preset",
+      "presetsHint": "Cria um novo mapa personalizado e abre o editor.",
+      "presetCreateAria": "Criar mapa a partir do preset {{name}}",
       "presets": {
         "starter_camp": {
           "name": "Acampamento inicial",
-          "description": "Uma cópia do acampamento de Natureza"
+          "description": "Layout de acampamento natural pronto para personalizar"
         },
         "space_outpost": {
           "name": "Posto espacial",
-          "description": "Uma cópia do posto espacial"
+          "description": "Posto orbital com objetos de ficção científica"
         },
         "office_lounge": {
-          "name": "Escritório lounge",
-          "description": "Uma cópia do Escritório"
+          "name": "Lounge do escritório",
+          "description": "Planta de escritório com mesas e assentos"
         },
         "blank_concrete": {
           "name": "Laje de concreto",
-          "description": "Um chão de concreto limpo para você decorar"
+          "description": "Um piso de concreto limpo que você pode decorar"
         }
       },
       "propCount_one": "{{count}} objeto",

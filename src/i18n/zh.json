@@ -351,19 +351,21 @@
       "importedAsCopy": "已导入为 {{name}}",
       "overwritten": "地图已覆盖",
       "mapsTitle": "地图",
-      "presetApplied": "已添加 {{name}}",
+      "presetsTitle": "从预设开始",
+      "presetsHint": "创建新的自定义地图并打开编辑器。",
+      "presetCreateAria": "从 {{name}} 预设创建地图",
       "presets": {
         "starter_camp": {
           "name": "入门营地",
-          "description": "自然营地的副本"
+          "description": "可自定义的自然营地布局"
         },
         "space_outpost": {
           "name": "太空前哨",
-          "description": "太空前哨的副本"
+          "description": "带有科幻道具的轨道前哨"
         },
         "office_lounge": {
           "name": "办公休息区",
-          "description": "办公室的副本"
+          "description": "带书桌与休息座位的办公平面图"
         },
         "blank_concrete": {
           "name": "水泥地面",

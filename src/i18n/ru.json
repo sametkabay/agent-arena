@@ -369,19 +369,21 @@
       "importedAsCopy": "Импортировано как {{name}}",
       "overwritten": "Карта перезаписана",
       "mapsTitle": "Карты",
-      "presetApplied": "Добавлено: {{name}}",
+      "presetsTitle": "Начать с шаблона",
+      "presetsHint": "Создаёт новую пользовательскую карту и открывает редактор.",
+      "presetCreateAria": "Создать карту из шаблона {{name}}",
       "presets": {
         "starter_camp": {
           "name": "Стартовый лагерь",
-          "description": "Копия природного лагеря"
+          "description": "Макет природного лагеря для настройки"
         },
         "space_outpost": {
           "name": "Космический пост",
-          "description": "Копия космического поста"
+          "description": "Орбитальный пост с научно-фантастическими объектами"
         },
         "office_lounge": {
           "name": "Офисный зал",
-          "description": "Копия офиса"
+          "description": "План офиса со столами и зоной отдыха"
         },
         "blank_concrete": {
           "name": "Бетонный пол",

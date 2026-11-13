@@ -114,6 +114,17 @@ const REQUIRED_KEYS = [
   "settings.map.importConflict.cancel",
   "settings.map.importedAsCopy",
   "settings.map.overwritten",
+  "settings.map.presetsTitle",
+  "settings.map.presetsHint",
+  "settings.map.presetCreateAria",
+  "settings.map.presets.starter_camp.name",
+  "settings.map.presets.starter_camp.description",
+  "settings.map.presets.space_outpost.name",
+  "settings.map.presets.space_outpost.description",
+  "settings.map.presets.office_lounge.name",
+  "settings.map.presets.office_lounge.description",
+  "settings.map.presets.blank_concrete.name",
+  "settings.map.presets.blank_concrete.description",
   "settings.general.chatterMode",
   "settings.general.chatterModeHint",
   "settings.general.chatterModeOff",
@@ -163,8 +174,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 140 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(140);
+  it("lists exactly 151 required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(151);
   });
 
   it("includes every configured language with matching placeholders", () => {

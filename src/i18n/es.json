@@ -351,23 +351,25 @@
       "importedAsCopy": "Importado como {{name}}",
       "overwritten": "Mapa sobrescrito",
       "mapsTitle": "Mapas",
-      "presetApplied": "Se añadió {{name}}",
+      "presetsTitle": "Empezar desde un preset",
+      "presetsHint": "Crea un mapa personalizado nuevo y abre el editor.",
+      "presetCreateAria": "Crear mapa desde el preset {{name}}",
       "presets": {
         "starter_camp": {
           "name": "Campamento inicial",
-          "description": "Una copia del campamento de Naturaleza"
+          "description": "Diseño de campamento natural listo para personalizar"
         },
         "space_outpost": {
           "name": "Puesto espacial",
-          "description": "Una copia del puesto espacial"
+          "description": "Puesto orbital con objetos de ciencia ficción"
         },
         "office_lounge": {
-          "name": "Oficina lounge",
-          "description": "Una copia de la Oficina"
+          "name": "Sala de oficina",
+          "description": "Plano de oficina con escritorios y asientos"
         },
         "blank_concrete": {
           "name": "Losa de hormigón",
-          "description": "Un suelo de hormigón limpio para decorar"
+          "description": "Un suelo de hormigón limpio que puedes decorar"
         }
       },
       "propCount_one": "{{count}} objeto",

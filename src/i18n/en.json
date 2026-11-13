@@ -351,19 +351,21 @@
       "importedAsCopy": "Imported as {{name}}",
       "overwritten": "Map overwritten",
       "mapsTitle": "Maps",
-      "presetApplied": "Added {{name}}",
+      "presetsTitle": "Start from a preset",
+      "presetsHint": "Creates a new custom map and opens the editor.",
+      "presetCreateAria": "Create map from {{name}} preset",
       "presets": {
         "starter_camp": {
           "name": "Starter camp",
-          "description": "A copy of the Nature camp"
+          "description": "Nature camp layout ready to customize"
         },
         "space_outpost": {
           "name": "Space outpost",
-          "description": "A copy of the Space outpost"
+          "description": "Orbital outpost with sci-fi props"
         },
         "office_lounge": {
           "name": "Office lounge",
-          "description": "A copy of the Office"
+          "description": "Office floor plan with desks and lounge seating"
         },
         "blank_concrete": {
           "name": "Concrete pad",
