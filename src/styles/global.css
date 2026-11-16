@@ -4224,6 +4224,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   position: absolute;
   top: 4px;
   right: 4px;
+  z-index: 2;
   width: 22px;
   height: 22px;
   border-radius: 6px;
@@ -5079,7 +5080,304 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .map-editor__region-list-item,
   .map-editor__toolbar-actions button,
   .map-editor__inline-btn,
-  .map-editor__danger {
+  .map-editor__danger,
+  .map-editor__import-asset,
+  .map-editor__asset-menu-btn {
     min-height: 44px;
+  }
+}
+
+/* Custom map asset import (#7) — dark chrome for editor dialogs */
+.confirm-dialog--dark .confirm-dialog__card,
+.import-asset-dialog .confirm-dialog__card,
+.import-asset-dialog__card {
+  background: rgba(28, 26, 24, 0.98);
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.14);
+}
+.confirm-dialog--dark .confirm-dialog__title,
+.import-asset-dialog .confirm-dialog__title {
+  color: #f4efe6;
+}
+.confirm-dialog--dark .confirm-dialog__message,
+.import-asset-dialog .confirm-dialog__message {
+  color: rgba(244, 239, 230, 0.82);
+}
+.confirm-dialog--dark .btn--ghost,
+.import-asset-dialog .btn--ghost {
+  background: rgba(244, 239, 230, 0.08);
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.18);
+}
+.confirm-dialog--dark .btn--primary,
+.import-asset-dialog .btn--primary {
+  background: linear-gradient(180deg, #6a8f6a, #4f6e4f);
+  color: #f4efe6;
+}
+.confirm-dialog--dark .btn--danger,
+.import-asset-dialog .btn--danger {
+  background: rgba(160, 60, 50, 0.85);
+  color: #f8e6e2;
+}
+.confirm-dialog--dark .confirm-dialog__field,
+.confirm-dialog--dark .map-editor__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 14px;
+  color: rgba(244, 239, 230, 0.88);
+}
+.confirm-dialog--dark .confirm-dialog__field input,
+.confirm-dialog--dark .map-editor__field input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 239, 230, 0.16);
+  background: rgba(0, 0, 0, 0.28);
+  color: #f4efe6;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
+  min-height: 44px;
+}
+
+.map-editor__library-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.map-editor__library-head h3 {
+  margin: 0;
+  flex: 1 1 auto;
+  /* Never truncate — Import wraps to the next row when space is tight */
+  min-width: max-content;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: 0.95rem;
+}
+.map-editor__import-asset {
+  flex: 0 0 auto;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  /* Match toolbar action buttons (dark editor chrome) */
+  background: #2c2824;
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.2);
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.map-editor__import-asset:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.map-editor__import-asset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.map-editor__asset-menu {
+  /* Top-left — ★ stays top-right; no overlap at 390 or 1440 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  z-index: 2;
+}
+.map-editor__asset-menu-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #f4efe6;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  display: grid;
+  /* Small chip top-left; padding expands hit to 44×44 without covering the thumb */
+  place-items: start start;
+  text-indent: 0;
+  padding: 4px 0 0 4px;
+  z-index: 1;
+}
+/* Small visible chip; full 44×44 hit target */
+.map-editor__asset-menu-btn::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  z-index: -1;
+}
+.map-editor__asset-menu-pop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: auto;
+  margin-top: 4px;
+  min-width: 140px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(28, 26, 24, 0.98);
+  border: 1px solid rgba(244, 239, 230, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.map-editor__asset-menu-pop button {
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: #f4efe6;
+  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.map-editor__asset-menu-pop button:hover,
+.map-editor__asset-menu-pop button:focus-visible {
+  background: rgba(244, 239, 230, 0.08);
+  outline: none;
+}
+.import-asset-dialog__card {
+  width: min(480px, 94vw);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+}
+.import-asset-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.import-asset-dialog__body input[type="text"],
+.import-asset-dialog__body input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 239, 230, 0.16);
+  background: rgba(0, 0, 0, 0.28);
+  color: #f4efe6;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
+  min-height: 44px;
+}
+.import-asset-dialog__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.import-asset-dialog__pick-btn {
+  align-self: flex-start;
+  min-height: 44px;
+  background: rgba(244, 239, 230, 0.1);
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.import-asset-dialog__selected {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 0.82rem;
+  color: rgba(244, 239, 230, 0.85);
+}
+.import-asset-dialog__selected li {
+  padding: 0.2rem 0;
+}
+.import-asset-dialog__files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.82rem;
+}
+.import-asset-dialog__files .is-ok { color: #9ec49a; }
+.import-asset-dialog__files .is-bad { color: #e8a090; }
+.import-asset-dialog__files .is-warn { color: #e0c070; }
+.import-asset-dialog__alert {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(180, 90, 60, 0.18);
+  border: 1px solid rgba(220, 140, 100, 0.35);
+  color: #f4efe6;
+  font-size: 0.84rem;
+}
+.import-asset-dialog__ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.5rem;
+  min-height: 44px;
+}
+.import-asset-dialog__progress {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.map-editor__user-model {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(244, 239, 230, 0.1);
+}
+.map-editor__user-model summary {
+  cursor: pointer;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+.map-editor__selection-preview {
+  max-width: 96px;
+}
+@media (max-width: 480px) {
+  .import-asset-dialog {
+    align-items: stretch;
+  }
+  .import-asset-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+  .map-editor__library-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .map-editor__library-head h3 {
+    font-size: 0.95rem;
+    min-width: 0;
+    width: 100%;
+  }
+  .map-editor__import-asset {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.65rem;
+    width: 100%;
+    justify-self: stretch;
   }
 }

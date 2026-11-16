@@ -9,7 +9,12 @@ import {
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { useTranslation } from "react-i18next";
-import { PLACEABLE_SPECS, type AssetCategory, type PlaceableId } from "@/lib/assets/catalog";
+import {
+  getPlaceableSpec,
+  isPlaceableId,
+  type AssetCategory,
+  type PlaceableId,
+} from "@/lib/assets/placeableSpec";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
 import {
@@ -106,6 +111,10 @@ export function MapEditor() {
   const {
     onSave,
     onExport,
+    exportWarnOpen,
+    exportWarnCount,
+    confirmExport,
+    cancelExport,
     onImportFile,
     pendingImport,
     finishImport,
@@ -209,7 +218,7 @@ export function MapEditor() {
   const onCanvasDrop = (e: DragEvent) => {
     e.preventDefault();
     const placeableId = e.dataTransfer.getData("text/placeable-id") as PlaceableId;
-    if (!placeableId || !PLACEABLE_SPECS[placeableId] || !draft) return;
+    if (!placeableId || !isPlaceableId(placeableId) || !draft) return;
     const api = viewportApi.current;
     const pos =
       api != null
@@ -306,6 +315,7 @@ export function MapEditor() {
           paintId={paintId}
           favoriteAssets={favoriteAssets}
           usedPlaceableIds={usedPlaceableIds}
+          draft={draft}
           onSnapMode={setSnapMode}
           onPackFilter={setPackFilter}
           onLibraryScope={setLibraryScope}
@@ -317,6 +327,22 @@ export function MapEditor() {
             setTool("select");
             setSelectedIds([]);
             setCtxMenu(null);
+          }}
+          onDraftStrip={(id) => {
+            if (!draft) return;
+            commit({
+              ...draft,
+              placeables: draft.placeables.filter((p) => p.placeableId !== id),
+            });
+            setSelectedIds((ids) =>
+              ids.filter(
+                (sid) =>
+                  !draft.placeables.some(
+                    (p) => p.id === sid && p.placeableId === id,
+                  ),
+              ),
+            );
+            setPaintId((pid) => (pid === id ? null : pid));
           }}
         />
 
@@ -365,7 +391,7 @@ export function MapEditor() {
             } else if (tool === "select" && paintId) {
               banner = {
                 text: t("mapEditor.paintMode", {
-                  name: PLACEABLE_SPECS[paintId].label,
+                  name: getPlaceableSpec(paintId)?.label ?? paintId,
                 }),
               };
             } else if (tool === "select" && !ctxMenu) {
@@ -380,9 +406,8 @@ export function MapEditor() {
                 banner = {
                   text: t("mapEditor.selectedBanner", {
                     name:
-                      PLACEABLE_SPECS[
-                        selectedPlaceable.placeableId as PlaceableId
-                      ]?.label ?? selectedPlaceable.placeableId,
+                      getPlaceableSpec(selectedPlaceable.placeableId)?.label ??
+                      selectedPlaceable.placeableId,
                   }),
                   select: true,
                 };
@@ -468,6 +493,7 @@ export function MapEditor() {
 
       <ConfirmDialog
         open={confirmClose}
+        variant="dark"
         title={t("mapEditor.closeUnsavedTitle")}
         message={t("mapEditor.closeUnsavedBody")}
         confirmLabel={t("mapEditor.closeDiscard")}
@@ -475,6 +501,19 @@ export function MapEditor() {
         danger
         onCancel={() => setConfirmClose(false)}
         onConfirm={confirmDiscardClose}
+      />
+
+      <ConfirmDialog
+        open={exportWarnOpen}
+        variant="dark"
+        title={t("mapEditor.customAssets.exportTitle")}
+        message={t("mapEditor.customAssets.exportWarn", {
+          count: exportWarnCount,
+        })}
+        confirmLabel={t("mapEditor.customAssets.exportAnyway")}
+        cancelLabel={t("mapEditor.customAssets.cancel")}
+        onCancel={cancelExport}
+        onConfirm={confirmExport}
       />
 
       {pendingImport?.collision && (

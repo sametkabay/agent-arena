@@ -1,15 +1,18 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  PLACEABLE_SPECS,
   placeableCanAnimate,
   placeableCanWander,
   type PlaceableId,
 } from "@/lib/assets/catalog";
+import { getPlaceableSpec } from "@/lib/assets/placeableSpec";
+import { isUserAssetId } from "@/lib/userAssets/ids";
 import type { PlaceableInstance } from "@/lib/types";
 import { AssetPreview } from "@/components/MapEditor/AssetPreview";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import type { MapDraftUpdater } from "@/components/MapEditor/useMapHistory";
+import { useUserAssetStore } from "@/store/userAssetStore";
 
 export function PlaceableCard({
   placeable,
@@ -32,16 +35,71 @@ export function PlaceableCard({
 }) {
   const { t } = useTranslation();
   const scaleValue = placeable.scale ?? 1;
+  const spec = getPlaceableSpec(placeable.placeableId);
+  const isUser = isUserAssetId(placeable.placeableId);
+  const setTargetSize = useUserAssetStore((s) => s.setTargetSize);
+  const metas = useUserAssetStore((s) => s.metas);
+  const userMeta = isUser
+    ? metas.find((m) => m.id === placeable.placeableId)
+    : null;
+  /** null = show store value; string = local edit in progress (blur commits). */
+  const [targetDraft, setTargetDraft] = useState<string | null>(null);
+  const targetDisplay =
+    targetDraft ?? (userMeta ? String(userMeta.targetSize) : "1");
+
+  const commitTargetSize = () => {
+    if (!userMeta) {
+      setTargetDraft(null);
+      return;
+    }
+    const raw = targetDraft;
+    setTargetDraft(null);
+    if (raw == null) return;
+    if (raw.trim() === "") return;
+    const v = Number(raw);
+    if (!Number.isFinite(v) || v === userMeta.targetSize) return;
+    void setTargetSize(userMeta.id, v);
+  };
 
   return (
     <div className="map-editor__selection-card">
-      <div className="map-editor__selection-preview">
-        <AssetPreview placeableId={placeable.placeableId as PlaceableId} />
-      </div>
-      <h4>
-        {PLACEABLE_SPECS[placeable.placeableId as PlaceableId]?.label ??
-          placeable.placeableId}
-      </h4>
+      {!isUser && (
+        <div className="map-editor__selection-preview">
+          <AssetPreview placeableId={placeable.placeableId as PlaceableId} />
+        </div>
+      )}
+      <h4>{spec?.label ?? placeable.placeableId}</h4>
+
+      {isUser && (
+        <details className="map-editor__user-model" open>
+          <summary>{t("mapEditor.customAssets.manage")}</summary>
+          <p className="map-editor__hint">
+            {userMeta
+              ? userMeta.name
+              : t("mapEditor.customAssets.missingHint")}
+          </p>
+          {userMeta && (
+            <label className="map-editor__field">
+              <span>{t("mapEditor.customAssets.targetSize")}</span>
+              <input
+                type="number"
+                min={0.05}
+                max={50}
+                step={0.05}
+                value={targetDisplay}
+                data-testid="inspector-target-size"
+                onChange={(e) => setTargetDraft(e.target.value)}
+                onBlur={commitTargetSize}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.currentTarget.blur();
+                  }
+                }}
+              />
+            </label>
+          )}
+        </details>
+      )}
 
       {placeableCanWander(placeable.placeableId) && (
         <>

@@ -56,6 +56,11 @@ export interface AppConfig {
     maxArenaChatHistory: number;
     maxApiChatHistory: number;
   };
+  /** Soft import warning threshold; IndexedDB has no hard size cap. */
+  userAssets: {
+    warnBytes: number;
+    defaultTargetSize: number;
+  };
   graphics: GraphicsSettings & {
     shadowMapSizes: Record<ShadowQuality, number>;
   };

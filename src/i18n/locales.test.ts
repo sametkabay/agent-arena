@@ -198,6 +198,62 @@ const REQUIRED_KEYS = [
   "mapEditor.lightLimit",
   "mapEditor.zoneSelectedBanner",
   "mapEditor.lightSelectedBanner",
+  "mapEditor.cat.custom",
+  "mapEditor.packs.custom",
+  "mapEditor.customAssets.importButton",
+  "mapEditor.customAssets.importTitle",
+  "mapEditor.customAssets.replaceTitle",
+  "mapEditor.customAssets.pickFiles",
+  "mapEditor.customAssets.pickFilesHint",
+  "mapEditor.customAssets.name",
+  "mapEditor.customAssets.targetSize",
+  "mapEditor.customAssets.targetSizeHint",
+  "mapEditor.customAssets.fileMatched",
+  "mapEditor.customAssets.fileMissing",
+  "mapEditor.customAssets.fileUnused",
+  "mapEditor.customAssets.confirmImport",
+  "mapEditor.customAssets.confirmReplace",
+  "mapEditor.customAssets.cancel",
+  "mapEditor.customAssets.progressRead",
+  "mapEditor.customAssets.progressValidate",
+  "mapEditor.customAssets.progressSave",
+  "mapEditor.customAssets.cancelled",
+  "mapEditor.customAssets.imported",
+  "mapEditor.customAssets.warnExternal",
+  "mapEditor.customAssets.warnExternalAck",
+  "mapEditor.customAssets.warnBig",
+  "mapEditor.customAssets.warnBigAck",
+  "mapEditor.customAssets.warnMissing",
+  "mapEditor.customAssets.warnAmbiguous",
+  "mapEditor.customAssets.usage",
+  "mapEditor.customAssets.errNoEntry",
+  "mapEditor.customAssets.errMultipleEntries",
+  "mapEditor.customAssets.errGlbHeader",
+  "mapEditor.customAssets.errGltfJson",
+  "mapEditor.customAssets.errVersion",
+  "mapEditor.customAssets.errExtension",
+  "mapEditor.customAssets.errUri",
+  "mapEditor.customAssets.errQuota",
+  "mapEditor.customAssets.errUnavailable",
+  "mapEditor.customAssets.errUnknown",
+  "mapEditor.customAssets.manage",
+  "mapEditor.customAssets.rename",
+  "mapEditor.customAssets.replace",
+  "mapEditor.customAssets.delete",
+  "mapEditor.customAssets.deleteTitle",
+  "mapEditor.customAssets.deleteConfirm_one",
+  "mapEditor.customAssets.deleteConfirm_other",
+  "mapEditor.customAssets.deleteConfirmUnused",
+  "mapEditor.customAssets.deleted",
+  "mapEditor.customAssets.deleteFailed",
+  "mapEditor.customAssets.renameFailed",
+  "mapEditor.customAssets.externalBadge",
+  "mapEditor.customAssets.missingLabel",
+  "mapEditor.customAssets.missingHint",
+  "mapEditor.customAssets.exportWarn_one",
+  "mapEditor.customAssets.exportWarn_other",
+  "mapEditor.customAssets.exportAnyway",
+  "mapEditor.customAssets.exportTitle",
 ] as const;
 
 function getByPath(obj: Record<string, unknown>, path: string): unknown {
@@ -214,8 +270,8 @@ function placeholders(value: string): string[] {
 }
 
 describe("onboarding locale keys", () => {
-  it("lists exactly 190 required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(191);
+  it("lists exactly the required keys", () => {
+    expect(REQUIRED_KEYS).toHaveLength(247);
   });
 
   it("includes every configured language with matching placeholders", () => {
@@ -246,6 +302,56 @@ describe("onboarding locale keys", () => {
       const value = getByPath(ru, `settings.general.chatterModeConversationHint_${form}`);
       expect(typeof value).toBe("string");
       expect(placeholders(value as string)).toEqual(["count"]);
+    }
+  });
+
+  it("provides Russian few/many plurals for custom asset delete/export", () => {
+    const ru = localeModules["./ru.json"]!;
+    for (const key of [
+      "mapEditor.customAssets.deleteConfirm",
+      "mapEditor.customAssets.exportWarn",
+    ] as const) {
+      for (const form of ["few", "many"] as const) {
+        const value = getByPath(ru, `${key}_${form}`);
+        expect(typeof value, `ru:${key}_${form}`).toBe("string");
+        expect(placeholders(value as string).includes("count")).toBe(true);
+      }
+    }
+  });
+
+  it("translates mapEditor.customAssets away from English except symbol-only keys", () => {
+    const en = localeModules["./en.json"]!;
+    const enAssets = getByPath(en, "mapEditor.customAssets") as Record<string, string>;
+    expect(enAssets && typeof enAssets === "object").toBe(true);
+
+    const isSymbolOnly = (value: string): boolean => {
+      const stripped = value.replace(/\{\{[^}]+\}\}/g, "").replace(/\s+/g, "");
+      return stripped.length > 0 && /^[\p{P}\p{S}]+$/u.test(stripped);
+    };
+
+    const enCounterpart = (key: string): string | undefined => {
+      if (typeof enAssets[key] === "string") return enAssets[key];
+      const plural = key.match(/^(.*)_(few|many)$/);
+      if (!plural) return undefined;
+      const base = plural[1]!;
+      if (typeof enAssets[`${base}_other`] === "string") return enAssets[`${base}_other`];
+      if (typeof enAssets[base] === "string") return enAssets[base];
+      return undefined;
+    };
+
+    for (const code of appConfig.languages.map((l) => l.code)) {
+      if (code === "en") continue;
+      const locale = localeModules[`./${code}.json`]!;
+      const assets = getByPath(locale, "mapEditor.customAssets") as Record<string, unknown>;
+      expect(assets && typeof assets === "object", `${code}:customAssets`).toBe(true);
+
+      for (const [key, value] of Object.entries(assets)) {
+        if (typeof value !== "string") continue;
+        const enValue = enCounterpart(key);
+        if (enValue === undefined) continue;
+        if (isSymbolOnly(enValue)) continue;
+        expect(value, `${code}:mapEditor.customAssets.${key}`).not.toBe(enValue);
+      }
     }
   });
 

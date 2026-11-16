@@ -1,8 +1,4 @@
-import {
-  PLACEABLE_SPECS,
-  type AssetCategory,
-  type PlaceableId,
-} from "@/lib/assets/catalog";
+import { getPlaceableSpec, type AssetCategory } from "@/lib/assets/placeableSpec";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 
@@ -18,6 +14,7 @@ const CATEGORY_FILL: Record<AssetCategory, string> = {
   vehicles: "#5a6a7a",
   animals: "#a06050",
   food: "#c07040",
+  custom: "#7a9e7e",
 };
 
 const FALLBACK_PROP_FILL = "#888888";
@@ -70,13 +67,13 @@ export function worldToView(
 }
 
 function propFill(placeableId: string): string {
-  const spec = PLACEABLE_SPECS[placeableId as PlaceableId];
+  const spec = getPlaceableSpec(placeableId);
   if (!spec) return FALLBACK_PROP_FILL;
   return CATEGORY_FILL[spec.category] ?? FALLBACK_PROP_FILL;
 }
 
 function propFootprint(placeableId: string): [number, number] {
-  const spec = PLACEABLE_SPECS[placeableId as PlaceableId];
+  const spec = getPlaceableSpec(placeableId);
   if (!spec) return FALLBACK_FOOTPRINT;
   return spec.footprint;
 }

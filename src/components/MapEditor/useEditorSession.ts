@@ -21,6 +21,10 @@ import {
 } from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
 import type { PlaceableId } from "@/lib/assets/catalog";
+import {
+  collectUserAssetIds,
+  shouldWarnExportMissingModels,
+} from "@/lib/userAssets/cascade";
 
 type UseEditorSessionArgs = {
   open: boolean;
@@ -156,7 +160,10 @@ export function useEditorSession({
     closeMapEditor();
   }, [closeMapEditor, setConfirmClose]);
 
-  const onExport = () => {
+  const [exportWarnOpen, setExportWarnOpen] = useState(false);
+  const [exportWarnCount, setExportWarnCount] = useState(0);
+
+  const doExport = useCallback(() => {
     const current = draftRef.current;
     if (!current) return;
     const blob = new Blob([exportMapJson(current)], {
@@ -174,6 +181,28 @@ export function useEditorSession({
     a.download = `${safeName}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  }, []);
+
+  const onExport = () => {
+    const current = draftRef.current;
+    if (!current) return;
+    // Follow-up: issue #57 — Export a map bundle that includes its custom models.
+    const userIds = collectUserAssetIds(current);
+    if (shouldWarnExportMissingModels(current)) {
+      setExportWarnCount(userIds.length);
+      setExportWarnOpen(true);
+      return;
+    }
+    doExport();
+  };
+
+  const confirmExport = () => {
+    setExportWarnOpen(false);
+    doExport();
+  };
+
+  const cancelExport = () => {
+    setExportWarnOpen(false);
   };
 
   const applyImportedMap = useCallback(
@@ -220,6 +249,10 @@ export function useEditorSession({
     draftRef,
     onSave,
     onExport,
+    exportWarnOpen,
+    exportWarnCount,
+    confirmExport,
+    cancelExport,
     onImportFile,
     pendingImport,
     finishImport,

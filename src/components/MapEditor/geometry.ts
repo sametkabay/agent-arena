@@ -1,6 +1,6 @@
 import type { ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
-import { PLACEABLE_SPECS, type PlaceableId } from "@/lib/assets/catalog";
+import { getPlaceableSpec } from "@/lib/assets/placeableSpec";
 import { clampToFloor } from "@/lib/maps/floorBounds";
 
 export { clampToFloor, snapCoord } from "@/lib/maps/floorBounds";
@@ -37,7 +37,7 @@ export function screenToFloor(
 }
 
 export function footprintSize(placeableId: string): [number, number, number] {
-  const spec = PLACEABLE_SPECS[placeableId as PlaceableId];
+  const spec = getPlaceableSpec(placeableId);
   if (!spec) return [1.2, 1.2, 1.2];
   const [w, d] = spec.footprint;
   return [Math.max(0.8, w * 1.15), 1.4, Math.max(0.8, d * 1.15)];
