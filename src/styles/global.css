@@ -4204,11 +4204,23 @@ body.is-chat-panel-dragging .chat-popup__resize {
   scroll-snap-align: start;
 }
 
+/* Stack snap + pack so locale labels stay fully visible in the narrow library. */
 .map-editor__filter-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   margin-bottom: 8px;
+}
+
+.map-editor__filter-row .aa-select__trigger {
+  padding: 0.4rem 0.55rem;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+
+.map-editor__filter-snap .aa-select__value {
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .map-editor__asset-wrap {
@@ -4479,6 +4491,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__inspector h4 {
   margin: 0 0 10px;
   font-size: 0.92rem;
+  font-weight: 700;
+  color: #f4efe6;
 }
 
 .map-editor__search {
@@ -4860,9 +4874,6 @@ body.is-chat-panel-dragging .chat-popup__resize {
     max-height: 220px;
     border-left: none;
     border-top: 1px solid rgba(244, 239, 230, 0.08);
-  }
-  .map-editor__filter-row {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -5343,12 +5354,6 @@ body.is-chat-panel-dragging .chat-popup__resize {
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(244, 239, 230, 0.1);
-}
-.map-editor__user-model summary {
-  cursor: pointer;
-  min-height: 36px;
-  display: flex;
-  align-items: center;
 }
 .map-editor__selection-preview {
   max-width: 96px;

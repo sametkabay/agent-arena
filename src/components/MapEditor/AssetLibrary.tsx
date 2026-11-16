@@ -190,6 +190,7 @@ export function AssetLibrary({
       </label>
       <div className="map-editor__filter-row">
         <Select
+          className="map-editor__filter-snap"
           variant="dark"
           value={snapMode}
           onChange={(v) => onSnapMode(v as SnapMode)}
@@ -200,6 +201,7 @@ export function AssetLibrary({
           ]}
         />
         <Select
+          className="map-editor__filter-pack"
           variant="dark"
           value={packFilter}
           onChange={onPackFilter}

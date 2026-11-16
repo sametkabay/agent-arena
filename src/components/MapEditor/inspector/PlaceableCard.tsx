@@ -71,34 +71,36 @@ export function PlaceableCard({
       <h4>{spec?.label ?? placeable.placeableId}</h4>
 
       {isUser && (
-        <details className="map-editor__user-model" open>
-          <summary>{t("mapEditor.customAssets.manage")}</summary>
-          <p className="map-editor__hint">
-            {userMeta
-              ? userMeta.name
-              : t("mapEditor.customAssets.missingHint")}
-          </p>
-          {userMeta && (
-            <label className="map-editor__field">
-              <span>{t("mapEditor.customAssets.targetSize")}</span>
-              <input
-                type="number"
-                min={0.05}
-                max={50}
-                step={0.05}
-                value={targetDisplay}
-                data-testid="inspector-target-size"
-                onChange={(e) => setTargetDraft(e.target.value)}
-                onBlur={commitTargetSize}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.currentTarget.blur();
-                  }
-                }}
-              />
-            </label>
-          )}
-        </details>
+        <>
+          <h4>{t("mapEditor.customAssets.manage")}</h4>
+          <div className="map-editor__user-model">
+            <p className="map-editor__hint">
+              {userMeta
+                ? userMeta.name
+                : t("mapEditor.customAssets.missingHint")}
+            </p>
+            {userMeta && (
+              <label className="map-editor__field">
+                <span>{t("mapEditor.customAssets.targetSize")}</span>
+                <input
+                  type="number"
+                  min={0.05}
+                  max={50}
+                  step={0.05}
+                  value={targetDisplay}
+                  data-testid="inspector-target-size"
+                  onChange={(e) => setTargetDraft(e.target.value)}
+                  onBlur={commitTargetSize}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.currentTarget.blur();
+                    }
+                  }}
+                />
+              </label>
+            )}
+          </div>
+        </>
       )}
 
       {placeableCanWander(placeable.placeableId) && (
