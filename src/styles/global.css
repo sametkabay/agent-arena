@@ -4976,13 +4976,13 @@ body.is-chat-panel-dragging .chat-popup__resize {
     gap: 4px;
     overflow: visible;
     justify-content: flex-start;
-    /* Cap at ~2 rows of 44px targets + gaps */
-    max-height: 110px;
+    /* Grow with wrapped rows so actions stay inside the toolbar (#59). */
+    max-height: none;
   }
   .map-editor__toolbar-cluster {
     gap: 4px;
   }
-  /* Narrow: Export/Import + theme collapse into More so actions stay ≤2 rows. */
+  /* Narrow: Export/Import + theme collapse into More to limit wrap. */
   .map-editor__toolbar-io--desktop,
   .map-editor__toolbar-sep--desktop {
     display: none;
@@ -5004,7 +5004,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   }
 }
 
-/* Phone: keep a one-line brand (title + truncated name) + ≤2 action rows. */
+/* Phone: keep a one-line brand (title + truncated name); actions may wrap. */
 @media (max-width: 480px) {
   .map-editor__toolbar {
     padding: 4px 6px;
