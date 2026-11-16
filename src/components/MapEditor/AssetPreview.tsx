@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { PlaceableId } from "@/lib/assets/catalog";
-import { PLACEABLE_SPECS } from "@/lib/assets/catalog";
+import { getPlaceableSpec } from "@/lib/assets/placeableSpec";
 import {
   getCachedThumb,
   requestThumb,
@@ -15,7 +15,7 @@ export function AssetPreview({ placeableId }: { placeableId: PlaceableId }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [src, setSrc] = useState<string | null>(() => getCachedThumb(placeableId));
-  const label = PLACEABLE_SPECS[placeableId]?.label ?? placeableId;
+  const label = getPlaceableSpec(placeableId)?.label ?? placeableId;
 
   useEffect(() => {
     const el = rootRef.current;

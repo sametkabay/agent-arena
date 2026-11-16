@@ -48,6 +48,12 @@ storage:
   maxArenaChatHistory: 100
   maxApiChatHistory: 12
 
+# Custom map / character assets (IndexedDB). Soft warn only — no hard size cap.
+# Bundle export that includes private models is follow-up issue #57.
+userAssets:
+  warnBytes: 20971520
+  defaultTargetSize: 1
+
 graphics:
   castShadows: true
   shadowQuality: medium

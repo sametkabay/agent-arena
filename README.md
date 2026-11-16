@@ -161,7 +161,7 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 
 - **Builtin worlds:** Office, Nature, Space (`aamf` v1 JSON in `data/maps/`)
 - **Day/night** is a global lighting mode (not a separate map) — HUD toggle, name-gate choice, and editor preview
-- **Full-screen map editor:** place / move / rotate / scale assets, multi-select, snap grid, spawn / zone / light tools, drag-drop from the library, favorites, floor size & surface, theme colors, prop wander / animated behavior, undo/redo, import / export (`.aamf.json`)
+- **Full-screen map editor:** place / move / rotate / scale assets, multi-select, snap grid, spawn / zone / light tools, drag-drop from the library, favorites, floor size & surface, theme colors, prop wander / animated behavior, undo/redo, import / export (`.aamf.json`). Custom `.glb`/`.gltf` models import into IndexedDB (browser-local; map JSON keeps IDs only — bundle export that includes private models is tracked as issue #57)
 - Saving a builtin creates a **custom copy** in `localStorage`
 - Night sky, practical lights (lamps, campfire FX, map lights), optional room lights on indoor surfaces
 

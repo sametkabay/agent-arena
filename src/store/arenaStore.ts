@@ -113,6 +113,12 @@ interface ArenaState extends AppPersisted {
 
   hydrate: () => void;
   /**
+   * Re-read only `customMaps` + `favoriteAssets` from persisted storage and
+   * refresh the active map slice — without wiping `runtimeAgents`, chats, or
+   * other in-memory session state. Used for cross-tab asset purge/delete.
+   */
+  reloadPersistedMaps: () => void;
+  /**
    * Writes persisted slice; never throws.
    * Toast modes: `"storage"` (default, 10s throttle), `"map"` / `"explicit"`
    * (always show — user-initiated), `false` (silent).
@@ -164,6 +170,11 @@ interface ArenaState extends AppPersisted {
 
   upsertCustomMap: (def: ArenaMapDefinition) => StoragePersistResult;
   deleteCustomMap: (id: string) => void;
+  /**
+   * Remove all placeable instances with the given placeableIds from every
+   * custom map, favorites, and the active map slice. Rolls back on persist fail.
+   */
+  purgePlaceableIds: (ids: string[]) => StoragePersistResult;
   /** Parse/validate map JSON and detect id collision — no side effects. */
   parseMapImport: (raw: string) => PreparedMapImport;
   /**
@@ -268,6 +279,7 @@ type MapPersistSnapshot = Pick<
   | "floorSize"
   | "placeables"
   | "runtimeAgents"
+  | "favoriteAssets"
 >;
 
 type MapImportPersistSnapshot = MapPersistSnapshot &
@@ -281,6 +293,7 @@ function snapshotMapPersistState(s: ArenaState): MapPersistSnapshot {
     floorSize: s.floorSize,
     placeables: s.placeables,
     runtimeAgents: s.runtimeAgents,
+    favoriteAssets: s.favoriteAssets ?? [],
   };
 }
 
@@ -355,6 +368,24 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     });
     void i18n.changeLanguage(data.language);
     applyDocumentLang(data.language);
+  },
+
+  reloadPersistedMaps: () => {
+    const data = loadPersisted();
+    set((s) => {
+      const customMaps = data.customMaps;
+      const favoriteAssets = data.favoriteAssets ?? [];
+      const def = resolveMapDefinition(s.mapId, customMaps);
+      const runtime = buildMapRuntime(def);
+      return {
+        customMaps,
+        favoriteAssets,
+        activeMap: def,
+        floorSize: runtime.floorSize,
+        placeables: runtime.placeables,
+        // Leave runtimeAgents, chats, and other session state untouched.
+      };
+    });
   },
 
   persist: (opts) => {
@@ -739,6 +770,30 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       };
     });
     get().persist();
+  },
+
+  purgePlaceableIds: (ids) => {
+    const idSet = new Set(ids);
+    if (idSet.size === 0) return { ok: true };
+    const prev = snapshotMapPersistState(get());
+    set((s) => {
+      const customMaps = s.customMaps.map((m) => ({
+        ...m,
+        placeables: m.placeables.filter((p) => !idSet.has(p.placeableId)),
+      }));
+      const favoriteAssets = (s.favoriteAssets ?? []).filter(
+        (fid) => !idSet.has(fid),
+      );
+      const next = { ...s, customMaps, favoriteAssets };
+      return {
+        customMaps,
+        favoriteAssets,
+        ...applyMapSlice(next, false),
+      };
+    });
+    const result = get().persist({ toast: "map" });
+    if (!result.ok) set(prev);
+    return result;
   },
 
   parseMapImport: (raw) => {

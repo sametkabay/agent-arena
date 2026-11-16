@@ -11,6 +11,10 @@ import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
 import { Toast } from "@/components/ui/Toast";
 import { useArenaStore } from "@/store/arenaStore";
+import {
+  ensureUserAssetsHydrated,
+  listenUserAssetBroadcast,
+} from "@/store/userAssetStore";
 import { appConfig } from "@/lib/config";
 import { dismissBootLoading } from "@/lib/bootLoading";
 
@@ -24,6 +28,13 @@ export default function App() {
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  // Hydrate custom models at app shell so the arena scene can resolve them
+  // before the map editor opens (B1).
+  useEffect(() => {
+    ensureUserAssetsHydrated();
+    return listenUserAssetBroadcast();
+  }, []);
 
   // Remove the inline index.html splash after the first React paint.
   useEffect(() => {

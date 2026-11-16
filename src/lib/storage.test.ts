@@ -281,6 +281,37 @@ describe("loadPersisted / savePersisted", () => {
     );
   });
 
+  it("keeps unknown user: placeable ids and favorites on hydrate", () => {
+    const data = defaultPersisted();
+    const custom = blankMap({
+      id: "custom_user_assets",
+      name: "With user asset",
+      floor: { size: 18, style: "surface", color: "#ccc", surface: "office" },
+    });
+    custom.placeables = [
+      {
+        id: "p1",
+        placeableId: "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        position: [0, 0, 0],
+        rotationY: 0,
+      },
+    ];
+    data.customMaps = [custom];
+    data.favoriteAssets = [
+      "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "mars_boulder",
+    ];
+    savePersisted(data);
+    const loaded = loadPersisted();
+    expect(loaded.customMaps[0]?.placeables[0]?.placeableId).toBe(
+      "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    );
+    expect(loaded.favoriteAssets).toContain(
+      "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    );
+    expect(loaded.favoriteAssets).toContain("space_boulder");
+  });
+
   it("round-trips sanitized persisted state", () => {
     const data = defaultPersisted();
     data.userName = "Samet";

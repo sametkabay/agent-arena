@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   mapsToMeta,
@@ -10,8 +10,13 @@ import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import { useArenaStore } from "@/store/arenaStore";
 import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
 import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useFocusExport } from "@/components/SettingsModal/useFocusExport";
 import { MapPresetGallery } from "@/components/SettingsModal/MapPresetGallery";
+import {
+  collectUserAssetIds,
+  shouldWarnExportMissingModels,
+} from "@/lib/userAssets/cascade";
 
 export function MapTab() {
   const { t } = useTranslation();
@@ -28,6 +33,7 @@ export function MapTab() {
   const fileRef = useRef<HTMLInputElement>(null);
   const importBtnRef = useRef<HTMLButtonElement>(null);
   const exportBtnRef = useRef<HTMLButtonElement>(null);
+  const [exportWarn, setExportWarn] = useState<{ count: number } | null>(null);
   useFocusExport("map", exportBtnRef);
   const {
     pendingImport,
@@ -38,7 +44,7 @@ export function MapTab() {
 
   const maps = mapsToMeta(customMaps);
 
-  const exportActive = () => {
+  const runExport = () => {
     if (!activeMap) return;
     try {
       const json = exportMapJson(activeMap);
@@ -53,6 +59,17 @@ export function MapTab() {
     } catch {
       showToast(t("mapEditor.importError"));
     }
+  };
+
+  const exportActive = () => {
+    if (!activeMap) return;
+    // Follow-up: issue #57 — Export a map bundle that includes its custom models.
+    const userIds = collectUserAssetIds(activeMap);
+    if (shouldWarnExportMissingModels(activeMap)) {
+      setExportWarn({ count: userIds.length });
+      return;
+    }
+    runExport();
   };
 
   return (
@@ -189,6 +206,21 @@ export function MapTab() {
           onCopy={() => finishImport("copy", pendingImport)}
         />
       )}
+
+      <ConfirmDialog
+        open={!!exportWarn}
+        title={t("mapEditor.customAssets.exportTitle")}
+        message={t("mapEditor.customAssets.exportWarn", {
+          count: exportWarn?.count ?? 0,
+        })}
+        confirmLabel={t("mapEditor.customAssets.exportAnyway")}
+        cancelLabel={t("mapEditor.customAssets.cancel")}
+        onCancel={() => setExportWarn(null)}
+        onConfirm={() => {
+          setExportWarn(null);
+          runExport();
+        }}
+      />
     </div>
   );
 }
