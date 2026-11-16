@@ -112,6 +112,40 @@ describe("buildMapThumbnail", () => {
     expect(model.props[0]!.rotate).toBeCloseTo(-45);
   });
 
+  it("emits rect thumbnail fields (w/h, r:0) for sized zones", () => {
+    const def = blankMap({
+      id: "t-rect",
+      name: "RectZones",
+      floor: { size: 20, style: "surface", color: "#aaa", surface: "office" },
+      zones: [
+        {
+          id: "z1",
+          name: "Pad",
+          kind: "custom",
+          center: [0, 0, 0],
+          radius: 2,
+          size: [4, 6],
+        },
+      ],
+      theme: {
+        floor: "#aaa",
+        accent: "#00ffaa",
+        background: "#111",
+        fog: "#222",
+        ambient: "#fff",
+        hemiSky: "#fff",
+        hemiGround: "#888",
+        sun: "#fff",
+      },
+    });
+    const model = buildMapThumbnail(def, 100);
+    expect(model.zones).toHaveLength(1);
+    expect(model.zones[0]!.r).toBe(0);
+    expect(model.zones[0]!.w).toBeCloseTo(20); // 4m * (100/20)
+    expect(model.zones[0]!.h).toBeCloseTo(30); // 6m * (100/20)
+    expect(model.zones[0]!.fill).toBe("#00ffaa");
+  });
+
   it("caps props and paints zones with theme accent", () => {
     const placeables = Array.from({ length: MAP_THUMBNAIL_PROP_CAP + 25 }, (_, i) => ({
       id: `p${i}`,

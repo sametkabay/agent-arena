@@ -1,4 +1,11 @@
-import { useMemo, useRef, useState, type DragEvent } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent,
+} from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { useTranslation } from "react-i18next";
@@ -55,10 +62,46 @@ export function MapEditor() {
   const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null);
   const [confirmClose, setConfirmClose] = useState(false);
   const importBtnRef = useRef<HTMLButtonElement>(null);
+  const setImportFocusEl = useCallback((el: HTMLButtonElement | null) => {
+    importBtnRef.current = el;
+  }, []);
+  /** Set only by Zones/Lights list picks — canvas/placement/undo must not steal focus. */
+  const pendingFocusRef = useRef<string | null>(null);
+  const editorRootRef = useRef<HTMLDivElement>(null);
   const viewportApi = useRef<{
     camera: THREE.Camera;
     gl: THREE.WebGLRenderer;
   } | null>(null);
+
+  // Keep toast offset in sync with the live toolbar height (1–2 rows).
+  useLayoutEffect(() => {
+    if (!open) {
+      document.documentElement.style.removeProperty(
+        "--map-editor-toolbar-height",
+      );
+      return;
+    }
+    const root = editorRootRef.current;
+    if (!root) return;
+    const toolbar = root.querySelector(".map-editor__toolbar");
+    if (!(toolbar instanceof HTMLElement)) return;
+    const apply = () => {
+      const h = Math.ceil(toolbar.getBoundingClientRect().height);
+      document.documentElement.style.setProperty(
+        "--map-editor-toolbar-height",
+        `${h}px`,
+      );
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(toolbar);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty(
+        "--map-editor-toolbar-height",
+      );
+    };
+  }, [open, draft?.name]);
 
   const {
     onSave,
@@ -103,6 +146,12 @@ export function MapEditor() {
     moveIdsLive,
     placeAsset,
     addSpawnAt,
+    addZoneAt,
+    addLightAt,
+    patchZoneLive,
+    patchLightLive,
+    commitZone,
+    commitLight,
   } = useEditorActions({
     draft,
     commit,
@@ -148,6 +197,14 @@ export function MapEditor() {
     selectedIds.length === 1
       ? draft?.spawnPoints.find((s) => s.id === selectedIds[0])
       : undefined;
+  const selectedZone =
+    selectedIds.length === 1
+      ? (draft?.zones ?? []).find((z) => z.id === selectedIds[0])
+      : undefined;
+  const selectedLight =
+    selectedIds.length === 1
+      ? (draft?.lights ?? []).find((L) => L.id === selectedIds[0])
+      : undefined;
 
   const onCanvasDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -179,12 +236,18 @@ export function MapEditor() {
         : [ctxMenu.targetId]
       : [];
   const ctxOpIds =
-    ctxMenu?.kind === "spawn"
+    ctxMenu?.kind === "spawn" ||
+    ctxMenu?.kind === "zone" ||
+    ctxMenu?.kind === "light"
       ? [ctxMenu.targetId]
       : ctxPlaceableIds;
 
   return (
-    <div className="map-editor" onContextMenu={(e) => e.preventDefault()}>
+    <div
+      ref={editorRootRef}
+      className="map-editor"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       <div className="map-editor__top">
         <EditorToolbar
           mapName={draft.name}
@@ -193,6 +256,8 @@ export function MapEditor() {
           canRedo={canRedo}
           tool={tool}
           dayNight={dayNight}
+          zoneCount={draft.zones?.length ?? 0}
+          lightCount={draft.lights?.length ?? 0}
           onUndo={() => {
             undo();
             setCtxMenu(null);
@@ -203,14 +268,14 @@ export function MapEditor() {
           }}
           onSetTool={(next) => {
             setTool(next);
-            if (next === "spawn") setPaintId(null);
+            if (next !== "select") setPaintId(null);
           }}
           onExport={onExport}
           onImportFile={(file) => void onImportFile(file)}
           onToggleDayNight={toggleDayNight}
           onSave={onSave}
           onClose={requestClose}
-          importButtonRef={importBtnRef}
+          setImportFocusEl={setImportFocusEl}
         />
         {saveError && (
           <div
@@ -280,36 +345,78 @@ export function MapEditor() {
               onMoveIds={moveIdsLive}
               onPlaceAsset={placeAsset}
               onPlaceSpawn={addSpawnAt}
+              onPlaceZone={addZoneAt}
+              onPlaceLight={addLightAt}
               onDragGestureStart={beginGesture}
               onDragGestureEnd={endGesture}
               onContextMenu={setCtxMenu}
               snapStep={snapStep}
             />
           </Canvas>
-          {tool === "spawn" && (
-            <div className="map-editor__mode-banner">{t("mapEditor.spawnMode")}</div>
-          )}
-          {paintId && tool === "select" && (
-            <div className="map-editor__mode-banner">
-              {t("mapEditor.paintMode", { name: PLACEABLE_SPECS[paintId].label })}
-            </div>
-          )}
-          {multiPlaceable && !paintId && !ctxMenu && (
-            <div className="map-editor__mode-banner map-editor__mode-banner--select">
-              {t("mapEditor.multiSelectedBanner", {
-                count: selectedPlaceables.length,
-              })}
-            </div>
-          )}
-          {selectedPlaceable && !paintId && !ctxMenu && (
-            <div className="map-editor__mode-banner map-editor__mode-banner--select">
-              {t("mapEditor.selectedBanner", {
-                name:
-                  PLACEABLE_SPECS[selectedPlaceable.placeableId as PlaceableId]
-                    ?.label ?? selectedPlaceable.placeableId,
-              })}
-            </div>
-          )}
+          {(() => {
+            // Single banner slot — never stack tool + selection banners.
+            let banner: { text: string; select?: boolean } | null = null;
+            if (tool === "spawn") {
+              banner = { text: t("mapEditor.spawnMode") };
+            } else if (tool === "zone") {
+              banner = { text: t("mapEditor.zoneMode") };
+            } else if (tool === "light") {
+              banner = { text: t("mapEditor.lightMode") };
+            } else if (tool === "select" && paintId) {
+              banner = {
+                text: t("mapEditor.paintMode", {
+                  name: PLACEABLE_SPECS[paintId].label,
+                }),
+              };
+            } else if (tool === "select" && !ctxMenu) {
+              if (multiPlaceable) {
+                banner = {
+                  text: t("mapEditor.multiSelectedBanner", {
+                    count: selectedPlaceables.length,
+                  }),
+                  select: true,
+                };
+              } else if (selectedPlaceable) {
+                banner = {
+                  text: t("mapEditor.selectedBanner", {
+                    name:
+                      PLACEABLE_SPECS[
+                        selectedPlaceable.placeableId as PlaceableId
+                      ]?.label ?? selectedPlaceable.placeableId,
+                  }),
+                  select: true,
+                };
+              } else if (selectedZone) {
+                banner = {
+                  text: t("mapEditor.zoneSelectedBanner", {
+                    name: selectedZone.name,
+                  }),
+                  select: true,
+                };
+              } else if (selectedLight) {
+                banner = {
+                  text: t("mapEditor.lightSelectedBanner", {
+                    n:
+                      (draft?.lights ?? []).findIndex(
+                        (L) => L.id === selectedLight.id,
+                      ) + 1,
+                  }),
+                  select: true,
+                };
+              }
+            }
+            if (!banner) return null;
+            return (
+              <div
+                className={
+                  "map-editor__mode-banner" +
+                  (banner.select ? " map-editor__mode-banner--select" : "")
+                }
+              >
+                {banner.text}
+              </div>
+            );
+          })()}
           {ctxMenu && ctxOpIds.length > 0 && (
             <EditorContextMenu
               menu={ctxMenu}
@@ -326,6 +433,8 @@ export function MapEditor() {
           draft={draft}
           selectedPlaceables={selectedPlaceables}
           selectedSpawn={selectedSpawn}
+          selectedZone={selectedZone}
+          selectedLight={selectedLight}
           commit={commit}
           setLive={setLive}
           beginGesture={beginGesture}
@@ -339,6 +448,21 @@ export function MapEditor() {
           patchSelectedPlaceableLive={patchSelectedPlaceableLive}
           movePlaceableLive={movePlaceableLive}
           updateFloor={updateFloor}
+          patchZoneLive={patchZoneLive}
+          patchLightLive={patchLightLive}
+          commitZone={commitZone}
+          commitLight={commitLight}
+          pendingFocusRef={pendingFocusRef}
+          selectInEditor={(id, opts) => {
+            // List / inspector picks imply select mode (drag + selected banner)
+            // and request focus on the new card heading.
+            if (id) {
+              pendingFocusRef.current = id;
+              setTool("select");
+              setPaintId(null);
+            }
+            selectInEditor(id, opts);
+          }}
         />
       </div>
 

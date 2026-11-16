@@ -4318,11 +4318,63 @@ body.is-chat-panel-dragging .chat-popup__resize {
   color: #e8a87c;
 }
 
+/* Compact chip lives in the actions row; desktop uses the full brand badge. */
+.map-editor__badge--compact {
+  display: none;
+  flex: 0 0 auto;
+  align-self: center;
+  white-space: nowrap;
+  line-height: 1.2;
+  max-height: 44px;
+  box-sizing: border-box;
+}
+
 .map-editor__toolbar-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.map-editor__toolbar-cluster {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.map-editor__toolbar-io {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.map-editor__toolbar-more {
+  display: none;
+  position: relative;
+}
+
+.map-editor__toolbar-more-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 160px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(28, 25, 22, 0.98);
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  display: grid;
+  gap: 2px;
+}
+
+.map-editor__toolbar-more-menu button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .map-editor__toolbar-actions button {
@@ -4681,13 +4733,20 @@ body.is-chat-panel-dragging .chat-popup__resize {
   left: 50%;
   top: 12px;
   transform: translateX(-50%);
+  max-width: calc(100% - 16px);
+  box-sizing: border-box;
   padding: 0.4rem 0.85rem;
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(28, 25, 22, 0.82);
   border: 1px solid rgba(244, 239, 230, 0.16);
   font-size: 0.8rem;
   font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
   pointer-events: none;
+  z-index: 2;
 }
 
 .map-editor__field {
@@ -4698,7 +4757,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-weight: 700;
 }
 
-.map-editor__field input,
+/* Exclude range: Slider paints track via .aa-slider::before/::after (#55 / #28) */
+.map-editor__field input:not([type="range"]),
 .map-editor__field textarea {
   width: 100%;
   border: 1px solid rgba(244, 239, 230, 0.16);
@@ -4711,10 +4771,6 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__field input[type="color"] {
   height: 34px;
   padding: 2px;
-}
-
-.map-editor__field input[type="range"] {
-  padding: 0;
 }
 
 .map-editor__divider {
@@ -4732,6 +4788,65 @@ body.is-chat-panel-dragging .chat-popup__resize {
   border-radius: 9px;
   padding: 0.45rem;
   font-weight: 800;
+}
+
+.map-editor__inline-btn {
+  width: 100%;
+  margin-bottom: 8px;
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4efe6;
+  border-radius: 9px;
+  padding: 0.45rem;
+  font-weight: 700;
+}
+
+.map-editor__region-list {
+  margin-bottom: 12px;
+}
+
+.map-editor__region-list h4 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(244, 239, 230, 0.85);
+}
+
+.map-editor__region-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.map-editor__region-list-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(244, 239, 230, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f4efe6;
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.map-editor__region-list-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.map-editor__inspector h3:focus {
+  outline: none;
+}
+
+/* Editor toasts: below the toolbar, never covering it (any viewport). */
+.app:has(.map-editor) .toast {
+  top: calc(
+    var(--map-editor-toolbar-height, 96px) + 8px + env(safe-area-inset-top, 0px)
+  );
+  bottom: auto;
+  z-index: 350;
 }
 
 @media (max-width: 960px) {
@@ -4770,6 +4885,15 @@ body.is-chat-panel-dragging .chat-popup__resize {
     font-size: 0.82rem;
     font-weight: 700;
   }
+
+  /* Map editor: keep toasts under the toolbar (override phone bottom pin). */
+  .app:has(.map-editor) .toast {
+    top: calc(
+      var(--map-editor-toolbar-height, 96px) + 8px +
+        env(safe-area-inset-top, 0px)
+    );
+    bottom: auto;
+  }
 }
 
 /* While a confirm / bottom-sheet dialog is open, pin toast above the sheet so
@@ -4801,28 +4925,101 @@ body.is-chat-panel-dragging .chat-popup__resize {
 }
 
 @media (max-width: 720px) {
-  .map-editor__brand {
-    flex: 1 1 100%;
-    flex-wrap: wrap;
+  .map-editor__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 6px 8px;
   }
-  .map-editor__badge {
-    white-space: nowrap;
+  .map-editor__brand {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    min-width: 0;
+  }
+  .map-editor__brand strong {
+    font-size: 0.82rem;
+    flex: 0 0 auto;
+  }
+  .map-editor__brand span {
+    font-size: 0.75rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  /* Full hint moves into the compact chip (title/aria-label). */
+  .map-editor__badge--full {
+    display: none;
+  }
+  .map-editor__badge--compact {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.68rem;
+    padding: 0.2rem 0.45rem;
   }
   .map-editor__toolbar-actions {
-    flex: 1 1 100%;
-    flex-wrap: nowrap;
-    overflow-x: auto;
+    flex: 0 0 auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow: visible;
     justify-content: flex-start;
-    scrollbar-width: none;
+    /* Cap at ~2 rows of 44px targets + gaps */
+    max-height: 110px;
   }
-  .map-editor__toolbar-actions::-webkit-scrollbar {
-    width: 0;
-    height: 0;
+  .map-editor__toolbar-cluster {
+    gap: 4px;
+  }
+  /* Narrow: Export/Import + theme collapse into More so actions stay ≤2 rows. */
+  .map-editor__toolbar-io--desktop,
+  .map-editor__toolbar-sep--desktop {
+    display: none;
+  }
+  .map-editor__toolbar-more {
+    display: block;
+  }
+  .map-editor__toolbar-actions > .daynight-switch {
     display: none;
   }
   .map-editor__toolbar-actions button {
     flex: 0 0 auto;
     white-space: nowrap;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.76rem;
+  }
+  .map-editor__toolbar-sep {
+    margin: 0 2px;
+  }
+}
+
+/* Phone: keep a one-line brand (title + truncated name) + ≤2 action rows. */
+@media (max-width: 480px) {
+  .map-editor__toolbar {
+    padding: 4px 6px;
+    gap: 2px;
+  }
+  .map-editor__brand {
+    display: flex;
+  }
+  .map-editor__brand strong {
+    font-size: 0.78rem;
+  }
+  .map-editor__brand span {
+    font-size: 0.72rem;
+  }
+  .map-editor__toolbar-actions {
+    gap: 3px;
+  }
+  .map-editor__toolbar-cluster {
+    gap: 3px;
+  }
+  .map-editor__toolbar-actions button {
+    padding: 0.28rem 0.4rem;
+    font-size: 0.74rem;
+  }
+  .map-editor__badge--compact {
+    font-size: 0.64rem;
+    padding: 0.15rem 0.35rem;
   }
 }
 
@@ -4877,5 +5074,12 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .map-tab__actions button,
   .map-card__row button {
     min-height: 36px;
+  }
+  .map-editor__selection-card button,
+  .map-editor__region-list-item,
+  .map-editor__toolbar-actions button,
+  .map-editor__inline-btn,
+  .map-editor__danger {
+    min-height: 44px;
   }
 }

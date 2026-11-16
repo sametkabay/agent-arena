@@ -20,6 +20,7 @@ export function MapSettingsCard({
   onFloorSizeLive,
   onUpdateFloor,
   onTheme,
+  onSelectRegion,
   beginGesture,
   endGesture,
 }: {
@@ -28,10 +29,13 @@ export function MapSettingsCard({
   onFloorSizeLive: (size: number) => void;
   onUpdateFloor: (patch: Partial<ArenaMapDefinition["floor"]>) => void;
   onTheme: (patch: Partial<ArenaMapDefinition["theme"]>) => void;
+  onSelectRegion: (id: string) => void;
   beginGesture: () => void;
   endGesture: () => void;
 }) {
   const { t } = useTranslation();
+  const zones = draft.zones ?? [];
+  const lights = draft.lights ?? [];
 
   return (
     <>
@@ -45,6 +49,44 @@ export function MapSettingsCard({
           onChange={(e) => onDescription(e.target.value)}
         />
       </label>
+
+      {zones.length > 0 && (
+        <div className="map-editor__region-list">
+          <h4>{t("mapEditor.zonesList", { count: zones.length })}</h4>
+          <ul>
+            {zones.map((z) => (
+              <li key={z.id}>
+                <button
+                  type="button"
+                  className="map-editor__region-list-item"
+                  onClick={() => onSelectRegion(z.id)}
+                >
+                  {z.name || z.id}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {lights.length > 0 && (
+        <div className="map-editor__region-list">
+          <h4>{t("mapEditor.lightsList", { count: lights.length })}</h4>
+          <ul>
+            {lights.map((L, i) => (
+              <li key={L.id}>
+                <button
+                  type="button"
+                  className="map-editor__region-list-item"
+                  onClick={() => onSelectRegion(L.id)}
+                >
+                  {t("mapEditor.lightListItem", { n: i + 1 })}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <label className="map-editor__field">
         <span>

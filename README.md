@@ -161,9 +161,8 @@ Use it to prototype agent personas, stage small multi-agent scenes, compare LLM 
 
 - **Builtin worlds:** Office, Nature, Space (`aamf` v1 JSON in `data/maps/`)
 - **Day/night** is a global lighting mode (not a separate map) — HUD toggle, name-gate choice, and editor preview
-- **Full-screen map editor:** place / move / rotate / scale assets, multi-select, snap grid, spawn tool, drag-drop from the library, favorites, floor size & surface, theme colors, prop wander / animated behavior, undo/redo, import / export (`.aamf.json`)
+- **Full-screen map editor:** place / move / rotate / scale assets, multi-select, snap grid, spawn / zone / light tools, drag-drop from the library, favorites, floor size & surface, theme colors, prop wander / animated behavior, undo/redo, import / export (`.aamf.json`)
 - Saving a builtin creates a **custom copy** in `localStorage`
-- Zones and map light points render in the editor today; editing them in the UI is on the [roadmap](#roadmap)
 - Night sky, practical lights (lamps, campfire FX, map lights), optional room lights on indoor surfaces
 
 ### AI providers
@@ -282,7 +281,7 @@ flowchart TB
 
 ### Map format (`aamf` v1)
 
-Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones and lights. Builtins: `data/maps/`. Custom maps and exports use the same schema (`.aamf.json`).
+Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones and lights. Zones are circles (`center` + `radius > 0`) or axis-aligned rectangles (`center` + `size: [width, depth]`). Rectangle imports may omit `radius`; the validator derives it as `max(width, depth) / 2`. The editor always writes both `size` and a compatibility `radius`. Builtins: `data/maps/`. Custom maps and exports use the same schema (`.aamf.json`).
 
 | Builtin | Theme | Notes |
 |---------|-------|-------|
@@ -367,7 +366,6 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) (setup, pre-commit hook, lint/test) a
 
 ## Roadmap
 
-- Richer zone / light editing in the map editor UI
 - Wire **Settings → Map** gallery presets from `data/map-presets.yaml`
 - Deeper agent behaviors and multi-agent tasks
 - Export / import of full arena setups (agents + models + map)

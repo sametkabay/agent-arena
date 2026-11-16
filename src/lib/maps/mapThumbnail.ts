@@ -34,7 +34,12 @@ export interface MapThumbnailFloor {
 export interface MapThumbnailZone {
   cx: number;
   cy: number;
+  /** Circle radius in view units; 0 when the zone is a rectangle. */
   r: number;
+  /** Rectangle width in view units (axis-aligned). */
+  w?: number;
+  /** Rectangle depth in view units (axis-aligned). */
+  h?: number;
   fill: string;
 }
 
@@ -101,6 +106,18 @@ export function buildMapThumbnail(
 
   const zones: MapThumbnailZone[] = (def.zones ?? []).map((z) => {
     const { x: cx, y: cy } = worldToView(z.center[0], z.center[2], floorSize);
+    if (Array.isArray(z.size) && z.size.length === 2) {
+      const w = Math.max(0, z.size[0]) * scale;
+      const h = Math.max(0, z.size[1]) * scale;
+      return {
+        cx: cx * scale,
+        cy: cy * scale,
+        r: 0,
+        w,
+        h,
+        fill: accent,
+      };
+    }
     return {
       cx: cx * scale,
       cy: cy * scale,

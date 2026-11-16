@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
-import { cloneMap, exportMapJson } from "@/lib/maps";
+import { cloneMap, exportMapJson, sanitizeZoneName } from "@/lib/maps";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
 import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu";
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
@@ -116,7 +116,18 @@ export function useEditorSession({
     const current = draftRef.current;
     if (!current) return;
     const name = current.name.trim() || t("mapEditor.untitled");
-    const result = saveMapFromEditor({ ...current, name }, true);
+    const fallbackZone = t("mapEditor.zoneDefaultName", { n: 1 });
+    const zones = current.zones?.map((z, i) => ({
+      ...z,
+      name: sanitizeZoneName(
+        z.name,
+        t("mapEditor.zoneDefaultName", { n: i + 1 }) || fallbackZone,
+      ),
+    }));
+    const result = saveMapFromEditor(
+      { ...current, name, ...(zones ? { zones } : {}) },
+      true,
+    );
     if (result.ok) {
       setSaveError(null);
       showToast(t("mapEditor.saved"));

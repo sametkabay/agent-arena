@@ -29,16 +29,28 @@ export function MapThumbnail({ model, className }: MapThumbnailProps) {
         height={model.floor.h}
         fill={model.floor.fill}
       />
-      {model.zones.map((z, i) => (
-        <circle
-          key={`z-${i}`}
-          cx={z.cx}
-          cy={z.cy}
-          r={z.r}
-          fill={z.fill}
-          fillOpacity={0.25}
-        />
-      ))}
+      {model.zones.map((z, i) =>
+        z.w != null && z.h != null && z.w > 0 && z.h > 0 ? (
+          <rect
+            key={`z-${i}`}
+            x={z.cx - z.w / 2}
+            y={z.cy - z.h / 2}
+            width={z.w}
+            height={z.h}
+            fill={z.fill}
+            fillOpacity={0.25}
+          />
+        ) : (
+          <circle
+            key={`z-${i}`}
+            cx={z.cx}
+            cy={z.cy}
+            r={z.r}
+            fill={z.fill}
+            fillOpacity={0.25}
+          />
+        ),
+      )}
       {model.props.map((p, i) => {
         const cx = p.x + p.w / 2;
         const cy = p.y + p.h / 2;
