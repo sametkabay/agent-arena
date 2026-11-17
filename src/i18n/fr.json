@@ -477,7 +477,7 @@
     "closeUnsavedBody": "Tu as des modifications non enregistrées. Fermer sans enregistrer ?",
     "closeDiscard": "Fermer sans enregistrer",
     "library": "Bibliothèque d’objets",
-    "searchAssets": "Rechercher des objets…",
+    "searchAssets": "Rechercher…",
     "searchEmpty": "Aucun objet ne correspond à ta recherche.",
     "catAll": "Tous",
     "cat": {

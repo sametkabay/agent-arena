@@ -106,6 +106,15 @@ export function EditorToolbar({
             {builtinHint}
           </em>
         )}
+        {builtin && (
+          <em
+            className="map-editor__badge map-editor__badge--compact"
+            title={builtinHint}
+            aria-label={builtinHint}
+          >
+            {t("mapList.builtin")}
+          </em>
+        )}
       </div>
       <div className="map-editor__toolbar-actions">
         <div className="map-editor__toolbar-cluster">
@@ -252,15 +261,6 @@ export function EditorToolbar({
             e.target.value = "";
           }}
         />
-        {builtin && (
-          <em
-            className="map-editor__badge map-editor__badge--compact"
-            title={builtinHint}
-            aria-label={builtinHint}
-          >
-            {t("mapList.builtin")}
-          </em>
-        )}
         <DayNightSwitch mode={dayNight} onToggle={onToggleDayNight} />
         <button type="button" className="map-editor__primary" onClick={onSave}>
           {t("mapEditor.save")}

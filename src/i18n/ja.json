@@ -477,7 +477,7 @@
     "closeUnsavedBody": "保存していない編集があります。保存せずに閉じますか？",
     "closeDiscard": "保存せずに閉じる",
     "library": "オブジェクトライブラリ",
-    "searchAssets": "オブジェクトを検索…",
+    "searchAssets": "検索…",
     "searchEmpty": "検索に合うオブジェクトがありません。",
     "catAll": "すべて",
     "cat": {
