@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { PlaceableId } from "@/lib/assets/catalog";
-import { getPlaceableSpec } from "@/lib/assets/placeableSpec";
+import { placeableDisplayLabel } from "@/lib/assets/placeableLabel";
 import {
   getCachedThumb,
   requestThumb,
@@ -12,10 +13,11 @@ import {
  * Loads only when the card scrolls into view (IntersectionObserver).
  */
 export function AssetPreview({ placeableId }: { placeableId: PlaceableId }) {
+  const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [src, setSrc] = useState<string | null>(() => getCachedThumb(placeableId));
-  const label = getPlaceableSpec(placeableId)?.label ?? placeableId;
+  const label = placeableDisplayLabel(placeableId, t);
 
   useEffect(() => {
     const el = rootRef.current;

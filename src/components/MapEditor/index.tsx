@@ -32,7 +32,14 @@ import { useEditorSession } from "@/components/MapEditor/useEditorSession";
 import { screenToFloor } from "@/components/MapEditor/geometry";
 import type { EditorTool, LibraryScope, SnapMode } from "@/components/MapEditor/types";
 import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
-import { builtinDisplayText, getBuiltinMap } from "@/lib/maps";
+import { placeableDisplayLabel } from "@/lib/assets/placeableLabel";
+import {
+  builtinDisplayText,
+  getBuiltinMap,
+  lightDisplayName,
+  lightListIndex,
+  zoneDisplayName,
+} from "@/lib/maps";
 import { useArenaStore } from "@/store/arenaStore";
 
 export function MapEditor() {
@@ -401,7 +408,11 @@ export function MapEditor() {
             } else if (tool === "select" && paintId) {
               banner = {
                 text: t("mapEditor.paintMode", {
-                  name: getPlaceableSpec(paintId)?.label ?? paintId,
+                  name: placeableDisplayLabel(
+                    paintId,
+                    t,
+                    getPlaceableSpec(paintId)?.label ?? paintId,
+                  ),
                 }),
               };
             } else if (tool === "select" && !ctxMenu) {
@@ -415,26 +426,36 @@ export function MapEditor() {
               } else if (selectedPlaceable) {
                 banner = {
                   text: t("mapEditor.selectedBanner", {
-                    name:
-                      getPlaceableSpec(selectedPlaceable.placeableId)?.label ??
+                    name: placeableDisplayLabel(
                       selectedPlaceable.placeableId,
+                      t,
+                      getPlaceableSpec(selectedPlaceable.placeableId)?.label ??
+                        selectedPlaceable.placeableId,
+                    ),
                   }),
                   select: true,
                 };
-              } else if (selectedZone) {
+              } else if (selectedZone && draft) {
                 banner = {
                   text: t("mapEditor.zoneSelectedBanner", {
-                    name: selectedZone.name,
+                    name: zoneDisplayName(
+                      selectedZone,
+                      draft,
+                      draft.builtin ? getBuiltinMap(draft.id) : null,
+                      t,
+                    ),
                   }),
                   select: true,
                 };
-              } else if (selectedLight) {
+              } else if (selectedLight && draft) {
+                const lightIndex = lightListIndex(
+                  draft.lights,
+                  selectedLight.id,
+                );
                 banner = {
                   text: t("mapEditor.lightSelectedBanner", {
-                    n:
-                      (draft?.lights ?? []).findIndex(
-                        (L) => L.id === selectedLight.id,
-                      ) + 1,
+                    name: lightDisplayName(selectedLight, draft, lightIndex, t),
+                    n: lightIndex,
                   }),
                   select: true,
                 };

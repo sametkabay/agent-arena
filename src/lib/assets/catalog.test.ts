@@ -4,6 +4,7 @@ import {
   ASSET_PACKS,
   PLACEABLE_SPECS,
   isPlaceableId,
+  labelFromFile,
   listPlaceables,
   pickClipName,
   placeableCanAnimate,
@@ -65,6 +66,13 @@ describe("catalog helpers", () => {
     expect(chair).toBeTruthy();
     expect(PLACEABLE_SPECS[chair!]?.category).toBe("furniture");
     expect(isPlaceableId("animals__cat") || isPlaceableId("cat")).toBe(true);
+  });
+
+  it("labelFromFile strips asset hashes but keeps hyphenated words", () => {
+    expect(labelFromFile("Lounge Chair-PImRvMqW1O.glb")).toBe("Lounge Chair");
+    expect(labelFromFile("Table-Rectangular.glb")).toBe("Table-Rectangular");
+    expect(labelFromFile("Toaster.glb")).toBe("Toaster");
+    expect(labelFromFile("Design-Loungesessel.glb")).toBe("Design-Loungesessel");
   });
 
   it("classifies pack files into categories and wander/animate flags", () => {

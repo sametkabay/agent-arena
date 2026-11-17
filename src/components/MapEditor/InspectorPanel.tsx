@@ -8,6 +8,8 @@ import {
   clampFloorSize,
   clampRegionsToFloor,
   getBuiltinMap,
+  lightDisplayName,
+  lightListIndex,
   type LightPatch,
   type ZonePatch,
 } from "@/lib/maps";
@@ -205,6 +207,7 @@ export function InspectorPanel({
           <ZoneCard
             key={selectedZone.id}
             zone={selectedZone}
+            draft={draft}
             floorSize={draft.floor.size}
             onPatchLive={(patch) => patchZoneLive(selectedZone.id, patch)}
             onCommit={(patch) => commitZone(selectedZone.id, patch)}
@@ -217,6 +220,12 @@ export function InspectorPanel({
           <LightCard
             key={selectedLight.id}
             light={selectedLight}
+            displayName={lightDisplayName(
+              selectedLight,
+              draft,
+              lightListIndex(draft.lights, selectedLight.id),
+              t,
+            )}
             onPatchLive={(patch) => patchLightLive(selectedLight.id, patch)}
             onCommit={(patch) => commitLight(selectedLight.id, patch)}
             onMoveLive={(pos) => movePlaceableLive(selectedLight.id, pos)}

@@ -160,6 +160,8 @@ const REQUIRED_KEYS = [
   "storage.quotaExceeded",
   "storage.unavailable",
   "storage.writeFailed",
+  "colorField.panel",
+  "colorField.hex",
   "mapEditor.saveFailed",
   "mapEditor.saveFailedUnavailable",
   "mapEditor.saveFailedUnknown",
@@ -271,7 +273,7 @@ function placeholders(value: string): string[] {
 
 describe("onboarding locale keys", () => {
   it("lists exactly the required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(247);
+    expect(REQUIRED_KEYS).toHaveLength(249);
   });
 
   it("includes every configured language with matching placeholders", () => {

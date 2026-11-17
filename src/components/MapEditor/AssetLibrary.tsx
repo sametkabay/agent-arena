@@ -8,6 +8,11 @@ import {
   type AssetCategory,
   type PlaceableId,
 } from "@/lib/assets/placeableSpec";
+import {
+  matchesPlaceableQuery,
+  placeableDisplayLabel,
+  placeableEnglishLabel,
+} from "@/lib/assets/placeableLabel";
 import { isUserAssetId } from "@/lib/userAssets/ids";
 import { AssetPreview } from "@/components/MapEditor/AssetPreview";
 import { ImportAssetDialog } from "@/components/MapEditor/customAssets/ImportAssetDialog";
@@ -104,7 +109,7 @@ export function AssetLibrary({
   }, [menuId]);
 
   const libraryGroups = useMemo(() => {
-    const q = assetQuery.trim().toLowerCase();
+    const q = assetQuery.trim();
     const fav = new Set(favoriteAssets);
     const cats =
       category === "all" ? ASSET_CATEGORIES : ([category] as AssetCategory[]);
@@ -120,8 +125,15 @@ export function AssetLibrary({
           if (libraryScope === "favorites" && !fav.has(id)) return false;
           if (libraryScope === "used" && !usedPlaceableIds.has(id)) return false;
           if (!q) return true;
-          const label = (spec?.label ?? "").toLowerCase();
-          return label.includes(q) || id.toLowerCase().includes(q);
+          const english = isUserAssetId(id)
+            ? (spec?.label ?? "")
+            : placeableEnglishLabel(id) || (spec?.label ?? "");
+          const translated = placeableDisplayLabel(id, t, spec?.label);
+          return matchesPlaceableQuery(q, {
+            id,
+            englishLabel: english,
+            translatedLabel: translated,
+          });
         });
         return { category: cat, ids };
       })
@@ -141,6 +153,7 @@ export function AssetLibrary({
     favoriteAssets,
     usedPlaceableIds,
     metas,
+    t,
   ]);
 
   const libraryMatchCount = useMemo(
@@ -150,8 +163,13 @@ export function AssetLibrary({
 
   const deleteUsage = deleteId ? usageOf(deleteId, draft) : null;
   const deleteName =
-    (deleteId && getPlaceableSpec(deleteId)?.label) ||
-    metas.find((m) => m.id === deleteId)?.name ||
+    (deleteId &&
+      placeableDisplayLabel(
+        deleteId,
+        t,
+        getPlaceableSpec(deleteId)?.label ??
+          metas.find((m) => m.id === deleteId)?.name,
+      )) ||
     "";
 
   return (
@@ -270,6 +288,7 @@ export function AssetLibrary({
                 if (!spec) return null;
                 const fav = favoriteAssets.includes(id);
                 const isUser = isUserAssetId(id);
+                const displayLabel = placeableDisplayLabel(id, t, spec.label);
                 const external =
                   isUser && "external" in spec && spec.external;
                 const menuOpen = menuId === id;
@@ -286,7 +305,7 @@ export function AssetLibrary({
                     <button
                       type="button"
                       draggable
-                      title={spec.label}
+                      title={displayLabel}
                       className={
                         "map-editor__asset" + (paintId === id ? " is-active" : "")
                       }
@@ -298,7 +317,7 @@ export function AssetLibrary({
                     >
                       <AssetPreview placeableId={id} />
                       <span className="map-editor__asset-name">
-                        {spec.label}
+                        {displayLabel}
                         {external ? (
                           <span
                             className="map-editor__external-badge"
@@ -355,7 +374,7 @@ export function AssetLibrary({
                               role="menuitem"
                               onClick={() => {
                                 setRenameId(id);
-                                setRenameValue(spec.label);
+                                setRenameValue(spec.label); // user-authored name
                                 setMenuId(null);
                               }}
                             >
