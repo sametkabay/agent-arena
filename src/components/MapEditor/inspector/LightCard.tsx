@@ -17,6 +17,7 @@ import { CoordInput } from "@/components/MapEditor/inspector/CoordInput";
 
 export function LightCard({
   light,
+  displayName,
   onPatchLive,
   onCommit,
   onMoveLive,
@@ -25,6 +26,7 @@ export function LightCard({
   endGesture,
 }: {
   light: MapLightPoint;
+  displayName: string;
   onPatchLive: (patch: LightPatch) => void;
   onCommit: (patch: LightPatch) => void;
   onMoveLive: (pos: [number, number, number]) => void;
@@ -39,7 +41,7 @@ export function LightCard({
   return (
     <div className="map-editor__selection-card">
       <h4 tabIndex={-1} data-inspector-card-heading>
-        {t("mapEditor.light")}
+        {displayName || t("mapEditor.light")}
       </h4>
 
       <label className="map-editor__field">

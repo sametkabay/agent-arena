@@ -6,13 +6,17 @@ import {
   ZONE_RADIUS_MIN,
   ZONE_SIZE_MIN,
   convertZoneToRect,
+  getBuiltinMap,
   isRectZone,
   sanitizeZoneName,
+  zoneDisplayName,
   zoneRadiusMax,
   zoneSizeMax,
+  type ArenaMapDefinition,
   type MapZone,
   type MapZoneKind,
 } from "@/lib/maps";
+import { zoneNameFromInput } from "@/lib/maps/zoneNameInput";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
 import { CoordInput } from "@/components/MapEditor/inspector/CoordInput";
@@ -20,6 +24,7 @@ import type { ZonePatch } from "@/lib/maps";
 
 export function ZoneCard({
   zone,
+  draft,
   floorSize,
   onPatchLive,
   onCommit,
@@ -29,6 +34,7 @@ export function ZoneCard({
   endGesture,
 }: {
   zone: MapZone;
+  draft: ArenaMapDefinition;
   floorSize: number;
   onPatchLive: (patch: ZonePatch) => void;
   onCommit: (patch: ZonePatch) => void;
@@ -45,6 +51,10 @@ export function ZoneCard({
     ? zone.kind
     : "custom";
   const fallbackName = t("mapEditor.zoneDefaultName", { n: 1 });
+  const builtinBase = draft.builtin ? getBuiltinMap(draft.id) : null;
+  const builtinDefault =
+    builtinBase?.zones?.find((z) => z.id === zone.id)?.name ?? null;
+  const displayName = zoneDisplayName(zone, draft, builtinBase, t);
 
   // Card may unmount while a slider/number field still has focus (click floor /
   // switch selection) — blur never fires, so end the gesture on cleanup.
@@ -61,7 +71,7 @@ export function ZoneCard({
         <input
           type="text"
           maxLength={ZONE_NAME_MAX}
-          value={zone.name}
+          value={displayName}
           onFocus={beginGesture}
           onBlur={() => {
             onPatchLive({
@@ -69,7 +79,16 @@ export function ZoneCard({
             });
             endGesture();
           }}
-          onChange={(e) => onPatchLive({ name: e.target.value })}
+          onChange={(e) =>
+            onPatchLive({
+              name: zoneNameFromInput({
+                typed: e.target.value,
+                stored: zone.name,
+                displayName,
+                builtinDefault: draft.builtin ? builtinDefault : null,
+              }),
+            })
+          }
         />
       </label>
 

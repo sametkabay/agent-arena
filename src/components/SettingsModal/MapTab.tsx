@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  builtinDisplayText,
   mapsToMeta,
   resolveMapDefinition,
   exportMapJson,
   clipMapDescription,
+  getBuiltinMap,
 } from "@/lib/maps";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import { useArenaStore } from "@/store/arenaStore";
@@ -79,9 +81,17 @@ export function MapTab() {
         {t("settings.map.active")}:{" "}
         <strong>
           {activeMap
-            ? activeMap.builtin
-              ? t(`maps.${activeMap.id}.name`, { defaultValue: activeMap.name })
-              : activeMap.name
+            ? builtinDisplayText({
+                stored: activeMap.name,
+                builtinDefault: activeMap.builtin
+                  ? (getBuiltinMap(activeMap.id)?.name ?? null)
+                  : null,
+                translated: activeMap.builtin
+                  ? (t(`maps.${activeMap.id}.name`, {
+                      defaultValue: "",
+                    }) as string) || null
+                  : null,
+              })
             : mapId}
         </strong> · {floorSize}m ·{" "}
         {t("settings.map.propCount", { count: activeMap?.placeables.length ?? 0 })}
@@ -168,9 +178,17 @@ export function MapTab() {
                   </span>
                 </div>
                 <div className="card-item__title">
-                  {m.builtin
-                    ? t(`maps.${m.id}.name`, { defaultValue: m.name })
-                    : m.name}
+                  {builtinDisplayText({
+                    stored: m.name,
+                    builtinDefault: m.builtin
+                      ? (getBuiltinMap(m.id)?.name ?? null)
+                      : null,
+                    translated: m.builtin
+                      ? (t(`maps.${m.id}.name`, {
+                          defaultValue: "",
+                        }) as string) || null
+                      : null,
+                  })}
                 </div>
                 <div className="card-item__sub" title={description}>
                   {clipMapDescription(description)}

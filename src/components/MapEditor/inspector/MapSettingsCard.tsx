@@ -9,6 +9,8 @@ import {
   cellsForFloorSize,
   clampFloorSize,
   getBuiltinMap,
+  lightDisplayName,
+  zoneDisplayName,
   type FloorSurfaceId,
   type FloorStyle,
 } from "@/lib/maps";
@@ -71,7 +73,7 @@ export function MapSettingsCard({
                   className="map-editor__region-list-item"
                   onClick={() => onSelectRegion(z.id)}
                 >
-                  {z.name || z.id}
+                  {zoneDisplayName(z, draft, builtinBase, t) || z.id}
                 </button>
               </li>
             ))}
@@ -90,7 +92,7 @@ export function MapSettingsCard({
                   className="map-editor__region-list-item"
                   onClick={() => onSelectRegion(L.id)}
                 >
-                  {t("mapEditor.lightListItem", { n: i + 1 })}
+                  {lightDisplayName(L, draft, i + 1, t)}
                 </button>
               </li>
             ))}

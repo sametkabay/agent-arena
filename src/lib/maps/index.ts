@@ -135,6 +135,15 @@ export {
 } from "@/lib/maps/clipMapDescription";
 export { builtinDisplayText } from "@/lib/maps/builtinText";
 export {
+  builtinZoneNameKey,
+  builtinZoneDisplayName,
+  builtinLightDisplayName,
+  lightListIndex,
+  zoneDisplayName,
+  lightDisplayName,
+} from "@/lib/maps/builtinRegionText";
+export { zoneNameFromInput } from "@/lib/maps/zoneNameInput";
+export {
   newCustomMapId,
   resolveImportedMapId,
   findMapIdCollision,

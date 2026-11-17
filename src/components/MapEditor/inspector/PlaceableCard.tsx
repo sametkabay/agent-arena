@@ -6,6 +6,7 @@ import {
   type PlaceableId,
 } from "@/lib/assets/catalog";
 import { getPlaceableSpec } from "@/lib/assets/placeableSpec";
+import { placeableDisplayLabel } from "@/lib/assets/placeableLabel";
 import { isUserAssetId } from "@/lib/userAssets/ids";
 import type { PlaceableInstance } from "@/lib/types";
 import { AssetPreview } from "@/components/MapEditor/AssetPreview";
@@ -68,7 +69,13 @@ export function PlaceableCard({
           <AssetPreview placeableId={placeable.placeableId as PlaceableId} />
         </div>
       )}
-      <h4>{spec?.label ?? placeable.placeableId}</h4>
+      <h4>
+        {placeableDisplayLabel(
+          placeable.placeableId,
+          t,
+          spec?.label ?? placeable.placeableId,
+        )}
+      </h4>
 
       {isUser && (
         <>

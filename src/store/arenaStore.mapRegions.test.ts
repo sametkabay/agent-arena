@@ -88,4 +88,29 @@ describe("saveMapFromEditor zones/lights from builtin", () => {
       fromDisk?.lights?.some((L: { id: string }) => L.id === "light_extra"),
     ).toBe(true);
   });
+
+  it("keeps built-in zone names English when saving under de locale", async () => {
+    await i18n.changeLanguage("de");
+    useArenaStore.setState({ language: "de" });
+
+    const office = getBuiltinMap("office") as ArenaMapDefinition;
+    const lounge = office.zones!.find((z) => z.id === "zone_lounge")!;
+    expect(lounge.name).toBe("Lounge");
+
+    // Simulate editor draft that still holds English defaults (UI may show
+    // "Loungebereich" via zoneDisplayName, but stored name stays English).
+    const draft: ArenaMapDefinition = structuredClone(office);
+    const result = useArenaStore.getState().saveMapFromEditor(
+      { ...draft, name: "Büro Kopie" },
+      true,
+    );
+    expect(result).toEqual({ ok: true });
+
+    const s = useArenaStore.getState();
+    const saved = s.customMaps.find((m) => m.id === s.mapId);
+    expect(saved).toBeTruthy();
+    const savedLounge = saved!.zones?.find((z) => z.id === "zone_lounge");
+    expect(savedLounge?.name).toBe("Lounge");
+    expect(savedLounge?.name).not.toBe("Loungebereich");
+  });
 });

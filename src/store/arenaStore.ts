@@ -851,7 +851,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   saveMapFromEditor: (def, activate = true) => {
-    const name = def.name.trim() || "Untitled map";
+    const name = def.name.trim() || i18n.t("mapEditor.untitled");
     const prev = snapshotMapPersistState(get());
 
     // Keep the editor open until persist succeeds so a quota failure cannot

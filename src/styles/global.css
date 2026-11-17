@@ -4306,29 +4306,29 @@ body.is-chat-panel-dragging .chat-popup__resize {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  min-width: 0;
-  /* Yield to toolbar actions; clip so the name can ellipsis at extremes. */
-  flex: 1 1 auto;
-  overflow: hidden;
+  /* Keep title + badge visible while the map name ellipsizes; yield leftover
+     space to actions (esp. 721–1199 before actions wrap). Do not overflow:hidden
+     here — that clips the non-shrinking badge; only the name ellipsizes. */
+  flex: 1 1 0;
+  min-width: min(100%, 12.5rem);
 }
 
 .map-editor__brand strong {
   font-size: 0.95rem;
-  /* Shrink the editor title before the map name when space is tight. */
-  flex: 0 2 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Editor title must never collapse (e.g. "Karteneditor" → "K"). */
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
 .map-editor__map-name {
   opacity: 0.75;
   font-size: 0.85rem;
-  /* Content-sized so the badge stays beside the name; shrink only when the
-     brand row is constrained (ellipsis at extreme lengths). */
-  flex: 0 1 auto;
-  min-width: 0;
+  /* Cap so a ~60-char name cannot push Close onto a second toolbar row at
+     1440 (German labels are the widest). Built-in names stay short enough
+     to remain fully visible via the clamp upper bound. */
+  flex: 1 1 auto;
+  min-width: 3ch;
+  max-width: clamp(8ch, 14vw, 28ch);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4354,10 +4354,22 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .map-editor__toolbar-actions {
   display: flex;
+  /* Allow wrap between 721–1199 so long German labels don't overflow (#59/#60).
+     flex-shrink lets brand keep title+badge before the whole toolbar wraps.
+     One-row nowrap is restored only on wide desktops (≥1200). */
   flex-wrap: wrap;
+  flex: 0 1 auto;
   gap: 6px;
   justify-content: flex-end;
   align-items: center;
+  max-width: 100%;
+}
+
+@media (min-width: 1200px) {
+  .map-editor__toolbar-actions {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+  }
 }
 
 .map-editor__toolbar-cluster {
@@ -4622,6 +4634,14 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.72rem;
   line-height: 1.2;
   padding: 0 2px 2px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .map-editor__asset-meta {
@@ -4967,6 +4987,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
     font-size: 0.75rem;
     flex: 1 1 auto;
     min-width: 0;
+    max-width: none;
   }
   .map-editor__badge {
     font-size: 0.68rem;
