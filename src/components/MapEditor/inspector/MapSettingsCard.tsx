@@ -5,8 +5,10 @@ import {
   FLOOR_SIZE_MIN,
   FLOOR_SURFACE_IDS,
   FLOOR_STYLES,
+  builtinDisplayText,
   cellsForFloorSize,
   clampFloorSize,
+  getBuiltinMap,
   type FloorSurfaceId,
   type FloorStyle,
 } from "@/lib/maps";
@@ -36,6 +38,14 @@ export function MapSettingsCard({
   const { t } = useTranslation();
   const zones = draft.zones ?? [];
   const lights = draft.lights ?? [];
+  const builtinBase = draft.builtin ? getBuiltinMap(draft.id) : null;
+  const displayDescription = builtinDisplayText({
+    stored: draft.description ?? "",
+    builtinDefault: builtinBase ? (builtinBase.description ?? "") : null,
+    translated: builtinBase
+      ? t(`maps.${draft.id}.description`, { defaultValue: "" }) || null
+      : null,
+  });
 
   return (
     <>
@@ -43,7 +53,7 @@ export function MapSettingsCard({
         <span>{t("mapEditor.description")}</span>
         <textarea
           rows={2}
-          value={draft.description ?? ""}
+          value={displayDescription}
           onFocus={beginGesture}
           onBlur={endGesture}
           onChange={(e) => onDescription(e.target.value)}

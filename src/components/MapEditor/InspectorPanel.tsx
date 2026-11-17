@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import type { ArenaMapDefinition, MapSpawnPoint } from "@/lib/maps/schema";
 import type { MapLightPoint, MapZone } from "@/lib/maps";
 import {
+  builtinDisplayText,
   cellsForFloorSize,
   clampFloorSize,
   clampRegionsToFloor,
+  getBuiltinMap,
   type LightPatch,
   type ZonePatch,
 } from "@/lib/maps";
@@ -118,6 +120,15 @@ export function InspectorPanel({
     target?.focus({ preventScroll: true });
   }, [focusCardId, pendingFocusRef]);
 
+  const builtinBase = draft.builtin ? getBuiltinMap(draft.id) : null;
+  const displayName = builtinDisplayText({
+    stored: draft.name,
+    builtinDefault: builtinBase?.name,
+    translated: builtinBase
+      ? t(`maps.${draft.id}.name`, { defaultValue: "" }) || null
+      : null,
+  });
+
   return (
     <aside className="map-editor__inspector">
       <h3 ref={headingRef} tabIndex={-1}>
@@ -128,7 +139,7 @@ export function InspectorPanel({
         <span>{t("mapEditor.mapName")}</span>
         <input
           type="text"
-          value={draft.name}
+          value={displayName}
           maxLength={64}
           onFocus={beginGesture}
           onBlur={() => {

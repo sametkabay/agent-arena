@@ -32,6 +32,7 @@ import { useEditorSession } from "@/components/MapEditor/useEditorSession";
 import { screenToFloor } from "@/components/MapEditor/geometry";
 import type { EditorTool, LibraryScope, SnapMode } from "@/components/MapEditor/types";
 import { CANVAS_SHADOWS, onCanvasCreated } from "@/lib/three/canvasConfig";
+import { builtinDisplayText, getBuiltinMap } from "@/lib/maps";
 import { useArenaStore } from "@/store/arenaStore";
 
 export function MapEditor() {
@@ -237,6 +238,15 @@ export function MapEditor() {
 
   if (!open || !draft) return null;
 
+  const builtinBase = draft.builtin ? getBuiltinMap(draft.id) : null;
+  const displayMapName = builtinDisplayText({
+    stored: draft.name,
+    builtinDefault: builtinBase?.name,
+    translated: builtinBase
+      ? t(`maps.${draft.id}.name`, { defaultValue: "" }) || null
+      : null,
+  });
+
   const ctxPlaceableIds =
     ctxMenu?.kind === "placeable"
       ? selectedPlaceables.length > 0 &&
@@ -259,7 +269,7 @@ export function MapEditor() {
     >
       <div className="map-editor__top">
         <EditorToolbar
-          mapName={draft.name}
+          mapName={displayMapName}
           builtin={Boolean(draft.builtin)}
           canUndo={canUndo}
           canRedo={canRedo}

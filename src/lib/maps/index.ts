@@ -133,6 +133,7 @@ export {
   MAP_DESCRIPTION_MAX,
   clipMapDescription,
 } from "@/lib/maps/clipMapDescription";
+export { builtinDisplayText } from "@/lib/maps/builtinText";
 export {
   newCustomMapId,
   resolveImportedMapId,

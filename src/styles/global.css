@@ -4307,21 +4307,42 @@ body.is-chat-panel-dragging .chat-popup__resize {
   align-items: baseline;
   gap: 10px;
   min-width: 0;
+  /* Yield to toolbar actions; clip so the name can ellipsis at extremes. */
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .map-editor__brand strong {
   font-size: 0.95rem;
+  /* Shrink the editor title before the map name when space is tight. */
+  flex: 0 2 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.map-editor__brand span {
+.map-editor__map-name {
   opacity: 0.75;
   font-size: 0.85rem;
+  /* Content-sized so the badge stays beside the name; shrink only when the
+     brand row is constrained (ellipsis at extreme lengths). */
+  flex: 0 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .map-editor__badge {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  align-self: center;
+  white-space: nowrap;
+  line-height: 1.2;
+  max-height: 44px;
+  box-sizing: border-box;
   font-size: 0.72rem;
   font-style: normal;
   font-weight: 700;
@@ -4329,17 +4350,6 @@ body.is-chat-panel-dragging .chat-popup__resize {
   border-radius: 999px;
   background: rgba(232, 168, 124, 0.2);
   color: #e8a87c;
-}
-
-/* Compact chip lives in the actions row; desktop uses the full brand badge. */
-.map-editor__badge--compact {
-  display: none;
-  flex: 0 0 auto;
-  align-self: center;
-  white-space: nowrap;
-  line-height: 1.2;
-  max-height: 44px;
-  box-sizing: border-box;
 }
 
 .map-editor__toolbar-actions {
@@ -4953,18 +4963,12 @@ body.is-chat-panel-dragging .chat-popup__resize {
     font-size: 0.82rem;
     flex: 0 0 auto;
   }
-  .map-editor__brand span {
+  .map-editor__map-name {
     font-size: 0.75rem;
     flex: 1 1 auto;
     min-width: 0;
   }
-  /* Full hint moves into the compact chip (title/aria-label). */
-  .map-editor__badge--full {
-    display: none;
-  }
-  .map-editor__badge--compact {
-    display: inline-flex;
-    align-items: center;
+  .map-editor__badge {
     font-size: 0.68rem;
     padding: 0.2rem 0.45rem;
   }
@@ -5016,7 +5020,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .map-editor__brand strong {
     font-size: 0.78rem;
   }
-  .map-editor__brand span {
+  .map-editor__map-name {
     font-size: 0.72rem;
   }
   .map-editor__toolbar-actions {
@@ -5029,7 +5033,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
     padding: 0.28rem 0.4rem;
     font-size: 0.74rem;
   }
-  .map-editor__badge--compact {
+  .map-editor__badge {
     font-size: 0.64rem;
     padding: 0.15rem 0.35rem;
   }
@@ -5162,9 +5166,10 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__library-head h3 {
   margin: 0;
   flex: 1 1 auto;
-  /* Never truncate — Import wraps to the next row when space is tight */
-  min-width: max-content;
-  white-space: nowrap;
+  /* Wrap inside the library column; never spill into the viewport (#61). */
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
   overflow: visible;
   text-overflow: clip;
   font-size: 0.95rem;
