@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
 import type { DayNightMode } from "@/lib/dayNight";
@@ -50,6 +50,7 @@ export function EditorToolbar({
   setImportFocusEl?: (el: HTMLButtonElement | null) => void;
 }) {
   const { t } = useTranslation();
+  const builtinHintId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
   const desktopImportEl = useRef<HTMLButtonElement | null>(null);
@@ -100,20 +101,22 @@ export function EditorToolbar({
     <header className="map-editor__toolbar">
       <div className="map-editor__brand">
         <strong>{t("mapEditor.title")}</strong>
-        <span>{mapName}</span>
+        <span className="map-editor__map-name" title={mapName}>
+          {mapName}
+        </span>
         {builtin && (
-          <em className="map-editor__badge map-editor__badge--full">
-            {builtinHint}
-          </em>
-        )}
-        {builtin && (
-          <em
-            className="map-editor__badge map-editor__badge--compact"
-            title={builtinHint}
-            aria-label={builtinHint}
-          >
-            {t("mapList.builtin")}
-          </em>
+          <>
+            <em
+              className="map-editor__badge"
+              title={builtinHint}
+              aria-describedby={builtinHintId}
+            >
+              {t("mapList.builtin")}
+            </em>
+            <span id={builtinHintId} className="map-editor__sr-only">
+              {builtinHint}
+            </span>
+          </>
         )}
       </div>
       <div className="map-editor__toolbar-actions">
