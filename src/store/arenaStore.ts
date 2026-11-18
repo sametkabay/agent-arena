@@ -5,6 +5,7 @@ import type {
   AppPersisted,
   ArenaAgent,
   ChatMessage,
+  ChatterMode,
   DayNightMode,
   FloatingChatLine,
   GraphicsSettings,
@@ -15,14 +16,53 @@ import type {
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import {
   buildMapRuntime,
+  buildMapImportCopy,
   createBlankCustomMap,
   createCustomMapFromBuiltin,
+  createMapFromPreset,
+  listBuiltinMaps,
   parseMapJson,
+  prepareMapImport,
+  presetTakenNames,
   resolveMapDefinition,
   syncRuntimeAgents,
   placeAgentsOnMap,
 } from "@/lib/maps";
-import { loadPersisted, sanitizeChats, savePersisted, uid, clampChattiness, MAX_ARENA_CHAT_HISTORY } from "@/lib/storage";
+import type {
+  MapImportCommitMode,
+  PreparedMapImport,
+} from "@/lib/maps";
+import {
+  loadPersisted,
+  sanitizeChats,
+  savePersisted,
+  uid,
+  clampChattiness,
+  clampTemperament,
+  MAX_ARENA_CHAT_HISTORY,
+  PersistFailedError,
+  storageFailureMessageKey,
+  type StoragePersistResult,
+} from "@/lib/storage";
+import { createAgentCopy } from "@/lib/agentCopy";
+import {
+  remapModelIds,
+  resolveImportNames,
+  type ImportedAgent,
+} from "@/lib/agentRoster";
+import {
+  dedupeImportedModels,
+  toAiModelConfigs,
+  type ImportedModel,
+} from "@/lib/modelConfigIO";
+import { isSetupComplete } from "@/lib/onboarding";
+import { resetPersisted, type ResetOptions } from "@/lib/reset";
+import {
+  abortArenaReplies,
+  clearPendingArenaReplies,
+} from "@/lib/ai/arenaChat";
+import { abortLiveChatterRuntimes } from "@/lib/ai/chatter";
+import { abortLiveConversationRuntimes } from "@/lib/ai/conversationLoop";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { placeableCanWander } from "@/lib/assets/catalog";
@@ -44,6 +84,8 @@ interface ArenaState extends AppPersisted {
   settingsTab: "general" | "models" | "agents" | "map" | "graphics";
   /** When set, Agents settings tab opens that agent’s editor. */
   settingsFocusAgentId: string | null;
+  /** When set, target settings tab focuses its Export control. */
+  settingsFocusExport: "agents" | "models" | "map" | null;
   mapEditorOpen: boolean;
   mapEditorSourceId: string | null;
   chats: Record<string, ChatMessage[]>;
@@ -55,35 +97,114 @@ interface ArenaState extends AppPersisted {
   toast: string | null;
   /** Smooth 0 (day) → 1 (night) blend driven by tick. */
   dayNightBlend: number;
+  /** Manual "?" open — not persisted. */
+  controlsHelpOpen: boolean;
+  /** Session flag: auto controls help already shown this visit. */
+  controlsHelpAutoDone: boolean;
+  /** Runtime seed for conversation-mode human steering (not persisted). */
+  conversationSeed: { seq: number; mentionIds: string[] };
+  /** Runtime conversation scheduler status (not persisted). */
+  conversationStatus: "inactive" | "running" | "waitingForHuman" | "paused";
+  /**
+   * Bumped after a successful factory reset so chatter / chat panels
+   * dispose in-flight work and recreate runtimes.
+   */
+  resetSeq: number;
 
   hydrate: () => void;
-  persist: () => void;
+  /**
+   * Re-read only `customMaps` + `favoriteAssets` from persisted storage and
+   * refresh the active map slice — without wiping `runtimeAgents`, chats, or
+   * other in-memory session state. Used for cross-tab asset purge/delete.
+   */
+  reloadPersistedMaps: () => void;
+  /**
+   * Writes persisted slice; never throws.
+   * Toast modes: `"storage"` (default, 10s throttle), `"map"` / `"explicit"`
+   * (always show — user-initiated), `false` (silent).
+   */
+  persist: (opts?: {
+    toast?: "storage" | "map" | "explicit" | false;
+  }) => StoragePersistResult;
   setUserName: (name: string) => void;
   setLanguage: (language: LanguageCode) => void;
   setSettingsOpen: (open: boolean) => void;
   setSettingsTab: (tab: ArenaState["settingsTab"]) => void;
   openAgentSettings: (agentId: string) => void;
   clearSettingsFocusAgent: () => void;
+  setSettingsFocusExport: (
+    target: ArenaState["settingsFocusExport"],
+  ) => void;
+  clearSettingsFocusExport: () => void;
+  /** Factory-reset playground; rolls back on persist failure. */
+  resetPlayground: (opts: ResetOptions) => StoragePersistResult;
   setGraphics: (partial: Partial<GraphicsSettings>) => void;
   setDayNight: (mode: DayNightMode) => void;
   toggleDayNight: () => void;
+  setChatterMode: (mode: ChatterMode) => void;
+  seedConversation: (mentionIds: string[]) => void;
+  setConversationStatus: (
+    status: ArenaState["conversationStatus"],
+  ) => void;
+  dismissOnboarding: () => void;
+  setControlsHelpOpen: (open: boolean) => void;
+  closeControlsHelp: (dontShowAgain?: boolean) => void;
   toggleFavoriteAsset: (placeableId: string) => void;
   setMapId: (mapId: MapId) => void;
   applyMapAndAgents: () => void;
 
-  upsertModel: (model: AiModelConfig) => void;
+  upsertModel: (model: AiModelConfig) => StoragePersistResult;
   deleteModel: (id: string) => void;
-  upsertAgent: (agent: AgentConfig) => void;
+  /** Append sanitized models with fresh ids. Rolls back on persist failure. */
+  importModels: (
+    items: ImportedModel[],
+  ) => { models: AiModelConfig[]; result: StoragePersistResult };
+  upsertAgent: (agent: AgentConfig) => StoragePersistResult;
+  duplicateAgent: (id: string, copyLabel: string) => AgentConfig | null;
+  importAgents: (
+    items: ImportedAgent[],
+    modelIds: string[],
+    copyLabel: string,
+  ) => { agents: AgentConfig[]; result: StoragePersistResult };
   deleteAgent: (id: string) => void;
 
-  upsertCustomMap: (def: ArenaMapDefinition) => void;
+  upsertCustomMap: (def: ArenaMapDefinition) => StoragePersistResult;
   deleteCustomMap: (id: string) => void;
-  importMapJson: (raw: string) => string;
+  /**
+   * Remove all placeable instances with the given placeableIds from every
+   * custom map, favorites, and the active map slice. Rolls back on persist fail.
+   */
+  purgePlaceableIds: (ids: string[]) => StoragePersistResult;
+  /** Parse/validate map JSON and detect id collision — no side effects. */
+  parseMapImport: (raw: string) => PreparedMapImport;
+  /**
+   * Commit a prepared import. `overwrite` upserts by id; `copy` inserts with a
+   * fresh id + localized copy name. On persist failure rolls back and throws
+   * PersistFailedError (existing map untouched for overwrite failures).
+   * Takes `PreparedMapImport` so id normalization from parse cannot be bypassed.
+   */
+  commitMapImport: (
+    prepared: PreparedMapImport,
+    mode: MapImportCommitMode,
+    copyLabel: string,
+  ) => string;
   openMapEditor: (mapId?: string) => void;
   closeMapEditor: () => void;
-  saveMapFromEditor: (def: ArenaMapDefinition, activate?: boolean) => void;
+  saveMapFromEditor: (
+    def: ArenaMapDefinition,
+    activate?: boolean,
+  ) => StoragePersistResult;
   createNewMap: () => void;
   duplicateActiveMap: () => void;
+  /**
+   * Create a custom map from a gallery preset and open the editor.
+   * On persist failure: rolls back, shows failure toast, leaves Settings open.
+   */
+  createMapFromPresetAndEdit: (
+    presetId: string,
+    name: string,
+    copyLabel: string,
+  ) => StoragePersistResult;
 
   selectAgent: (id: string | null) => void;
   commandAgentTo: (agentId: string, pos: [number, number, number]) => void;
@@ -91,8 +212,8 @@ interface ArenaState extends AppPersisted {
   appendChat: (agentId: string, message: ChatMessage) => void;
   replaceLastAssistant: (agentId: string, content: string) => void;
   setChatBusy: (agentId: string, busy: boolean) => void;
-  clearChats: () => void;
-  clearArenaChatHistory: () => void;
+  clearChats: () => StoragePersistResult;
+  clearArenaChatHistory: () => StoragePersistResult;
   pushFloatingChatLog: (entry: {
     agentId?: string;
     agentName: string;
@@ -105,7 +226,7 @@ interface ArenaState extends AppPersisted {
   setAgentSpeech: (agentId: string, text: string | undefined, ms?: number) => void;
   setAgentState: (agentId: string, patch: Partial<ArenaAgent>) => void;
   tick: (dt: number, now: number) => void;
-  showToast: (msg: string) => void;
+  showToast: (msg: string, ms?: number) => void;
 }
 
 function persistSlice(s: ArenaState): AppPersisted {
@@ -118,6 +239,9 @@ function persistSlice(s: ArenaState): AppPersisted {
     customMaps: s.customMaps,
     graphics: s.graphics,
     dayNight: s.dayNight,
+    chatterMode: s.chatterMode,
+    onboardingSeen: s.onboardingSeen === true,
+    controlsHelpSeen: s.controlsHelpSeen === true,
     favoriteAssets: s.favoriteAssets ?? [],
     chats: sanitizeChats(s.chats),
     arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),
@@ -125,10 +249,61 @@ function persistSlice(s: ArenaState): AppPersisted {
 }
 
 let arenaChatPersistTimer = 0;
+/** Throttle repeated *background* persist-failure toasts (e.g. chat streaming). */
+const PERSIST_TOAST_THROTTLE_MS = 10_000;
+let lastStoragePersistToastAt = 0;
+
+/** Exposed for unit tests — reset throttle clock between cases. */
+export function resetPersistToastThrottle(): void {
+  lastStoragePersistToastAt = 0;
+}
 
 function scheduleArenaChatPersist(persist: () => void): void {
   window.clearTimeout(arenaChatPersistTimer);
-  arenaChatPersistTimer = window.setTimeout(() => persist(), 800);
+  arenaChatPersistTimer = window.setTimeout(() => {
+    arenaChatPersistTimer = 0;
+    persist();
+  }, 800);
+}
+
+/** Exposed for unit tests — whether a debounced arena-chat persist is armed. */
+export function isArenaChatPersistPending(): boolean {
+  return arenaChatPersistTimer !== 0;
+}
+
+type MapPersistSnapshot = Pick<
+  ArenaState,
+  | "customMaps"
+  | "mapId"
+  | "activeMap"
+  | "floorSize"
+  | "placeables"
+  | "runtimeAgents"
+  | "favoriteAssets"
+>;
+
+type MapImportPersistSnapshot = MapPersistSnapshot &
+  Pick<ArenaState, "mapEditorSourceId">;
+
+function snapshotMapPersistState(s: ArenaState): MapPersistSnapshot {
+  return {
+    customMaps: s.customMaps,
+    mapId: s.mapId,
+    activeMap: s.activeMap,
+    floorSize: s.floorSize,
+    placeables: s.placeables,
+    runtimeAgents: s.runtimeAgents,
+    favoriteAssets: s.favoriteAssets ?? [],
+  };
+}
+
+function snapshotMapImportPersistState(
+  s: ArenaState,
+): MapImportPersistSnapshot {
+  return {
+    ...snapshotMapPersistState(s),
+    mapEditorSourceId: s.mapEditorSourceId,
+  };
 }
 
 function applyMapSlice(
@@ -161,6 +336,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   settingsOpen: false,
   settingsTab: "general",
   settingsFocusAgentId: null,
+  settingsFocusExport: null,
   mapEditorOpen: false,
   mapEditorSourceId: null,
   chats: initial.chats ?? {},
@@ -170,6 +346,11 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   toast: null,
   dayNightBlend: 0,
   favoriteAssets: initial.favoriteAssets ?? [],
+  controlsHelpOpen: false,
+  controlsHelpAutoDone: false,
+  conversationSeed: { seq: 0, mentionIds: [] },
+  conversationStatus: "inactive",
+  resetSeq: 0,
 
   hydrate: () => {
     const data = loadPersisted();
@@ -189,8 +370,49 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     applyDocumentLang(data.language);
   },
 
-  persist: () => {
-    savePersisted(persistSlice(get()));
+  reloadPersistedMaps: () => {
+    const data = loadPersisted();
+    set((s) => {
+      const customMaps = data.customMaps;
+      const favoriteAssets = data.favoriteAssets ?? [];
+      const def = resolveMapDefinition(s.mapId, customMaps);
+      const runtime = buildMapRuntime(def);
+      return {
+        customMaps,
+        favoriteAssets,
+        activeMap: def,
+        floorSize: runtime.floorSize,
+        placeables: runtime.placeables,
+        // Leave runtimeAgents, chats, and other session state untouched.
+      };
+    });
+  },
+
+  persist: (opts) => {
+    const result = savePersisted(persistSlice(get()));
+    if (!result.ok) {
+      const mode = opts?.toast ?? "storage";
+      if (mode !== false) {
+        const msg = i18n.t(
+          storageFailureMessageKey(
+            result.reason,
+            mode === "map" ? "map" : "storage",
+          ),
+        );
+        // Explicit map/user actions always toast; background writes stay throttled.
+        if (mode === "map" || mode === "explicit") {
+          get().showToast(msg, 8_000);
+        } else {
+          const now = Date.now();
+          if (now - lastStoragePersistToastAt >= PERSIST_TOAST_THROTTLE_MS) {
+            lastStoragePersistToastAt = now;
+            // Longer than the default toast — recovery copy is long and easy to miss.
+            get().showToast(msg, 8_000);
+          }
+        }
+      }
+    }
+    return result;
   },
 
   setUserName: (name) => {
@@ -209,7 +431,11 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     set(
       open
         ? { settingsOpen: true }
-        : { settingsOpen: false, settingsFocusAgentId: null },
+        : {
+            settingsOpen: false,
+            settingsFocusAgentId: null,
+            settingsFocusExport: null,
+          },
     ),
   setSettingsTab: (tab) => set({ settingsTab: tab, settingsOpen: true }),
   openAgentSettings: (agentId) =>
@@ -219,6 +445,67 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       settingsFocusAgentId: agentId,
     }),
   clearSettingsFocusAgent: () => set({ settingsFocusAgentId: null }),
+  setSettingsFocusExport: (target) => set({ settingsFocusExport: target }),
+  clearSettingsFocusExport: () => set({ settingsFocusExport: null }),
+
+  resetPlayground: (opts) => {
+    const s = get();
+    // Snapshot via persistSlice: chats are sanitized and arenaChatHistory is
+    // trimmed to MAX — lossless in practice for rollback after persist failure.
+    const snapshot = {
+      ...persistSlice(s),
+      activeMap: s.activeMap,
+      floorSize: s.floorSize,
+      placeables: s.placeables,
+      runtimeAgents: s.runtimeAgents,
+      selectedAgentId: s.selectedAgentId,
+      chatOpen: s.chatOpen,
+      chatBusyById: s.chatBusyById,
+      floatingChatLog: s.floatingChatLog,
+      mapEditorOpen: s.mapEditorOpen,
+      mapEditorSourceId: s.mapEditorSourceId,
+      settingsFocusAgentId: s.settingsFocusAgentId,
+      settingsFocusExport: s.settingsFocusExport,
+      conversationSeed: s.conversationSeed,
+      conversationStatus: s.conversationStatus,
+      resetSeq: s.resetSeq,
+      controlsHelpOpen: s.controlsHelpOpen,
+    };
+    const next = resetPersisted(persistSlice(s), opts);
+    const layout = applyMapSlice({ ...next, runtimeAgents: [] }, true);
+    // Single store update: SafeHtml defers nested-root unmount so agent+map
+    // teardown in one commit no longer races React DOM removeChild.
+    set({
+      ...next,
+      ...layout,
+      selectedAgentId: null,
+      chatOpen: false,
+      chatBusyById: {},
+      floatingChatLog: [],
+      mapEditorOpen: false,
+      mapEditorSourceId: null,
+      settingsFocusAgentId: null,
+      settingsFocusExport: null,
+      conversationSeed: { seq: 0, mentionIds: [] },
+      conversationStatus: "inactive",
+      controlsHelpOpen: false,
+    });
+
+    const result = get().persist({ toast: "explicit" });
+    if (!result.ok) {
+      set(snapshot);
+      return result;
+    }
+
+    window.clearTimeout(arenaChatPersistTimer);
+    arenaChatPersistTimer = 0;
+    abortArenaReplies();
+    clearPendingArenaReplies();
+    abortLiveChatterRuntimes();
+    abortLiveConversationRuntimes();
+    set((state) => ({ resetSeq: state.resetSeq + 1 }));
+    return result;
+  },
 
   setGraphics: (partial) => {
     set((s) => ({ graphics: { ...s.graphics, ...partial } }));
@@ -233,6 +520,42 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   toggleDayNight: () => {
     set((s) => ({ dayNight: s.dayNight === "day" ? "night" : "day" }));
     get().persist();
+  },
+
+  setChatterMode: (mode) => {
+    set({ chatterMode: mode });
+    get().persist();
+  },
+
+  seedConversation: (mentionIds) => {
+    set((s) => ({
+      conversationSeed: {
+        seq: s.conversationSeed.seq + 1,
+        mentionIds: [...mentionIds],
+      },
+    }));
+  },
+
+  setConversationStatus: (status) => {
+    set({ conversationStatus: status });
+  },
+
+  dismissOnboarding: () => {
+    set({ onboardingSeen: true });
+    get().persist();
+  },
+
+  setControlsHelpOpen: (open) => {
+    set({ controlsHelpOpen: open });
+  },
+
+  closeControlsHelp: (dontShowAgain = true) => {
+    set((s) => ({
+      controlsHelpOpen: false,
+      controlsHelpAutoDone: true,
+      controlsHelpSeen: dontShowAgain ? true : s.controlsHelpSeen,
+    }));
+    if (dontShowAgain) get().persist();
   },
 
   toggleFavoriteAsset: (placeableId) => {
@@ -267,7 +590,40 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           : [...s.models, model];
       return { models };
     });
-    get().persist();
+    return get().persist();
+  },
+
+  importModels: (items) => {
+    if (items.length === 0) return { models: [], result: { ok: true } };
+
+    const state = get();
+    const { models: unique } = dedupeImportedModels(items, state.models);
+    if (unique.length === 0) return { models: [], result: { ok: true } };
+
+    const created = toAiModelConfigs(unique);
+
+    const snapshot = {
+      models: state.models,
+      agents: state.agents,
+      onboardingSeen: state.onboardingSeen,
+    };
+
+    set((s) => {
+      const models = [...s.models, ...created];
+      return {
+        models,
+        onboardingSeen:
+          s.onboardingSeen || isSetupComplete(models, s.agents),
+      };
+    });
+
+    // User-initiated import must always surface persist failures (#40 throttle).
+    const result = get().persist({ toast: "explicit" });
+    if (!result.ok) {
+      set(snapshot);
+      return { models: [], result };
+    }
+    return { models: created, result };
   },
 
   deleteModel: (id) => {
@@ -292,6 +648,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       ...agent,
       enabled: agent.enabled !== false,
       chattiness: clampChattiness(agent.chattiness),
+      temperament: clampTemperament(agent.temperament),
     };
     set((s) => {
       const idx = s.agents.findIndex((a) => a.id === normalized.id);
@@ -307,9 +664,63 @@ export const useArenaStore = create<ArenaState>((set, get) => {
         runtimeAgents: syncRuntimeAgents(s.runtimeAgents, agents, def),
         selectedAgentId: deselected ? null : s.selectedAgentId,
         chatOpen: deselected ? false : s.chatOpen,
+        onboardingSeen:
+          s.onboardingSeen || isSetupComplete(s.models, agents),
       };
     });
-    get().persist();
+    return get().persist();
+  },
+
+  duplicateAgent: (id, copyLabel) => {
+    const source = get().agents.find((a) => a.id === id);
+    if (!source) return null;
+    const copy = createAgentCopy(source, get().agents, copyLabel);
+    const result = get().upsertAgent(copy);
+    // Null on persist failure so callers skip the success toast (failure toast
+    // already shown). The in-memory copy remains for the next successful write.
+    if (!result.ok) return null;
+    return copy;
+  },
+
+  importAgents: (items, modelIds, copyLabel) => {
+    if (items.length === 0) return { agents: [], result: { ok: true } };
+    const state = get();
+    const availableIds = state.models.map((m) => m.id);
+    if (availableIds.length === 0) {
+      return { agents: [], result: { ok: true } };
+    }
+    const resolvedModels = remapModelIds(modelIds, availableIds);
+    const names = resolveImportNames(
+      items.map((item) => item.displayName),
+      state.agents.map((a) => a.displayName),
+      copyLabel,
+    );
+    const createdAt = Date.now();
+    const created: AgentConfig[] = items.map((item, i) => ({
+      ...item,
+      id: uid("agent"),
+      displayName: names[i] ?? item.displayName,
+      modelConfigId: resolvedModels[i] ?? availableIds[0] ?? "",
+      enabled: item.enabled !== false,
+      thinkingEnabled: item.thinkingEnabled === true,
+      chattiness: clampChattiness(item.chattiness),
+      temperament: clampTemperament(item.temperament),
+      skills: item.skills ?? [],
+      characterId: item.characterId || DEFAULT_CHARACTER_ID,
+      createdAt,
+    }));
+
+    set((s) => {
+      const agents = [...s.agents, ...created];
+      const def = resolveMapDefinition(s.mapId, s.customMaps);
+      return {
+        agents,
+        runtimeAgents: syncRuntimeAgents(s.runtimeAgents, agents, def),
+        onboardingSeen:
+          s.onboardingSeen || isSetupComplete(s.models, agents),
+      };
+    });
+    return { agents: created, result: get().persist() };
   },
 
   deleteAgent: (id) => {
@@ -328,6 +739,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   upsertCustomMap: (def) => {
+    const prev = snapshotMapPersistState(get());
     set((s) => {
       const cleaned = { ...def, builtin: false, version: 1 as const };
       const idx = s.customMaps.findIndex((m) => m.id === cleaned.id);
@@ -341,7 +753,9 @@ export const useArenaStore = create<ArenaState>((set, get) => {
           : {};
       return { customMaps, ...patch };
     });
-    get().persist();
+    const result = get().persist({ toast: "map" });
+    if (!result.ok) set(prev);
+    return result;
   },
 
   deleteCustomMap: (id) => {
@@ -358,23 +772,70 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     get().persist();
   },
 
-  importMapJson: (raw) => {
+  purgePlaceableIds: (ids) => {
+    const idSet = new Set(ids);
+    if (idSet.size === 0) return { ok: true };
+    const prev = snapshotMapPersistState(get());
+    set((s) => {
+      const customMaps = s.customMaps.map((m) => ({
+        ...m,
+        placeables: m.placeables.filter((p) => !idSet.has(p.placeableId)),
+      }));
+      const favoriteAssets = (s.favoriteAssets ?? []).filter(
+        (fid) => !idSet.has(fid),
+      );
+      const next = { ...s, customMaps, favoriteAssets };
+      return {
+        customMaps,
+        favoriteAssets,
+        ...applyMapSlice(next, false),
+      };
+    });
+    const result = get().persist({ toast: "map" });
+    if (!result.ok) set(prev);
+    return result;
+  },
+
+  parseMapImport: (raw) => {
     const parsed = parseMapJson(raw);
-    const id = parsed.id.startsWith("custom_")
-      ? parsed.id
-      : `custom_${Math.random().toString(36).slice(2, 10)}`;
-    const def: ArenaMapDefinition = {
-      ...parsed,
-      id,
-      builtin: false,
-      name: parsed.name || "Imported map",
-    };
-    get().upsertCustomMap(def);
-    get().setMapId(def.id);
-    if (get().mapEditorOpen) {
-      set({ mapEditorSourceId: def.id });
+    return prepareMapImport(parsed, get().customMaps);
+  },
+
+  commitMapImport: (prepared, mode, copyLabel) => {
+    const def = prepared.def;
+    const toSave: ArenaMapDefinition =
+      mode === "copy"
+        ? buildMapImportCopy(
+            def,
+            get().customMaps,
+            copyLabel,
+            listBuiltinMaps().map((m) => m.name),
+          )
+        : { ...def, builtin: false, version: 1 as const };
+
+    const prev = snapshotMapImportPersistState(get());
+
+    set((s) => {
+      const idx = s.customMaps.findIndex((m) => m.id === toSave.id);
+      const customMaps =
+        idx >= 0
+          ? s.customMaps.map((m, i) => (i === idx ? toSave : m))
+          : [...s.customMaps, toSave];
+      const mapId = toSave.id;
+      return {
+        customMaps,
+        mapId,
+        mapEditorSourceId: s.mapEditorOpen ? toSave.id : s.mapEditorSourceId,
+        ...applyMapSlice({ ...s, customMaps, mapId }, true),
+      };
+    });
+
+    const result = get().persist({ toast: "map" });
+    if (!result.ok) {
+      set(prev);
+      throw new PersistFailedError();
     }
-    return def.id;
+    return toSave.id;
   },
 
   openMapEditor: (mapId) => {
@@ -390,30 +851,57 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   saveMapFromEditor: (def, activate = true) => {
-    const name = def.name.trim() || "Untitled map";
-    // Close first so the editor's load effect cannot reset the draft when
-    // customMaps updates (that path used to fall back to the office builtin).
-    set({ mapEditorOpen: false, mapEditorSourceId: null });
+    const name = def.name.trim() || i18n.t("mapEditor.untitled");
+    const prev = snapshotMapPersistState(get());
+
+    // Keep the editor open until persist succeeds so a quota failure cannot
+    // wipe the draft (closing first used to look like a successful save).
+    let saved: ArenaMapDefinition;
     if (def.builtin) {
-      // Builtin edits must become a custom copy; keep the name the user set
       const copy = createCustomMapFromBuiltin(def.id, get().customMaps);
-      const saved: ArenaMapDefinition = {
+      saved = {
         ...def,
         id: copy.id,
         name,
         builtin: false,
+        version: 1 as const,
       };
-      get().upsertCustomMap(saved);
-      if (activate) get().setMapId(saved.id);
     } else {
-      get().upsertCustomMap({ ...def, name, builtin: false });
-      if (activate) get().setMapId(def.id);
+      saved = { ...def, name, builtin: false, version: 1 as const };
     }
+
+    set((s) => {
+      const idx = s.customMaps.findIndex((m) => m.id === saved.id);
+      const customMaps =
+        idx >= 0
+          ? s.customMaps.map((m, i) => (i === idx ? saved : m))
+          : [...s.customMaps, saved];
+      const mapId = activate ? saved.id : s.mapId;
+      const shouldApply = activate || s.mapId === saved.id;
+      return {
+        customMaps,
+        mapId,
+        ...(shouldApply
+          ? applyMapSlice({ ...s, customMaps, mapId }, true)
+          : {}),
+      };
+    });
+
+    // Silent toast here — the editor shows a sticky inline saveError banner.
+    const result = get().persist({ toast: false });
+    if (!result.ok) {
+      set(prev);
+      return result;
+    }
+
+    set({ mapEditorOpen: false, mapEditorSourceId: null });
+    return result;
   },
 
   createNewMap: () => {
     const blank = createBlankCustomMap();
-    get().upsertCustomMap(blank);
+    const result = get().upsertCustomMap(blank);
+    if (!result.ok) return;
     set({
       mapEditorOpen: true,
       mapEditorSourceId: blank.id,
@@ -424,12 +912,31 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   duplicateActiveMap: () => {
     const s = get();
     const copy = createCustomMapFromBuiltin(s.mapId, s.customMaps);
-    get().upsertCustomMap(copy);
+    const result = get().upsertCustomMap(copy);
+    if (!result.ok) return;
     set({
       mapEditorOpen: true,
       mapEditorSourceId: copy.id,
       settingsOpen: false,
     });
+  },
+
+  createMapFromPresetAndEdit: (presetId, name, copyLabel) => {
+    const s = get();
+    const def = createMapFromPreset(presetId, {
+      name,
+      copyLabel,
+      takenNames: presetTakenNames(s.customMaps),
+      existingIds: s.customMaps.map((m) => m.id),
+    });
+    const result = get().upsertCustomMap(def);
+    if (!result.ok) return result;
+    set({
+      mapEditorOpen: true,
+      mapEditorSourceId: def.id,
+      settingsOpen: false,
+    });
+    return result;
   },
 
   selectAgent: (id) => {
@@ -464,6 +971,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   setChatOpen: (open) => set({ chatOpen: open }),
 
   appendChat: (agentId, message) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => ({
       chats: {
         ...s.chats,
@@ -473,6 +981,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   replaceLastAssistant: (agentId, content) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => {
       const list = [...(s.chats[agentId] ?? [])];
       for (let i = list.length - 1; i >= 0; i--) {
@@ -486,6 +995,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   setChatBusy: (agentId, busy) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => ({
       chatBusyById: { ...s.chatBusyById, [agentId]: busy },
     }));
@@ -495,17 +1005,19 @@ export const useArenaStore = create<ArenaState>((set, get) => {
 
   clearChats: () => {
     set({ chats: {}, arenaChatHistory: [], floatingChatLog: [] });
-    get().persist();
+    return get().persist();
   },
 
   clearArenaChatHistory: () => {
     set({ arenaChatHistory: [], floatingChatLog: [] });
-    get().persist();
+    return get().persist();
   },
 
   pushFloatingChatLog: ({ agentId, agentName, color, text, kind }) => {
     const trimmed = text.trim();
     if (!trimmed) return;
+    // Drop late agent lines after the agent was removed (e.g. mid-reset).
+    if (agentId && !get().agents.some((a) => a.id === agentId)) return;
     const line: FloatingChatLine = {
       id: uid("flog"),
       agentId,
@@ -533,6 +1045,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   setAgentSpeech: (agentId, text, ms = 4000) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     const until = text ? Date.now() + ms : 0;
     const speechBubble = text ? formatSpeechBubble(text) : undefined;
     set((s) => ({
@@ -550,6 +1063,7 @@ export const useArenaStore = create<ArenaState>((set, get) => {
   },
 
   setAgentState: (agentId, patch) => {
+    if (!get().agents.some((a) => a.id === agentId)) return;
     set((s) => ({
       runtimeAgents: s.runtimeAgents.map((a) =>
         a.id === agentId ? { ...a, ...patch } : a,
@@ -706,11 +1220,11 @@ export const useArenaStore = create<ArenaState>((set, get) => {
     });
   },
 
-  showToast: (msg) => {
+  showToast: (msg, ms = appConfig.chat.toastMs) => {
     set({ toast: msg });
     window.setTimeout(() => {
       if (get().toast === msg) set({ toast: null });
-    }, appConfig.chat.toastMs);
+    }, ms);
   },
   };
 });
@@ -746,6 +1260,7 @@ export function createAgentDraft(
     enabled: appConfig.defaults.agentEnabled,
     thinkingEnabled: appConfig.defaults.agentThinking,
     chattiness: appConfig.defaults.agentChattiness,
+    temperament: appConfig.defaults.agentTemperament,
     skills: [],
     color: appConfig.defaults.agentColor,
     bio: "",

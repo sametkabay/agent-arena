@@ -6,6 +6,7 @@ export const PROMPT_MODES = [
   "arena_broadcast",
   "arena_mention",
   "idle_mutter",
+  "arena_conversation",
 ] as const;
 
 export type ArenaPromptMode = (typeof PROMPT_MODES)[number];
@@ -26,19 +27,31 @@ export interface PromptsFile {
     intro: string;
     block: string;
     speechDiscipline: string;
+    speechDisciplineConversation: string;
   };
   situation: {
     block: string;
     footer: string;
+    footerConversation: string;
   };
   user: {
     idleMutter: string;
     arenaMention: string;
     arenaBroadcast: string;
+    arenaConversation: string;
   };
   connectionTest: {
     system: string;
     user: string;
+  };
+  temperament: {
+    line: string;
+    civilityAgreeable: string;
+    civilityBlunt: string;
+    bands: Record<
+      string,
+      { label: string; instruction: string; civility: "agreeable" | "blunt" } | null
+    >;
   };
   skills: {
     heading: string;

@@ -35,6 +35,8 @@ export interface AppConfig {
     agentName: string;
     agentColor: string;
     agentChattiness: number;
+    agentTemperament: number;
+    chatterMode: "off" | "idle" | "conversation";
     agentEnabled: boolean;
     agentThinking: boolean;
     modelName: string;
@@ -54,11 +56,24 @@ export interface AppConfig {
     maxArenaChatHistory: number;
     maxApiChatHistory: number;
   };
+  /** Soft import warning threshold; IndexedDB has no hard size cap. */
+  userAssets: {
+    warnBytes: number;
+    defaultTargetSize: number;
+  };
   graphics: GraphicsSettings & {
     shadowMapSizes: Record<ShadowQuality, number>;
   };
   chatter: {
     maxMuttersPerMinute: number;
+  };
+  conversation: {
+    minGapMs: number;
+    maxAgentTurns: number;
+    humanReplyDelayMs: number;
+    firstTurnDelayMs: number;
+    historyLines: number;
+    historyMaxChars: number;
   };
   speech: {
     maxChars: number;
@@ -98,6 +113,26 @@ export interface AppConfig {
     spawnRingAngle: number;
     spawnRingOffset: number;
     indoorSurfaces: string[];
+    regions: {
+      maxZones: number;
+      maxLights: number;
+      zoneNameMax: number;
+      zoneRadiusMin: number;
+      zoneRadiusDefault: number;
+      zoneSizeMin: number;
+      zoneSizeDefault: number;
+      lightIntensityMin: number;
+      lightIntensityMax: number;
+      lightIntensityStep: number;
+      lightIntensityDefault: number;
+      lightDistanceMin: number;
+      lightDistanceMax: number;
+      lightDistanceDefault: number;
+      lightHeightMin: number;
+      lightHeightMax: number;
+      lightHeightDefault: number;
+      lightColorDefault: string;
+    };
     defaultTheme: {
       accent: string;
       background: string;

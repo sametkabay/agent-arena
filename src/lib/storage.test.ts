@@ -1,14 +1,20 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { appConfig } from "@/lib/config";
 import { blankMap } from "@/lib/maps/schema";
 import {
   STORAGE_KEY,
+  PersistFailedError,
   clampChattiness,
+  clampTemperament,
+  classifyStorageError,
   defaultPersisted,
+  isPersistFailedError,
   loadPersisted,
+  safeSetItem,
   savePersisted,
   sanitizeArenaChatHistory,
   sanitizeChats,
+  storageFailureMessageKey,
   uid,
 } from "@/lib/storage";
 import { sampleAgent } from "@/test/fixtures";
@@ -27,6 +33,34 @@ describe("clampChattiness", () => {
     expect(clampChattiness("40")).toBe(40);
     expect(clampChattiness("nope")).toBe(0);
     expect(clampChattiness(undefined)).toBe(0);
+  });
+});
+
+describe("clampTemperament", () => {
+  it("defaults missing/null/empty/NaN to 5 and clamps 1–10", () => {
+    expect(clampTemperament(undefined)).toBe(5);
+    expect(clampTemperament(null)).toBe(5);
+    expect(clampTemperament("")).toBe(5);
+    expect(clampTemperament("abc")).toBe(5);
+    expect(clampTemperament(0)).toBe(1);
+    expect(clampTemperament(11)).toBe(10);
+    expect(clampTemperament(7.6)).toBe(8);
+    expect(clampTemperament("3")).toBe(3);
+    expect(clampTemperament(" 7 ")).toBe(7);
+  });
+
+  it("rejects blank strings, booleans, arrays, objects, Infinity, and NaN", () => {
+    expect(clampTemperament("   ")).toBe(5);
+    expect(clampTemperament("\t")).toBe(5);
+    expect(clampTemperament(true)).toBe(5);
+    expect(clampTemperament(false)).toBe(5);
+    expect(clampTemperament([])).toBe(5);
+    expect(clampTemperament([7])).toBe(5);
+    expect(clampTemperament({})).toBe(5);
+    expect(clampTemperament({ n: 7 })).toBe(5);
+    expect(clampTemperament(Infinity)).toBe(5);
+    expect(clampTemperament(-Infinity)).toBe(5);
+    expect(clampTemperament(NaN)).toBe(5);
   });
 });
 
@@ -80,11 +114,202 @@ describe("sanitizeArenaChatHistory", () => {
   });
 });
 
+describe("classifyStorageError", () => {
+  it("detects quota across browsers", () => {
+    expect(
+      classifyStorageError(
+        Object.assign(new Error("full"), { name: "QuotaExceededError", code: 22 }),
+      ),
+    ).toBe("quota");
+    expect(
+      classifyStorageError(
+        Object.assign(new Error("full"), {
+          name: "NS_ERROR_DOM_QUOTA_REACHED",
+          code: 1014,
+        }),
+      ),
+    ).toBe("quota");
+    expect(classifyStorageError({ name: "Error", code: 22 })).toBe("quota");
+    expect(classifyStorageError({ name: "Error", code: 1014 })).toBe("quota");
+  });
+
+  it("detects unavailable / SecurityError", () => {
+    expect(
+      classifyStorageError(
+        Object.assign(new Error("denied"), { name: "SecurityError", code: 18 }),
+      ),
+    ).toBe("unavailable");
+    expect(classifyStorageError({ name: "SecurityError" })).toBe("unavailable");
+  });
+
+  it("returns unknown for other errors", () => {
+    expect(classifyStorageError(null)).toBe("unknown");
+    expect(classifyStorageError(new Error("boom"))).toBe("unknown");
+    expect(classifyStorageError({ name: "TypeError", code: 0 })).toBe("unknown");
+  });
+});
+
 describe("loadPersisted / savePersisted", () => {
   it("returns defaults when empty or invalid JSON", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());
+    expect(loadPersisted().chatterMode).toBe("off");
     localStorage.setItem(STORAGE_KEY, "{not json");
     expect(loadPersisted()).toEqual(defaultPersisted());
+  });
+
+  it("migrates chatterMode from legacy idleChatterEnabled", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ userName: "Samet" }));
+    expect(loadPersisted().chatterMode).toBe("off");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ idleChatterEnabled: true }),
+    );
+    expect(loadPersisted().chatterMode).toBe("idle");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ idleChatterEnabled: false }),
+    );
+    expect(loadPersisted().chatterMode).toBe("off");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ chatterMode: "conversation", idleChatterEnabled: true }),
+    );
+    expect(loadPersisted().chatterMode).toBe("conversation");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ chatterMode: "loud", idleChatterEnabled: true }),
+    );
+    expect(loadPersisted().chatterMode).toBe("idle");
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ chatterMode: "nope" }),
+    );
+    expect(loadPersisted().chatterMode).toBe("off");
+  });
+
+  it("round-trips chatterMode without the legacy field", () => {
+    const data = defaultPersisted();
+    data.chatterMode = "conversation";
+    expect(savePersisted(data)).toEqual({ ok: true });
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(raw.chatterMode).toBe("conversation");
+    expect(raw.idleChatterEnabled).toBeUndefined();
+    expect(loadPersisted().chatterMode).toBe("conversation");
+  });
+
+  it("returns quota when setItem throws QuotaExceededError", () => {
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      const err =
+        typeof DOMException === "function"
+          ? new DOMException("The quota has been exceeded.", "QuotaExceededError")
+          : Object.assign(new Error("The quota has been exceeded."), {
+              name: "QuotaExceededError",
+              code: 22,
+            });
+      throw err;
+    });
+    expect(savePersisted(defaultPersisted())).toEqual({
+      ok: false,
+      reason: "quota",
+    });
+    spy.mockRestore();
+  });
+
+  it("returns unavailable when setItem throws SecurityError", () => {
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw Object.assign(new Error("denied"), {
+        name: "SecurityError",
+        code: 18,
+      });
+    });
+    expect(savePersisted(defaultPersisted())).toEqual({
+      ok: false,
+      reason: "unavailable",
+    });
+    spy.mockRestore();
+  });
+
+  it("returns unknown for other setItem failures", () => {
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw new TypeError("nope");
+    });
+    expect(savePersisted(defaultPersisted())).toEqual({
+      ok: false,
+      reason: "unknown",
+    });
+    spy.mockRestore();
+  });
+
+  it("safeSetItem never throws and classifies quota", () => {
+    expect(safeSetItem("aa-safe", "ok")).toEqual({ ok: true });
+    expect(localStorage.getItem("aa-safe")).toBe("ok");
+
+    const spy = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw new DOMException(
+        "The quota has been exceeded.",
+        "QuotaExceededError",
+      );
+    });
+    expect(safeSetItem("aa-safe", "nope")).toEqual({
+      ok: false,
+      reason: "quota",
+    });
+    spy.mockRestore();
+  });
+
+  it("isPersistFailedError recognizes PersistFailedError and code shape", () => {
+    expect(isPersistFailedError(new PersistFailedError())).toBe(true);
+    expect(
+      isPersistFailedError(
+        Object.assign(new Error("persist_failed"), { code: "persist_failed" }),
+      ),
+    ).toBe(true);
+    expect(isPersistFailedError(new Error("other"))).toBe(false);
+    expect(isPersistFailedError(null)).toBe(false);
+  });
+
+  it("storageFailureMessageKey picks quota / unavailable / unknown copy", () => {
+    expect(storageFailureMessageKey("quota")).toBe("storage.quotaExceeded");
+    expect(storageFailureMessageKey("unavailable")).toBe("storage.unavailable");
+    expect(storageFailureMessageKey("unknown")).toBe("storage.writeFailed");
+    expect(storageFailureMessageKey("quota", "map")).toBe("mapEditor.saveFailed");
+    expect(storageFailureMessageKey("unavailable", "map")).toBe(
+      "mapEditor.saveFailedUnavailable",
+    );
+    expect(storageFailureMessageKey("unknown", "map")).toBe(
+      "mapEditor.saveFailedUnknown",
+    );
+  });
+
+  it("keeps unknown user: placeable ids and favorites on hydrate", () => {
+    const data = defaultPersisted();
+    const custom = blankMap({
+      id: "custom_user_assets",
+      name: "With user asset",
+      floor: { size: 18, style: "surface", color: "#ccc", surface: "office" },
+    });
+    custom.placeables = [
+      {
+        id: "p1",
+        placeableId: "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        position: [0, 0, 0],
+        rotationY: 0,
+      },
+    ];
+    data.customMaps = [custom];
+    data.favoriteAssets = [
+      "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "mars_boulder",
+    ];
+    savePersisted(data);
+    const loaded = loadPersisted();
+    expect(loaded.customMaps[0]?.placeables[0]?.placeableId).toBe(
+      "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    );
+    expect(loaded.favoriteAssets).toContain(
+      "user:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    );
+    expect(loaded.favoriteAssets).toContain("space_boulder");
   });
 
   it("round-trips sanitized persisted state", () => {
@@ -96,6 +321,7 @@ describe("loadPersisted / savePersisted", () => {
     data.agents = [
       sampleAgent({
         chattiness: 200,
+        temperament: 99 as never,
         enabled: undefined as unknown as boolean,
         characterId: "not-a-character",
         skills: [{ id: "", name: "Scout", content: "Look around" }] as never,
@@ -116,6 +342,7 @@ describe("loadPersisted / savePersisted", () => {
     expect(loaded.dayNight).toBe("night");
     expect(loaded.favoriteAssets).toContain("space_boulder");
     expect(loaded.agents[0]?.chattiness).toBe(100);
+    expect(loaded.agents[0]?.temperament).toBe(10);
     expect(loaded.agents[0]?.enabled).toBe(true);
     expect(loaded.agents[0]?.characterId).toBeTruthy();
     expect(loaded.agents[0]?.skills[0]?.id).toMatch(/^skill_/);
@@ -165,6 +392,71 @@ describe("loadPersisted / savePersisted", () => {
   it("falls back to default map when custom id is missing", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ mapId: "custom_gone" }));
     expect(loadPersisted().mapId).toBe(appConfig.defaults.mapId);
+  });
+
+  it("defaults onboarding flags to false for new users", () => {
+    const data = defaultPersisted();
+    expect(data.onboardingSeen).toBe(false);
+    expect(data.controlsHelpSeen).toBe(false);
+  });
+
+  it("round-trips onboardingSeen and controlsHelpSeen", () => {
+    const data = defaultPersisted();
+    data.onboardingSeen = true;
+    data.controlsHelpSeen = true;
+    savePersisted(data);
+    const loaded = loadPersisted();
+    expect(loaded.onboardingSeen).toBe(true);
+    expect(loaded.controlsHelpSeen).toBe(true);
+  });
+
+  it("infers legacy blob flags from models/agents presence", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ models: [{ id: "m1" }], agents: [] }),
+    );
+    expect(loadPersisted().onboardingSeen).toBe(true);
+    expect(loadPersisted().controlsHelpSeen).toBe(false);
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [],
+        agents: [sampleAgent()],
+      }),
+    );
+    expect(loadPersisted().onboardingSeen).toBe(false);
+    expect(loadPersisted().controlsHelpSeen).toBe(true);
+  });
+
+  it("keeps explicit false even when models/agents exist", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [{ id: "m1" }],
+        agents: [sampleAgent()],
+        onboardingSeen: false,
+        controlsHelpSeen: false,
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.onboardingSeen).toBe(false);
+    expect(loaded.controlsHelpSeen).toBe(false);
+  });
+
+  it("treats non-boolean onboarding flags as missing", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [{ id: "m1" }],
+        agents: [sampleAgent()],
+        onboardingSeen: "yes",
+        controlsHelpSeen: 1,
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.onboardingSeen).toBe(true);
+    expect(loaded.controlsHelpSeen).toBe(true);
   });
 });
 

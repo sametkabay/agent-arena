@@ -1,13 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, type Dispatch, type SetStateAction } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
-import { cloneMap, exportMapJson } from "@/lib/maps";
+import { cloneMap, exportMapJson, sanitizeZoneName } from "@/lib/maps";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
 import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu";
 import { disposeThumbRenderer } from "@/components/MapEditor/thumbnailCache";
 import type { EditorTool } from "@/components/MapEditor/types";
+import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
+import {
+  storageFailureMessageKey,
+} from "@/lib/storage";
 import { useArenaStore } from "@/store/arenaStore";
 import type { PlaceableId } from "@/lib/assets/catalog";
+import {
+  collectUserAssetIds,
+  shouldWarnExportMissingModels,
+} from "@/lib/userAssets/cascade";
 
 type UseEditorSessionArgs = {
   open: boolean;
@@ -19,6 +36,7 @@ type UseEditorSessionArgs = {
   setPaintId: Dispatch<SetStateAction<PlaceableId | null>>;
   setTool: Dispatch<SetStateAction<EditorTool>>;
   setCtxMenu: Dispatch<SetStateAction<ContextMenuState | null>>;
+  importButtonRef?: RefObject<HTMLButtonElement | null>;
 };
 
 export function useEditorSession({
@@ -31,6 +49,7 @@ export function useEditorSession({
   setPaintId,
   setTool,
   setCtxMenu,
+  importButtonRef,
 }: UseEditorSessionArgs) {
   const { t } = useTranslation();
   const closeMapEditor = useArenaStore((s) => s.closeMapEditor);
@@ -39,14 +58,19 @@ export function useEditorSession({
   const baselineJson = useRef<string | null>(null);
   const draftRef = useRef(draft);
   draftRef.current = draft;
+  const [saveError, setSaveError] = useState<string | null>(null);
+  /** Bumps on each failed save so role="alert" re-announces identical copy. */
+  const [saveErrorKey, setSaveErrorKey] = useState(0);
 
   useEffect(() => {
     if (!open || !sourceId) {
       reset(null);
       baselineJson.current = null;
       setConfirmClose(false);
+      setSaveError(null);
       return;
     }
+    setSaveError(null);
     // Read customs from the store at load time only — do NOT depend on
     // `customMaps` or every upsert/import while editing will wipe the draft
     // (and unknown custom ids fall back to office).
@@ -88,12 +112,34 @@ export function useEditorSession({
     };
   }, [open]);
 
+  const dismissSaveError = useCallback(() => {
+    setSaveError(null);
+  }, []);
+
   const onSave = () => {
     const current = draftRef.current;
     if (!current) return;
     const name = current.name.trim() || t("mapEditor.untitled");
-    saveMapFromEditor({ ...current, name }, true);
-    showToast(t("mapEditor.saved"));
+    const fallbackZone = t("mapEditor.zoneDefaultName", { n: 1 });
+    const zones = current.zones?.map((z, i) => ({
+      ...z,
+      name: sanitizeZoneName(
+        z.name,
+        t("mapEditor.zoneDefaultName", { n: i + 1 }) || fallbackZone,
+      ),
+    }));
+    const result = saveMapFromEditor(
+      { ...current, name, ...(zones ? { zones } : {}) },
+      true,
+    );
+    if (result.ok) {
+      setSaveError(null);
+      showToast(t("mapEditor.saved"));
+      return;
+    }
+    // Keep an inline banner — short toasts are easy to miss under the inspector.
+    setSaveError(t(storageFailureMessageKey(result.reason, "map")));
+    setSaveErrorKey((k) => k + 1);
   };
 
   const isDirty = useMemo(() => {
@@ -114,7 +160,10 @@ export function useEditorSession({
     closeMapEditor();
   }, [closeMapEditor, setConfirmClose]);
 
-  const onExport = () => {
+  const [exportWarnOpen, setExportWarnOpen] = useState(false);
+  const [exportWarnCount, setExportWarnCount] = useState(0);
+
+  const doExport = useCallback(() => {
     const current = draftRef.current;
     if (!current) return;
     const blob = new Blob([exportMapJson(current)], {
@@ -132,31 +181,88 @@ export function useEditorSession({
     a.download = `${safeName}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  }, []);
+
+  const onExport = () => {
+    const current = draftRef.current;
+    if (!current) return;
+    // Follow-up: issue #57 — Export a map bundle that includes its custom models.
+    const userIds = collectUserAssetIds(current);
+    if (shouldWarnExportMissingModels(current)) {
+      setExportWarnCount(userIds.length);
+      setExportWarnOpen(true);
+      return;
+    }
+    doExport();
   };
 
-  const onImportFile = async (file: File) => {
-    try {
-      const text = await file.text();
-      const id = useArenaStore.getState().importMapJson(text);
+  const confirmExport = () => {
+    setExportWarnOpen(false);
+    doExport();
+  };
+
+  const cancelExport = () => {
+    setExportWarnOpen(false);
+  };
+
+  const applyImportedMap = useCallback(
+    (id: string) => {
       // Point the editor at the imported map so a later customMaps-driven
       // reload (if any) cannot snap back to the previous source / office.
       useArenaStore.setState({ mapEditorSourceId: id });
       const def = resolveMapDefinition(id, useArenaStore.getState().customMaps);
-      reset(cloneMap(def));
-      showToast(t("mapEditor.imported"));
-    } catch {
-      showToast(t("mapEditor.importError"));
-    }
-  };
+      const loaded = cloneMap(def);
+      baselineJson.current = JSON.stringify(loaded);
+      reset(loaded);
+      setSelectedIds([]);
+      setPaintId(null);
+      setTool("select");
+      setCtxMenu(null);
+      // Overwriting the open map keeps the same sourceId, so the load effect
+      // does not re-run — clear #40 save banner / close confirm explicitly.
+      setSaveError(null);
+      setConfirmClose(false);
+    },
+    [
+      reset,
+      setSelectedIds,
+      setPaintId,
+      setTool,
+      setCtxMenu,
+      setConfirmClose,
+    ],
+  );
+
+  const {
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
+    onImportFile,
+  } = useMapImportFlow({
+    importButtonRef,
+    onCommitted: ({ id }) => {
+      applyImportedMap(id);
+    },
+  });
 
   return {
     draftRef,
     onSave,
     onExport,
+    exportWarnOpen,
+    exportWarnCount,
+    confirmExport,
+    cancelExport,
     onImportFile,
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
     isDirty,
     requestClose,
     confirmDiscardClose,
     showToast,
+    saveError,
+    saveErrorKey,
+    dismissSaveError,
   };
 }

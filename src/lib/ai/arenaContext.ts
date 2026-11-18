@@ -12,6 +12,7 @@ import {
   prompts,
   type ArenaPromptMode,
 } from "@/lib/config";
+import { clampTemperament } from "@/lib/storage";
 
 export type { ArenaPromptMode };
 
@@ -91,7 +92,10 @@ function formatPeopleLines(
  * Full session facts for the system prompt.
  * Tagged block = industry-standard structured context (portable across providers).
  */
-export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
+export function buildArenaWorldContext(
+  ctx: ArenaWorldContext,
+  mode?: ArenaPromptMode,
+): string {
   const peopleLines = formatPeopleLines(ctx.otherAgents).join("\n");
   const areas =
     ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
@@ -106,11 +110,16 @@ export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
     peopleLines,
   }).trim();
 
+  const discipline =
+    mode === "arena_conversation"
+      ? prompts.session.speechDisciplineConversation
+      : prompts.session.speechDiscipline;
+
   return [
     prompts.session.heading,
     prompts.session.intro.trim(),
     session,
-    prompts.session.speechDiscipline.trim(),
+    discipline.trim(),
   ].join("\n");
 }
 
@@ -130,6 +139,11 @@ export function buildSituationUserPrefix(
     ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
   const ch = channelMeta(channel);
 
+  const footer =
+    channel === "arena_conversation"
+      ? prompts.situation.footerConversation
+      : prompts.situation.footer;
+
   return [
     fillPrompt(prompts.situation.block, {
       channelId: ch.id,
@@ -142,7 +156,7 @@ export function buildSituationUserPrefix(
       namedAreas: areas,
       peoplePresent: peers,
     }).trim(),
-    prompts.situation.footer,
+    footer,
   ].join("\n");
 }
 
@@ -169,9 +183,27 @@ function formatSkills(skills: AgentSkill[]): string[] {
   return lines;
 }
 
+/** Build the temperament system-prompt line, or "" for neutral (5). */
+export function buildTemperamentLine(level: number): string {
+  const clamped = clampTemperament(level);
+  const band = prompts.temperament.bands[String(clamped)];
+  if (!band) return "";
+  const civility =
+    band.civility === "blunt"
+      ? prompts.temperament.civilityBlunt
+      : prompts.temperament.civilityAgreeable;
+  return fillPrompt(prompts.temperament.line, {
+    level: clamped,
+    label: band.label,
+    instruction: band.instruction,
+    civility,
+  });
+}
+
 /**
  * Shared system prompt shell for private chat, arena chat, and idle mutters.
  * Keeps identity / language / session facts consistent across call sites.
+ * `temperament` is required so every call site opts in at compile time.
  */
 export function buildAgentSystemPrompt(opts: {
   agentPrompt: string;
@@ -179,21 +211,24 @@ export function buildAgentSystemPrompt(opts: {
   skills?: AgentSkill[];
   world: ArenaWorldContext;
   mode: ArenaPromptMode;
+  temperament: number;
 }): string {
   const { agentPrompt, agentName, world, mode } = opts;
   const vars = { agentName, language: languageLabel(world.language), userName: world.userName };
-  const parts: string[] = [
-    agentPrompt.trim(),
+  const parts: string[] = [agentPrompt.trim()];
+  const temperamentLine = buildTemperamentLine(opts.temperament);
+  if (temperamentLine) parts.push(temperamentLine);
+  parts.push(
     fillPrompt(prompts.identity, vars),
     fillPrompt(prompts.language, vars),
     ...fillPromptLines(promptMode(mode).lines, vars),
     prompts.internals,
-  ];
+  );
 
   parts.push(...formatSkills(opts.skills ?? []));
 
   // Session facts last so they stay salient after identity/skills.
-  parts.push("", buildArenaWorldContext(world));
+  parts.push("", buildArenaWorldContext(world, mode));
 
   return parts.filter(Boolean).join("\n");
 }

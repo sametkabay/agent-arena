@@ -5,7 +5,7 @@ export type ContextMenuState = {
   x: number;
   y: number;
   targetId: string;
-  kind: "placeable" | "spawn";
+  kind: "placeable" | "spawn" | "zone" | "light";
 };
 
 export function EditorContextMenu({
@@ -25,6 +25,7 @@ export function EditorContextMenu({
 }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
+  const canRotate = menu.kind === "placeable" || menu.kind === "spawn";
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -45,6 +46,15 @@ export function EditorContextMenu({
   const left = Math.min(menu.x, window.innerWidth - 200);
   const top = Math.min(menu.y, window.innerHeight - 260);
 
+  const deleteLabel =
+    menu.kind === "spawn"
+      ? t("mapEditor.deleteSpawn")
+      : menu.kind === "zone"
+        ? t("mapEditor.deleteZone")
+        : menu.kind === "light"
+          ? t("mapEditor.deleteLight")
+          : t("mapEditor.deleteObject");
+
   return (
     <div
       ref={ref}
@@ -53,26 +63,30 @@ export function EditorContextMenu({
       role="menu"
       onContextMenu={(e) => e.preventDefault()}
     >
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          onRotate(-Math.PI / 2);
-          onClose();
-        }}
-      >
-        {t("mapEditor.ctx.rotateLeft")}
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        onClick={() => {
-          onRotate(Math.PI / 2);
-          onClose();
-        }}
-      >
-        {t("mapEditor.ctx.rotateRight")}
-      </button>
+      {canRotate && (
+        <>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              onRotate(-Math.PI / 2);
+              onClose();
+            }}
+          >
+            {t("mapEditor.ctx.rotateLeft")}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              onRotate(Math.PI / 2);
+              onClose();
+            }}
+          >
+            {t("mapEditor.ctx.rotateRight")}
+          </button>
+        </>
+      )}
       {menu.kind === "placeable" && (
         <>
           <button
@@ -107,7 +121,9 @@ export function EditorContextMenu({
           </button>
         </>
       )}
-      <div className="map-editor__ctx-sep" />
+      {(canRotate || menu.kind === "placeable") && (
+        <div className="map-editor__ctx-sep" />
+      )}
       <button
         type="button"
         role="menuitem"
@@ -117,9 +133,7 @@ export function EditorContextMenu({
           onClose();
         }}
       >
-        {menu.kind === "spawn"
-          ? t("mapEditor.deleteSpawn")
-          : t("mapEditor.deleteObject")}
+        {deleteLabel}
       </button>
     </div>
   );

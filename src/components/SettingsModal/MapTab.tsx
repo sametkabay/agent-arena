@@ -1,19 +1,24 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  builtinDisplayText,
   mapsToMeta,
   resolveMapDefinition,
   exportMapJson,
+  clipMapDescription,
+  getBuiltinMap,
 } from "@/lib/maps";
 import { FLOOR_SURFACES } from "@/lib/maps/floorSurfaces";
 import { useArenaStore } from "@/store/arenaStore";
-
-const MAP_DESCRIPTION_MAX = 80;
-
-function clipMapDescription(text: string): string {
-  if (text.length <= MAP_DESCRIPTION_MAX) return text;
-  return `${text.slice(0, MAP_DESCRIPTION_MAX - 1).trimEnd()}…`;
-}
+import { useMapImportFlow } from "@/components/maps/useMapImportFlow";
+import { MapImportConflictDialog } from "@/components/ui/MapImportConflictDialog";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useFocusExport } from "@/components/SettingsModal/useFocusExport";
+import { MapPresetGallery } from "@/components/SettingsModal/MapPresetGallery";
+import {
+  collectUserAssetIds,
+  shouldWarnExportMissingModels,
+} from "@/lib/userAssets/cascade";
 
 export function MapTab() {
   const { t } = useTranslation();
@@ -26,13 +31,22 @@ export function MapTab() {
   const createNewMap = useArenaStore((s) => s.createNewMap);
   const duplicateActiveMap = useArenaStore((s) => s.duplicateActiveMap);
   const deleteCustomMap = useArenaStore((s) => s.deleteCustomMap);
-  const importMapJson = useArenaStore((s) => s.importMapJson);
   const showToast = useArenaStore((s) => s.showToast);
   const fileRef = useRef<HTMLInputElement>(null);
+  const importBtnRef = useRef<HTMLButtonElement>(null);
+  const exportBtnRef = useRef<HTMLButtonElement>(null);
+  const [exportWarn, setExportWarn] = useState<{ count: number } | null>(null);
+  useFocusExport("map", exportBtnRef);
+  const {
+    pendingImport,
+    finishImport,
+    cancelPendingImport,
+    onImportFile,
+  } = useMapImportFlow({ importButtonRef: importBtnRef });
 
   const maps = mapsToMeta(customMaps);
 
-  const exportActive = () => {
+  const runExport = () => {
     if (!activeMap) return;
     try {
       const json = exportMapJson(activeMap);
@@ -49,6 +63,17 @@ export function MapTab() {
     }
   };
 
+  const exportActive = () => {
+    if (!activeMap) return;
+    // Follow-up: issue #57 — Export a map bundle that includes its custom models.
+    const userIds = collectUserAssetIds(activeMap);
+    if (shouldWarnExportMissingModels(activeMap)) {
+      setExportWarn({ count: userIds.length });
+      return;
+    }
+    runExport();
+  };
+
   return (
     <div>
       <p className="settings-hint">{t("settings.map.hint")}</p>
@@ -56,12 +81,20 @@ export function MapTab() {
         {t("settings.map.active")}:{" "}
         <strong>
           {activeMap
-            ? activeMap.builtin
-              ? t(`maps.${activeMap.id}.name`, { defaultValue: activeMap.name })
-              : activeMap.name
+            ? builtinDisplayText({
+                stored: activeMap.name,
+                builtinDefault: activeMap.builtin
+                  ? (getBuiltinMap(activeMap.id)?.name ?? null)
+                  : null,
+                translated: activeMap.builtin
+                  ? (t(`maps.${activeMap.id}.name`, {
+                      defaultValue: "",
+                    }) as string) || null
+                  : null,
+              })
             : mapId}
         </strong> · {floorSize}m ·{" "}
-        {activeMap?.placeables.length ?? 0} props
+        {t("settings.map.propCount", { count: activeMap?.placeables.length ?? 0 })}
       </p>
 
       <div className="map-tab__actions">
@@ -74,10 +107,19 @@ export function MapTab() {
         <button type="button" onClick={duplicateActiveMap}>
           {t("settings.map.duplicate")}
         </button>
-        <button type="button" onClick={exportActive}>
+        <button
+          ref={exportBtnRef}
+          type="button"
+          data-testid="map-export-btn"
+          onClick={exportActive}
+        >
           {t("settings.map.export")}
         </button>
-        <button type="button" onClick={() => fileRef.current?.click()}>
+        <button
+          ref={importBtnRef}
+          type="button"
+          onClick={() => fileRef.current?.click()}
+        >
           {t("settings.map.import")}
         </button>
         <input
@@ -87,19 +129,14 @@ export function MapTab() {
           hidden
           onChange={async (e) => {
             const f = e.target.files?.[0];
-            if (!f) return;
-            try {
-              importMapJson(await f.text());
-              showToast(t("mapEditor.imported"));
-            } catch (err) {
-              const msg =
-                err instanceof Error ? err.message : t("mapEditor.importError");
-              showToast(msg);
-            }
             e.target.value = "";
+            if (!f) return;
+            await onImportFile(f);
           }}
         />
       </div>
+
+      <MapPresetGallery />
 
       <h4 className="map-tab__section-title">{t("settings.map.mapsTitle")}</h4>
       <div className="map-grid">
@@ -141,9 +178,17 @@ export function MapTab() {
                   </span>
                 </div>
                 <div className="card-item__title">
-                  {m.builtin
-                    ? t(`maps.${m.id}.name`, { defaultValue: m.name })
-                    : m.name}
+                  {builtinDisplayText({
+                    stored: m.name,
+                    builtinDefault: m.builtin
+                      ? (getBuiltinMap(m.id)?.name ?? null)
+                      : null,
+                    translated: m.builtin
+                      ? (t(`maps.${m.id}.name`, {
+                          defaultValue: "",
+                        }) as string) || null
+                      : null,
+                  })}
                 </div>
                 <div className="card-item__sub" title={description}>
                   {clipMapDescription(description)}
@@ -170,6 +215,30 @@ export function MapTab() {
           );
         })}
       </div>
+
+      {pendingImport?.collision && (
+        <MapImportConflictDialog
+          existingName={pendingImport.collision.name}
+          onCancel={cancelPendingImport}
+          onOverwrite={() => finishImport("overwrite", pendingImport)}
+          onCopy={() => finishImport("copy", pendingImport)}
+        />
+      )}
+
+      <ConfirmDialog
+        open={!!exportWarn}
+        title={t("mapEditor.customAssets.exportTitle")}
+        message={t("mapEditor.customAssets.exportWarn", {
+          count: exportWarn?.count ?? 0,
+        })}
+        confirmLabel={t("mapEditor.customAssets.exportAnyway")}
+        cancelLabel={t("mapEditor.customAssets.cancel")}
+        onCancel={() => setExportWarn(null)}
+        onConfirm={() => {
+          setExportWarn(null);
+          runExport();
+        }}
+      />
     </div>
   );
 }

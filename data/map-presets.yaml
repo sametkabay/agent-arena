@@ -1,4 +1,4 @@
-# Gallery presets for a future Settings map picker (not wired in the UI yet).
+# Gallery presets for Settings → Map ("Start from a preset").
 # `sourceBuiltin` clones a shipped map; omit it and supply `map` for a from-scratch preset.
 
 presets:
