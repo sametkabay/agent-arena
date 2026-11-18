@@ -6,8 +6,10 @@ export type { DayNightMode } from "@/lib/dayNight";
 export type AiProviderKind = "openai" | "gemini" | "claude" | "ollama" | "custom";
 
 import type { LanguageCode } from "@/i18n/languages";
+import type { ChatterMode } from "@/lib/ai/conversation";
 
 export type { LanguageCode };
+export type { ChatterMode };
 
 /** Builtin id or custom_* user map id. */
 export type MapId = string;
@@ -55,6 +57,11 @@ export interface AgentConfig {
    * 0 = never; 100 ≈ 2 LLM asides per minute on average.
    */
   chattiness: number;
+  /**
+   * Conversation temperament 1–10.
+   * 1 = agreeable; 5 = neutral (no prompt line); 10 = aggressive.
+   */
+  temperament: number;
   /** Optional skill blocks injected into the system prompt. */
   skills: AgentSkill[];
   color: string;
@@ -83,6 +90,12 @@ export interface AppPersisted {
   graphics: GraphicsSettings;
   /** Arena + UI day/night preference (persisted). */
   dayNight: DayNightMode;
+  /** Ambient talk: off | idle mutters | sequential conversation. Default off. */
+  chatterMode: ChatterMode;
+  /** First-run setup guide dismissed (or legacy user already past it). */
+  onboardingSeen: boolean;
+  /** Controls help auto-show dismissed (manual "?" still works). */
+  controlsHelpSeen: boolean;
   /** Favorite placeable ids for the map editor library. */
   favoriteAssets?: string[];
   /** Per-agent private chat history (localStorage). */

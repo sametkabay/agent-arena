@@ -67,6 +67,32 @@ describe("blankMap / cloneMap", () => {
     expect(b.zones?.[0]?.name).toBe("Yard");
   });
 
+  it("cloneMap keeps zone/light edits from mutating the source (incl. size)", () => {
+    const a = blankMap({
+      name: "Src",
+      zones: [
+        {
+          id: "z",
+          name: "Pad",
+          kind: "custom",
+          center: [0, 0, 0],
+          radius: 2,
+          size: [4, 4],
+        },
+      ],
+      lights: [
+        { id: "l", position: [0, 3, 0], color: "#ffe8cc", intensity: 0.6, distance: 12 },
+      ],
+    });
+    const b = cloneMap(a);
+    b.zones![0]!.name = "Edited";
+    b.zones![0]!.size = [8, 2];
+    b.lights![0]!.intensity = 2;
+    expect(a.zones![0]!.name).toBe("Pad");
+    expect(a.zones![0]!.size).toEqual([4, 4]);
+    expect(a.lights![0]!.intensity).toBe(0.6);
+  });
+
   it("migrates legacy placeable ids on clone", () => {
     const map = blankMap({
       placeables: [

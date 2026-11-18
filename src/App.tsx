@@ -6,10 +6,17 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { FloatingChatLog } from "@/components/FloatingChatLog";
 import { AgentChatterLoop } from "@/components/AgentChatterLoop";
 import { SettingsModal } from "@/components/SettingsModal";
+import { OnboardingOverlays } from "@/components/OnboardingOverlays";
 import { MapEditor } from "@/components/MapEditor";
 import { ArenaScene } from "@/components/scene/ArenaScene";
+import { Toast } from "@/components/ui/Toast";
 import { useArenaStore } from "@/store/arenaStore";
+import {
+  ensureUserAssetsHydrated,
+  listenUserAssetBroadcast,
+} from "@/store/userAssetStore";
 import { appConfig } from "@/lib/config";
+import { dismissBootLoading } from "@/lib/bootLoading";
 
 export default function App() {
   const hydrate = useArenaStore((s) => s.hydrate);
@@ -21,6 +28,25 @@ export default function App() {
   useEffect(() => {
     hydrate();
   }, [hydrate]);
+
+  // Hydrate custom models at app shell so the arena scene can resolve them
+  // before the map editor opens (B1).
+  useEffect(() => {
+    ensureUserAssetsHydrated();
+    return listenUserAssetBroadcast();
+  }, []);
+
+  // Remove the inline index.html splash after the first React paint.
+  useEffect(() => {
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => dismissBootLoading());
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.dayNight = dayNight;
@@ -72,10 +98,11 @@ export default function App() {
           <FloatingChatLog />
           <AgentChatterLoop />
           <SettingsModal />
+          <OnboardingOverlays />
         </>
       )}
       <MapEditor />
-      {toast && <div className="toast">{toast}</div>}
+      {toast && <Toast message={toast} />}
     </div>
   );
 }

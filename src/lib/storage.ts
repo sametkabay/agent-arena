@@ -14,6 +14,7 @@ import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId }
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { parseChatterMode } from "@/lib/ai/conversation";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 
 export { DEFAULT_GRAPHICS };
@@ -68,6 +69,9 @@ export function defaultPersisted(): AppPersisted {
     customMaps: [],
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: appConfig.defaults.dayNight,
+    chatterMode: parseChatterMode(appConfig.defaults.chatterMode),
+    onboardingSeen: false,
+    controlsHelpSeen: false,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -130,7 +134,7 @@ function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
   }));
   // Legacy "checker" meant surface default — migrate once so explicit checker works later.
   if (typeof localStorage !== "undefined" && !localStorage.getItem(FLOOR_STYLE_MIGRATE_KEY)) {
-    localStorage.setItem(FLOOR_STYLE_MIGRATE_KEY, "1");
+    safeSetItem(FLOOR_STYLE_MIGRATE_KEY, "1");
     return maps.map(migrateLegacyMapFloorStyles);
   }
   return maps;
@@ -170,6 +174,7 @@ function sanitizeAgents(raw: unknown): AgentConfig[] {
       enabled: a.enabled !== false,
       thinkingEnabled: a.thinkingEnabled === true,
       chattiness: clampChattiness(a.chattiness),
+      temperament: clampTemperament(a.temperament),
       skills: sanitizeSkills(a.skills),
       characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
         ? (a.characterId as string)
@@ -181,6 +186,25 @@ export function clampChattiness(v: unknown): number {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return 0;
   return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/**
+ * Temperament 1–10; only finite numbers and non-blank numeric strings are accepted.
+ * Everything else (missing/null/blank/booleans/arrays/objects/Infinity/NaN) → 5.
+ */
+export function clampTemperament(v: unknown): number {
+  if (typeof v === "number") {
+    if (!Number.isFinite(v)) return 5;
+    return Math.max(1, Math.min(10, Math.round(v)));
+  }
+  if (typeof v === "string") {
+    const trimmed = v.trim();
+    if (trimmed === "") return 5;
+    const n = Number(trimmed);
+    if (!Number.isFinite(n)) return 5;
+    return Math.max(1, Math.min(10, Math.round(n)));
+  }
+  return 5;
 }
 
 export function loadPersisted(): AppPersisted {
@@ -198,6 +222,20 @@ export function loadPersisted(): AppPersisted {
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
       dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : appConfig.defaults.dayNight,
+      chatterMode: parseChatterMode(
+        (parsed as { chatterMode?: unknown }).chatterMode,
+        (parsed as { idleChatterEnabled?: unknown }).idleChatterEnabled,
+      ),
+      // Legacy blobs omit these flags: treat existing setups as already seen
+      // so returning users are not interrupted. Non-booleans count as missing.
+      onboardingSeen:
+        typeof parsed.onboardingSeen === "boolean"
+          ? parsed.onboardingSeen
+          : (Array.isArray(parsed.models) ? parsed.models : []).length > 0,
+      controlsHelpSeen:
+        typeof parsed.controlsHelpSeen === "boolean"
+          ? parsed.controlsHelpSeen
+          : sanitizeAgents(parsed.agents).length > 0,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")
@@ -211,8 +249,90 @@ export function loadPersisted(): AppPersisted {
   }
 }
 
-export function savePersisted(data: AppPersisted): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+/** Result of writing AppPersisted to localStorage — never throws. */
+export type StoragePersistReason = "quota" | "unavailable" | "unknown";
+export type StoragePersistResult =
+  | { ok: true }
+  | { ok: false; reason: StoragePersistReason };
+
+/** Thrown when a map/agent write was rolled back after persist failure. */
+export class PersistFailedError extends Error {
+  readonly code = "persist_failed" as const;
+  constructor(message = "persist_failed") {
+    super(message);
+    this.name = "PersistFailedError";
+  }
+}
+
+export function isPersistFailedError(err: unknown): boolean {
+  if (err instanceof PersistFailedError) return true;
+  return (
+    !!err &&
+    typeof err === "object" &&
+    "code" in err &&
+    (err as { code: unknown }).code === "persist_failed"
+  );
+}
+
+/**
+ * Classify a storage write failure across browsers.
+ * Quota: QuotaExceededError / NS_ERROR_DOM_QUOTA_REACHED / code 22 / 1014.
+ * Unavailable: SecurityError (private mode, disabled storage) / code 18.
+ */
+export function classifyStorageError(err: unknown): StoragePersistReason {
+  if (err == null) return "unknown";
+
+  const name =
+    typeof err === "object" && err !== null && "name" in err
+      ? String((err as { name: unknown }).name)
+      : "";
+  const codeRaw =
+    typeof err === "object" && err !== null && "code" in err
+      ? (err as { code: unknown }).code
+      : undefined;
+  const code = typeof codeRaw === "number" ? codeRaw : Number(codeRaw);
+
+  if (
+    name === "QuotaExceededError" ||
+    name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+    code === 22 ||
+    code === 1014
+  ) {
+    return "quota";
+  }
+  if (name === "SecurityError" || code === 18) {
+    return "unavailable";
+  }
+  return "unknown";
+}
+
+/** i18n key for a failed write — map scope uses editor copy; storage is the toast. */
+export function storageFailureMessageKey(
+  reason: StoragePersistReason,
+  scope: "storage" | "map" = "storage",
+): string {
+  if (scope === "map") {
+    if (reason === "quota") return "mapEditor.saveFailed";
+    if (reason === "unavailable") return "mapEditor.saveFailedUnavailable";
+    return "mapEditor.saveFailedUnknown";
+  }
+  if (reason === "quota") return "storage.quotaExceeded";
+  if (reason === "unavailable") return "storage.unavailable";
+  return "storage.writeFailed";
+}
+
+/** localStorage.setItem that never throws (quota / private mode / etc.). */
+export function safeSetItem(key: string, value: string): StoragePersistResult {
+  try {
+    localStorage.setItem(key, value);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, reason: classifyStorageError(err) };
+  }
+}
+
+export function savePersisted(data: AppPersisted): StoragePersistResult {
+  return safeSetItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 export function uid(prefix = "id"): string {

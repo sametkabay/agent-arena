@@ -1,9 +1,25 @@
 import { useCallback, type Dispatch, type SetStateAction } from "react";
-import type { ArenaMapDefinition, MapSpawnPoint } from "@/lib/maps/schema";
+import { flushSync } from "react-dom";
+import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import {
   applyFloorSurface,
   cellsForFloorSize,
   clampFloorSize,
+  clampRegionsToFloor,
+  canAddLight,
+  canAddZone,
+  createLight,
+  createZone,
+  deleteTargets as deleteTargetsLib,
+  lightsEqual,
+  moveTargets as moveTargetsLib,
+  nextZoneName,
+  targetKind,
+  updateLight,
+  updateZone,
+  zonesEqual,
+  type LightPatch,
+  type ZonePatch,
 } from "@/lib/maps";
 import {
   placeableCanAnimate,
@@ -12,10 +28,13 @@ import {
 } from "@/lib/assets/catalog";
 import type { PlaceableInstance } from "@/lib/types";
 import { uid } from "@/lib/storage";
+import i18n from "@/i18n";
 import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu";
 import { clampToFloor, rotateXZAround, snapCoord, wrapAngle } from "@/components/MapEditor/geometry";
 import type { SnapMode } from "@/components/MapEditor/types";
 import type { MapDraftUpdater } from "@/components/MapEditor/useMapHistory";
+import { useArenaStore } from "@/store/arenaStore";
+import { MAX_LIGHTS, MAX_ZONES } from "@/lib/maps/mapRegions";
 
 type UseEditorActionsArgs = {
   draft: ArenaMapDefinition | null;
@@ -44,6 +63,11 @@ export function useEditorActions({
       const idSet = new Set(ids);
       commit((d) => {
         const selectedPlaceables = d.placeables.filter((p) => idSet.has(p.id));
+        const selectedSpawns = d.spawnPoints.filter((s) => idSet.has(s.id));
+        // Zones/lights have no yaw — avoid empty undo steps when R is pressed.
+        if (selectedPlaceables.length === 0 && selectedSpawns.length === 0) {
+          return d;
+        }
 
         // Multi placeable selection: orbit as one rigid group around centroid
         const groupRotate = selectedPlaceables.length > 1;
@@ -97,11 +121,7 @@ export function useEditorActions({
     (ids: string[]) => {
       if (ids.length === 0) return;
       const idSet = new Set(ids);
-      commit((d) => ({
-        ...d,
-        placeables: d.placeables.filter((p) => !idSet.has(p.id)),
-        spawnPoints: d.spawnPoints.filter((s) => !idSet.has(s.id)),
-      }));
+      commit((d) => deleteTargetsLib(d, ids));
       setSelectedIds((cur) => cur.filter((id) => !idSet.has(id)));
     },
     [commit, setSelectedIds],
@@ -173,8 +193,9 @@ export function useEditorActions({
         setSelectedIds([id]);
         return;
       }
-      const isSpawn = draft.spawnPoints.some((s) => s.id === id);
-      if (opts?.additive && !isSpawn) {
+      const kind = targetKind(draft, id);
+      const isPlaceable = kind === "placeable";
+      if (opts?.additive && isPlaceable) {
         setSelectedIds((cur) => {
           const placeableOnly = cur.filter((x) =>
             draft.placeables.some((p) => p.id === x),
@@ -265,15 +286,15 @@ export function useEditorActions({
             ...applyFloorSurface(floor.size, patch.surface),
           };
         } else {
-          // Keep cells in sync with size for export / inspector
           floor.cells = cellsForFloorSize(floor.size, floor.surface);
         }
         const themeFloor = patch.color ?? (patch.surface ? floor.color : d.theme.floor);
-        return {
+        const next: ArenaMapDefinition = {
           ...d,
           floor,
           theme: { ...d.theme, floor: themeFloor },
         };
+        return patch.size != null ? clampRegionsToFloor(next) : next;
       });
     },
     [commit],
@@ -299,28 +320,33 @@ export function useEditorActions({
   const movePlaceableLive = useCallback(
     (id: string, pos: [number, number, number], preserveY = false) => {
       setLive((d) => {
-        if (d.spawnPoints.some((s) => s.id === id)) {
-          return {
-            ...d,
-            spawnPoints: d.spawnPoints.map((s) => {
-              if (s.id !== id) return s;
-              const position: [number, number, number] = preserveY
-                ? [pos[0], s.position[1], pos[2]]
-                : pos;
-              return { ...s, position };
-            }),
-          };
+        const kind = targetKind(d, id);
+        if (
+          kind !== "spawn" &&
+          kind !== "placeable" &&
+          kind !== "zone" &&
+          kind !== "light"
+        ) {
+          return d;
         }
-        return {
-          ...d,
-          placeables: d.placeables.map((p) => {
-            if (p.id !== id) return p;
-            const position: [number, number, number] = preserveY
-              ? [pos[0], p.position[1], pos[2]]
-              : pos;
-            return { ...p, position };
-          }),
-        };
+        // Zones/lights always keep their Y; spawns/placeables only when asked.
+        let position: [number, number, number] = pos;
+        if (kind === "zone") {
+          const z = (d.zones ?? []).find((x) => x.id === id);
+          if (z) position = [pos[0], z.center[1], pos[2]];
+        } else if (kind === "light") {
+          const L = (d.lights ?? []).find((x) => x.id === id);
+          if (L) position = [pos[0], L.position[1], pos[2]];
+        } else if (preserveY) {
+          if (kind === "spawn") {
+            const s = d.spawnPoints.find((x) => x.id === id);
+            if (s) position = [pos[0], s.position[1], pos[2]];
+          } else {
+            const p = d.placeables.find((x) => x.id === id);
+            if (p) position = [pos[0], p.position[1], pos[2]];
+          }
+        }
+        return moveTargetsLib(d, [{ id, position }]);
       });
     },
     [setLive],
@@ -329,29 +355,7 @@ export function useEditorActions({
   const moveIdsLive = useCallback(
     (moves: { id: string; position: [number, number, number] }[]) => {
       if (moves.length === 0) return;
-      const byId = new Map(moves.map((m) => [m.id, m.position]));
-      setLive((d) => ({
-        ...d,
-        placeables: d.placeables.map((p) => {
-          const pos = byId.get(p.id);
-          if (!pos) return p;
-          return {
-            ...p,
-            position: pos,
-            ...(p.behavior === "wander"
-              ? {
-                  homePosition: pos,
-                  target: undefined,
-                  locomotion: "idle" as const,
-                }
-              : {}),
-          };
-        }),
-        spawnPoints: d.spawnPoints.map((s) => {
-          const pos = byId.get(s.id);
-          return pos ? { ...s, position: pos } : s;
-        }),
-      }));
+      setLive((d) => moveTargetsLib(d, moves));
     },
     [setLive],
   );
@@ -386,7 +390,7 @@ export function useEditorActions({
 
   const addSpawnAt = useCallback(
     (pos: [number, number, number]) => {
-      const sp: MapSpawnPoint = {
+      const sp = {
         id: uid("spawn"),
         position: pos,
         rotationY: Math.PI,
@@ -395,6 +399,117 @@ export function useEditorActions({
       setSelectedIds([sp.id]);
     },
     [commit, setSelectedIds],
+  );
+
+  const addZoneAt = useCallback(
+    (pos: [number, number, number]) => {
+      // Early toast from the render-time draft.
+      if (!draft || !canAddZone(draft)) {
+        useArenaStore
+          .getState()
+          .showToast(i18n.t("mapEditor.zoneLimit", { max: MAX_ZONES }));
+        return;
+      }
+      const id = uid("zone");
+      const stem = i18n.t("mapEditor.zoneNameStem") || "Zone";
+      // flushSync so the updater flag is reliable — never select a rejected id.
+      let added = false;
+      flushSync(() => {
+        commit((d) => {
+          // Re-check inside the updater so two rapid clicks cannot exceed the cap.
+          if (!canAddZone(d)) return d;
+          added = true;
+          const name = nextZoneName(d.zones ?? [], stem);
+          return {
+            ...d,
+            zones: [...(d.zones ?? []), createZone(id, pos, d, name)],
+          };
+        });
+      });
+      if (added) setSelectedIds([id]);
+    },
+    [commit, draft, setSelectedIds],
+  );
+
+  const addLightAt = useCallback(
+    (pos: [number, number, number]) => {
+      if (!draft || !canAddLight(draft)) {
+        useArenaStore
+          .getState()
+          .showToast(i18n.t("mapEditor.lightLimit", { max: MAX_LIGHTS }));
+        return;
+      }
+      const id = uid("light");
+      let added = false;
+      flushSync(() => {
+        commit((d) => {
+          if (!canAddLight(d)) return d;
+          added = true;
+          return {
+            ...d,
+            lights: [...(d.lights ?? []), createLight(id, pos, d)],
+          };
+        });
+      });
+      if (added) setSelectedIds([id]);
+    },
+    [commit, draft, setSelectedIds],
+  );
+
+  const patchZoneLive = useCallback(
+    (id: string, patch: ZonePatch) => {
+      setLive((d) => ({
+        ...d,
+        zones: (d.zones ?? []).map((z) =>
+          z.id === id ? updateZone(z, patch, d.floor.size) : z,
+        ),
+      }));
+    },
+    [setLive],
+  );
+
+  const patchLightLive = useCallback(
+    (id: string, patch: LightPatch) => {
+      setLive((d) => ({
+        ...d,
+        lights: (d.lights ?? []).map((L) =>
+          L.id === id ? updateLight(L, patch, d.floor.size) : L,
+        ),
+      }));
+    },
+    [setLive],
+  );
+
+  const commitZone = useCallback(
+    (id: string, patch: ZonePatch) => {
+      commit((d) => {
+        const cur = (d.zones ?? []).find((z) => z.id === id);
+        if (!cur) return d;
+        const next = updateZone(cur, patch, d.floor.size);
+        if (zonesEqual(cur, next)) return d;
+        return {
+          ...d,
+          zones: (d.zones ?? []).map((z) => (z.id === id ? next : z)),
+        };
+      });
+    },
+    [commit],
+  );
+
+  const commitLight = useCallback(
+    (id: string, patch: LightPatch) => {
+      commit((d) => {
+        const cur = (d.lights ?? []).find((L) => L.id === id);
+        if (!cur) return d;
+        const next = updateLight(cur, patch, d.floor.size);
+        if (lightsEqual(cur, next)) return d;
+        return {
+          ...d,
+          lights: (d.lights ?? []).map((L) => (L.id === id ? next : L)),
+        };
+      });
+    },
+    [commit],
   );
 
   return {
@@ -413,5 +528,11 @@ export function useEditorActions({
     moveIdsLive,
     placeAsset,
     addSpawnAt,
+    addZoneAt,
+    addLightAt,
+    patchZoneLive,
+    patchLightLive,
+    commitZone,
+    commitLight,
   };
 }

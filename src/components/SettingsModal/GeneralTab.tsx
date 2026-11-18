@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { LanguageCode } from "@/lib/types";
+import type { ChatterMode, LanguageCode } from "@/lib/types";
 import { LANGUAGES } from "@/i18n/languages";
+import { appConfig } from "@/lib/config";
 import { useArenaStore } from "@/store/arenaStore";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ResetPlaygroundDialog } from "@/components/SettingsModal/ResetPlaygroundDialog";
 import { Select } from "@/components/ui/Select";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 
 export function GeneralTab() {
   const { t } = useTranslation();
@@ -12,9 +15,21 @@ export function GeneralTab() {
   const language = useArenaStore((s) => s.language);
   const setUserName = useArenaStore((s) => s.setUserName);
   const setLanguage = useArenaStore((s) => s.setLanguage);
+  const chatterMode = useArenaStore((s) => s.chatterMode);
+  const setChatterMode = useArenaStore((s) => s.setChatterMode);
   const clearChats = useArenaStore((s) => s.clearChats);
   const showToast = useArenaStore((s) => s.showToast);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const chatterHeadingId = useId();
+  const chatterHintId = useId();
+
+  const modeHintKey =
+    chatterMode === "idle"
+      ? "settings.general.chatterModeIdleHint"
+      : chatterMode === "conversation"
+        ? "settings.general.chatterModeConversationHint"
+        : "settings.general.chatterModeOffHint";
 
   return (
     <div className="form-grid">
@@ -38,6 +53,30 @@ export function GeneralTab() {
       </label>
       <div className="settings-row settings-row--stack">
         <div>
+          <strong id={chatterHeadingId}>{t("settings.general.chatterMode")}</strong>
+          <p className="settings-hint">{t("settings.general.chatterModeHint")}</p>
+        </div>
+        <SegmentedControl
+          name="chatter-mode"
+          labelledBy={chatterHeadingId}
+          describedBy={chatterHintId}
+          value={chatterMode}
+          onChange={(v) => setChatterMode(v as ChatterMode)}
+          options={[
+            { value: "off", label: t("settings.general.chatterModeOff") },
+            { value: "idle", label: t("settings.general.chatterModeIdle") },
+            {
+              value: "conversation",
+              label: t("settings.general.chatterModeConversation"),
+            },
+          ]}
+        />
+        <p id={chatterHintId} className="settings-hint" aria-live="polite">
+          {t(modeHintKey, { count: appConfig.conversation.maxAgentTurns })}
+        </p>
+      </div>
+      <div className="settings-row settings-row--stack settings-row--flush">
+        <div>
           <strong>{t("settings.general.clearChats")}</strong>
           <p className="settings-hint">{t("settings.general.clearChatsHint")}</p>
         </div>
@@ -50,6 +89,21 @@ export function GeneralTab() {
         </button>
       </div>
 
+      <div className="settings-row settings-row--stack settings-row--flush">
+        <div>
+          <strong>{t("settings.general.reset.title")}</strong>
+          <p className="settings-hint">{t("settings.general.reset.hint")}</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn--danger"
+          data-testid="reset-playground-btn"
+          onClick={() => setConfirmReset(true)}
+        >
+          {t("settings.general.reset.action")}
+        </button>
+      </div>
+
       <ConfirmDialog
         open={confirmClear}
         title={t("settings.general.clearChatsConfirmTitle")}
@@ -59,11 +113,18 @@ export function GeneralTab() {
         danger
         onCancel={() => setConfirmClear(false)}
         onConfirm={() => {
-          clearChats();
+          const result = clearChats();
           setConfirmClear(false);
-          showToast(t("settings.general.clearChatsDone"));
+          if (result.ok) showToast(t("settings.general.clearChatsDone"));
         }}
       />
+
+      {confirmReset ? (
+        <ResetPlaygroundDialog
+          onCancel={() => setConfirmReset(false)}
+          onSuccess={() => setConfirmReset(false)}
+        />
+      ) : null}
     </div>
   );
 }
