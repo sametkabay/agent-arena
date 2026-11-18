@@ -55,7 +55,15 @@ function FogPulse({
   );
 }
 
-/** Right-click on the ground sends the selected agent (works through props). */
+const LONG_PRESS_MS = 480;
+const LONG_PRESS_CANCEL_PX = 12;
+
+/**
+ * Right-click on the ground sends the selected agent there (desktop).
+ * On touch there's no right-click, so a still one-finger long-press does
+ * the same thing — a finger that moves before the timer fires is treated
+ * as an orbit-camera drag instead, and a second finger (pinch) cancels it.
+ */
 function FloorCommandClick({
   floorSize,
   onSend,
@@ -72,15 +80,14 @@ function FloorCommandClick({
     const ndc = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
 
-    const onContextMenu = (ev: MouseEvent) => {
-      ev.preventDefault();
+    const sendFromPoint = (clientX: number, clientY: number) => {
       const selectedId = useArenaStore.getState().selectedAgentId;
       if (!selectedId) return;
 
       const rect = el.getBoundingClientRect();
       ndc.set(
-        ((ev.clientX - rect.left) / rect.width) * 2 - 1,
-        -((ev.clientY - rect.top) / rect.height) * 2 + 1,
+        ((clientX - rect.left) / rect.width) * 2 - 1,
+        -((clientY - rect.top) / rect.height) * 2 + 1,
       );
       raycaster.setFromCamera(ndc, camera);
       if (!raycaster.ray.intersectPlane(plane, hit)) return;
@@ -91,8 +98,66 @@ function FloorCommandClick({
       onSend(x, z);
     };
 
+    const onContextMenu = (ev: MouseEvent) => {
+      ev.preventDefault();
+      sendFromPoint(ev.clientX, ev.clientY);
+    };
+
+    const activeTouches = new Set<number>();
+    let pressTimer: number | null = null;
+    let pressStart: { x: number; y: number; id: number } | null = null;
+
+    const cancelPress = () => {
+      if (pressTimer != null) {
+        window.clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      pressStart = null;
+    };
+
+    const onPointerDown = (ev: PointerEvent) => {
+      if (ev.pointerType !== "touch") return;
+      activeTouches.add(ev.pointerId);
+      if (activeTouches.size > 1) {
+        cancelPress();
+        return;
+      }
+      pressStart = { x: ev.clientX, y: ev.clientY, id: ev.pointerId };
+      pressTimer = window.setTimeout(() => {
+        pressTimer = null;
+        if (pressStart) sendFromPoint(pressStart.x, pressStart.y);
+        pressStart = null;
+      }, LONG_PRESS_MS);
+    };
+
+    const onPointerMove = (ev: PointerEvent) => {
+      if (ev.pointerType !== "touch" || !pressStart || ev.pointerId !== pressStart.id) {
+        return;
+      }
+      const dx = ev.clientX - pressStart.x;
+      const dy = ev.clientY - pressStart.y;
+      if (Math.hypot(dx, dy) > LONG_PRESS_CANCEL_PX) cancelPress();
+    };
+
+    const onPointerEnd = (ev: PointerEvent) => {
+      if (ev.pointerType !== "touch") return;
+      activeTouches.delete(ev.pointerId);
+      if (pressStart?.id === ev.pointerId) cancelPress();
+    };
+
     el.addEventListener("contextmenu", onContextMenu);
-    return () => el.removeEventListener("contextmenu", onContextMenu);
+    el.addEventListener("pointerdown", onPointerDown);
+    el.addEventListener("pointermove", onPointerMove);
+    el.addEventListener("pointerup", onPointerEnd);
+    el.addEventListener("pointercancel", onPointerEnd);
+    return () => {
+      cancelPress();
+      el.removeEventListener("contextmenu", onContextMenu);
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+      el.removeEventListener("pointerup", onPointerEnd);
+      el.removeEventListener("pointercancel", onPointerEnd);
+    };
   }, [camera, gl, floorSize, onSend]);
 
   return null;

@@ -10,7 +10,7 @@ import {
   ALL_CHARACTERS,
   getCharacter,
 } from "@/lib/assets/characters";
-import { clampChattiness, uid } from "@/lib/storage";
+import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
 import { ColorField } from "@/components/ui/ColorField";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
@@ -41,6 +41,25 @@ function isStockBio(bio: string | undefined, characterId: string, roleId: string
   const lookBio = getCharacter(characterId).defaultBio ?? "";
   const roleBio = getPolyPreset(roleId).defaultBio ?? "";
   return trimmed === lookBio || trimmed === roleBio;
+}
+
+function temperamentValueText(
+  value: number,
+  t: (key: string, opts?: Record<string, string | number>) => string,
+): string {
+  if (value === 1) {
+    return t("settings.agents.temperamentValueText", {
+      value,
+      label: t("settings.agents.temperamentAgreeable"),
+    });
+  }
+  if (value === 10) {
+    return t("settings.agents.temperamentValueText", {
+      value,
+      label: t("settings.agents.temperamentAggressive"),
+    });
+  }
+  return String(value);
 }
 
 export function AgentForm({
@@ -237,6 +256,42 @@ export function AgentForm({
           aria-label={t("settings.agents.chattiness")}
         />
       </div>
+      <section
+        className="aa-personality"
+        aria-labelledby="aa-personality-heading"
+      >
+        <div className="aa-personality__header">
+          <div>
+            <h3 id="aa-personality-heading" className="aa-toggle-card__title">
+              {t("settings.agents.personality")}
+            </h3>
+            <p className="aa-toggle-card__hint">
+              {t("settings.agents.personalityHint")}
+            </p>
+          </div>
+          <span className="aa-personality__value">
+            {clampTemperament(editing.temperament)}
+          </span>
+        </div>
+        <Slider
+          min={1}
+          max={10}
+          step={1}
+          value={clampTemperament(editing.temperament)}
+          onChange={(temperament) =>
+            onChange({ ...editing, temperament: clampTemperament(temperament) })
+          }
+          aria-label={t("settings.agents.temperament")}
+          aria-valuetext={temperamentValueText(
+            clampTemperament(editing.temperament),
+            t,
+          )}
+        />
+        <div className="aa-personality__ends" aria-hidden="true">
+          <span>{t("settings.agents.temperamentAgreeable")}</span>
+          <span>{t("settings.agents.temperamentAggressive")}</span>
+        </div>
+      </section>
       <label>
         {t("settings.agents.systemPrompt")}
         <textarea

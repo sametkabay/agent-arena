@@ -118,8 +118,20 @@ function slugify(file: string): string {
     .replace(/^_|_$/g, "");
 }
 
-function labelFromFile(file: string): string {
-  return file.replace(/\.glb$/i, "").replace(/\s+/g, " ").trim();
+/**
+ * Strip a trailing Kenney-style asset hash (e.g. "-PImRvMqW1O"): ≥8 chars with
+ * both a digit and a letter. Plain words like "-Rectangular" are kept.
+ */
+export function labelFromFile(file: string): string {
+  return file
+    .replace(/\.glb$/i, "")
+    .replace(/-([A-Za-z0-9]{8,})$/g, (full, token: string) => {
+      const hasDigit = /\d/.test(token);
+      const hasLetter = /[A-Za-z]/.test(token);
+      return hasDigit && hasLetter ? "" : full;
+    })
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function inferCategory(pack: string, file: string): AssetCategory {

@@ -26,6 +26,9 @@ defaults:
   agentName: New agent
   agentColor: "#4A90A4"
   agentChattiness: 10
+  agentTemperament: 5
+  # Ambient talk: off | idle | conversation (opt-in so LLM calls only fire when wanted).
+  chatterMode: off
   agentEnabled: true
   agentThinking: false
   modelName: New model
@@ -45,6 +48,12 @@ storage:
   maxArenaChatHistory: 100
   maxApiChatHistory: 12
 
+# Custom map / character assets (IndexedDB). Soft warn only — no hard size cap.
+# Bundle export that includes private models is follow-up issue #57.
+userAssets:
+  warnBytes: 20971520
+  defaultTargetSize: 1
+
 graphics:
   castShadows: true
   shadowQuality: medium
@@ -61,6 +70,15 @@ graphics:
 
 chatter:
   maxMuttersPerMinute: 2
+
+# Conversation-mode turn budget (yaml only; no Settings UI in v1).
+conversation:
+  minGapMs: 5000
+  maxAgentTurns: 6
+  humanReplyDelayMs: 400
+  firstTurnDelayMs: 1500
+  historyLines: 12
+  historyMaxChars: 1600
 
 speech:
   maxChars: 256
@@ -102,6 +120,25 @@ maps:
     - office
     - concrete
     - factory
+  regions:
+    maxZones: 24
+    maxLights: 12
+    zoneNameMax: 40
+    zoneRadiusMin: 0.5
+    zoneRadiusDefault: 2
+    zoneSizeMin: 0.5
+    zoneSizeDefault: 4
+    lightIntensityMin: 0
+    lightIntensityMax: 3
+    lightIntensityStep: 0.05
+    lightIntensityDefault: 0.6
+    lightDistanceMin: 2
+    lightDistanceMax: 40
+    lightDistanceDefault: 12
+    lightHeightMin: 0.3
+    lightHeightMax: 8
+    lightHeightDefault: 3
+    lightColorDefault: "#ffe8cc"
   defaultTheme:
     accent: "#4A7566"
     background: "#A8A59E"

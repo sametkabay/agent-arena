@@ -2,9 +2,12 @@ import { useEffect } from "react";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import type { PlaceableId } from "@/lib/assets/catalog";
 import type { ContextMenuState } from "@/components/MapEditor/EditorContextMenu";
+import { shouldSkipEditorHotkey } from "@/lib/editorHotkeys";
 
 type UseEditorHotkeysArgs = {
   open: boolean;
+  /** True while import-conflict or close-confirm dialog is open. */
+  suspended?: boolean;
   draft: ArenaMapDefinition | null;
   selectedIds: string[];
   rotateSelected: (delta?: number) => void;
@@ -19,6 +22,7 @@ type UseEditorHotkeysArgs = {
 
 export function useEditorHotkeys({
   open,
+  suspended = false,
   draft,
   selectedIds,
   rotateSelected,
@@ -34,8 +38,14 @@ export function useEditorHotkeys({
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (!draft) return;
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (
+        shouldSkipEditorHotkey(e, {
+          suspended,
+          targetTagName: (e.target as HTMLElement)?.tagName,
+        })
+      ) {
+        return;
+      }
 
       const mod = e.metaKey || e.ctrlKey;
 
@@ -82,6 +92,7 @@ export function useEditorHotkeys({
     return () => window.removeEventListener("keydown", onKey);
   }, [
     open,
+    suspended,
     draft,
     selectedIds,
     rotateSelected,

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
+import { emptyAgentListAction } from "@/lib/onboarding";
 
 type Props = {
   collapsed: boolean;
@@ -9,11 +10,13 @@ type Props = {
 export function AgentList({ collapsed, onToggle }: Props) {
   const { t } = useTranslation();
   const agents = useArenaStore((s) => s.agents);
+  const models = useArenaStore((s) => s.models);
   const activeAgents = agents.filter((a) => a.enabled !== false);
   const selectedAgentId = useArenaStore((s) => s.selectedAgentId);
   const selectAgent = useArenaStore((s) => s.selectAgent);
   const setSettingsTab = useArenaStore((s) => s.setSettingsTab);
   const openAgentSettings = useArenaStore((s) => s.openAgentSettings);
+  const emptyAction = emptyAgentListAction(models.length);
 
   return (
     <div
@@ -38,9 +41,9 @@ export function AgentList({ collapsed, onToggle }: Props) {
             <button
               type="button"
               className="side-panel__empty side-panel__empty--action"
-              onClick={() => setSettingsTab("agents")}
+              onClick={() => setSettingsTab(emptyAction.tab)}
             >
-              {t("agentList.empty")}
+              {t(emptyAction.messageKey)}
             </button>
           ) : (
             activeAgents.map((agent) => {
