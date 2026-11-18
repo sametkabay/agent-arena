@@ -74,6 +74,7 @@ export function FloatingChatLog() {
   const lines = useArenaStore((s) => s.floatingChatLog);
   const history = useArenaStore((s) => s.arenaChatHistory);
   const agents = useArenaStore((s) => s.agents);
+  const conversationStatus = useArenaStore((s) => s.conversationStatus);
   const removeFloatingChatLog = useArenaStore((s) => s.removeFloatingChatLog);
   const clearFloatingChatLog = useArenaStore((s) => s.clearFloatingChatLog);
 
@@ -229,6 +230,11 @@ export function FloatingChatLog() {
       )}
 
       <div className="arena-chat-dock__composer">
+        {conversationStatus === "waitingForHuman" && (
+          <p className="arena-chat-dock__waiting" role="status">
+            {t("chat.arena.conversationWaiting")}
+          </p>
+        )}
         {mentionOpen && (
           <ul className="arena-chat-dock__mentions" role="listbox">
             {mentionMatches.map((agent, i) => (

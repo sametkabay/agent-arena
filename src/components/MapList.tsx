@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { mapsToMeta } from "@/lib/maps";
+import { builtinDisplayText, getBuiltinMap, mapsToMeta } from "@/lib/maps";
 import { useArenaStore } from "@/store/arenaStore";
 
 type Props = {
@@ -71,9 +71,17 @@ export function MapList({ collapsed, onToggle }: Props) {
                     />
                     <span className="side-panel__meta">
                       <span className="side-panel__name">
-                        {map.builtin
-                          ? t(`maps.${map.id}.name`, { defaultValue: map.name })
-                          : map.name}
+                        {builtinDisplayText({
+                          stored: map.name,
+                          builtinDefault: map.builtin
+                            ? (getBuiltinMap(map.id)?.name ?? null)
+                            : null,
+                          translated: map.builtin
+                            ? (t(`maps.${map.id}.name`, {
+                                defaultValue: "",
+                              }) as string) || null
+                            : null,
+                        })}
                       </span>
                       <span className="side-panel__bio">
                         {map.builtin

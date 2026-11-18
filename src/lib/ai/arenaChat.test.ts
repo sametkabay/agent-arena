@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   abortArenaReplies,
+  clearPendingArenaReplies,
+  drainPendingArenaReplies,
   extractMentions,
   resolveArenaTargets,
   sendArenaChatMessage,
@@ -41,6 +43,37 @@ describe("resolveArenaTargets", () => {
     const miss = resolveArenaTargets("@Nope", agents);
     expect(miss.targets).toHaveLength(0);
     expect(miss.unmatched).toEqual(["Nope"]);
+  });
+
+  it("prefers an exact name even when a copy appears earlier", () => {
+    const ordered = [
+      sampleAgent({ id: "copy", displayName: "Explorer (copy)", modelConfigId: "m1" }),
+      sampleAgent({ id: "orig", displayName: "Explorer", modelConfigId: "m1" }),
+    ];
+    const hit = resolveArenaTargets("@Explorer", ordered);
+    expect(hit.targets.map((t) => t.id)).toEqual(["orig"]);
+  });
+
+  it("resolves @Explorer(copy) and @Explorer(copy2) distinctly", () => {
+    const ordered = [
+      sampleAgent({ id: "orig", displayName: "Explorer", modelConfigId: "m1" }),
+      sampleAgent({ id: "c1", displayName: "Explorer (copy)", modelConfigId: "m1" }),
+      sampleAgent({ id: "c2", displayName: "Explorer (copy 2)", modelConfigId: "m1" }),
+    ];
+    expect(resolveArenaTargets("@Explorer(copy)", ordered).targets[0]?.id).toBe("c1");
+    expect(resolveArenaTargets("@Explorer(copy2)", ordered).targets[0]?.id).toBe("c2");
+  });
+
+  it("excludes selfId including a prefix match on oneself", () => {
+    const agents = [
+      sampleAgent({ id: "ada", displayName: "Ada", modelConfigId: "m1" }),
+      sampleAgent({ id: "bo", displayName: "Bo", modelConfigId: "m1" }),
+    ];
+    const hit = resolveArenaTargets("@Ada hi @Bo", agents, { selfId: "ada" });
+    expect(hit.targets.map((t) => t.id)).toEqual(["bo"]);
+    const prefix = resolveArenaTargets("@Ad", agents, { selfId: "ada" });
+    expect(prefix.targets).toHaveLength(0);
+    expect(prefix.unmatched).toEqual(["Ad"]);
   });
 });
 
@@ -83,7 +116,59 @@ describe("sendArenaChatMessage", () => {
     expect(chatCompletion).not.toHaveBeenCalled();
   });
 
-  it("skips a busy private chat and handles empty or failed replies", async () => {
+  it("includes temperament in arena broadcast and mention system prompts", async () => {
+    useArenaStore.setState({
+      userName: "Samet",
+      language: "en",
+      dayNight: "day",
+      mapId: "office",
+      customMaps: [],
+      activeMap: null,
+      chatterMode: "idle",
+      agents: [
+        sampleAgent({
+          displayName: "Explorer",
+          modelConfigId: "model-1",
+          temperament: 9,
+        }),
+      ],
+      models: [sampleModel()],
+      chatBusyById: {},
+      pushFloatingChatLog: vi.fn(),
+      setAgentSpeech: vi.fn(),
+      setChatBusy: (agentId: string, busy: boolean) => {
+        useArenaStore.setState((s) => ({
+          chatBusyById: { ...s.chatBusyById, [agentId]: busy },
+        }));
+      },
+    } as never);
+    const level9 =
+      "Temperament: 9/10 (very combative). Contradict freely, press weak points hard, and rarely back down.";
+    chatCompletion.mockResolvedValue("ok");
+    await sendArenaChatMessage("hello all");
+    await vi.waitFor(() => expect(chatCompletion).toHaveBeenCalled());
+    const broadcast = chatCompletion.mock.calls[0]?.[0] as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    const broadcastSystem =
+      broadcast.messages.find((m) => m.role === "system")?.content ?? "";
+    expect(broadcastSystem).toContain(level9);
+    expect(broadcastSystem).toContain("Even when blunt, stay civil");
+
+    chatCompletion.mockClear();
+    chatCompletion.mockResolvedValue("ok");
+    await sendArenaChatMessage("@Explorer ping");
+    await vi.waitFor(() => expect(chatCompletion).toHaveBeenCalled());
+    const mention = chatCompletion.mock.calls[0]?.[0] as {
+      messages: Array<{ role: string; content: string }>;
+    };
+    const mentionSystem =
+      mention.messages.find((m) => m.role === "system")?.content ?? "";
+    expect(mentionSystem).toContain(level9);
+    expect(mentionSystem).toContain("Even when blunt, stay civil");
+  });
+
+  it("queues a busy agent and drains after setChatBusy(false); latest wins", async () => {
     const push = vi.fn();
     const setAgentSpeech = vi.fn();
     useArenaStore.setState({
@@ -93,23 +178,37 @@ describe("sendArenaChatMessage", () => {
       mapId: "office",
       customMaps: [],
       activeMap: null,
+      chatterMode: "idle",
       agents: [sampleAgent({ displayName: "Explorer", modelConfigId: "model-1" })],
       models: [sampleModel()],
       chatBusyById: { "agent-1": true },
       pushFloatingChatLog: push,
       setAgentSpeech,
-      setChatBusy: vi.fn(),
+      setChatBusy: (agentId: string, busy: boolean) => {
+        useArenaStore.setState((s) => ({
+          chatBusyById: { ...s.chatBusyById, [agentId]: busy },
+        }));
+      },
     } as never);
-    await sendArenaChatMessage("hello");
+    await sendArenaChatMessage("first");
+    await sendArenaChatMessage("second-latest");
     expect(chatCompletion).not.toHaveBeenCalled();
 
     useArenaStore.setState({ chatBusyById: {} } as never);
+    chatCompletion.mockResolvedValue("queued reply");
+    drainPendingArenaReplies();
+    await vi.waitFor(() => expect(chatCompletion).toHaveBeenCalledTimes(1));
+    const req = chatCompletion.mock.calls[0]?.[0] as {
+      messages: Array<{ content: string }>;
+    };
+    expect(JSON.stringify(req.messages)).toContain("second-latest");
+
     chatCompletion.mockResolvedValue("   ");
     await sendArenaChatMessage("@Explorer hi");
     expect(setAgentSpeech).toHaveBeenCalled();
 
-    chatCompletion.mockImplementation(async (req: { onToken?: (c: string) => void }) => {
-      req.onToken?.("Hey");
+    chatCompletion.mockImplementation(async (req2: { onToken?: (c: string) => void }) => {
+      req2.onToken?.("Hey");
       return "Hey";
     });
     await sendArenaChatMessage("hello");
@@ -118,6 +217,62 @@ describe("sendArenaChatMessage", () => {
     await sendArenaChatMessage("hello");
     chatCompletion.mockRejectedValue(new Error("down"));
     await sendArenaChatMessage("hello");
+  });
+
+  it("clears queued arena replies while conversation mode is on", async () => {
+    const push = vi.fn();
+    useArenaStore.setState({
+      userName: "Samet",
+      language: "en",
+      dayNight: "day",
+      mapId: "office",
+      customMaps: [],
+      activeMap: null,
+      chatterMode: "idle",
+      agents: [sampleAgent({ displayName: "Explorer", modelConfigId: "model-1" })],
+      models: [sampleModel()],
+      chatBusyById: { "agent-1": true },
+      pushFloatingChatLog: push,
+      setAgentSpeech: vi.fn(),
+      setChatBusy: vi.fn(),
+    } as never);
+    await sendArenaChatMessage("queued while idle");
+    expect(chatCompletion).not.toHaveBeenCalled();
+
+    useArenaStore.setState({ chatterMode: "conversation", chatBusyById: {} } as never);
+    drainPendingArenaReplies();
+    expect(chatCompletion).not.toHaveBeenCalled();
+
+    // Explicit clear is a no-op once drained/cleared.
+    clearPendingArenaReplies();
+    useArenaStore.setState({ chatterMode: "idle" } as never);
+    drainPendingArenaReplies();
+    expect(chatCompletion).not.toHaveBeenCalled();
+  });
+
+  it("seeds conversation mode without parallel calls", async () => {
+    const push = vi.fn();
+    const seedConversation = vi.fn();
+    useArenaStore.setState({
+      userName: "Samet",
+      chatterMode: "conversation",
+      agents: [
+        sampleAgent({ id: "ada", displayName: "Ada", modelConfigId: "model-1" }),
+        sampleAgent({ id: "bo", displayName: "Bo", modelConfigId: "model-1" }),
+      ],
+      models: [sampleModel()],
+      chatBusyById: {},
+      pushFloatingChatLog: push,
+      seedConversation,
+    } as never);
+    await sendArenaChatMessage("@Bo hi");
+    expect(seedConversation).toHaveBeenCalledWith(["bo"]);
+    expect(chatCompletion).not.toHaveBeenCalled();
+
+    seedConversation.mockClear();
+    await sendArenaChatMessage("hello everyone");
+    expect(seedConversation).toHaveBeenCalledWith([]);
+    expect(chatCompletion).not.toHaveBeenCalled();
   });
 
   it("asks matching agents for a reply", async () => {
@@ -137,6 +292,7 @@ describe("sendArenaChatMessage", () => {
       mapId: "office",
       customMaps: [],
       activeMap: null,
+      chatterMode: "off",
       agents: [sampleAgent({ displayName: "Explorer", modelConfigId: "model-1" })],
       models: [sampleModel()],
       chatBusyById: {},

@@ -5,8 +5,12 @@ import {
   FLOOR_SIZE_MIN,
   FLOOR_SURFACE_IDS,
   FLOOR_STYLES,
+  builtinDisplayText,
   cellsForFloorSize,
   clampFloorSize,
+  getBuiltinMap,
+  lightDisplayName,
+  zoneDisplayName,
   type FloorSurfaceId,
   type FloorStyle,
 } from "@/lib/maps";
@@ -20,6 +24,7 @@ export function MapSettingsCard({
   onFloorSizeLive,
   onUpdateFloor,
   onTheme,
+  onSelectRegion,
   beginGesture,
   endGesture,
 }: {
@@ -28,10 +33,21 @@ export function MapSettingsCard({
   onFloorSizeLive: (size: number) => void;
   onUpdateFloor: (patch: Partial<ArenaMapDefinition["floor"]>) => void;
   onTheme: (patch: Partial<ArenaMapDefinition["theme"]>) => void;
+  onSelectRegion: (id: string) => void;
   beginGesture: () => void;
   endGesture: () => void;
 }) {
   const { t } = useTranslation();
+  const zones = draft.zones ?? [];
+  const lights = draft.lights ?? [];
+  const builtinBase = draft.builtin ? getBuiltinMap(draft.id) : null;
+  const displayDescription = builtinDisplayText({
+    stored: draft.description ?? "",
+    builtinDefault: builtinBase ? (builtinBase.description ?? "") : null,
+    translated: builtinBase
+      ? t(`maps.${draft.id}.description`, { defaultValue: "" }) || null
+      : null,
+  });
 
   return (
     <>
@@ -39,12 +55,50 @@ export function MapSettingsCard({
         <span>{t("mapEditor.description")}</span>
         <textarea
           rows={2}
-          value={draft.description ?? ""}
+          value={displayDescription}
           onFocus={beginGesture}
           onBlur={endGesture}
           onChange={(e) => onDescription(e.target.value)}
         />
       </label>
+
+      {zones.length > 0 && (
+        <div className="map-editor__region-list">
+          <h4>{t("mapEditor.zonesList", { count: zones.length })}</h4>
+          <ul>
+            {zones.map((z) => (
+              <li key={z.id}>
+                <button
+                  type="button"
+                  className="map-editor__region-list-item"
+                  onClick={() => onSelectRegion(z.id)}
+                >
+                  {zoneDisplayName(z, draft, builtinBase, t) || z.id}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {lights.length > 0 && (
+        <div className="map-editor__region-list">
+          <h4>{t("mapEditor.lightsList", { count: lights.length })}</h4>
+          <ul>
+            {lights.map((L, i) => (
+              <li key={L.id}>
+                <button
+                  type="button"
+                  className="map-editor__region-list-item"
+                  onClick={() => onSelectRegion(L.id)}
+                >
+                  {lightDisplayName(L, draft, i + 1, t)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <label className="map-editor__field">
         <span>

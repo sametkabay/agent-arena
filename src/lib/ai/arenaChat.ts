@@ -4,14 +4,11 @@ import {
   getArenaWorldContext,
   withSituationUserMessage,
 } from "@/lib/ai/arenaContext";
+import { normalizeAgentName } from "@/lib/agentCopy";
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import i18n from "@/i18n";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig, fillPrompt, prompts, speechMsForText } from "@/lib/config";
-
-function normalizeName(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, "");
-}
 
 /** Extract @mentions (without the @). */
 export function extractMentions(text: string): string[] {
@@ -27,14 +24,19 @@ export function extractMentions(text: string): string[] {
 /**
  * @name → matching agents (case-insensitive, spaces optional).
  * No mentions → every agent that has a model configured.
+ * When `selfId` is set, that agent is excluded from both matching and broadcast.
  */
 export function resolveArenaTargets(
   text: string,
   agents: AgentConfig[],
+  opts?: { selfId?: string },
 ): { targets: AgentConfig[]; mentioned: boolean; unmatched: string[] } {
   const mentions = extractMentions(text);
   const withModel = agents.filter(
-    (a) => a.enabled !== false && Boolean(a.modelConfigId),
+    (a) =>
+      a.enabled !== false &&
+      Boolean(a.modelConfigId) &&
+      a.id !== opts?.selfId,
   );
 
   if (mentions.length === 0) {
@@ -45,11 +47,19 @@ export function resolveArenaTargets(
   const matched = new Map<string, AgentConfig>();
 
   for (const mention of mentions) {
-    const key = normalizeName(mention);
-    const hit = withModel.find((a) => {
-      const n = normalizeName(a.displayName);
-      return n === key || n.startsWith(key) || a.displayName.toLowerCase().startsWith(mention.toLowerCase());
-    });
+    const key = normalizeAgentName(mention);
+    const exact = withModel.find(
+      (a) => normalizeAgentName(a.displayName) === key,
+    );
+    const hit =
+      exact ??
+      withModel.find((a) => {
+        const n = normalizeAgentName(a.displayName);
+        return (
+          n.startsWith(key) ||
+          a.displayName.toLowerCase().startsWith(mention.toLowerCase())
+        );
+      });
     if (hit) matched.set(hit.id, hit);
     else unmatched.push(mention);
   }
@@ -71,6 +81,7 @@ function buildArenaReplySystem(
     skills: agent.skills ?? [],
     world: getArenaWorldContext(agent.id),
     mode: mentioned ? "arena_mention" : "arena_broadcast",
+    temperament: agent.temperament,
   });
 }
 
@@ -83,13 +94,52 @@ function sanitizeReply(text: string): string {
 
 const arenaReplyAborts = new Map<string, AbortController>();
 
+/** Latest-wins queue when an agent is busy (private chat or another arena reply). */
+const pendingArenaReplies = new Map<
+  string,
+  { userText: string; mentioned: boolean; userName: string }
+>();
+
 export function abortArenaReplies(): void {
   for (const ac of arenaReplyAborts.values()) ac.abort();
   arenaReplyAborts.clear();
+  pendingArenaReplies.clear();
+}
+
+/** Drop queued arena replies (e.g. when entering conversation mode). */
+export function clearPendingArenaReplies(): void {
+  pendingArenaReplies.clear();
+}
+
+/** Drain queued arena replies for agents that are no longer busy. */
+export function drainPendingArenaReplies(): void {
+  const store = useArenaStore.getState();
+  if (store.chatterMode === "conversation") {
+    // Stale idle/off queues must not fire minutes later on mode switch-back.
+    pendingArenaReplies.clear();
+    return;
+  }
+
+  for (const [agentId, pending] of [...pendingArenaReplies.entries()]) {
+    if (store.chatBusyById[agentId]) continue;
+    const agent = store.agents.find((a) => a.id === agentId);
+    if (!agent || agent.enabled === false || !agent.modelConfigId) {
+      pendingArenaReplies.delete(agentId);
+      continue;
+    }
+    pendingArenaReplies.delete(agentId);
+    void runArenaReply(
+      agent,
+      pending.userText,
+      pending.mentioned,
+      pending.userName,
+    );
+  }
 }
 
 /**
  * Post a user line to the shared arena chat and ask target agents for short replies.
+ * In conversation mode the line seeds the sequential scheduler instead of parallel replies.
  */
 export async function sendArenaChatMessage(rawText: string): Promise<void> {
   const text = rawText.trim();
@@ -131,6 +181,11 @@ export async function sendArenaChatMessage(rawText: string): Promise<void> {
     return;
   }
 
+  if (store.chatterMode === "conversation") {
+    store.seedConversation(mentioned ? targets.map((t) => t.id) : []);
+    return;
+  }
+
   await Promise.all(
     targets.map((agent) => runArenaReply(agent, text, mentioned, userName)),
   );
@@ -148,8 +203,15 @@ async function runArenaReply(
     | undefined;
   if (!model) return;
 
-  // Skip if private 1:1 chat is mid-stream for this agent.
-  if (store.chatBusyById[agent.id]) return;
+  // Queue instead of dropping when private 1:1 chat (or another reply) is mid-stream.
+  if (store.chatBusyById[agent.id]) {
+    pendingArenaReplies.set(agent.id, {
+      userText,
+      mentioned: wasMentioned,
+      userName,
+    });
+    return;
+  }
 
   arenaReplyAborts.get(agent.id)?.abort();
   const ac = new AbortController();
@@ -162,7 +224,7 @@ async function runArenaReply(
 
   const flushBubble = () => {
     raf = 0;
-    if (!assembled.trim()) return;
+    if (!assembled.trim() || ac.signal.aborted) return;
     setAgentSpeech(agent.id, sanitizeReply(assembled) || "…", appConfig.speech.streamingHoldMs);
   };
 
@@ -194,6 +256,10 @@ async function runArenaReply(
     });
 
     if (raf) cancelAnimationFrame(raf);
+    if (ac.signal.aborted) {
+      setAgentSpeech(agent.id, undefined);
+      return;
+    }
     const text = sanitizeReply((reply || assembled).trim());
     if (text) {
       setAgentSpeech(agent.id, text, speechMsForText(text));
