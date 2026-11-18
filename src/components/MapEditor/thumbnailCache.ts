@@ -4,6 +4,7 @@ import {
   AmbientLight,
   HemisphereLight,
   Matrix4,
+  MeshStandardMaterial,
   OrthographicCamera,
   Scene,
   Vector3,
@@ -13,7 +14,11 @@ import {
 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PLACEABLE_SPECS } from "@/lib/assets/catalog";
+import { getPlaceableSpec } from "@/lib/assets/placeableSpec";
 import { getCharacter, isCharacterId } from "@/lib/assets/characters";
+import { isUserAssetId } from "@/lib/userAssets/ids";
+import { loadUserAssetForThumb } from "@/components/scene/userAssetLoader";
+import { getUserPlaceableMetas } from "@/lib/assets/placeableSpec";
 import { skinnedWorldBox } from "@/lib/three/glbFit";
 import {
   applyCharacterProportions,
@@ -33,7 +38,7 @@ const MARGIN_ANIMALS = 1.9;
 /** Extra padding so feet/head aren't clipped in the 3:4 portrait. */
 const MARGIN_CHARACTER = 1.16;
 /** Bump to invalidate in-memory thumbs after framing changes. */
-const CACHE_VER = "framing-v34-hands-up";
+const CACHE_VER = "framing-v37-cube-winding";
 
 const cache = new Map<string, string>();
 const inflight = new Map<string, Promise<string>>();
@@ -44,7 +49,20 @@ let loader: GLTFLoader | null = null;
 let renderChain: Promise<void> = Promise.resolve();
 
 function cacheKey(id: string): string {
+  if (isUserAssetId(id)) {
+    const rev = getUserPlaceableMetas().find((m) => m.id === id)?.rev ?? 0;
+    return `${CACHE_VER}:${id}@${rev}`;
+  }
   return `${CACHE_VER}:${id}`;
+}
+
+async function renderObject(root: Object3D, margin: number): Promise<string> {
+  const clone = root.clone(true);
+  prepareMeshes(clone);
+  if (!normalizeToBox(clone, FIT)) {
+    clone.scale.setScalar(0.01);
+  }
+  return enqueueRender(() => renderToDataUrl(clone, margin));
 }
 
 /** Serialize GPU reads so concurrent thumbs don't corrupt the shared canvas. */
@@ -131,10 +149,19 @@ function prepareMeshes(root: Object3D) {
     mesh.frustumCulled = false;
     mesh.castShadow = false;
     mesh.receiveShadow = false;
+    // User GLBs often ship without materials — give thumbs a readable face.
+    if (!mesh.material) {
+      mesh.material = new MeshStandardMaterial({
+        color: 0xb8c0cc,
+        roughness: 0.55,
+        metalness: 0.05,
+      });
+    }
   });
 }
 
 function frameMarginFor(id: string): number {
+  if (isUserAssetId(id)) return 2.15;
   const spec = PLACEABLE_SPECS[id];
   const cat = spec?.category;
   if (cat === "animals") return MARGIN_ANIMALS;
@@ -372,16 +399,34 @@ export function requestThumb(id: string): Promise<string> {
   const pending = inflight.get(id);
   if (pending) return pending;
 
-  const placeable = PLACEABLE_SPECS[id];
+  const placeable = PLACEABLE_SPECS[id] ?? getPlaceableSpec(id);
   const character = isCharacterId(id) ? getCharacter(id) : null;
-  const glb = placeable?.glb ?? character?.glb;
+  const glb = placeable && "glb" in placeable ? placeable.glb : character?.glb;
   const label = placeable?.label ?? character?.id ?? id;
 
   const job = (async () => {
     await acquireLoadSlot();
     try {
       let url: string;
-      if (glb) {
+      if (isUserAssetId(id)) {
+        const meta = getUserPlaceableMetas().find((m) => m.id === id);
+        if (!meta) {
+          url = renderPlaceholder(label);
+        } else {
+          const loaded = await loadUserAssetForThumb(meta);
+          if (!loaded) {
+            url = renderPlaceholder(label);
+          } else {
+            try {
+              // Reuse GLB framing by rendering a temporary object URL path isn't needed —
+              // render via a one-off scene snapshot helper below.
+              url = await renderObject(loaded.root, frameMarginFor(id));
+            } finally {
+              loaded.dispose();
+            }
+          }
+        }
+      } else if (glb) {
         url = character
           ? await renderCharacterGlb(glb, character.headScale ?? 1)
           : await renderGlb(glb, frameMarginFor(id));

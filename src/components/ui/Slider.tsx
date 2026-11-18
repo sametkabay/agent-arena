@@ -1,4 +1,4 @@
-import type { PointerEvent } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 
 type SliderProps = {
   value: number;
@@ -11,6 +11,7 @@ type SliderProps = {
   variant?: "light" | "dark";
   id?: string;
   "aria-label"?: string;
+  "aria-valuetext"?: string;
   onPointerDown?: (e: PointerEvent<HTMLInputElement>) => void;
   onPointerUp?: (e: PointerEvent<HTMLInputElement>) => void;
 };
@@ -27,11 +28,13 @@ export function Slider({
   variant = "light",
   id,
   "aria-label": ariaLabel,
+  "aria-valuetext": ariaValueText,
   onPointerDown,
   onPointerUp,
 }: SliderProps) {
   const span = max - min;
-  const pct = span <= 0 ? 0 : Math.min(100, Math.max(0, ((value - min) / span) * 100));
+  const frac = span <= 0 ? 0 : Math.min(1, Math.max(0, (value - min) / span));
+  const pct = frac * 100;
 
   return (
     <div
@@ -45,7 +48,12 @@ export function Slider({
           .filter(Boolean)
           .join(" ")
       }
-      style={{ ["--aa-slider-pct" as string]: `${pct}%` }}
+      style={
+        {
+          ["--aa-slider-pct"]: `${pct}%`,
+          ["--aa-slider-frac"]: String(frac),
+        } as CSSProperties
+      }
     >
       <input
         id={id}
@@ -57,6 +65,7 @@ export function Slider({
         value={value}
         disabled={disabled}
         aria-label={ariaLabel}
+        aria-valuetext={ariaValueText}
         onChange={(e) => onChange(Number(e.target.value))}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}

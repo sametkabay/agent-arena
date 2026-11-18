@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { consumeEscapeForOpenMenu } from "@/lib/overlayEscape";
 
 export type SelectOption = {
   value: string;
@@ -136,20 +137,19 @@ export function Select({
       close();
     };
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        close();
-        triggerRef.current?.focus();
-      }
+      if (!consumeEscapeForOpenMenu(e)) return;
+      close();
+      triggerRef.current?.focus();
     };
 
     window.addEventListener("mousedown", onDown);
-    window.addEventListener("keydown", onKey);
+    // Capture phase so Esc closes the menu before a parent dialog dismisses.
+    window.addEventListener("keydown", onKey, true);
     window.addEventListener("resize", sync);
     window.addEventListener("scroll", sync, true);
     return () => {
       window.removeEventListener("mousedown", onDown);
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKey, true);
       window.removeEventListener("resize", sync);
       window.removeEventListener("scroll", sync, true);
     };

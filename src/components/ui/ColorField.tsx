@@ -7,6 +7,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 
 type ColorFieldProps = {
   value: string;
@@ -124,6 +125,9 @@ export function ColorField({
   id,
   "aria-label": ariaLabel,
 }: ColorFieldProps) {
+  const { t } = useTranslation();
+  const panelAria = ariaLabel ?? t("colorField.panel", { defaultValue: "Color" });
+  const hexAria = t("colorField.hex", { defaultValue: "Hex" });
   const autoId = useId();
   const panelId = `${autoId}-panel`;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -319,7 +323,7 @@ export function ColorField({
             id={panelId}
             className={`aa-color__panel aa-color__panel--${variant}`}
             role="dialog"
-            aria-label={ariaLabel ?? "Color"}
+            aria-label={panelAria}
             style={{ left: pos.left, top: pos.top, width: PANEL_W }}
             onMouseDown={(e) => e.stopPropagation()}
           >
@@ -366,7 +370,7 @@ export function ColorField({
                 value={hexText}
                 spellCheck={false}
                 autoComplete="off"
-                aria-label="Hex"
+                aria-label={hexAria}
                 onChange={(e) => setHexText(e.target.value)}
                 onBlur={commitHexText}
                 onKeyDown={(e) => {

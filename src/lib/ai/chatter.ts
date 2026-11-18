@@ -30,6 +30,7 @@ function buildChatterSystemPrompt(agent: AgentConfig): string {
     skills: agent.skills ?? [],
     world: getArenaWorldContext(agent.id),
     mode: "idle_mutter",
+    temperament: agent.temperament,
   });
 }
 
@@ -52,8 +53,18 @@ type ChatterRuntime = {
   pausedAt: number | null;
 };
 
+/** Live runtimes registered by AgentChatterLoop — aborted synchronously on reset. */
+const liveChatterRuntimes = new Set<ChatterRuntime>();
+let chatterResetEpoch = 0;
+
 export function createChatterRuntime(): ChatterRuntime {
-  return { nextAt: new Map(), inflight: new Map(), pausedAt: null };
+  const rt: ChatterRuntime = {
+    nextAt: new Map(),
+    inflight: new Map(),
+    pausedAt: null,
+  };
+  liveChatterRuntimes.add(rt);
+  return rt;
 }
 
 export function disposeChatterRuntime(rt: ChatterRuntime): void {
@@ -61,6 +72,21 @@ export function disposeChatterRuntime(rt: ChatterRuntime): void {
   rt.inflight.clear();
   rt.nextAt.clear();
   rt.pausedAt = null;
+  liveChatterRuntimes.delete(rt);
+}
+
+/** Abort in-flight mutters immediately (do not wait for React effect cleanup). */
+export function abortLiveChatterRuntimes(): void {
+  chatterResetEpoch += 1;
+  for (const rt of liveChatterRuntimes) {
+    for (const ac of rt.inflight.values()) ac.abort();
+    rt.inflight.clear();
+    rt.nextAt.clear();
+  }
+}
+
+export function getChatterResetEpoch(): number {
+  return chatterResetEpoch;
 }
 
 /** Freeze chatter countdowns while the tab is in the background. */
@@ -94,6 +120,14 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
   resumeChatterRuntime(rt);
 
   const s = useArenaStore.getState();
+  if (s.chatterMode !== "idle") {
+    if (rt.inflight.size || rt.nextAt.size) {
+      for (const ac of rt.inflight.values()) ac.abort();
+      rt.inflight.clear();
+      rt.nextAt.clear();
+    }
+    return;
+  }
   if (s.mapEditorOpen || s.settingsOpen) return;
 
   const now = Date.now();
@@ -139,7 +173,17 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
       rt.nextAt.set(agent.id, scheduleNextChatterAt(chattiness, now));
       continue;
     }
+  }
 
+  // Global single in-flight: due agents stay due and fire on a later tick.
+  if (rt.inflight.size > 0) return;
+
+  for (const agent of s.agents) {
+    if (agent.enabled === false) continue;
+    const chattiness = agent.chattiness ?? 0;
+    if (chattiness <= 0) continue;
+    if (!rt.nextAt.has(agent.id)) continue;
+    if (s.chatBusyById[agent.id]) continue;
     if (rt.inflight.has(agent.id)) continue;
 
     const due = rt.nextAt.get(agent.id)!;
@@ -152,6 +196,8 @@ export function tickAgentChatter(rt: ChatterRuntime): void {
     }
 
     void runChatterTurn(rt, agent, model, chattiness);
+    // Only one mutter at a time across all agents.
+    break;
   }
 }
 
@@ -162,6 +208,7 @@ async function runChatterTurn(
   chattiness: number,
 ): Promise<void> {
   const ac = new AbortController();
+  const epoch = chatterResetEpoch;
   rt.inflight.set(agent.id, ac);
   // Reserve the next slot immediately so failures don't rapid-fire.
   rt.nextAt.set(agent.id, scheduleNextChatterAt(chattiness));
@@ -173,6 +220,7 @@ async function runChatterTurn(
   const flushBubble = () => {
     raf = 0;
     if (!assembled.trim()) return;
+    if (ac.signal.aborted || epoch !== chatterResetEpoch) return;
     setAgentSpeech(agent.id, sanitizeMutter(assembled) || "…", appConfig.speech.streamingHoldMs);
   };
 
@@ -199,6 +247,10 @@ async function runChatterTurn(
     });
 
     if (raf) cancelAnimationFrame(raf);
+    if (ac.signal.aborted || epoch !== chatterResetEpoch) {
+      setAgentSpeech(agent.id, undefined);
+      return;
+    }
     const text = sanitizeMutter((reply || assembled).trim());
     if (text) {
       setAgentSpeech(agent.id, text, speechMsForText(text));

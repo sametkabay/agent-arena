@@ -1,4 +1,12 @@
-import { Suspense, useEffect, useMemo, useRef, Component, type ReactNode } from "react";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+  Component,
+  type ReactNode,
+} from "react";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {
@@ -13,12 +21,16 @@ import {
 } from "three";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import {
-  isPlaceableId,
   pickClipName,
   PLACEABLE_SPECS,
   type PlaceableId,
   type PlaceableSpec,
 } from "@/lib/assets/catalog";
+import {
+  getUserPlaceableMetas,
+  isPlaceableId,
+  subscribeUserPlaceableMetas,
+} from "@/lib/assets/placeableSpec";
 import { PolyProp } from "@/components/scene/PolyProps";
 import { CampfireFx, FireMeshTicker } from "@/components/scene/CampfireFx";
 import { getFireFxKind, prepareFireMesh } from "@/components/scene/fireFx";
@@ -26,6 +38,13 @@ import { LampFx } from "@/components/scene/LampFx";
 import { getLampKind } from "@/components/scene/lampKind";
 import { TreeSway } from "@/components/scene/TreeSway";
 import { isSwayPlaceable } from "@/components/scene/isSwayPlaceable";
+import { MissingAssetBox } from "@/components/scene/MissingAssetBox";
+import {
+  measureObjectBBox,
+  useUserAssetScene,
+} from "@/components/scene/userAssetLoader";
+import { isUserAssetId } from "@/lib/userAssets/ids";
+import { useUserAssetStore } from "@/store/userAssetStore";
 import type { PlaceableInstance } from "@/lib/types";
 
 /** Match procedural `wall_solid` (PropWallSolid) cream palette. */
@@ -302,14 +321,103 @@ function PlaceableMesh({
   );
 }
 
+function UserGlbMesh({
+  meta,
+}: {
+  meta: NonNullable<ReturnType<typeof getUserPlaceableMetas>[number]>;
+}) {
+  const scene = useUserAssetScene(meta);
+  const recordMeasuredBBox = useUserAssetStore((s) => s.recordMeasuredBBox);
+  const measuredRef = useRef(false);
+
+  useEffect(() => {
+    measuredRef.current = false;
+  }, [meta.id, meta.rev]);
+
+  useEffect(() => {
+    if (!scene || meta.bbox || measuredRef.current) return;
+    measuredRef.current = true;
+    const box = measureObjectBBox(scene);
+    if (!box) return;
+    void recordMeasuredBBox(meta.id, box);
+  }, [scene, meta.bbox, meta.id, recordMeasuredBBox]);
+
+  const clone = useMemo(() => {
+    if (!scene) return null;
+    const c = cloneSkinned(scene);
+    groundGlb(c);
+    return c;
+  }, [scene]);
+
+  // Missing blob / failed load → labeled placeholder (kept in map data).
+  if (!scene || !clone) {
+    return <MissingAssetBox name={meta.name} id={meta.id} />;
+  }
+  return (
+    <group scale={meta.fitScale}>
+      <primitive object={clone} />
+    </group>
+  );
+}
+
+/** Lightweight suspend placeholder — no CanvasTexture (avoids alloc per suspend). */
+function LoadingAssetBox() {
+  return (
+    <mesh position={[0, 0.5, 0]}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial
+        color="#6b7c8f"
+        transparent
+        opacity={0.35}
+        emissive="#2a3340"
+        emissiveIntensity={0.2}
+      />
+    </mesh>
+  );
+}
+
+function UserPlaceableMesh({ id }: { id: string }) {
+  const metas = useSyncExternalStore(
+    subscribeUserPlaceableMetas,
+    getUserPlaceableMetas,
+    getUserPlaceableMetas,
+  );
+  const meta = metas.find((m) => m.id === id) ?? null;
+  const missing = <MissingAssetBox name={meta?.name} id={id} />;
+  if (!meta) return missing;
+
+  return (
+    <PropErrorBoundary fallback={missing} key={`${meta.id}@${meta.rev}`}>
+      <Suspense fallback={<LoadingAssetBox />}>
+        <UserGlbMesh meta={meta} />
+      </Suspense>
+    </PropErrorBoundary>
+  );
+}
+
 /** Editor / play placeable meshes (wander assets animate when locomotion is set). */
 export function Placeables({ items }: { items: PlaceableInstance[] }) {
   return (
     <group>
       {items.map((item) => {
-        if (!isPlaceableId(item.placeableId)) return null;
-        const spec = PLACEABLE_SPECS[item.placeableId];
-        const loco = spec?.canWander
+        // Keep unknown non-user ids invisible; user: ids always render (placeholder if missing).
+        if (!isPlaceableId(item.placeableId) && !isUserAssetId(item.placeableId)) {
+          return null;
+        }
+        if (isUserAssetId(item.placeableId)) {
+          return (
+            <group
+              key={item.id}
+              position={item.position}
+              rotation={[0, item.rotationY, 0]}
+              scale={item.scale ?? 1}
+            >
+              <UserPlaceableMesh id={item.placeableId} />
+            </group>
+          );
+        }
+        const builtin = PLACEABLE_SPECS[item.placeableId];
+        const loco = builtin?.canWander
           ? item.behavior === "wander"
             ? (item.locomotion ?? "idle")
             : "idle"
@@ -319,7 +427,7 @@ export function Placeables({ items }: { items: PlaceableInstance[] }) {
         // Fire: animate unless explicitly static (omit / "animated" → on).
         const animateFire =
           fireKind === "fire" && item.behavior !== "static";
-        const sway = isSwayPlaceable(item.placeableId, spec?.category);
+        const sway = isSwayPlaceable(item.placeableId, builtin?.category);
         const phase =
           (item.position[0] * 0.37 + item.position[2] * 0.51) % (Math.PI * 2);
         const mesh = (
