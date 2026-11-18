@@ -1,5 +1,10 @@
 <p align="center">
-  <a href="https://sametkabay.github.io/agent-arena/"><img src="docs/readme/banner.jpg" alt="Agent Arena: LLM agents with a body and a place, on a low-poly Space outpost at night" width="100%" /></a>
+  <a href="https://sametkabay.github.io/agent-arena/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner.jpg" />
+      <img src="docs/readme/banner-light.jpg" alt="Agent Arena: LLM agents with a body and a place, on a low-poly Space outpost" width="100%" />
+    </picture>
+  </a>
 </p>
 
 <h1 align="center">Agent Arena</h1>
@@ -22,7 +27,10 @@ An open-source, browser-only playground for multi-agent chat. Bring your own mod
 </p>
 
 <p align="center">
-  <img src="docs/readme/hero-camp.jpg" alt="Five named agents at the forest camp map: tents, a campfire and low-poly trees on a floating island" width="100%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-camp-dark.jpg" />
+    <img src="docs/readme/hero-camp.jpg" alt="Five named agents at the forest camp map: tents, a campfire and low-poly trees on a floating island" width="100%" />
+  </picture>
 </p>
 
 ## Why it's interesting
@@ -48,8 +56,9 @@ An open-source, browser-only playground for multi-agent chat. Bring your own mod
 <p align="center">
   <picture>
     <source srcset="docs/readme/orbit-camp.webp" type="image/webp" />
-    <img src="docs/readme/orbit-camp.gif" alt="A slow orbit around the camp map with its agents" width="100%" />
+    <img src="docs/readme/orbit-camp.gif" alt="A slow orbit around the camp map while the agents talk in speech bubbles, handing the turn to each other with @mentions" width="100%" />
   </picture>
+  <br/><sub>Conversation mode on the camp map. The lines in this clip are scripted by a local mock endpoint with a fake key, so the GIF stays reproducible. Your own model writes its own.</sub>
 </p>
 
 Full notes: [v0.2.0-preview release](https://github.com/sametkabay/agent-arena/releases/tag/v0.2.0-preview).
