@@ -1,4 +1,5 @@
 import { chatCompletion } from "@/lib/ai/providers";
+import { notifyAiCallFailed } from "@/lib/ai/aiErrorNotice";
 import {
   buildAgentSystemPrompt,
   getArenaWorldContext,
@@ -268,8 +269,10 @@ async function runChatterTurn(
       setAgentSpeech(agent.id, undefined);
       return;
     }
-    // Quietly skip failed mutters — don't spam toasts / chat history.
+    // Skip failed mutters in chat history; throttled toast still surfaces a
+    // permanently broken model without spamming ordinary per-call failures.
     setAgentSpeech(agent.id, undefined);
+    notifyAiCallFailed(agent, model, e);
   } finally {
     if (rt.inflight.get(agent.id) === ac) rt.inflight.delete(agent.id);
   }

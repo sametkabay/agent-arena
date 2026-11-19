@@ -10,6 +10,8 @@ import {
   defaultPersisted,
   isPersistFailedError,
   loadPersisted,
+  normalizeExtraHeaders,
+  normalizePersistedModel,
   safeSetItem,
   savePersisted,
   sanitizeArenaChatHistory,
@@ -149,12 +151,118 @@ describe("classifyStorageError", () => {
   });
 });
 
+describe("normalizeExtraHeaders / normalizePersistedModel", () => {
+  it("defaults missing, null, and non-array values to []", () => {
+    expect(normalizeExtraHeaders(undefined)).toEqual([]);
+    expect(normalizeExtraHeaders(null)).toEqual([]);
+    expect(normalizeExtraHeaders("X-Org")).toEqual([]);
+    expect(normalizeExtraHeaders(42)).toEqual([]);
+  });
+
+  it("drops malformed entries and coerces non-string values to empty string", () => {
+    expect(
+      normalizeExtraHeaders([
+        { key: "X-Ok", value: "yes" },
+        null,
+        "skip",
+        { key: 1, value: "nope" },
+        { key: "X-Num", value: 7 },
+        { key: "X-Null", value: null },
+        ["not", "an", "object"],
+      ]),
+    ).toEqual([
+      { key: "X-Ok", value: "yes" },
+      { key: "X-Num", value: "" },
+      { key: "X-Null", value: "" },
+    ]);
+  });
+
+  it("preserves valid headers on a persisted model and fills missing extraHeaders", () => {
+    expect(normalizePersistedModel(null)).toBeNull();
+    expect(
+      normalizePersistedModel({
+        id: "m1",
+        name: "Legacy",
+        provider: "openai",
+        baseUrl: "https://example.invalid/v1",
+        modelId: "x",
+      })?.extraHeaders,
+    ).toEqual([]);
+    expect(
+      normalizePersistedModel({
+        id: "m1",
+        extraHeaders: [{ key: "X-Org", value: "acme" }],
+      })?.extraHeaders,
+    ).toEqual([{ key: "X-Org", value: "acme" }]);
+  });
+});
+
 describe("loadPersisted / savePersisted", () => {
   it("returns defaults when empty or invalid JSON", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());
     expect(loadPersisted().chatterMode).toBe("off");
     localStorage.setItem(STORAGE_KEY, "{not json");
     expect(loadPersisted()).toEqual(defaultPersisted());
+  });
+
+  it("normalizes models without extraHeaders and malformed header entries", () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        models: [
+          {
+            id: "m-missing",
+            name: "Legacy",
+            provider: "openai",
+            baseUrl: "https://example.invalid/v1",
+            modelId: "x",
+            apiKey: "sk-test-FAKE-x",
+            createdAt: 1,
+          },
+          {
+            id: "m-null",
+            name: "NullHeaders",
+            provider: "openai",
+            baseUrl: "https://example.invalid/v1",
+            modelId: "y",
+            extraHeaders: null,
+            createdAt: 1,
+          },
+          {
+            id: "m-string",
+            name: "StringHeaders",
+            provider: "openai",
+            baseUrl: "https://example.invalid/v1",
+            modelId: "z",
+            extraHeaders: "nope",
+            createdAt: 1,
+          },
+          {
+            id: "m-malformed",
+            name: "Mixed",
+            provider: "openai",
+            baseUrl: "https://example.invalid/v1",
+            modelId: "w",
+            extraHeaders: [
+              { key: "X-Ok", value: "1" },
+              { key: 9, value: "drop" },
+              { key: "X-Bad", value: 3 },
+              null,
+            ],
+            createdAt: 1,
+          },
+        ],
+      }),
+    );
+    const loaded = loadPersisted();
+    expect(loaded.models).toHaveLength(4);
+    expect(loaded.models[0]?.extraHeaders).toEqual([]);
+    expect(loaded.models[1]?.extraHeaders).toEqual([]);
+    expect(loaded.models[2]?.extraHeaders).toEqual([]);
+    expect(loaded.models[3]?.extraHeaders).toEqual([
+      { key: "X-Ok", value: "1" },
+      { key: "X-Bad", value: "" },
+    ]);
   });
 
   it("migrates chatterMode from legacy idleChatterEnabled", () => {

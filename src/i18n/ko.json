@@ -102,6 +102,7 @@
     "close": "닫기",
     "resize": "채팅 패널 크기 조절",
     "error": "문제가 발생했습니다",
+    "aiCallFailed": "{{name}}이(가) 응답을 받지 못했습니다: {{reason}}",
     "arena": {
       "placeholder": "한마디 하거나… @에이전트",
       "send": "말하기",

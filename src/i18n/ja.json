@@ -102,6 +102,7 @@
     "close": "閉じる",
     "resize": "チャットパネルのサイズを変更",
     "error": "問題が発生しました",
+    "aiCallFailed": "{{name}} は返信を取得できませんでした: {{reason}}",
     "arena": {
       "placeholder": "何か言う… または @エージェント",
       "send": "話す",

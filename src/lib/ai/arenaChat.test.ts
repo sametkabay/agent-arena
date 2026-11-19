@@ -9,6 +9,7 @@ import {
   trimMentionPunctuation,
   sendArenaChatMessage,
 } from "@/lib/ai/arenaChat";
+import { resetAiErrorNoticeThrottleForTests } from "@/lib/ai/aiErrorNotice";
 import { sampleAgent, sampleModel } from "@/test/fixtures";
 import { useArenaStore } from "@/store/arenaStore";
 
@@ -227,6 +228,7 @@ describe("sendArenaChatMessage", () => {
   afterEach(() => {
     abortArenaReplies();
     chatCompletion.mockReset();
+    resetAiErrorNoticeThrottleForTests();
   });
 
   it("ignores blank input", async () => {
@@ -449,5 +451,38 @@ describe("sendArenaChatMessage", () => {
     await sendArenaChatMessage("hello");
     expect(chatCompletion).toHaveBeenCalled();
     expect(setAgentSpeech).toHaveBeenCalled();
+  });
+
+  it("shows a toast once when chatCompletion rejects", async () => {
+    resetAiErrorNoticeThrottleForTests();
+    chatCompletion.mockRejectedValue(new Error("TypeError: e is not iterable"));
+    globalThis.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+      cb(0);
+      return 1;
+    }) as typeof requestAnimationFrame;
+    globalThis.cancelAnimationFrame = () => {};
+    const showToast = vi.fn();
+    const setAgentSpeech = vi.fn();
+    const setChatBusy = vi.fn();
+    useArenaStore.setState({
+      userName: "Samet",
+      language: "en",
+      dayNight: "day",
+      mapId: "office",
+      customMaps: [],
+      activeMap: null,
+      chatterMode: "off",
+      agents: [sampleAgent({ displayName: "Explorer", modelConfigId: "model-1" })],
+      models: [sampleModel()],
+      chatBusyById: {},
+      pushFloatingChatLog: vi.fn(),
+      setAgentSpeech,
+      setChatBusy,
+      showToast,
+    } as never);
+    await sendArenaChatMessage("hello");
+    await vi.waitFor(() => expect(showToast).toHaveBeenCalledOnce());
+    expect(String(showToast.mock.calls[0]![0])).toContain("Explorer");
+    expect(String(showToast.mock.calls[0]![0])).toContain("e is not iterable");
   });
 });

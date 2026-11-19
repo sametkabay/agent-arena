@@ -102,6 +102,7 @@
     "close": "Fermer",
     "resize": "Redimensionner le panneau de discussion",
     "error": "Une erreur s’est produite",
+    "aiCallFailed": "{{name}} n’a pas pu obtenir de réponse : {{reason}}",
     "arena": {
       "placeholder": "Dis quelque chose… ou @un agent",
       "send": "Dire",

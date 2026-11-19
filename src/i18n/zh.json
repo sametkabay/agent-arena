@@ -102,6 +102,7 @@
     "close": "关闭",
     "resize": "调整聊天面板大小",
     "error": "出了点问题",
+    "aiCallFailed": "{{name}} 未能获得回复：{{reason}}",
     "arena": {
       "placeholder": "说点什么… 或 @某个智能体",
       "send": "发送",

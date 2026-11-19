@@ -102,6 +102,7 @@
     "close": "Fechar",
     "resize": "Redimensionar o painel de chat",
     "error": "Algo deu errado",
+    "aiCallFailed": "{{name}} não conseguiu uma resposta: {{reason}}",
     "arena": {
       "placeholder": "Diga algo… ou @um agente",
       "send": "Dizer",
