@@ -10,15 +10,67 @@ import i18n from "@/i18n";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig, fillPrompt, prompts, speechMsForText } from "@/lib/config";
 
-/** Extract @mentions (without the @). */
-export function extractMentions(text: string): string[] {
-  const found: string[] = [];
+/** Closing brackets kept only when balanced by a matching opener in the token. */
+const MENTION_BRACKET_OPENERS: Record<string, string> = {
+  ")": "(",
+  "]": "[",
+  "}": "{",
+  "）": "（",
+  "」": "「",
+  "』": "『",
+};
+
+function countCodePoints(token: string, ch: string): number {
+  let n = 0;
+  for (const c of token) if (c === ch) n += 1;
+  return n;
+}
+
+/**
+ * Strip trailing punctuation from a captured @mention token.
+ * Keeps letters/digits/marks and internal `.`/`-`/`_`; drops unbalanced closers.
+ */
+export function trimMentionPunctuation(token: string): string {
+  let result = token;
+  while (result.length > 0) {
+    const chars = [...result];
+    const last = chars[chars.length - 1]!;
+    const opener = MENTION_BRACKET_OPENERS[last];
+    if (opener !== undefined) {
+      if (countCodePoints(result, last) > countCodePoints(result, opener)) {
+        chars.pop();
+        result = chars.join("");
+        continue;
+      }
+      break;
+    }
+    if (/^\p{P}$/u.test(last)) {
+      chars.pop();
+      result = chars.join("");
+      continue;
+    }
+    break;
+  }
+  return result;
+}
+
+type MentionToken = { raw: string; trimmed: string };
+
+function mentionTokens(text: string): MentionToken[] {
+  const found: MentionToken[] = [];
   const re = /@([^\s@]+)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
-    found.push(m[1]);
+    const raw = m[1];
+    const trimmed = trimMentionPunctuation(raw);
+    if (trimmed) found.push({ raw, trimmed });
   }
   return found;
+}
+
+/** Extract @mentions (without the @); trailing punctuation stripped. */
+export function extractMentions(text: string): string[] {
+  return mentionTokens(text).map((t) => t.trimmed);
 }
 
 /**
@@ -31,7 +83,7 @@ export function resolveArenaTargets(
   agents: AgentConfig[],
   opts?: { selfId?: string },
 ): { targets: AgentConfig[]; mentioned: boolean; unmatched: string[] } {
-  const mentions = extractMentions(text);
+  const mentions = mentionTokens(text);
   const withModel = agents.filter(
     (a) =>
       a.enabled !== false &&
@@ -46,8 +98,17 @@ export function resolveArenaTargets(
   const unmatched: string[] = [];
   const matched = new Map<string, AgentConfig>();
 
-  for (const mention of mentions) {
-    const key = normalizeAgentName(mention);
+  for (const { raw, trimmed } of mentions) {
+    const rawKey = normalizeAgentName(raw);
+    const rawExact = withModel.find(
+      (a) => normalizeAgentName(a.displayName) === rawKey,
+    );
+    if (rawExact) {
+      matched.set(rawExact.id, rawExact);
+      continue;
+    }
+
+    const key = normalizeAgentName(trimmed);
     const exact = withModel.find(
       (a) => normalizeAgentName(a.displayName) === key,
     );
@@ -57,11 +118,11 @@ export function resolveArenaTargets(
         const n = normalizeAgentName(a.displayName);
         return (
           n.startsWith(key) ||
-          a.displayName.toLowerCase().startsWith(mention.toLowerCase())
+          a.displayName.toLowerCase().startsWith(trimmed.toLowerCase())
         );
       });
     if (hit) matched.set(hit.id, hit);
-    else unmatched.push(mention);
+    else unmatched.push(trimmed);
   }
 
   return {

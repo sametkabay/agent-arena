@@ -5,6 +5,7 @@ import {
   drainPendingArenaReplies,
   extractMentions,
   resolveArenaTargets,
+  trimMentionPunctuation,
   sendArenaChatMessage,
 } from "@/lib/ai/arenaChat";
 import { sampleAgent, sampleModel } from "@/test/fixtures";
@@ -16,10 +17,45 @@ vi.mock("@/lib/ai/providers", () => ({
   chatCompletion: (...args: unknown[]) => chatCompletion(...args),
 }));
 
+describe("trimMentionPunctuation", () => {
+  it("strips trailing punctuation and keeps internal name chars", () => {
+    expect(trimMentionPunctuation("Muse,")).toBe("Muse");
+    expect(trimMentionPunctuation("Muse?")).toBe("Muse");
+    expect(trimMentionPunctuation("Dr.Who.")).toBe("Dr.Who");
+    expect(trimMentionPunctuation("Explorer(copy)")).toBe("Explorer(copy)");
+    expect(trimMentionPunctuation("Explorer(copy))")).toBe("Explorer(copy)");
+    expect(trimMentionPunctuation("!!")).toBe("");
+  });
+});
+
 describe("extractMentions", () => {
   it("collects @names", () => {
     expect(extractMentions("hi @Scout and @map-bot")).toEqual(["Scout", "map-bot"]);
     expect(extractMentions("nobody")).toEqual([]);
+  });
+
+  it("strips trailing punctuation from mention tokens", () => {
+    expect(extractMentions("@Muse,")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse?")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse.")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse!")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse:")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse;")).toEqual(["Muse"]);
+    expect(extractMentions("(@Muse)")).toEqual(["Muse"]);
+    expect(extractMentions('"@Muse"')).toEqual(["Muse"]);
+    expect(extractMentions("@Muse…")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse?!")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse。")).toEqual(["Muse"]);
+    expect(extractMentions("@Muse，")).toEqual(["Muse"]);
+    expect(extractMentions("@Gülşah,")).toEqual(["Gülşah"]);
+    expect(extractMentions("@İpek?")).toEqual(["İpek"]);
+    expect(extractMentions("@Çağrı.")).toEqual(["Çağrı"]);
+    expect(extractMentions("@R2-D2.")).toEqual(["R2-D2"]);
+    expect(extractMentions("@Dr.Who.")).toEqual(["Dr.Who"]);
+    expect(extractMentions("@map-bot,")).toEqual(["map-bot"]);
+    expect(extractMentions("@Explorer(copy2),")).toEqual(["Explorer(copy2)"]);
+    expect(extractMentions("@Explorer(copy)")).toEqual(["Explorer(copy)"]);
+    expect(extractMentions("@!!")).toEqual([]);
   });
 });
 
@@ -74,6 +110,36 @@ describe("resolveArenaTargets", () => {
     const prefix = resolveArenaTargets("@Ad", agents, { selfId: "ada" });
     expect(prefix.targets).toHaveLength(0);
     expect(prefix.unmatched).toEqual(["Ad"]);
+  });
+
+  it("matches mentions despite trailing punctuation", () => {
+    const roster = [
+      sampleAgent({ id: "sch", displayName: "Scholar", modelConfigId: "m1" }),
+      sampleAgent({ id: "exp", displayName: "Explorer", modelConfigId: "m1" }),
+      sampleAgent({ id: "wow", displayName: "Wow!", modelConfigId: "m1" }),
+      sampleAgent({ id: "gul", displayName: "Gülşah", modelConfigId: "m1" }),
+      sampleAgent({ id: "ada", displayName: "Ada", modelConfigId: "m1" }),
+      sampleAgent({ id: "bo", displayName: "Bo", modelConfigId: "m1" }),
+    ];
+
+    const scholar = resolveArenaTargets("Right @Scholar?", roster);
+    expect(scholar.mentioned).toBe(true);
+    expect(scholar.targets.map((t) => t.id)).toEqual(["sch"]);
+
+    const explorer = resolveArenaTargets("Lead on @Explorer.", roster);
+    expect(explorer.mentioned).toBe(true);
+    expect(explorer.targets.map((t) => t.id)).toEqual(["exp"]);
+
+    const wow = resolveArenaTargets("@Wow!", roster);
+    expect(wow.mentioned).toBe(true);
+    expect(wow.targets.map((t) => t.id)).toEqual(["wow"]);
+
+    const turkish = resolveArenaTargets("selam @Gülşah,", roster);
+    expect(turkish.mentioned).toBe(true);
+    expect(turkish.targets.map((t) => t.id)).toEqual(["gul"]);
+
+    const selfPunct = resolveArenaTargets("@Ada, hi @Bo.", roster, { selfId: "ada" });
+    expect(selfPunct.targets.map((t) => t.id)).toEqual(["bo"]);
   });
 });
 
