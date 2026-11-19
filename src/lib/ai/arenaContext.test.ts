@@ -7,6 +7,7 @@ import {
   describeAgentBrief,
   getArenaWorldContext,
   languageLabel,
+  personalizeAgentPrompt,
   withSituationUserMessage,
   worldContextFromMapAndAgents,
 } from "@/lib/ai/arenaContext";
@@ -194,7 +195,7 @@ describe("temperament prompt injection", () => {
     });
     const agentIdx = prompt.indexOf("Stay curious.");
     const tempIdx = prompt.indexOf(LEVEL_9_LINE);
-    const identityIdx = prompt.indexOf("You are Explorer");
+    const identityIdx = prompt.indexOf("Your name is Explorer");
     expect(agentIdx).toBeGreaterThanOrEqual(0);
     expect(tempIdx).toBeGreaterThan(agentIdx);
     expect(identityIdx).toBeGreaterThan(tempIdx);
@@ -253,5 +254,98 @@ describe("store-backed helpers", () => {
     const msg = withSituationUserMessage("self", "Hello there", "arena_broadcast");
     expect(msg).toContain("Hello there");
     expect(msg).toContain("Live Office");
+  });
+});
+
+describe("personalizeAgentPrompt (#71 legacy prompts)", () => {
+  it("swaps a leading hard-coded role name for the agent's own name", () => {
+    expect(
+      personalizeAgentPrompt(
+        "You are Explorer, a curious and adventurous guide in Agent Arena.",
+        "Ada",
+      ),
+    ).toBe("You are Ada, a curious and adventurous guide in Agent Arena.");
+    expect(personalizeAgentPrompt("you are engineer. Be precise.", "Bo")).toBe(
+      "you are Bo. Be precise.",
+    );
+    expect(personalizeAgentPrompt("  You are Muse; dream big.", "Mia")).toBe(
+      "  You are Mia; dream big.",
+    );
+    expect(personalizeAgentPrompt("You are Scout and you move fast.", "Kai")).toBe(
+      "You are Kai and you move fast.",
+    );
+  });
+
+  it("leaves non-legacy prompts untouched", () => {
+    const fresh = "You are a curious and adventurous guide in Agent Arena.";
+    expect(personalizeAgentPrompt(fresh, "Ada")).toBe(fresh);
+    expect(personalizeAgentPrompt("Stay curious.", "Ada")).toBe("Stay curious.");
+    // Role name must be a whole word followed by punctuation/whitespace.
+    expect(personalizeAgentPrompt("You are Explorers' friend.", "Ada")).toBe(
+      "You are Explorers' friend.",
+    );
+    // Role mentioned later in the prompt is not rewritten.
+    expect(personalizeAgentPrompt("Act like an Explorer, please.", "Ada")).toBe(
+      "Act like an Explorer, please.",
+    );
+    expect(personalizeAgentPrompt("You are Explorer, hi.", "  ")).toBe(
+      "You are Explorer, hi.",
+    );
+  });
+
+  it("never rewrites the Custom preset name (not a real role)", () => {
+    for (const p of [
+      "You are custom, a tinkerer.",
+      "You are Custom. Be kind.",
+      "you are CUSTOM and proud",
+    ]) {
+      expect(personalizeAgentPrompt(p, "Ada")).toBe(p);
+    }
+  });
+
+  it("is a no-op when the agent is actually named after the role", () => {
+    const legacy = "You are Explorer, a curious guide.";
+    expect(personalizeAgentPrompt(legacy, "Explorer")).toBe(legacy);
+    expect(personalizeAgentPrompt(legacy, " explorer ")).toBe(legacy);
+  });
+});
+
+describe("agent identity in system prompt (#71)", () => {
+  const people = {
+    ...world,
+    otherAgents: [
+      { name: "Bo", role: "Engineer", blurb: "Builds things." },
+      { name: "Cem", role: "Muse", blurb: "" },
+    ],
+  };
+
+  it("states the agent's own name and personalizes a legacy role prompt", () => {
+    const prompt = buildAgentSystemPrompt({
+      agentPrompt: "You are Explorer, a curious guide.",
+      agentName: "Ada",
+      world: people,
+      mode: "arena_conversation",
+      temperament: 5,
+    });
+    expect(prompt).toContain("You are Ada, a curious guide.");
+    expect(prompt).toContain("Your name is Ada");
+    expect(prompt).not.toContain("You are Explorer");
+  });
+
+  it("lists others by name only and tells the agent to address them by name", () => {
+    for (const mode of ["arena_conversation", "arena_mention", "arena_broadcast"] as const) {
+      const prompt = buildAgentSystemPrompt({
+        agentPrompt: "Stay curious.",
+        agentName: "Ada",
+        world: people,
+        mode,
+        temperament: 5,
+      });
+      expect(prompt).toContain("- Bo: Builds things.");
+      expect(prompt).toContain("- Cem");
+      expect(prompt).not.toContain("(Engineer)");
+      expect(prompt).not.toContain("(Muse)");
+      expect(prompt).toMatch(/by their names .*never by their role or class/);
+    }
   });
 });

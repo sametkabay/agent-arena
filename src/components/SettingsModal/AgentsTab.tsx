@@ -114,7 +114,8 @@ export function AgentsTab() {
     const look = getCharacter(DEFAULT_CHARACTER_ID);
     openEditor(
       createAgentDraft({
-        displayName: t(preset.nameKey),
+        // Users name their agent; the role is a persona, never the name.
+        displayName: "",
         modelConfigId: models[0].id,
         polyPresetId: preset.id,
         characterId: DEFAULT_CHARACTER_ID,

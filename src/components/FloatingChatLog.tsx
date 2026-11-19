@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendArenaChatMessage } from "@/lib/ai/arenaChat";
 import type { AgentConfig, FloatingChatLine } from "@/lib/types";
+import { agentLabel } from "@/lib/agentLabel";
 import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
 
@@ -150,7 +151,7 @@ export function FloatingChatLog() {
 
   function applyMention(agent: AgentConfig) {
     if (!activeMention) return;
-    const tag = `@${agent.displayName.replace(/\s+/g, "")}`;
+    const tag = `@${agentLabel(agent, t).replace(/\s+/g, "")}`;
     const before = input.slice(0, activeMention.start);
     const after = input.slice(caret);
     const next = `${before}${tag} ${after.replace(/^\s*/, "")}`;
@@ -261,7 +262,7 @@ export function FloatingChatLog() {
                     className="arena-chat-dock__mention-name"
                     style={{ color: agent.color }}
                   >
-                    @{agent.displayName.replace(/\s+/g, "")}
+                    @{agentLabel(agent, t).replace(/\s+/g, "")}
                   </span>
                 </button>
               </li>

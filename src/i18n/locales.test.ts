@@ -42,6 +42,9 @@ const REQUIRED_KEYS = [
   "controlsHelp.rows.editMap.how",
   "controlsHelp.rows.idle.action",
   "controlsHelp.rows.idle.how",
+  "settings.agents.displayNamePlaceholder",
+  "settings.agents.displayNameRequired",
+  "settings.agents.customRoleHint",
   "settings.agents.duplicate",
   "settings.agents.duplicateAria",
   "settings.agents.duplicated",
@@ -274,7 +277,7 @@ function placeholders(value: string): string[] {
 
 describe("onboarding locale keys", () => {
   it("lists exactly the required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(250);
+    expect(REQUIRED_KEYS).toHaveLength(253);
   });
 
   it("includes every configured language with matching placeholders", () => {

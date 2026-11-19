@@ -25,7 +25,9 @@ import {
   AGENT_OVERLAY_STACK_GAP_PX,
   agentOverlayStackWorldY,
 } from "@/lib/agentOverlay";
+import { useTranslation } from "react-i18next";
 import type { ArenaAgent } from "@/lib/types";
+import { agentLabel } from "@/lib/agentLabel";
 import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
 import { JellyAgent } from "@/components/scene/JellyAgent";
 import { SafeHtml } from "@/components/scene/SafeHtml";
@@ -88,6 +90,7 @@ function AgentLabels({
   selected: boolean;
   height: number;
 }) {
+  const { t } = useTranslation();
   const settingsOpen = useArenaStore((s) => s.settingsOpen);
   const showLabels = !settingsOpen;
   const thinking = agent.state === "thinking" || agent.thinkingIntensity > 0.35;
@@ -122,7 +125,7 @@ function AgentLabels({
             useArenaStore.getState().selectAgent(agent.id);
           }}
         >
-          {agent.displayName}
+          {agentLabel(agent, t)}
         </button>
       </div>
     </SafeHtml>

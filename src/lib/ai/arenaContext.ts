@@ -2,7 +2,7 @@ import type { AgentConfig, AgentSkill, DayNightMode, LanguageCode } from "@/lib/
 import { languageEnglishName } from "@/i18n/languages";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
-import { getPolyPreset } from "@/lib/poly/presets";
+import { POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 import { useArenaStore } from "@/store/arenaStore";
 import {
   appConfig,
@@ -79,13 +79,44 @@ function formatPeopleLines(
   agents: ArenaWorldContext["otherAgents"],
 ): string[] {
   if (agents.length === 0) return [`- ${prompts.labels.none}`];
-  return agents.map((other) => {
-    const who =
-      other.role && other.role !== other.name
-        ? `${other.name} (${other.role})`
-        : other.name;
-    return other.blurb.trim() ? `- ${who}: ${other.blurb.trim()}` : `- ${who}`;
-  });
+  // Names only — roles/classes are never shown, so agents address each other by name.
+  return agents.map((other) =>
+    other.blurb.trim()
+      ? `- ${other.name}: ${other.blurb.trim()}`
+      : `- ${other.name}`,
+  );
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * Legacy saved prompts were copied from roles.yaml as "You are Explorer, …".
+ * Swap that hard-coded role name for the agent's own name so the persona and
+ * the identity line agree. Anything else is returned unchanged.
+ */
+export function personalizeAgentPrompt(prompt: string, agentName: string): string {
+  const name = agentName.trim();
+  if (!name) return prompt;
+  // Real role presets only — "Custom" is not a persona name, so a prompt like
+  // "You are custom …" must never be rewritten.
+  const roleNames = POLY_PRESETS.map((p) => p.defaultDisplayName?.trim())
+    .filter((n): n is string => Boolean(n))
+    // Longest first so a multi-word role wins over a shorter prefix.
+    .sort((a, b) => b.length - a.length);
+  for (const role of roleNames) {
+    const re = new RegExp(`^(\\s*you are )(${escapeRegExp(role)})(?=[,.;:]|\\s)`, "i");
+    const m = prompt.match(re);
+    if (!m) continue;
+    if (normalizeName(m[2]!) === normalizeName(name)) return prompt;
+    return prompt.replace(re, `$1${name}`);
+  }
+  return prompt;
 }
 
 /**
@@ -215,7 +246,7 @@ export function buildAgentSystemPrompt(opts: {
 }): string {
   const { agentPrompt, agentName, world, mode } = opts;
   const vars = { agentName, language: languageLabel(world.language), userName: world.userName };
-  const parts: string[] = [agentPrompt.trim()];
+  const parts: string[] = [personalizeAgentPrompt(agentPrompt, agentName).trim()];
   const temperamentLine = buildTemperamentLine(opts.temperament);
   if (temperamentLine) parts.push(temperamentLine);
   parts.push(

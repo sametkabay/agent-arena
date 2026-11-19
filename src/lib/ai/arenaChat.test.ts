@@ -222,6 +222,34 @@ describe("resolveArenaTargets", () => {
     expect(miss.targets).toHaveLength(0);
     expect(miss.unmatched).toEqual(["Nobody'nin"]);
   });
+
+  it("routes by the user-given name only, never by role/class (#71)", () => {
+    const roster = [
+      sampleAgent({
+        id: "ada",
+        displayName: "Ada",
+        polyPresetId: "explorer",
+        modelConfigId: "m1",
+      }),
+      sampleAgent({
+        id: "bo",
+        displayName: "Bo",
+        polyPresetId: "engineer",
+        modelConfigId: "m1",
+      }),
+    ];
+    const byClass = resolveArenaTargets("@Explorer what do you think?", roster);
+    expect(byClass.mentioned).toBe(true);
+    expect(byClass.targets).toHaveLength(0);
+    expect(byClass.unmatched).toEqual(["Explorer"]);
+    expect(resolveArenaTargets("@Engineer, hi", roster).targets).toHaveLength(0);
+
+    for (const text of ["@Ada hi", "@Ada, hi", "@Ada'nın fikri?", "@ada."]) {
+      expect(resolveArenaTargets(text, roster).targets.map((t) => t.id)).toEqual([
+        "ada",
+      ]);
+    }
+  });
 });
 
 describe("sendArenaChatMessage", () => {
