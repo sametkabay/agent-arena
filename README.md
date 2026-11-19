@@ -107,6 +107,11 @@ All 10 UI languages cover the built-in library, zones, lights and map names. Age
 ## Gallery
 
 <p align="center">
+  <img src="docs/readme/hero-mars-night.jpg" alt="Five named agents on the Space map at night: a dome, rovers, lamps and red rocks on a floating Mars outpost, seen from above at a three-quarter angle" width="100%" />
+  <br/><sub>The Space map at night: the same five agents spread across a Mars outpost.</sub>
+</p>
+
+<p align="center">
   <picture>
     <source srcset="docs/readme/orbit-mars-night.webp" type="image/webp" />
     <img src="docs/readme/orbit-mars-night.gif" alt="The same slow orbit on the Space map at night: a dome, lamps and rovers on red ground while the agents talk in speech bubbles" width="100%" />
@@ -116,14 +121,12 @@ All 10 UI languages cover the built-in library, zones, lights and map names. Age
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/readme/still-camp-closeup.jpg" alt="Close-up at the camp: Explorer asks Muse to name a new trail in a speech bubble" width="100%" /></td>
-    <td width="50%"><img src="docs/readme/still-mars-closeup.jpg" alt="Close-up on the Space map at night: the agents gather by the dome and lamps while Explorer speaks" width="100%" /></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="docs/readme/still-camp-top.jpg" alt="Top-down view of the camp: tents, campfire and agents on the grass" width="100%" /></td>
-    <td width="50%"><img src="docs/readme/still-mars-low.jpg" alt="Low angle across the Space map at night under a starry sky" width="100%" /></td>
+    <td width="50%"><img src="docs/readme/still-camp-talk.jpg" alt="Camp map in conversation mode: Explorer asks Muse to name a trail behind the tents while Scholar, Engineer and Guardian wait their turn" width="100%" /></td>
+    <td width="50%"><img src="docs/readme/still-mars-night-talk.jpg" alt="Space map at night in conversation mode: Guardian insists on a suit check and hands the turn to Scholar with an @mention" width="100%" /></td>
   </tr>
 </table>
+
+<p align="center"><sub>Conversation mode up close. Lines are scripted by a local mock with a fake key, as above.</sub></p>
 
 ## Architecture
 
