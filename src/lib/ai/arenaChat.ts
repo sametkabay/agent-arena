@@ -1,4 +1,5 @@
 import { chatCompletion } from "@/lib/ai/providers";
+import { notifyAiCallFailed } from "@/lib/ai/aiErrorNotice";
 import {
   buildAgentSystemPrompt,
   getArenaWorldContext,
@@ -376,6 +377,7 @@ async function runArenaReply(
     if (raf) cancelAnimationFrame(raf);
     if ((e as Error).name !== "AbortError") {
       setAgentSpeech(agent.id, undefined);
+      notifyAiCallFailed(agent, model, e);
     }
   } finally {
     if (arenaReplyAborts.get(agent.id) === ac) arenaReplyAborts.delete(agent.id);

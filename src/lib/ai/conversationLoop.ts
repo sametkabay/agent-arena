@@ -1,4 +1,5 @@
 import { chatCompletion } from "@/lib/ai/providers";
+import { notifyAiCallFailed } from "@/lib/ai/aiErrorNotice";
 import { resolveArenaTargets } from "@/lib/ai/arenaChat";
 import {
   abortTurn,
@@ -329,6 +330,7 @@ export async function runConversationTurn(
       return;
     }
     setAgentSpeech(agent.id, undefined);
+    notifyAiCallFailed(agent, model, e);
     if (rt.state && rt.abort === ac) {
       rt.state = failTurn(rt.state, agent.id, Date.now());
     }

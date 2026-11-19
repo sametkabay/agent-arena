@@ -48,15 +48,21 @@ function resolveRequestBaseUrl(provider: AiProviderKind, baseUrl: string): strin
   return trimmed;
 }
 
-/** Build request headers; skip empty values so keyless-import stubs are not sent. */
+/**
+ * Build request headers; skip empty values so keyless-import stubs are not sent.
+ * Tolerates missing / null / malformed extras so legacy persisted models never throw.
+ */
 export function headersToRecord(
-  extras: ExtraHeader[],
+  extras: ExtraHeader[] | undefined | null,
 ): Record<string, string> {
   const out: Record<string, string> = {};
+  if (!Array.isArray(extras)) return out;
   for (const h of extras) {
+    if (!h || typeof h !== "object") continue;
+    if (typeof h.key !== "string") continue;
     const key = h.key.trim();
     if (!key) continue;
-    if (h.value === "") continue;
+    if (typeof h.value !== "string" || h.value === "") continue;
     out[key] = h.value;
   }
   return out;

@@ -126,6 +126,21 @@ describe("chatCompletion", () => {
     expect(tokens.join("")).toBe("Hello");
   });
 
+  it("still sends a request when the model has no extraHeaders field", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({ choices: [{ message: { content: "ok" } }] }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const model = sampleModel();
+    delete (model as { extraHeaders?: unknown }).extraHeaders;
+    const text = await chatCompletion({
+      model,
+      messages: [{ role: "user", content: "hi" }],
+    });
+    expect(text).toBe("ok");
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
   it("throws on HTTP errors", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ error: "nope" }, false, 401)));
     await expect(
@@ -349,5 +364,19 @@ describe("headersToRecord", () => {
         { key: "X-Zero", value: "0" },
       ]),
     ).toEqual({ "X-Ok": "yes", "X-Zero": "0" });
+  });
+
+  it("tolerates undefined, null, and malformed entries without throwing", () => {
+    expect(headersToRecord(undefined)).toEqual({});
+    expect(headersToRecord(null)).toEqual({});
+    expect(
+      headersToRecord([
+        { key: "X-Ok", value: "yes" },
+        null as never,
+        { key: 1, value: "nope" } as never,
+        { key: "X-Num", value: 7 } as never,
+        "skip" as never,
+      ]),
+    ).toEqual({ "X-Ok": "yes" });
   });
 });

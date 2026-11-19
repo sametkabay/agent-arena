@@ -157,6 +157,7 @@ const REQUIRED_KEYS = [
   "settings.general.reset.confirm",
   "settings.general.reset.done",
   "chat.arena.conversationWaiting",
+  "chat.aiCallFailed",
   "storage.quotaExceeded",
   "storage.unavailable",
   "storage.writeFailed",
@@ -273,7 +274,7 @@ function placeholders(value: string): string[] {
 
 describe("onboarding locale keys", () => {
   it("lists exactly the required keys", () => {
-    expect(REQUIRED_KEYS).toHaveLength(249);
+    expect(REQUIRED_KEYS).toHaveLength(250);
   });
 
   it("includes every configured language with matching placeholders", () => {

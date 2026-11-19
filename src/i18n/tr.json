@@ -102,6 +102,7 @@
     "close": "Kapat",
     "resize": "Sohbet panelini yeniden boyutlandır",
     "error": "Bir şeyler ters gitti",
+    "aiCallFailed": "{{name}} yanıt alamadı: {{reason}}",
     "arena": {
       "placeholder": "Bir şey söyle… veya @bir ajan",
       "send": "Söyle",

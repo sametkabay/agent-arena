@@ -102,6 +102,7 @@
     "close": "Close",
     "resize": "Resize chat panel",
     "error": "Something went wrong",
+    "aiCallFailed": "{{name}} couldn't get a reply: {{reason}}",
     "arena": {
       "placeholder": "Say something… or @an agent",
       "send": "Say",

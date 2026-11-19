@@ -102,6 +102,7 @@
     "close": "Cerrar",
     "resize": "Cambiar el tamaño del chat",
     "error": "Algo salió mal",
+    "aiCallFailed": "{{name}} no pudo obtener una respuesta: {{reason}}",
     "arena": {
       "placeholder": "Di algo… o @un agente",
       "send": "Decir",

@@ -1,8 +1,10 @@
 import type {
   AgentConfig,
   AgentSkill,
+  AiModelConfig,
   AppPersisted,
   ChatMessage,
+  ExtraHeader,
   FloatingChatLine,
   GraphicsSettings,
   LanguageCode,
@@ -182,6 +184,48 @@ function sanitizeAgents(raw: unknown): AgentConfig[] {
     }));
 }
 
+/**
+ * Normalize persisted / legacy `extraHeaders` so request code can always iterate.
+ * Missing, null, or non-array → []; drop non-object entries and non-string keys;
+ * coerce non-string values to "".
+ */
+export function normalizeExtraHeaders(raw: unknown): ExtraHeader[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ExtraHeader[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const row = item as Record<string, unknown>;
+    if (typeof row.key !== "string") continue;
+    out.push({
+      key: row.key,
+      value: typeof row.value === "string" ? row.value : "",
+    });
+  }
+  return out;
+}
+
+/** Ensure a persisted model always has a usable `extraHeaders` array. */
+export function normalizePersistedModel(raw: unknown): AiModelConfig | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const m = raw as AiModelConfig;
+  return {
+    ...m,
+    extraHeaders: normalizeExtraHeaders(
+      (raw as { extraHeaders?: unknown }).extraHeaders,
+    ),
+  };
+}
+
+function sanitizeModels(raw: unknown): AiModelConfig[] {
+  if (!Array.isArray(raw)) return [];
+  const out: AiModelConfig[] = [];
+  for (const item of raw) {
+    const model = normalizePersistedModel(item);
+    if (model) out.push(model);
+  }
+  return out;
+}
+
 export function clampChattiness(v: unknown): number {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return 0;
@@ -213,10 +257,11 @@ export function loadPersisted(): AppPersisted {
     if (!raw) return defaultPersisted();
     const parsed = JSON.parse(raw) as Partial<AppPersisted>;
     const customMaps = sanitizeCustomMaps(parsed.customMaps);
+    const models = sanitizeModels(parsed.models);
     return {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
       language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
-      models: Array.isArray(parsed.models) ? parsed.models : [],
+      models,
       agents: sanitizeAgents(parsed.agents),
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
@@ -231,7 +276,7 @@ export function loadPersisted(): AppPersisted {
       onboardingSeen:
         typeof parsed.onboardingSeen === "boolean"
           ? parsed.onboardingSeen
-          : (Array.isArray(parsed.models) ? parsed.models : []).length > 0,
+          : models.length > 0,
       controlsHelpSeen:
         typeof parsed.controlsHelpSeen === "boolean"
           ? parsed.controlsHelpSeen

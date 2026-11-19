@@ -102,6 +102,7 @@
     "close": "Schließen",
     "resize": "Chatfenster vergrößern oder verkleinern",
     "error": "Etwas ist schiefgelaufen",
+    "aiCallFailed": "{{name}} hat keine Antwort erhalten: {{reason}}",
     "arena": {
       "placeholder": "Sag etwas… oder @einen Agenten",
       "send": "Sagen",
