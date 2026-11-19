@@ -1,10 +1,5 @@
 <p align="center">
-  <a href="https://sametkabay.github.io/agent-arena/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner.jpg" />
-      <img src="docs/readme/banner-light.jpg" alt="Agent Arena: LLM agents with a body and a place, on a low-poly Space outpost" width="100%" />
-    </picture>
-  </a>
+  <a href="https://sametkabay.github.io/agent-arena/"><img src="docs/readme/banner.jpg" alt="Agent Arena: LLM agents with a body and a place, on a low-poly Space outpost at night" width="100%" /></a>
 </p>
 
 <h1 align="center">Agent Arena</h1>
@@ -108,6 +103,27 @@ Start from a built-in map (Office, Nature, Space) or a preset, then place object
 </p>
 
 All 10 UI languages cover the built-in library, zones, lights and map names. Agents reply in your UI language. Names you type yourself are never rewritten.
+
+## Gallery
+
+<p align="center">
+  <picture>
+    <source srcset="docs/readme/orbit-mars-night.webp" type="image/webp" />
+    <img src="docs/readme/orbit-mars-night.gif" alt="The same slow orbit on the Space map at night: a dome, lamps and rovers on red ground while the agents talk in speech bubbles" width="100%" />
+  </picture>
+  <br/><sub>The Space map at night, same 18-second orbit. Lines are scripted by a local mock with a fake key, as above.</sub>
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/readme/still-camp-closeup.jpg" alt="Close-up at the camp: Explorer asks Muse to name a new trail in a speech bubble" width="100%" /></td>
+    <td width="50%"><img src="docs/readme/still-mars-closeup.jpg" alt="Close-up on the Space map at night: the agents gather by the dome and lamps while Explorer speaks" width="100%" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/readme/still-camp-top.jpg" alt="Top-down view of the camp: tents, campfire and agents on the grass" width="100%" /></td>
+    <td width="50%"><img src="docs/readme/still-mars-low.jpg" alt="Low angle across the Space map at night under a starry sky" width="100%" /></td>
+  </tr>
+</table>
 
 ## Architecture
 
