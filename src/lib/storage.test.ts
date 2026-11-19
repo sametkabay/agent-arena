@@ -197,6 +197,87 @@ describe("normalizeExtraHeaders / normalizePersistedModel", () => {
   });
 });
 
+describe("agent name migration (#71)", () => {
+  const legacy = (agents: unknown[], extra: Record<string, unknown> = {}) =>
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ agents, ...extra }));
+  const names = () => loadPersisted().agents.map((a) => a.displayName);
+
+  it("renames legacy EN / TR / JA role names in order and keeps chat speakers", () => {
+    legacy(
+      [
+        sampleAgent({ id: "a1", displayName: "Explorer" }),
+        sampleAgent({ id: "a2", displayName: "Kaşif" }),
+        sampleAgent({ id: "a3", displayName: "探検家" }),
+        sampleAgent({ id: "a4", displayName: "Mühendis", polyPresetId: "engineer" }),
+      ],
+      {
+        arenaChatHistory: [
+          { id: "l1", kind: "agent", agentId: "a1", agentName: "Explorer", text: "hi", createdAt: 1 },
+        ],
+      },
+    );
+    const loaded = loadPersisted();
+    expect(loaded.agents.map((a) => [a.id, a.displayName])).toEqual([
+      ["a1", "Kai"],
+      ["a2", "Mira"],
+      ["a3", "Theo"],
+      ["a4", "Iris"],
+    ]);
+    expect(loaded.agentNamesMigrated).toBe(true);
+    expect(loaded.arenaChatHistory[0]?.agentName).toBe("Explorer");
+  });
+
+  it("leaves user-chosen names untouched", () => {
+    legacy([
+      sampleAgent({ id: "a1", displayName: "Bob the Explorer" }),
+      sampleAgent({ id: "a2", displayName: "Engineer" }), // role name, but not its own role
+    ]);
+    expect(names()).toEqual(["Bob the Explorer", "Engineer"]);
+  });
+
+  it("gives duplicate role names distinct person names and fills empty names", () => {
+    legacy([
+      sampleAgent({ id: "a1", displayName: "Explorer" }),
+      sampleAgent({ id: "a2", displayName: "Explorer" }),
+      sampleAgent({ id: "a3", displayName: "  " }),
+    ]);
+    expect(names()).toEqual(["Kai", "Mira", "Theo"]);
+  });
+
+  it("skips pool names already taken by existing agents", () => {
+    legacy([
+      sampleAgent({ id: "a1", displayName: "Explorer" }),
+      sampleAgent({ id: "a2", displayName: "Kai" }),
+    ]);
+    expect(names()).toEqual(["Mira", "Kai"]);
+  });
+
+  it("persists the result and never re-runs once flagged", () => {
+    legacy([sampleAgent({ id: "a1", displayName: "Explorer" })]);
+    expect(names()).toEqual(["Kai"]);
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    expect(stored.agentNamesMigrated).toBe(true);
+    expect(stored.agents[0].displayName).toBe("Kai");
+
+    // User later deliberately names an agent after its role.
+    stored.agents[0].displayName = "Explorer";
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    expect(names()).toEqual(["Explorer"]);
+  });
+
+  it("does not run when the flag is already set", () => {
+    legacy([sampleAgent({ displayName: "Explorer" })], { agentNamesMigrated: true });
+    expect(names()).toEqual(["Explorer"]);
+  });
+
+  it("fresh profiles start migrated with no agents", () => {
+    expect(defaultPersisted().agentNamesMigrated).toBe(true);
+    const loaded = loadPersisted();
+    expect(loaded.agents).toEqual([]);
+    expect(loaded.agentNamesMigrated).toBe(true);
+  });
+});
+
 describe("loadPersisted / savePersisted", () => {
   it("returns defaults when empty or invalid JSON", () => {
     expect(loadPersisted()).toEqual(defaultPersisted());

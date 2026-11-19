@@ -96,6 +96,11 @@ export interface AppPersisted {
   onboardingSeen: boolean;
   /** Controls help auto-show dismissed (manual "?" still works). */
   controlsHelpSeen: boolean;
+  /**
+   * One-shot #71 migration done: legacy agents named after their role were
+   * given person names. Fresh profiles start true; never re-run once set.
+   */
+  agentNamesMigrated: boolean;
   /** Favorite placeable ids for the map editor library. */
   favoriteAssets?: string[];
   /** Per-agent private chat history (localStorage). */

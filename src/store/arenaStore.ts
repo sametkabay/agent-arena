@@ -242,6 +242,8 @@ function persistSlice(s: ArenaState): AppPersisted {
     chatterMode: s.chatterMode,
     onboardingSeen: s.onboardingSeen === true,
     controlsHelpSeen: s.controlsHelpSeen === true,
+    // State always comes from loadPersisted(), which runs the rename first.
+    agentNamesMigrated: true,
     favoriteAssets: s.favoriteAssets ?? [],
     chats: sanitizeChats(s.chats),
     arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),

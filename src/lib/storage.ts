@@ -18,6 +18,7 @@ import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
 import { parseChatterMode } from "@/lib/ai/conversation";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
+import { migrateAgentNames } from "@/lib/agentNames";
 
 export { DEFAULT_GRAPHICS };
 
@@ -74,6 +75,8 @@ export function defaultPersisted(): AppPersisted {
     chatterMode: parseChatterMode(appConfig.defaults.chatterMode),
     onboardingSeen: false,
     controlsHelpSeen: false,
+    // Fresh profiles have no agents, so there is nothing to rename.
+    agentNamesMigrated: true,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -173,6 +176,7 @@ function sanitizeAgents(raw: unknown): AgentConfig[] {
     .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
     .map((a) => ({
       ...(a as unknown as AgentConfig),
+      displayName: typeof a.displayName === "string" ? a.displayName : "",
       enabled: a.enabled !== false,
       thinkingEnabled: a.thinkingEnabled === true,
       chattiness: clampChattiness(a.chattiness),
@@ -258,11 +262,18 @@ export function loadPersisted(): AppPersisted {
     const parsed = JSON.parse(raw) as Partial<AppPersisted>;
     const customMaps = sanitizeCustomMaps(parsed.customMaps);
     const models = sanitizeModels(parsed.models);
-    return {
+    const storedAgents = sanitizeAgents(parsed.agents);
+    // One-shot (#71): legacy agents named after their role get a person name.
+    // Once flagged, a user who later names an agent "Explorer" keeps it.
+    const namesMigration =
+      parsed.agentNamesMigrated === true
+        ? { agents: storedAgents, changed: false }
+        : migrateAgentNames(storedAgents);
+    const data: AppPersisted = {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
       language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
       models,
-      agents: sanitizeAgents(parsed.agents),
+      agents: namesMigration.agents,
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
@@ -280,15 +291,21 @@ export function loadPersisted(): AppPersisted {
       controlsHelpSeen:
         typeof parsed.controlsHelpSeen === "boolean"
           ? parsed.controlsHelpSeen
-          : sanitizeAgents(parsed.agents).length > 0,
+          : storedAgents.length > 0,
+      agentNamesMigrated: true,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")
             .map(migratePlaceableId)
         : [],
       chats: sanitizeChats(parsed.chats),
+      // Speaker names in past messages stay as they were spoken.
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };
+    // Write the flag (and any renames) back now so the migration never re-runs,
+    // even if the session ends before the next store save. Best-effort.
+    if (parsed.agentNamesMigrated !== true) savePersisted(data);
+    return data;
   } catch {
     return defaultPersisted();
   }
