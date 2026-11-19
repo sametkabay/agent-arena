@@ -54,7 +54,17 @@ export function trimMentionPunctuation(token: string): string {
   return result;
 }
 
-type MentionToken = { raw: string; trimmed: string };
+/**
+ * Strip a possessive / case suffix after an apostrophe (`'` or U+2019).
+ * Pure helper: always reduces e.g. "O'Brien" → "O"; callers that need exact-name
+ * precedence must check the unstripped token against the roster first.
+ */
+export function stripMentionPossessive(token: string): string {
+  const m = token.match(/^(.+)['\u2019](\p{L}\p{M}*)+$/u);
+  return m?.[1] ?? token;
+}
+
+type MentionToken = { raw: string; trimmed: string; base: string };
 
 function mentionTokens(text: string): MentionToken[] {
   const found: MentionToken[] = [];
@@ -63,7 +73,9 @@ function mentionTokens(text: string): MentionToken[] {
   while ((m = re.exec(text))) {
     const raw = m[1];
     const trimmed = trimMentionPunctuation(raw);
-    if (trimmed) found.push({ raw, trimmed });
+    if (trimmed) {
+      found.push({ raw, trimmed, base: stripMentionPossessive(trimmed) });
+    }
   }
   return found;
 }
@@ -73,10 +85,35 @@ export function extractMentions(text: string): string[] {
   return mentionTokens(text).map((t) => t.trimmed);
 }
 
+function findExactAgent(
+  agents: AgentConfig[],
+  token: string,
+): AgentConfig | undefined {
+  const key = normalizeAgentName(token);
+  return agents.find((a) => normalizeAgentName(a.displayName) === key);
+}
+
+function findPrefixAgent(
+  agents: AgentConfig[],
+  token: string,
+): AgentConfig | undefined {
+  const key = normalizeAgentName(token);
+  return agents.find((a) => {
+    const n = normalizeAgentName(a.displayName);
+    return (
+      n.startsWith(key) ||
+      a.displayName.toLowerCase().startsWith(token.toLowerCase())
+    );
+  });
+}
+
 /**
  * @name → matching agents (case-insensitive, spaces optional).
  * No mentions → every agent that has a model configured.
  * When `selfId` is set, that agent is excluded from both matching and broadcast.
+ *
+ * Match precedence per mention: exact raw → exact trimmed → exact possessive
+ * base → prefix trimmed → prefix base. Unmatched reports use the trimmed token.
  */
 export function resolveArenaTargets(
   text: string,
@@ -98,29 +135,30 @@ export function resolveArenaTargets(
   const unmatched: string[] = [];
   const matched = new Map<string, AgentConfig>();
 
-  for (const { raw, trimmed } of mentions) {
-    const rawKey = normalizeAgentName(raw);
-    const rawExact = withModel.find(
-      (a) => normalizeAgentName(a.displayName) === rawKey,
-    );
+  for (const { raw, trimmed, base } of mentions) {
+    const rawExact = findExactAgent(withModel, raw);
     if (rawExact) {
       matched.set(rawExact.id, rawExact);
       continue;
     }
 
-    const key = normalizeAgentName(trimmed);
-    const exact = withModel.find(
-      (a) => normalizeAgentName(a.displayName) === key,
-    );
+    const trimmedExact = findExactAgent(withModel, trimmed);
+    if (trimmedExact) {
+      matched.set(trimmedExact.id, trimmedExact);
+      continue;
+    }
+
+    if (base !== trimmed) {
+      const baseExact = findExactAgent(withModel, base);
+      if (baseExact) {
+        matched.set(baseExact.id, baseExact);
+        continue;
+      }
+    }
+
     const hit =
-      exact ??
-      withModel.find((a) => {
-        const n = normalizeAgentName(a.displayName);
-        return (
-          n.startsWith(key) ||
-          a.displayName.toLowerCase().startsWith(trimmed.toLowerCase())
-        );
-      });
+      findPrefixAgent(withModel, trimmed) ??
+      (base !== trimmed ? findPrefixAgent(withModel, base) : undefined);
     if (hit) matched.set(hit.id, hit);
     else unmatched.push(trimmed);
   }

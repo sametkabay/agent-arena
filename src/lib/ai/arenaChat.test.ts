@@ -5,6 +5,7 @@ import {
   drainPendingArenaReplies,
   extractMentions,
   resolveArenaTargets,
+  stripMentionPossessive,
   trimMentionPunctuation,
   sendArenaChatMessage,
 } from "@/lib/ai/arenaChat";
@@ -25,6 +26,21 @@ describe("trimMentionPunctuation", () => {
     expect(trimMentionPunctuation("Explorer(copy)")).toBe("Explorer(copy)");
     expect(trimMentionPunctuation("Explorer(copy))")).toBe("Explorer(copy)");
     expect(trimMentionPunctuation("!!")).toBe("");
+  });
+});
+
+describe("stripMentionPossessive", () => {
+  it("strips possessive / case suffixes after an apostrophe", () => {
+    expect(stripMentionPossessive("Muse'un")).toBe("Muse");
+    expect(stripMentionPossessive("Muse's")).toBe("Muse");
+    expect(stripMentionPossessive("Muse’nin")).toBe("Muse");
+    expect(stripMentionPossessive("Muse’ın")).toBe("Muse");
+    expect(stripMentionPossessive("Explorer'a")).toBe("Explorer");
+    expect(stripMentionPossessive("Gülşah'ın")).toBe("Gülşah");
+    expect(stripMentionPossessive("İpek'e")).toBe("İpek");
+    expect(stripMentionPossessive("O'Brien")).toBe("O");
+    expect(stripMentionPossessive("Muse")).toBe("Muse");
+    expect(stripMentionPossessive("'s")).toBe("'s");
   });
 });
 
@@ -140,6 +156,70 @@ describe("resolveArenaTargets", () => {
 
     const selfPunct = resolveArenaTargets("@Ada, hi @Bo.", roster, { selfId: "ada" });
     expect(selfPunct.targets.map((t) => t.id)).toEqual(["bo"]);
+  });
+
+  it("resolves possessive / case suffixes with exact-name precedence", () => {
+    const roster = [
+      sampleAgent({ id: "muse", displayName: "Muse", modelConfigId: "m1" }),
+      sampleAgent({ id: "exp", displayName: "Explorer", modelConfigId: "m1" }),
+      sampleAgent({ id: "gul", displayName: "Gülşah", modelConfigId: "m1" }),
+      sampleAgent({ id: "ob", displayName: "O'Brien", modelConfigId: "m1" }),
+      sampleAgent({ id: "sch", displayName: "Scholar", modelConfigId: "m1" }),
+    ];
+
+    expect(
+      resolveArenaTargets("@Muse'un fikri ne?", roster).targets.map((t) => t.id),
+    ).toEqual(["muse"]);
+    expect(
+      resolveArenaTargets("@Muse's idea?", roster).targets.map((t) => t.id),
+    ).toEqual(["muse"]);
+    expect(
+      resolveArenaTargets("@Muse’nin", roster).targets.map((t) => t.id),
+    ).toEqual(["muse"]);
+    expect(
+      resolveArenaTargets("@Explorer'a sor", roster).targets.map((t) => t.id),
+    ).toEqual(["exp"]);
+    expect(
+      resolveArenaTargets("@Gülşah'ın.", roster).targets.map((t) => t.id),
+    ).toEqual(["gul"]);
+    expect(
+      resolveArenaTargets("@Muse'un,", roster).targets.map((t) => t.id),
+    ).toEqual(["muse"]);
+    expect(
+      resolveArenaTargets("@Muse's?", roster).targets.map((t) => t.id),
+    ).toEqual(["muse"]);
+    expect(
+      resolveArenaTargets("(@Explorer'a)", roster).targets.map((t) => t.id),
+    ).toEqual(["exp"]);
+    expect(
+      resolveArenaTargets("@O'Brien,", roster).targets.map((t) => t.id),
+    ).toEqual(["ob"]);
+    expect(
+      resolveArenaTargets("@O'Brien'ın", roster).targets.map((t) => t.id),
+    ).toEqual(["ob"]);
+
+    const withMuses = [
+      sampleAgent({ id: "muse", displayName: "Muse", modelConfigId: "m1" }),
+      sampleAgent({ id: "muses", displayName: "Muse's", modelConfigId: "m1" }),
+    ];
+    expect(
+      resolveArenaTargets("@Muse's", withMuses).targets.map((t) => t.id),
+    ).toEqual(["muses"]);
+    expect(
+      resolveArenaTargets("@Muse'un", withMuses).targets.map((t) => t.id),
+    ).toEqual(["muse"]);
+
+    const both = resolveArenaTargets("@Scholar'ın, @Muse'a", roster);
+    expect(both.targets.map((t) => t.id).sort()).toEqual(["muse", "sch"]);
+
+    const selfPoss = resolveArenaTargets("@Muse'un hi @Explorer'a", roster, {
+      selfId: "muse",
+    });
+    expect(selfPoss.targets.map((t) => t.id)).toEqual(["exp"]);
+
+    const miss = resolveArenaTargets("@Nobody'nin", roster);
+    expect(miss.targets).toHaveLength(0);
+    expect(miss.unmatched).toEqual(["Nobody'nin"]);
   });
 });
 
