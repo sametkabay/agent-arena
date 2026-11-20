@@ -9,7 +9,11 @@ import ru from "@/i18n/ru.json";
 import tr from "@/i18n/tr.json";
 import zh from "@/i18n/zh.json";
 import { appConfig } from "@/lib/config";
-import { CUSTOM_PRESET, getPolyPreset } from "@/lib/poly/presets";
+import {
+  normalizeAgentName,
+  stripCopySuffix,
+} from "@/lib/agentCopy";
+import { ALL_POLY_PRESETS, CUSTOM_PRESET, getPolyPreset } from "@/lib/poly/presets";
 
 type LocalePoly = Record<string, { name?: string } | undefined>;
 
@@ -18,25 +22,23 @@ const LOCALE_POLY: readonly LocalePoly[] = [en, tr, es, zh, pt, fr, de, ja, ko, 
   (l) => (l as { poly: LocalePoly }).poly,
 );
 
+const KNOWN_PRESET_IDS = new Set(ALL_POLY_PRESETS.map((p) => p.id));
+
 /** Ordered person-name pool (agent-arena.yaml → defaults.agentNamePool). */
 export const AGENT_NAME_POOL: readonly string[] = appConfig.defaults.agentNamePool;
 
-function normName(name: string): string {
-  return name.trim().toLowerCase();
-}
-
 /**
- * First pool name not in `takenNames` (case-insensitive, trimmed).
- * When the whole pool is taken: "Kai 2", "Kai 3", … (first free wins).
+ * First pool name not in `takenNames` (same key as @mentions / normalizeAgentName).
+ * When the whole pool is taken: "Kai2", "Kai3", … (first free wins).
  */
 export function pickAgentName(takenNames: string[]): string {
-  const taken = new Set(takenNames.map(normName));
-  const free = AGENT_NAME_POOL.find((n) => !taken.has(normName(n)));
+  const taken = new Set(takenNames.map(normalizeAgentName));
+  const free = AGENT_NAME_POOL.find((n) => !taken.has(normalizeAgentName(n)));
   if (free) return free;
   const base = AGENT_NAME_POOL[0] ?? appConfig.defaults.agentName;
   for (let i = 2; ; i++) {
-    const candidate = `${base} ${i}`;
-    if (!taken.has(normName(candidate))) return candidate;
+    const candidate = `${base}${i}`;
+    if (!taken.has(normalizeAgentName(candidate))) return candidate;
   }
 }
 
@@ -51,15 +53,35 @@ function roleDefaultNames(presetId: string): string[] {
   return names;
 }
 
+function foldedRoleBase(name: string): string {
+  // Legacy duplicates "Explorer (copy)" / "Explorer (Kopie 2)" count as the role title.
+  return normalizeAgentName(stripCopySuffix(name.trim(), "copy"));
+}
+
 /**
- * True when `name` is a role's stock title (the legacy "Add agent" pre-fill)
- * rather than a name the user chose — for the agent's preset or the custom preset.
+ * True when `name` is this role's stock title (or a copy-suffix variant), rather
+ * than a name the user chose. Custom-preset titles only count for custom /
+ * unknown presets.
  */
 export function isRoleDefaultName(name: string, polyPresetId: string): boolean {
-  const n = normName(name);
-  if (!n) return false;
-  return [...roleDefaultNames(polyPresetId), ...roleDefaultNames(CUSTOM_PRESET.id)].some(
-    (r) => normName(r) === n,
+  const base = foldedRoleBase(name);
+  if (!base) return false;
+
+  const presetId =
+    typeof polyPresetId === "string" && KNOWN_PRESET_IDS.has(polyPresetId)
+      ? polyPresetId
+      : null;
+
+  if (presetId) {
+    if (roleDefaultNames(presetId).some((r) => normalizeAgentName(r) === base)) {
+      return true;
+    }
+    return false;
+  }
+
+  // Unknown preset: only Custom titles count as legacy prefills.
+  return roleDefaultNames(CUSTOM_PRESET.id).some(
+    (r) => normalizeAgentName(r) === base,
   );
 }
 

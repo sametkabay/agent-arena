@@ -99,13 +99,8 @@ function findPrefixAgent(
   token: string,
 ): AgentConfig | undefined {
   const key = normalizeAgentName(token);
-  return agents.find((a) => {
-    const n = normalizeAgentName(a.displayName);
-    return (
-      n.startsWith(key) ||
-      a.displayName.toLowerCase().startsWith(token.toLowerCase())
-    );
-  });
+  if (!key) return undefined;
+  return agents.find((a) => normalizeAgentName(a.displayName).startsWith(key));
 }
 
 /**

@@ -44,6 +44,53 @@ export function languageLabel(language: LanguageCode): string {
   return languageEnglishName(language);
 }
 
+/** First sentence only (for roster blurbs — never leak later second-person lines). */
+function firstSentence(text: string): string {
+  const m = text.match(/^(.+?[.!?])(?:\s|$)/);
+  return (m?.[1] ?? text).trim();
+}
+
+function capitalizeFragment(text: string): string {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * Turn a leading "You are …" stock/custom sentence into a third-person-neutral
+ * roster fragment. Strips a leading role/own proper name; otherwise rewrites
+ * "You are " → capitalised remainder (e.g. "A practical problem-solver.").
+ */
+function blurbFromSystemPrompt(prompt: string, agent: AgentConfig): string {
+  const sentence = firstSentence(prompt);
+  if (!sentence) return "";
+
+  const properNames = [
+    ...POLY_PRESETS.map((p) => p.defaultDisplayName?.trim()).filter(
+      (n): n is string => Boolean(n),
+    ),
+    agent.displayName.trim(),
+  ]
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+
+  for (const proper of properNames) {
+    const re = new RegExp(
+      `^You are ${escapeRegExp(proper)}[,.]\\s*`,
+      "i",
+    );
+    if (!re.test(sentence)) continue;
+    const rest = sentence.replace(re, "").trim();
+    return rest ? capitalizeFragment(rest) : "";
+  }
+
+  if (/^You are /i.test(sentence)) {
+    const rest = sentence.replace(/^You are /i, "").trim();
+    return rest ? capitalizeFragment(rest) : "";
+  }
+
+  return sentence;
+}
+
 /** Short public blurb for another agent (bio → role → clipped system prompt). */
 export function describeAgentBrief(agent: AgentConfig): {
   role: string;
@@ -57,10 +104,8 @@ export function describeAgentBrief(agent: AgentConfig): {
 
   const prompt = agent.systemPrompt.trim().replace(/\s+/g, " ");
   if (prompt) {
-    const cleaned = prompt
-      .replace(/^you are [^.,;:]+[.,;:]?\s*/i, "")
-      .trim();
-    return { role, blurb: clip(cleaned || prompt, prompts.briefs.promptMax) };
+    const cleaned = blurbFromSystemPrompt(prompt, agent);
+    return { role, blurb: clip(cleaned, prompts.briefs.promptMax) };
   }
 
   return { role, blurb: "" };
@@ -96,25 +141,26 @@ function normalizeName(name: string): string {
 }
 
 /**
- * Legacy saved prompts were copied from roles.yaml as "You are Explorer, …".
- * Swap that hard-coded role name for the agent's own name so the persona and
- * the identity line agree. Anything else is returned unchanged.
+ * Narrow runtime safety net for unmigrated legacy prompts:
+ * only exact case-sensitive `You are <RoleYamlName>,` (comma required).
+ * Name is inserted via a replacer function so `$`, `$&`, `$1`, etc. stay literal.
+ * User-written prompts ("You are guardian of the vault…") are never rewritten.
  */
 export function personalizeAgentPrompt(prompt: string, agentName: string): string {
   const name = agentName.trim();
   if (!name) return prompt;
-  // Real role presets only — "Custom" is not a persona name, so a prompt like
-  // "You are custom …" must never be rewritten.
+  // Real role presets only — "Custom" is not a persona name.
   const roleNames = POLY_PRESETS.map((p) => p.defaultDisplayName?.trim())
     .filter((n): n is string => Boolean(n))
-    // Longest first so a multi-word role wins over a shorter prefix.
     .sort((a, b) => b.length - a.length);
   for (const role of roleNames) {
-    const re = new RegExp(`^(\\s*you are )(${escapeRegExp(role)})(?=[,.;:]|\\s)`, "i");
+    const re = new RegExp(`^(\\s*You are )(${escapeRegExp(role)})(,)`);
     const m = prompt.match(re);
     if (!m) continue;
     if (normalizeName(m[2]!) === normalizeName(name)) return prompt;
-    return prompt.replace(re, `$1${name}`);
+    return prompt.replace(re, (_match, lead: string, _role: string, comma: string) =>
+      `${lead}${name}${comma}`,
+    );
   }
   return prompt;
 }

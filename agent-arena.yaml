@@ -24,7 +24,7 @@ defaults:
   characterId: generic-male
   roleId: explorer
   agentName: New agent
-  # Person names offered to new agents (first free one wins; "Kai 2" when all taken).
+  # Person names offered to new agents (first free one wins; "Kai2" when all taken).
   # Keep ASCII, 3–5 letters, and distinct from Look names and role names in every locale
   # (enforced by src/lib/agentNames.test.ts).
   agentNamePool: [Kai, Mira, Theo, Iris, Omar, Lena, Nico, Zara, Emil, Juno, Rosa, Hugo]

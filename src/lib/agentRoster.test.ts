@@ -288,6 +288,51 @@ describe("resolveImportNames", () => {
 });
 
 describe("round-trip", () => {
+  it("renames legacy role-titled agents on import (#71)", () => {
+    const json = JSON.stringify({
+      format: ROSTER_FORMAT,
+      version: 1,
+      agents: [
+        {
+          displayName: "Explorer",
+          polyPresetId: "explorer",
+          systemPrompt: "You are a curious guide.",
+        },
+        {
+          displayName: "Kaşif",
+          polyPresetId: "explorer",
+          systemPrompt: "You are a curious guide.",
+        },
+      ],
+    });
+    const result = parseOk(json);
+    expect(result.agents.map((a) => a.displayName)).toEqual(["Kai", "Mira"]);
+    expect(result.agents.every((a) => !/^(Explorer|Kaşif)$/i.test(a.displayName))).toBe(
+      true,
+    );
+  });
+
+  it("migrates legacy stock system prompts on import", () => {
+    const legacy =
+      "You are Explorer, a curious and adventurous guide in Agent Arena. You love discovering ideas, asking follow-up questions, and explaining things clearly. Keep answers friendly and vivid.";
+    const json = JSON.stringify({
+      format: ROSTER_FORMAT,
+      version: 1,
+      agents: [
+        {
+          displayName: "Ada",
+          polyPresetId: "explorer",
+          systemPrompt: legacy,
+        },
+      ],
+    });
+    const result = parseOk(json);
+    expect(result.agents[0]!.systemPrompt).toBe(
+      getPolyPreset("explorer").defaultSystemPrompt,
+    );
+    expect(result.agents[0]!.systemPrompt).not.toContain("Explorer,");
+  });
+
   it("preserves persona fields with fresh skill ids", () => {
     const source = sampleAgent({
       displayName: "Ada",

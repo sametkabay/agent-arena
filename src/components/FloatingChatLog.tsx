@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendArenaChatMessage } from "@/lib/ai/arenaChat";
+import { normalizeAgentName } from "@/lib/agentCopy";
 import type { AgentConfig, FloatingChatLine } from "@/lib/types";
 import { agentLabel } from "@/lib/agentLabel";
 import { useStickToBottom } from "@/lib/useStickToBottom";
@@ -55,14 +56,12 @@ function getActiveMention(
 }
 
 function filterMentionAgents(agents: AgentConfig[], query: string): AgentConfig[] {
-  const q = query.trim().toLowerCase().replace(/\s+/g, "");
+  const q = normalizeAgentName(query);
   return agents
     .filter((a) => a.enabled !== false && Boolean(a.modelConfigId))
     .filter((a) => {
       if (!q) return true;
-      const name = a.displayName.toLowerCase();
-      const compact = name.replace(/\s+/g, "");
-      return name.startsWith(query.toLowerCase()) || compact.startsWith(q);
+      return normalizeAgentName(a.displayName).startsWith(q);
     })
     .slice(0, 8);
 }

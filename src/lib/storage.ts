@@ -19,6 +19,7 @@ import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
 import { parseChatterMode } from "@/lib/ai/conversation";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { migrateAgentNames } from "@/lib/agentNames";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 
 export { DEFAULT_GRAPHICS };
 
@@ -269,11 +270,26 @@ export function loadPersisted(): AppPersisted {
       parsed.agentNamesMigrated === true
         ? { agents: storedAgents, changed: false }
         : migrateAgentNames(storedAgents);
+    // Idempotent stock-prompt rewrite (pre-#71 "You are Explorer, …" → current).
+    let promptsChanged = false;
+    const agents = namesMigration.agents.map((a) => {
+      const systemPrompt = migrateLegacySystemPrompt(
+        a.systemPrompt ?? "",
+        a.polyPresetId,
+      );
+      if (systemPrompt !== a.systemPrompt) {
+        promptsChanged = true;
+        return { ...a, systemPrompt };
+      }
+      return a;
+    });
+    const needsWriteBack =
+      parsed.agentNamesMigrated !== true || promptsChanged;
     const data: AppPersisted = {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
       language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
       models,
-      agents: namesMigration.agents,
+      agents,
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
@@ -292,6 +308,8 @@ export function loadPersisted(): AppPersisted {
         typeof parsed.controlsHelpSeen === "boolean"
           ? parsed.controlsHelpSeen
           : storedAgents.length > 0,
+      // In-memory always reflects migrated agents; flag stays true so the store
+      // and persistSlice write agentNamesMigrated: true on the next successful save.
       agentNamesMigrated: true,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
@@ -299,12 +317,21 @@ export function loadPersisted(): AppPersisted {
             .map(migratePlaceableId)
         : [],
       chats: sanitizeChats(parsed.chats),
-      // Speaker names in past messages stay as they were spoken.
+      // Speaker names in past messages stay as they were spoken (model context
+      // remaps by agentId at read time — see formatArenaHistory).
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };
-    // Write the flag (and any renames) back now so the migration never re-runs,
-    // even if the session ends before the next store save. Best-effort.
-    if (parsed.agentNamesMigrated !== true) savePersisted(data);
+    // Write the flag (and any renames / prompt migrations) back now so the
+    // migration never re-runs after a successful disk write. Check the result:
+    // on failure, in-memory data is still migrated; the next successful
+    // persistSlice save writes agentNamesMigrated: true with these agents.
+    if (needsWriteBack) {
+      const writeBack = savePersisted(data);
+      if (!writeBack.ok) {
+        // Disk still has the pre-migration blob; callers keep `data` (migrated).
+        // persistSlice always sets agentNamesMigrated: true on later saves.
+      }
+    }
     return data;
   } catch {
     return defaultPersisted();

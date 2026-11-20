@@ -1,9 +1,22 @@
 import type { AgentConfig } from "@/lib/types";
 import { uid } from "@/lib/storage";
 
-/** Same rule @mentions use: trim, lowercase, collapse spaces. */
+/**
+ * Case-fold for agent name keys (mentions, dedupe, import collision).
+ * Lowercases, strips U+0307 (Turkish İ → i̇), maps ı (U+0131) → i, drops spaces.
+ */
+export function foldAgentNameKey(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\u0307/g, "")
+    .replace(/\u0131/g, "i")
+    .replace(/\s+/g, "");
+}
+
+/** Same rule @mentions use: fold + collapse spaces. */
 export function normalizeAgentName(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, "");
+  return foldAgentNameKey(name);
 }
 
 type LocaleAgentsSlice = {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { appConfig } from "@/lib/config";
 import { ALL_POLY_PRESETS } from "@/lib/poly/presets";
+import { normalizeAgentName } from "@/lib/agentCopy";
 import {
   AGENT_NAME_POOL,
   isRoleDefaultName,
@@ -54,9 +55,16 @@ describe("pickAgentName", () => {
 
   it("appends the first free number once the pool is exhausted", () => {
     const all = [...AGENT_NAME_POOL];
-    expect(pickAgentName(all)).toBe("Kai 2");
-    expect(pickAgentName([...all, "kai 2"])).toBe("Kai 3");
-    expect(pickAgentName([...all, "Kai 3"])).toBe("Kai 2");
+    expect(pickAgentName(all)).toBe("Kai2");
+    expect(pickAgentName([...all, "kai2"])).toBe("Kai3");
+    expect(pickAgentName([...all, "Kai3"])).toBe("Kai2");
+  });
+
+  it("never generates a name whose @mention key is already taken", () => {
+    const taken = [...AGENT_NAME_POOL, "Kai2", "kai 3"];
+    const picked = pickAgentName(taken);
+    expect(picked).toBe("Kai4");
+    expect(taken.map(normalizeAgentName)).not.toContain(normalizeAgentName(picked));
   });
 });
 
@@ -76,9 +84,16 @@ describe("isRoleDefaultName", () => {
     }
   });
 
-  it("also accepts the custom preset's names", () => {
-    expect(isRoleDefaultName("Custom", "scout")).toBe(true);
-    expect(isRoleDefaultName("Özel", "muse")).toBe(true);
+  it("treats Custom titles as defaults only for the custom preset (or unknown)", () => {
+    expect(isRoleDefaultName("Custom", "custom")).toBe(true);
+    expect(isRoleDefaultName("Özel", "custom")).toBe(true);
+    expect(isRoleDefaultName("Custom", "explorer")).toBe(false);
+    expect(isRoleDefaultName("Özel", "muse")).toBe(false);
+  });
+
+  it("treats legacy copy-suffixed role titles as role defaults", () => {
+    expect(isRoleDefaultName("Explorer (copy)", "explorer")).toBe(true);
+    expect(isRoleDefaultName("Explorer (Kopie 2)", "explorer")).toBe(true);
   });
 
   it("rejects other roles' titles, real names, and blanks", () => {
@@ -110,6 +125,12 @@ describe("migrateAgentNames", () => {
     ]);
   });
 
+  it("renames legacy role-name copies like 'Explorer (copy)'", () => {
+    const { agents } = migrateAgentNames([a("Explorer (copy)")]);
+    expect(agents[0]!.displayName).not.toMatch(/Explorer/);
+    expect(agents[0]!.displayName).toBe("Kai");
+  });
+
   it("skips pool names already used by untouched agents", () => {
     const { agents } = migrateAgentNames([a("Explorer"), a("kai", "scout")]);
     expect(agents.map((x) => x.displayName)).toEqual(["Mira", "kai"]);
@@ -121,5 +142,13 @@ describe("migrateAgentNames", () => {
     expect(res.changed).toBe(false);
     expect(res.agents[0]).toBe(input[0]);
     expect(res.agents[1]).toBe(input[1]);
+  });
+
+  it("a user name equal to ANOTHER preset's title is kept; same-preset title is renamed", () => {
+    const { agents } = migrateAgentNames([
+      a("Guardian", "explorer"),
+      a("Guardian", "guardian"),
+    ]);
+    expect(agents.map((x) => x.displayName)).toEqual(["Guardian", "Kai"]);
   });
 });

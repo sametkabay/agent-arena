@@ -1,6 +1,8 @@
 import type { AgentConfig, AgentSkill } from "@/lib/types";
 import { normalizeAgentName, nextCopyName } from "@/lib/agentCopy";
+import { isRoleDefaultName, pickAgentName } from "@/lib/agentNames";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 import { ALL_POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
 
@@ -133,7 +135,10 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
       : DEFAULT_CHARACTER_ID;
 
   const systemPrompt = clip(
-    typeof a.systemPrompt === "string" ? a.systemPrompt : "",
+    migrateLegacySystemPrompt(
+      typeof a.systemPrompt === "string" ? a.systemPrompt : "",
+      polyPresetId,
+    ),
     ROSTER_LIMITS.systemPromptMax,
   );
 
@@ -271,7 +276,23 @@ export function parseRosterImport(
     throw new RosterImportError("tooManyTotal");
   }
 
-  return { agents, skipped };
+  // #71: rename legacy role-titled names within the import batch (roster-aware
+  // rename with live taken names also runs in importAgents).
+  const taken: string[] = [];
+  const renamed = agents.map((agent) => {
+    if (
+      !agent.displayName.trim() ||
+      isRoleDefaultName(agent.displayName, agent.polyPresetId)
+    ) {
+      const displayName = pickAgentName(taken);
+      taken.push(displayName);
+      return { ...agent, displayName };
+    }
+    taken.push(agent.displayName);
+    return agent;
+  });
+
+  return { agents: renamed, skipped };
 }
 
 /** Map chosen model ids onto the importer's model list (fallback = first). */

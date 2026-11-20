@@ -6,6 +6,7 @@ import {
   truncateChatHistory,
 } from "@/lib/ai/providers";
 import { getArenaWorldContext, withSituationUserMessage } from "@/lib/ai/arenaContext";
+import { agentLabel } from "@/lib/agentLabel";
 import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig } from "@/lib/config";
@@ -218,6 +219,8 @@ export function ChatPanel() {
 
   if (!chatOpen || !agent) return null;
 
+  const label = agentLabel(agent, t);
+
   async function send() {
     const text = input.trim();
     if (!text || !agent || busy) return;
@@ -316,7 +319,7 @@ export function ChatPanel() {
         }}
       >
         <div>
-          <strong>{agent.displayName}</strong>
+          <strong>{label}</strong>
           <span className="chat-popup__meta">
             {model ? model.name : t("chat.noModel")}
           </span>
@@ -358,7 +361,7 @@ export function ChatPanel() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={t("chat.placeholder", { name: agent.displayName })}
+          placeholder={t("chat.placeholder", { name: label })}
           disabled={busy}
         />
         <button type="submit" disabled={busy || !input.trim()}>

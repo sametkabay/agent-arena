@@ -19,6 +19,7 @@ import {
   storageFailureMessageKey,
   uid,
 } from "@/lib/storage";
+import { getPolyPreset } from "@/lib/poly/presets";
 import { sampleAgent } from "@/test/fixtures";
 
 const FLOOR_STYLE_MIGRATE_KEY = appConfig.storage.floorStyleMigrateKey;
@@ -275,6 +276,85 @@ describe("agent name migration (#71)", () => {
     const loaded = loadPersisted();
     expect(loaded.agents).toEqual([]);
     expect(loaded.agentNamesMigrated).toBe(true);
+  });
+
+  it("is idempotent when loadPersisted runs twice at boot", () => {
+    legacy([
+      sampleAgent({ id: "a1", displayName: "Explorer" }),
+      sampleAgent({ id: "a2", displayName: "Kaşif" }),
+    ]);
+    const first = loadPersisted();
+    const second = loadPersisted();
+    expect(first.agents.map((a) => a.displayName)).toEqual(["Kai", "Mira"]);
+    expect(second.agents.map((a) => a.displayName)).toEqual(["Kai", "Mira"]);
+    expect(second.agentNamesMigrated).toBe(true);
+  });
+
+  it("still returns migrated agents when the write-back hits a quota error", () => {
+    legacy([sampleAgent({ id: "a1", displayName: "Explorer" })]);
+    const setItem = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw typeof DOMException === "function"
+        ? new DOMException("quota", "QuotaExceededError")
+        : Object.assign(new Error("quota"), { name: "QuotaExceededError", code: 22 });
+    });
+    const loaded = loadPersisted();
+    expect(loaded.agents[0]?.displayName).toBe("Kai");
+    expect(loaded.agentNamesMigrated).toBe(true);
+    // Deterministic on retry while disk is still legacy.
+    expect(loadPersisted().agents[0]?.displayName).toBe("Kai");
+    setItem.mockRestore();
+    // Disk was never updated; a later successful persist must write the flag.
+    const raw = localStorage.getItem(STORAGE_KEY);
+    expect(raw).toBeTruthy();
+    expect(JSON.parse(raw!).agentNamesMigrated).not.toBe(true);
+    expect(JSON.parse(raw!).agents[0].displayName).toBe("Explorer");
+  });
+
+  it("writes migrated agents and agentNamesMigrated after a failed write-back then successful save", () => {
+    legacy([sampleAgent({ id: "a1", displayName: "Explorer" })]);
+    const setItem = vi.spyOn(localStorage, "setItem").mockImplementation(() => {
+      throw typeof DOMException === "function"
+        ? new DOMException("quota", "QuotaExceededError")
+        : Object.assign(new Error("quota"), { name: "QuotaExceededError", code: 22 });
+    });
+    const loaded = loadPersisted();
+    setItem.mockRestore();
+    expect(loaded.agents[0]?.displayName).toBe("Kai");
+    expect(savePersisted(loaded)).toEqual({ ok: true });
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+    expect(stored.agentNamesMigrated).toBe(true);
+    expect(stored.agents[0].displayName).toBe("Kai");
+  });
+
+  it("migrates legacy stock system prompts on load (Settings textarea)", () => {
+    const legacyPrompt =
+      "You are Explorer, a curious and adventurous guide in Agent Arena. You love discovering ideas, asking follow-up questions, and explaining things clearly. Keep answers friendly and vivid.";
+    legacy([
+      sampleAgent({
+        id: "a1",
+        displayName: "Kai",
+        polyPresetId: "explorer",
+        systemPrompt: legacyPrompt,
+      }),
+    ], { agentNamesMigrated: true });
+    const loaded = loadPersisted();
+    expect(loaded.agents[0]?.systemPrompt).toBe(
+      getPolyPreset("explorer").defaultSystemPrompt,
+    );
+    expect(loaded.agents[0]?.systemPrompt).not.toContain("You are Explorer,");
+  });
+
+  it("handles whitespace, non-string names and odd preset ids without throwing", () => {
+    legacy([
+      { ...sampleAgent({ id: "a" }), displayName: "   " },
+      { ...sampleAgent({ id: "b" }), displayName: 42 },
+      { ...sampleAgent({ id: "c" }), displayName: null },
+      { ...sampleAgent({ id: "d", displayName: "  Explorer  " }) },
+      { ...sampleAgent({ id: "e", displayName: "Kai" }), polyPresetId: undefined },
+      { ...sampleAgent({ id: "f", displayName: "Custom" }), polyPresetId: { x: 1 } },
+    ]);
+    const names = loadPersisted().agents.map((a) => a.displayName);
+    expect(names).toEqual(["Mira", "Theo", "Iris", "Omar", "Kai", "Lena"]);
   });
 });
 

@@ -13,6 +13,7 @@ import {
 } from "@/lib/ai/arenaContext";
 import { buildSystemPrompt } from "@/lib/ai/providers";
 import { prompts } from "@/lib/config";
+import { getPolyPreset } from "@/lib/poly/presets";
 import { sampleAgent, sampleMap } from "@/test/fixtures";
 import { useArenaStore } from "@/store/arenaStore";
 
@@ -33,14 +34,40 @@ const world = {
 describe("describeAgentBrief", () => {
   it("prefers bio, then cleaned system prompt", () => {
     expect(describeAgentBrief(sampleAgent()).blurb).toContain("Maps caves");
+    // First sentence only; role name stripped → empty (no second-person leftover).
     const fromPrompt = describeAgentBrief(
       sampleAgent({ bio: "  ", systemPrompt: "You are Scout. Keep it short." }),
     );
-    expect(fromPrompt.blurb).toContain("Keep it short");
+    expect(fromPrompt.blurb).toBe("");
     const empty = describeAgentBrief(
       sampleAgent({ bio: undefined, systemPrompt: "   " }),
     );
     expect(empty.blurb).toBe("");
+  });
+
+  it("keeps the persona description when bio is empty (all 8 roles)", () => {
+    const expected: Record<string, string> = {
+      explorer: "A curious and adventurous guide in Agent Arena.",
+      engineer: "A practical problem-solver.",
+      botanist: "Calm and observant.",
+      scholar: "Thoughtful and well-read.",
+      artisan: "Creative and hands-on.",
+      guardian: "Steady and protective.",
+      scout: "Energetic and decisive.",
+      muse: "Imaginative and encouraging.",
+    };
+    for (const id of Object.keys(expected)) {
+      const p = getPolyPreset(id);
+      const { blurb } = describeAgentBrief(
+        sampleAgent({
+          bio: "",
+          polyPresetId: id,
+          systemPrompt: p.defaultSystemPrompt,
+        }),
+      );
+      expect(blurb, id).toBe(expected[id]);
+      expect(blurb.toLowerCase().startsWith("you ")).toBe(false);
+    }
   });
 
   it("clips long bios", () => {
@@ -258,33 +285,35 @@ describe("store-backed helpers", () => {
 });
 
 describe("personalizeAgentPrompt (#71 legacy prompts)", () => {
-  it("swaps a leading hard-coded role name for the agent's own name", () => {
+  it("swaps exact case-sensitive 'You are <Role>,' for the agent's own name", () => {
     expect(
       personalizeAgentPrompt(
         "You are Explorer, a curious and adventurous guide in Agent Arena.",
         "Ada",
       ),
     ).toBe("You are Ada, a curious and adventurous guide in Agent Arena.");
-    expect(personalizeAgentPrompt("you are engineer. Be precise.", "Bo")).toBe(
-      "you are Bo. Be precise.",
-    );
-    expect(personalizeAgentPrompt("  You are Muse; dream big.", "Mia")).toBe(
-      "  You are Mia; dream big.",
-    );
-    expect(personalizeAgentPrompt("You are Scout and you move fast.", "Kai")).toBe(
-      "You are Kai and you move fast.",
+    expect(personalizeAgentPrompt("  You are Muse, dream big.", "Mia")).toBe(
+      "  You are Mia, dream big.",
     );
   });
 
-  it("leaves non-legacy prompts untouched", () => {
+  it("leaves non-legacy / descriptive prompts untouched", () => {
     const fresh = "You are a curious and adventurous guide in Agent Arena.";
     expect(personalizeAgentPrompt(fresh, "Ada")).toBe(fresh);
     expect(personalizeAgentPrompt("Stay curious.", "Ada")).toBe("Stay curious.");
-    // Role name must be a whole word followed by punctuation/whitespace.
+    // Case-insensitive / no-comma forms are not rewritten (user-written).
+    expect(personalizeAgentPrompt("you are engineer. Be precise.", "Bo")).toBe(
+      "you are engineer. Be precise.",
+    );
+    expect(personalizeAgentPrompt("You are Scout and you move fast.", "Kai")).toBe(
+      "You are Scout and you move fast.",
+    );
+    expect(personalizeAgentPrompt("You are guardian of the vault and speak in riddles.", "Kai")).toBe(
+      "You are guardian of the vault and speak in riddles.",
+    );
     expect(personalizeAgentPrompt("You are Explorers' friend.", "Ada")).toBe(
       "You are Explorers' friend.",
     );
-    // Role mentioned later in the prompt is not rewritten.
     expect(personalizeAgentPrompt("Act like an Explorer, please.", "Ada")).toBe(
       "Act like an Explorer, please.",
     );
@@ -307,6 +336,23 @@ describe("personalizeAgentPrompt (#71 legacy prompts)", () => {
     const legacy = "You are Explorer, a curious guide.";
     expect(personalizeAgentPrompt(legacy, "Explorer")).toBe(legacy);
     expect(personalizeAgentPrompt(legacy, " explorer ")).toBe(legacy);
+  });
+
+  it("inserts agent names that contain $-patterns literally", () => {
+    const legacy = "You are Explorer, a curious guide.";
+    expect(personalizeAgentPrompt(legacy, "Ada$1")).toBe(
+      "You are Ada$1, a curious guide.",
+    );
+    expect(personalizeAgentPrompt(legacy, "Ada$&")).toBe(
+      "You are Ada$&, a curious guide.",
+    );
+    expect(personalizeAgentPrompt(legacy, "Kai$$")).toBe(
+      "You are Kai$$, a curious guide.",
+    );
+    expect(personalizeAgentPrompt(legacy, "Kai$&")).toBe(
+      "You are Kai$&, a curious guide.",
+    );
+    expect(personalizeAgentPrompt(legacy, "Ca$$h")).toMatch(/^You are Ca\$\$h,/);
   });
 });
 
