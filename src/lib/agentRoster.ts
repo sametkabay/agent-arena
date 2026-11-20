@@ -125,16 +125,18 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
   );
   if (!displayName) return null;
 
-  // Unknown/missing → defaults.roleId (same policy as loadPersisted sanitize).
+  // Keep raw/unknown string ids for renameRoleTitled (all-titles path).
+  // Non-strings → "" (also unknown). Remap to defaults.roleId after rename.
   const polyPresetId =
-    typeof a.polyPresetId === "string" && isKnownPolyPresetId(a.polyPresetId)
-      ? a.polyPresetId
-      : appConfig.defaults.roleId;
+    typeof a.polyPresetId === "string" ? a.polyPresetId : "";
 
   const characterId =
     typeof a.characterId === "string" && isCharacterId(a.characterId)
       ? a.characterId
       : DEFAULT_CHARACTER_ID;
+
+  // getPolyPreset already falls back for unknown ids (color / prompt context).
+  const preset = getPolyPreset(polyPresetId);
 
   const systemPrompt = clip(
     migrateLegacySystemPrompt(
@@ -148,8 +150,6 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
   const bio = bioRaw
     ? clip(bioRaw, ROSTER_LIMITS.bioMax)
     : undefined;
-
-  const preset = getPolyPreset(polyPresetId);
   const color =
     typeof a.color === "string" && COLOR_RE.test(a.color)
       ? a.color
@@ -280,10 +280,16 @@ export function parseRosterImport(
     throw new RosterImportError("tooManyTotal");
   }
 
-  // #71: rename role-titled / empty rows; seed with live roster names so the
-  // import preview matches what importAgents will store (no "Kai (copy)").
+  // #71: rename against the original (possibly unknown) preset first so
+  // Muse/Engineer/Custom titles on a bad id are renamed; then sanitize.
+  const renamed = renameRoleTitled(agents, opts.existingNames ?? []);
   return {
-    agents: renameRoleTitled(agents, opts.existingNames ?? []),
+    agents: renamed.map((a) => ({
+      ...a,
+      polyPresetId: isKnownPolyPresetId(a.polyPresetId)
+        ? a.polyPresetId
+        : appConfig.defaults.roleId,
+    })),
     skipped,
   };
 }

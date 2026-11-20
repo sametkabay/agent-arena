@@ -174,21 +174,30 @@ function sanitizeSkills(raw: unknown): AgentSkill[] {
 
 const KNOWN_POLY_PRESET_IDS = new Set(ALL_POLY_PRESETS.map((p) => p.id));
 
+/** Known preset id, or defaults.roleId for missing/unknown values. */
+function resolvePolyPresetId(raw: unknown): string {
+  return typeof raw === "string" && KNOWN_POLY_PRESET_IDS.has(raw)
+    ? raw
+    : appConfig.defaults.roleId;
+}
+
 function sanitizeAgents(raw: unknown): AgentConfig[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
     .map((a) => {
-      // Missing/unknown polyPresetId → defaults.roleId (same as roster import).
+      // Keep raw string ids (even unknown) so migrateAgentNames can run the
+      // all-titles unknown-preset rename check first. Non-strings → "" (also
+      // unknown). Final remap to defaults.roleId happens after rename.
       const polyPresetId =
-        typeof a.polyPresetId === "string" &&
-        KNOWN_POLY_PRESET_IDS.has(a.polyPresetId)
-          ? a.polyPresetId
-          : appConfig.defaults.roleId;
+        typeof a.polyPresetId === "string" ? a.polyPresetId : "";
       return {
         ...(a as unknown as AgentConfig),
         displayName: typeof a.displayName === "string" ? a.displayName : "",
         polyPresetId,
+        // Coerce before migrateLegacySystemPrompt — a non-string would throw
+        // and loadPersisted's catch-all would wipe the whole profile.
+        systemPrompt: typeof a.systemPrompt === "string" ? a.systemPrompt : "",
         enabled: a.enabled !== false,
         thinkingEnabled: a.thinkingEnabled === true,
         chattiness: clampChattiness(a.chattiness),
@@ -278,6 +287,8 @@ export function loadPersisted(): AppPersisted {
     const storedAgents = sanitizeAgents(parsed.agents);
     // One-shot (#71): legacy agents named after their role get a person name.
     // Once flagged, a user who later names an agent "Explorer" keeps it.
+    // Rename runs on the pre-sanitize preset id so missing/unknown presets
+    // still hit isRoleDefaultName's all-titles branch (Muse/Engineer/…).
     const namesMigration =
       parsed.agentNamesMigrated === true
         ? { agents: storedAgents, changed: false }
@@ -285,13 +296,14 @@ export function loadPersisted(): AppPersisted {
     // Idempotent stock-prompt rewrite (pre-#71 "You are Explorer, …" → current).
     let promptsChanged = false;
     const agents = namesMigration.agents.map((a) => {
+      const polyPresetId = resolvePolyPresetId(a.polyPresetId);
       const systemPrompt = migrateLegacySystemPrompt(
         a.systemPrompt ?? "",
-        a.polyPresetId,
+        polyPresetId,
       );
-      if (systemPrompt !== a.systemPrompt) {
+      if (systemPrompt !== a.systemPrompt || polyPresetId !== a.polyPresetId) {
         promptsChanged = true;
-        return { ...a, systemPrompt };
+        return { ...a, polyPresetId, systemPrompt };
       }
       return a;
     });

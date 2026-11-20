@@ -20,7 +20,7 @@ import {
   uid,
 } from "@/lib/storage";
 import { getPolyPreset } from "@/lib/poly/presets";
-import { sampleAgent } from "@/test/fixtures";
+import { sampleAgent, sampleModel } from "@/test/fixtures";
 
 const FLOOR_STYLE_MIGRATE_KEY = appConfig.storage.floorStyleMigrateKey;
 
@@ -381,8 +381,8 @@ describe("agent name migration (#71)", () => {
   });
 
   it("renames Explorer and defaults polyPresetId when it is omitted or unknown", () => {
-    // Sanitize → defaults.roleId first (same as roster import), then rename
-    // treats that role’s titles as defaults — so "Explorer" is renamed.
+    // Rename checks the original (unknown/missing) preset first — all role
+    // titles count — then polyPresetId is remapped to defaults.roleId.
     legacy([
       {
         ...sampleAgent({ id: "a1", displayName: "Explorer" }),
@@ -400,6 +400,37 @@ describe("agent name migration (#71)", () => {
     expect(loaded.agents[1]?.polyPresetId).toBe(appConfig.defaults.roleId);
   });
 
+  it("renames non-default role titles when polyPresetId is missing or unknown", () => {
+    legacy([
+      {
+        ...sampleAgent({ id: "a1", displayName: "Muse", polyPresetId: "muse" }),
+        polyPresetId: undefined,
+      },
+      {
+        ...sampleAgent({ id: "a2", displayName: "Engineer" }),
+        polyPresetId: "not-a-role",
+      },
+      {
+        ...sampleAgent({ id: "a3", displayName: "Custom" }),
+        polyPresetId: { x: 1 },
+      },
+      {
+        ...sampleAgent({ id: "a4", displayName: "Guardian" }),
+        polyPresetId: "nope",
+      },
+    ]);
+    const loaded = loadPersisted();
+    expect(loaded.agents.map((a) => a.displayName)).toEqual([
+      "Kai",
+      "Mira",
+      "Theo",
+      "Iris",
+    ]);
+    for (const a of loaded.agents) {
+      expect(a.polyPresetId).toBe(appConfig.defaults.roleId);
+    }
+  });
+
   it("handles whitespace, non-string names and odd preset ids without throwing", () => {
     legacy([
       { ...sampleAgent({ id: "a" }), displayName: "   " },
@@ -410,18 +441,38 @@ describe("agent name migration (#71)", () => {
       { ...sampleAgent({ id: "f", displayName: "Custom" }), polyPresetId: { x: 1 } },
     ]);
     const loaded = loadPersisted();
-    // e: Kai kept; f: invalid preset → defaults.roleId, "Custom" is not that
-    // role's title so the user-chosen label is kept.
+    // e: Kai kept; f: invalid preset → all-titles rename, then defaults.roleId
     expect(loaded.agents.map((a) => a.displayName)).toEqual([
       "Mira",
       "Theo",
       "Iris",
       "Omar",
       "Kai",
-      "Custom",
+      "Lena",
     ]);
     expect(loaded.agents[4]?.polyPresetId).toBe(appConfig.defaults.roleId);
     expect(loaded.agents[5]?.polyPresetId).toBe(appConfig.defaults.roleId);
+  });
+
+  it("keeps the profile when one agent has a non-string systemPrompt", () => {
+    legacy(
+      [
+        sampleAgent({ id: "a", displayName: "Ada" }),
+        { ...sampleAgent({ id: "b", displayName: "Bo" }), systemPrompt: 42 },
+        { ...sampleAgent({ id: "c", displayName: "Cy" }), systemPrompt: { x: 1 } },
+      ],
+      {
+        agentNamesMigrated: true,
+        userName: "Sam",
+        models: [sampleModel()],
+      },
+    );
+    const loaded = loadPersisted();
+    expect(loaded.agents.map((a) => a.id)).toEqual(["a", "b", "c"]);
+    expect(loaded.agents[1]!.systemPrompt).toBe("");
+    expect(loaded.agents[2]!.systemPrompt).toBe("");
+    expect(loaded.userName).toBe("Sam");
+    expect(loaded.models).toHaveLength(1);
   });
 });
 

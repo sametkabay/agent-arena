@@ -189,4 +189,21 @@ describe("migrateAgentNames", () => {
     expect(agents[0]!.displayName).not.toBe("Explorer");
     expect(agents[0]!.displayName).toBe("Kai");
   });
+
+  it("renames every role title (and Custom / copy forms) when preset is unknown", () => {
+    const { agents } = migrateAgentNames([
+      { displayName: "Muse", polyPresetId: "" },
+      { displayName: "Engineer", polyPresetId: "garbage" },
+      { displayName: "Custom", polyPresetId: "nope" },
+      { displayName: "Muse (copy)", polyPresetId: "???" },
+      { displayName: "Kai", polyPresetId: "not-a-role" },
+    ]);
+    expect(agents.map((x) => x.displayName)).toEqual([
+      "Mira",
+      "Theo",
+      "Iris",
+      "Omar",
+      "Kai",
+    ]);
+  });
 });

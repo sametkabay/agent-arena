@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sampleAgent } from "@/test/fixtures";
 import { DEFAULT_CHARACTER_ID } from "@/lib/assets/characters";
+import { appConfig } from "@/lib/config";
 import { getPolyPreset } from "@/lib/poly/presets";
 import {
   ROSTER_FORMAT,
@@ -392,6 +393,40 @@ describe("round-trip", () => {
       }),
     );
     expect(result.agents.map((a) => a.displayName)).toEqual(["Mira", "Kai"]);
+  });
+
+  it("renames non-default role titles when polyPresetId is a typo / unknown", () => {
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: ROSTER_VERSION,
+        agents: [
+          {
+            displayName: "Engineer",
+            polyPresetId: "typo-role",
+            systemPrompt: "x",
+          },
+          {
+            displayName: "Muse (copy)",
+            polyPresetId: "???",
+            systemPrompt: "x",
+          },
+          {
+            displayName: "Guardian",
+            polyPresetId: "nope",
+            systemPrompt: "x",
+          },
+        ],
+      }),
+    );
+    expect(result.agents.map((a) => a.displayName)).toEqual([
+      "Kai",
+      "Mira",
+      "Theo",
+    ]);
+    for (const a of result.agents) {
+      expect(a.polyPresetId).toBe(appConfig.defaults.roleId);
+    }
   });
 
   it("preserves persona fields with fresh skill ids", () => {

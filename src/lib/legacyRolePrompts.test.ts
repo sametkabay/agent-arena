@@ -38,4 +38,13 @@ describe("migrateLegacySystemPrompt", () => {
       "You are Kai, a friend.",
     );
   });
+
+  it("coerces non-string prompts to empty (corrupt storage defense)", () => {
+    expect(migrateLegacySystemPrompt(42 as unknown as string, "explorer")).toBe(
+      "",
+    );
+    expect(
+      migrateLegacySystemPrompt({ x: 1 } as unknown as string, "custom"),
+    ).toBe("");
+  });
 });

@@ -42,6 +42,8 @@ export function migrateLegacySystemPrompt(
   prompt: string,
   _presetId: string,
 ): string {
+  // Defense in depth: non-string values must not throw into loadPersisted.
+  if (typeof prompt !== "string") return "";
   const matchedRoleId = LEGACY_BY_PROMPT.get(normalizePromptWs(prompt));
   if (!matchedRoleId) return prompt;
   return getPolyPreset(matchedRoleId).defaultSystemPrompt;
