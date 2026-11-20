@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
+import { agentLabel } from "@/lib/agentLabel";
 import { getPolyPreset } from "@/lib/poly/presets";
 import { getCharacter } from "@/lib/assets/characters";
 import { Switch } from "@/components/ui/Switch";
@@ -97,7 +98,7 @@ export function AgentList({
                     aria-hidden
                   />
                   <div className="card-item__text">
-                    <div className="card-item__title">{a.displayName}</div>
+                    <div className="card-item__title">{agentLabel(a, t)}</div>
                     <div className="card-item__sub">
                       {model?.name ?? "—"} · {t(look.nameKey)} · {t(role.nameKey)}
                       {a.thinkingEnabled ? ` · ${t("settings.agents.thinkingOn")}` : ""}

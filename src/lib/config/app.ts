@@ -33,6 +33,8 @@ export interface AppConfig {
     characterId: string;
     roleId: string;
     agentName: string;
+    /** Ordered person-name pool for new / migrated agents. */
+    agentNamePool: string[];
     agentColor: string;
     agentChattiness: number;
     agentTemperament: number;

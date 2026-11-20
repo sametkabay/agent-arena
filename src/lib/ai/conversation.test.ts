@@ -377,4 +377,24 @@ describe("formatArenaHistory", () => {
     expect(out).toHaveLength(30);
     expect(out.startsWith("Samet: ")).toBe(true);
   });
+
+  it("maps speaker labels to current agent names by agentId", () => {
+    const lines = [
+      line({
+        kind: "agent",
+        text: "hi",
+        agentName: "Explorer",
+        agentId: "a1",
+      }),
+      line({
+        kind: "agent",
+        text: "yo",
+        agentName: "Ghost",
+        agentId: "gone",
+      }),
+    ];
+    const agents = [{ id: "a1", displayName: "Kai" }];
+    const out = formatArenaHistory(lines, "a1", { max: 10, maxChars: 1000 }, agents);
+    expect(out).toBe("Kai (you): hi\nGhost: yo");
+  });
 });

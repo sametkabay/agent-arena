@@ -2,7 +2,7 @@ import type { AgentConfig, AgentSkill, DayNightMode, LanguageCode } from "@/lib/
 import { languageEnglishName } from "@/i18n/languages";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
-import { getPolyPreset } from "@/lib/poly/presets";
+import { POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 import { useArenaStore } from "@/store/arenaStore";
 import {
   appConfig,
@@ -44,6 +44,64 @@ export function languageLabel(language: LanguageCode): string {
   return languageEnglishName(language);
 }
 
+/** Common abbreviations that end with "." but are not sentence boundaries. */
+const SENTENCE_ABBREV = /\b(?:Dr|Mr|Mrs|Ms|St|Prof|e\.g|i\.e)\./gi;
+
+/** First sentence only (for roster blurbs — never leak later second-person lines). */
+function firstSentence(text: string): string {
+  // Protect abbreviations so "Dr. Smith" is not cut after "Dr.".
+  const placeholders: string[] = [];
+  const protectedText = text.replace(SENTENCE_ABBREV, (match) => {
+    const i = placeholders.length;
+    placeholders.push(match);
+    return `\0${i}\0`;
+  });
+  const m = protectedText.match(/^(.+?[.!?])(?:\s|$)/);
+  const sentence = (m?.[1] ?? protectedText).trim();
+  return sentence.replace(/\0(\d+)\0/g, (_, i: string) => placeholders[Number(i)] ?? "");
+}
+
+function capitalizeFragment(text: string): string {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * Turn a leading "You are …" stock/custom sentence into a third-person-neutral
+ * roster fragment. Strips a leading role/own proper name; otherwise rewrites
+ * "You are " → capitalised remainder (e.g. "A practical problem-solver.").
+ */
+function blurbFromSystemPrompt(prompt: string, agent: AgentConfig): string {
+  const sentence = firstSentence(prompt);
+  if (!sentence) return "";
+
+  const properNames = [
+    ...POLY_PRESETS.map((p) => p.defaultDisplayName?.trim()).filter(
+      (n): n is string => Boolean(n),
+    ),
+    agent.displayName.trim(),
+  ]
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+
+  for (const proper of properNames) {
+    const re = new RegExp(
+      `^You are ${escapeRegExp(proper)}[,.]\\s*`,
+      "i",
+    );
+    if (!re.test(sentence)) continue;
+    const rest = sentence.replace(re, "").trim();
+    return rest ? capitalizeFragment(rest) : "";
+  }
+
+  if (/^You are /i.test(sentence)) {
+    const rest = sentence.replace(/^You are /i, "").trim();
+    return rest ? capitalizeFragment(rest) : "";
+  }
+
+  return sentence;
+}
+
 /** Short public blurb for another agent (bio → role → clipped system prompt). */
 export function describeAgentBrief(agent: AgentConfig): {
   role: string;
@@ -57,10 +115,8 @@ export function describeAgentBrief(agent: AgentConfig): {
 
   const prompt = agent.systemPrompt.trim().replace(/\s+/g, " ");
   if (prompt) {
-    const cleaned = prompt
-      .replace(/^you are [^.,;:]+[.,;:]?\s*/i, "")
-      .trim();
-    return { role, blurb: clip(cleaned || prompt, prompts.briefs.promptMax) };
+    const cleaned = blurbFromSystemPrompt(prompt, agent);
+    return { role, blurb: clip(cleaned, prompts.briefs.promptMax) };
   }
 
   return { role, blurb: "" };
@@ -79,13 +135,45 @@ function formatPeopleLines(
   agents: ArenaWorldContext["otherAgents"],
 ): string[] {
   if (agents.length === 0) return [`- ${prompts.labels.none}`];
-  return agents.map((other) => {
-    const who =
-      other.role && other.role !== other.name
-        ? `${other.name} (${other.role})`
-        : other.name;
-    return other.blurb.trim() ? `- ${who}: ${other.blurb.trim()}` : `- ${who}`;
-  });
+  // Names only — roles/classes are never shown, so agents address each other by name.
+  return agents.map((other) =>
+    other.blurb.trim()
+      ? `- ${other.name}: ${other.blurb.trim()}`
+      : `- ${other.name}`,
+  );
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * Narrow runtime safety net for unmigrated legacy prompts:
+ * only exact case-sensitive `You are <RoleYamlName>,` (comma required).
+ * Name is inserted via a replacer function so `$`, `$&`, `$1`, etc. stay literal.
+ * User-written prompts ("You are guardian of the vault…") are never rewritten.
+ */
+export function personalizeAgentPrompt(prompt: string, agentName: string): string {
+  const name = agentName.trim();
+  if (!name) return prompt;
+  // Real role presets only — "Custom" is not a persona name.
+  const roleNames = POLY_PRESETS.map((p) => p.defaultDisplayName?.trim())
+    .filter((n): n is string => Boolean(n))
+    .sort((a, b) => b.length - a.length);
+  for (const role of roleNames) {
+    const re = new RegExp(`^(\\s*You are )(${escapeRegExp(role)})(,)`);
+    const m = prompt.match(re);
+    if (!m) continue;
+    if (normalizeName(m[2]!) === normalizeName(name)) return prompt;
+    return prompt.replace(re, (_match, lead: string, _role: string, comma: string) =>
+      `${lead}${name}${comma}`,
+    );
+  }
+  return prompt;
 }
 
 /**
@@ -215,7 +303,7 @@ export function buildAgentSystemPrompt(opts: {
 }): string {
   const { agentPrompt, agentName, world, mode } = opts;
   const vars = { agentName, language: languageLabel(world.language), userName: world.userName };
-  const parts: string[] = [agentPrompt.trim()];
+  const parts: string[] = [personalizeAgentPrompt(agentPrompt, agentName).trim()];
   const temperamentLine = buildTemperamentLine(opts.temperament);
   if (temperamentLine) parts.push(temperamentLine);
   parts.push(

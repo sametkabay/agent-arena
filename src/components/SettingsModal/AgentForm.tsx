@@ -1,15 +1,11 @@
 import { useTranslation } from "react-i18next";
 import type { AgentConfig, AgentSkill, AiModelConfig } from "@/lib/types";
-import {
-  ALL_POLY_PRESETS,
-  CUSTOM_PRESET,
-  getPolyPreset,
-  isCustomPreset,
-} from "@/lib/poly/presets";
+import { ALL_POLY_PRESETS } from "@/lib/poly/presets";
 import {
   ALL_CHARACTERS,
   getCharacter,
 } from "@/lib/assets/characters";
+import { applyRolePreset, isStockBio } from "@/lib/agentPreset";
 import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
 import { ColorField } from "@/components/ui/ColorField";
 import { Select } from "@/components/ui/Select";
@@ -34,14 +30,6 @@ const SKILL_TEMPLATES = [
     contentKey: "settings.agents.skillTemplates.tools.content",
   },
 ] as const;
-
-function isStockBio(bio: string | undefined, characterId: string, roleId: string) {
-  const trimmed = bio?.trim() ?? "";
-  if (!trimmed) return true;
-  const lookBio = getCharacter(characterId).defaultBio ?? "";
-  const roleBio = getPolyPreset(roleId).defaultBio ?? "";
-  return trimmed === lookBio || trimmed === roleBio;
-}
 
 function temperamentValueText(
   value: number,
@@ -75,34 +63,7 @@ export function AgentForm({
   const skills = editing.skills ?? [];
 
   function applyPreset(presetId: string) {
-    const preset = getPolyPreset(presetId);
-    const roleName = t(preset.nameKey);
-    const custom = isCustomPreset(presetId);
-    const prevRoleName = t(getPolyPreset(editing.polyPresetId).nameKey);
-    const nameIsFromRole =
-      !editing.displayName.trim() || editing.displayName.trim() === prevRoleName;
-    const nextBio = custom
-      ? editing.bio
-      : isStockBio(editing.bio, editing.characterId, editing.polyPresetId)
-        ? preset.defaultBio || editing.bio
-        : editing.bio;
-
-    onChange({
-      ...editing,
-      polyPresetId: presetId,
-      displayName: custom
-        ? nameIsFromRole
-          ? ""
-          : editing.displayName
-        : nameIsFromRole
-          ? roleName
-          : editing.displayName,
-      systemPrompt: custom
-        ? editing.systemPrompt || CUSTOM_PRESET.defaultSystemPrompt
-        : preset.defaultSystemPrompt,
-      color: custom ? editing.color || preset.defaultColor : preset.defaultColor,
-      bio: nextBio,
-    });
+    onChange(applyRolePreset(editing, presetId));
   }
 
   function applyCharacter(characterId: string) {
@@ -138,13 +99,22 @@ export function AgentForm({
         <input
           value={editing.displayName}
           onChange={(e) => onChange({ ...editing, displayName: e.target.value })}
-          placeholder={
-            isCustomPreset(editing.polyPresetId)
-              ? t("settings.agents.customRole")
-              : undefined
+          placeholder={t("settings.agents.displayNamePlaceholder")}
+          required
+          aria-invalid={!editing.displayName.trim()}
+          aria-describedby={
+            editing.displayName.trim() ? undefined : "agent-display-name-required"
           }
           autoFocus
         />
+        {!editing.displayName.trim() && (
+          <span
+            id="agent-display-name-required"
+            className="settings-hint settings-hint--inline"
+          >
+            {t("settings.agents.displayNameRequired")}
+          </span>
+        )}
       </label>
       <label>
         {t("settings.agents.model")}

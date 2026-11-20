@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AgentConfig } from "@/lib/types";
 import { getPolyPreset } from "@/lib/poly/presets";
+import { pickAgentName } from "@/lib/agentNames";
 import { DEFAULT_CHARACTER_ID, getCharacter } from "@/lib/assets/characters";
 import { createAgentDraft, useArenaStore } from "@/store/arenaStore";
 import { clampChattiness, clampTemperament } from "@/lib/storage";
@@ -114,7 +115,8 @@ export function AgentsTab() {
     const look = getCharacter(DEFAULT_CHARACTER_ID);
     openEditor(
       createAgentDraft({
-        displayName: t(preset.nameKey),
+        // Agents get a person name (editable); the role is a persona, never the name.
+        displayName: pickAgentName(agents.map((a) => a.displayName)),
         modelConfigId: models[0].id,
         polyPresetId: preset.id,
         characterId: DEFAULT_CHARACTER_ID,
@@ -198,6 +200,7 @@ export function AgentsTab() {
       const result = parseRosterImport(text, {
         fileSize: file.size,
         existingCount: agents.length,
+        existingNames: agents.map((a) => a.displayName),
       });
       setPendingImport(result);
     } catch (err) {

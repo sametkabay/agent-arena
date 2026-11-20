@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
 import { emptyAgentListAction } from "@/lib/onboarding";
+import { agentLabel } from "@/lib/agentLabel";
 
 type Props = {
   collapsed: boolean;
@@ -67,7 +68,7 @@ export function AgentList({ collapsed, onToggle }: Props) {
                       aria-hidden
                     />
                     <span className="side-panel__meta">
-                      <span className="side-panel__name">{agent.displayName}</span>
+                      <span className="side-panel__name">{agentLabel(agent, t)}</span>
                       <span className="side-panel__bio">
                         {agent.bio || t("agentList.talk")}
                       </span>
