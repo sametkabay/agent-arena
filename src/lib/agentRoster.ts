@@ -1,10 +1,11 @@
 import type { AgentConfig, AgentSkill } from "@/lib/types";
 import { normalizeAgentName, nextCopyName } from "@/lib/agentCopy";
-import { isRoleDefaultName, pickAgentName } from "@/lib/agentNames";
+import { renameRoleTitled } from "@/lib/agentNames";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
 import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 import { ALL_POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
+import { appConfig } from "@/lib/config";
 
 export const ROSTER_FORMAT = "agent-arena/agents" as const;
 export const ROSTER_VERSION = 1 as const;
@@ -124,10 +125,11 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
   );
   if (!displayName) return null;
 
+  // Unknown/missing → defaults.roleId (same policy as loadPersisted sanitize).
   const polyPresetId =
     typeof a.polyPresetId === "string" && isKnownPolyPresetId(a.polyPresetId)
       ? a.polyPresetId
-      : "explorer";
+      : appConfig.defaults.roleId;
 
   const characterId =
     typeof a.characterId === "string" && isCharacterId(a.characterId)
@@ -211,6 +213,8 @@ export type ParseRosterOptions = {
   fileSize?: number;
   /** Current roster length; used for the total cap. */
   existingCount?: number;
+  /** Live roster display names — seeds rename so the preview matches import. */
+  existingNames?: readonly string[];
 };
 
 /**
@@ -276,23 +280,12 @@ export function parseRosterImport(
     throw new RosterImportError("tooManyTotal");
   }
 
-  // #71: rename legacy role-titled names within the import batch (roster-aware
-  // rename with live taken names also runs in importAgents).
-  const taken: string[] = [];
-  const renamed = agents.map((agent) => {
-    if (
-      !agent.displayName.trim() ||
-      isRoleDefaultName(agent.displayName, agent.polyPresetId)
-    ) {
-      const displayName = pickAgentName(taken);
-      taken.push(displayName);
-      return { ...agent, displayName };
-    }
-    taken.push(agent.displayName);
-    return agent;
-  });
-
-  return { agents: renamed, skipped };
+  // #71: rename role-titled / empty rows; seed with live roster names so the
+  // import preview matches what importAgents will store (no "Kai (copy)").
+  return {
+    agents: renameRoleTitled(agents, opts.existingNames ?? []),
+    skipped,
+  };
 }
 
 /** Map chosen model ids onto the importer's model list (fallback = first). */

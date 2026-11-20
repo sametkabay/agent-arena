@@ -7,6 +7,7 @@ import {
   isRoleDefaultName,
   migrateAgentNames,
   pickAgentName,
+  renameRoleTitled,
 } from "@/lib/agentNames";
 
 const localeModules = import.meta.glob("../i18n/*.json", {
@@ -84,11 +85,19 @@ describe("isRoleDefaultName", () => {
     }
   });
 
-  it("treats Custom titles as defaults only for the custom preset (or unknown)", () => {
+  it("treats Custom titles as defaults only for the custom preset", () => {
     expect(isRoleDefaultName("Custom", "custom")).toBe(true);
     expect(isRoleDefaultName("Özel", "custom")).toBe(true);
     expect(isRoleDefaultName("Custom", "explorer")).toBe(false);
     expect(isRoleDefaultName("Özel", "muse")).toBe(false);
+  });
+
+  it("treats every role title (and Custom) as a default when preset is missing/unknown", () => {
+    expect(isRoleDefaultName("Explorer", "not-a-role")).toBe(true);
+    expect(isRoleDefaultName("Explorer (copy)", "not-a-role")).toBe(true);
+    expect(isRoleDefaultName("Kaşif", "")).toBe(true);
+    expect(isRoleDefaultName("Custom", "not-a-role")).toBe(true);
+    expect(isRoleDefaultName("Kai", "not-a-role")).toBe(false);
   });
 
   it("treats legacy copy-suffixed role titles as role defaults", () => {
@@ -101,6 +110,27 @@ describe("isRoleDefaultName", () => {
     expect(isRoleDefaultName("Explorer Bob", "explorer")).toBe(false);
     expect(isRoleDefaultName("Kai", "explorer")).toBe(false);
     expect(isRoleDefaultName("   ", "explorer")).toBe(false);
+  });
+});
+
+describe("renameRoleTitled", () => {
+  it("seeds taken with existingNames and kept rows before assigning pool names", () => {
+    const out = renameRoleTitled(
+      [
+        { displayName: "Explorer", polyPresetId: "explorer" },
+        { displayName: "Kai", polyPresetId: "engineer" },
+      ],
+      [],
+    );
+    expect(out.map((a) => a.displayName)).toEqual(["Mira", "Kai"]);
+  });
+
+  it("avoids live roster names", () => {
+    const out = renameRoleTitled(
+      [{ displayName: "Explorer", polyPresetId: "explorer" }],
+      ["Kai"],
+    );
+    expect(out[0]!.displayName).toBe("Mira");
   });
 });
 
@@ -150,5 +180,13 @@ describe("migrateAgentNames", () => {
       a("Guardian", "guardian"),
     ]);
     expect(agents.map((x) => x.displayName)).toEqual(["Guardian", "Kai"]);
+  });
+
+  it("renames Explorer when polyPresetId is unknown", () => {
+    const { agents } = migrateAgentNames([
+      { displayName: "Explorer", polyPresetId: "not-a-role" },
+    ]);
+    expect(agents[0]!.displayName).not.toBe("Explorer");
+    expect(agents[0]!.displayName).toBe("Kai");
   });
 });

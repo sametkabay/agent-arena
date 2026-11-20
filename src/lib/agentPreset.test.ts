@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { applyRolePreset, isStockBio } from "@/lib/agentPreset";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 import { ALL_POLY_PRESETS, CUSTOM_PRESET, getPolyPreset } from "@/lib/poly/presets";
 import { sampleAgent } from "@/test/fixtures";
+
+const EXPLORER_LEGACY =
+  "You are Explorer, a curious and adventurous guide in Agent Arena. You love discovering ideas, asking follow-up questions, and explaining things clearly. Keep answers friendly and vivid.";
 
 describe("applyRolePreset (#71)", () => {
   it("never modifies displayName, whatever it was", () => {
@@ -29,6 +33,24 @@ describe("applyRolePreset (#71)", () => {
     expect(kept.systemPrompt).toBe("Mine.");
     const filled = applyRolePreset(sampleAgent({ systemPrompt: "" }), "custom");
     expect(filled.systemPrompt).toBe(CUSTOM_PRESET.defaultSystemPrompt);
+  });
+
+  it("keeps a legacy explorer prompt through explorer→custom; migration maps to explorer stock", () => {
+    const afterSwitch = applyRolePreset(
+      sampleAgent({
+        displayName: "Kai",
+        polyPresetId: "explorer",
+        systemPrompt: EXPLORER_LEGACY,
+      }),
+      "custom",
+    );
+    expect(afterSwitch.systemPrompt).toBe(EXPLORER_LEGACY);
+    const migrated = migrateLegacySystemPrompt(
+      afterSwitch.systemPrompt,
+      afterSwitch.polyPresetId,
+    );
+    expect(migrated).toBe(getPolyPreset("explorer").defaultSystemPrompt);
+    expect(migrated).not.toBe(getPolyPreset("custom").defaultSystemPrompt);
   });
 
   it("swaps a stock bio but keeps a hand-written one", () => {

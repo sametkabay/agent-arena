@@ -13,7 +13,7 @@ import {
   normalizeAgentName,
   stripCopySuffix,
 } from "@/lib/agentCopy";
-import { ALL_POLY_PRESETS, CUSTOM_PRESET, getPolyPreset } from "@/lib/poly/presets";
+import { ALL_POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 
 type LocalePoly = Record<string, { name?: string } | undefined>;
 
@@ -60,8 +60,10 @@ function foldedRoleBase(name: string): string {
 
 /**
  * True when `name` is this role's stock title (or a copy-suffix variant), rather
- * than a name the user chose. Custom-preset titles only count for custom /
- * unknown presets.
+ * than a name the user chose. For a known preset, only that role's titles
+ * count. For a missing/unknown preset, every role's titles (yaml + all locales,
+ * incl. copy-suffix forms) plus Custom titles count — corrupt localStorage
+ * must not keep "Explorer".
  */
 export function isRoleDefaultName(name: string, polyPresetId: string): boolean {
   const base = foldedRoleBase(name);
@@ -73,16 +75,37 @@ export function isRoleDefaultName(name: string, polyPresetId: string): boolean {
       : null;
 
   if (presetId) {
-    if (roleDefaultNames(presetId).some((r) => normalizeAgentName(r) === base)) {
-      return true;
-    }
-    return false;
+    return roleDefaultNames(presetId).some(
+      (r) => normalizeAgentName(r) === base,
+    );
   }
 
-  // Unknown preset: only Custom titles count as legacy prefills.
-  return roleDefaultNames(CUSTOM_PRESET.id).some(
-    (r) => normalizeAgentName(r) === base,
+  // Missing/unknown preset: any role or Custom stock title is a legacy prefill.
+  return ALL_POLY_PRESETS.some((p) =>
+    roleDefaultNames(p.id).some((r) => normalizeAgentName(r) === base),
   );
+}
+
+/**
+ * Assign pool names to role-titled / empty rows. Seeds `taken` with
+ * `existingNames` plus every row that keeps its name, then renames the rest
+ * in order (same collect-first semantics as migrateAgentNames).
+ */
+export function renameRoleTitled<
+  T extends { displayName: string; polyPresetId: string },
+>(items: readonly T[], existingNames: readonly string[] = []): T[] {
+  const needsName = (a: T) =>
+    !a.displayName.trim() || isRoleDefaultName(a.displayName, a.polyPresetId);
+  const taken = [
+    ...existingNames,
+    ...items.filter((a) => !needsName(a)).map((a) => a.displayName),
+  ];
+  return items.map((a) => {
+    if (!needsName(a)) return a;
+    const displayName = pickAgentName(taken);
+    taken.push(displayName);
+    return { ...a, displayName };
+  });
 }
 
 /**
@@ -92,16 +115,7 @@ export function isRoleDefaultName(name: string, polyPresetId: string): boolean {
 export function migrateAgentNames<T extends { displayName: string; polyPresetId: string }>(
   agents: T[],
 ): { agents: T[]; changed: boolean } {
-  const needsName = (a: T) =>
-    !a.displayName.trim() || isRoleDefaultName(a.displayName, a.polyPresetId);
-  const taken = agents.filter((a) => !needsName(a)).map((a) => a.displayName);
-  let changed = false;
-  const out = agents.map((a) => {
-    if (!needsName(a)) return a;
-    const displayName = pickAgentName(taken);
-    taken.push(displayName);
-    changed = true;
-    return { ...a, displayName };
-  });
+  const out = renameRoleTitled(agents, []);
+  const changed = out.some((a, i) => a !== agents[i]);
   return { agents: out, changed };
 }

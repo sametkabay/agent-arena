@@ -45,7 +45,7 @@ import {
   type StoragePersistResult,
 } from "@/lib/storage";
 import { createAgentCopy } from "@/lib/agentCopy";
-import { isRoleDefaultName, pickAgentName } from "@/lib/agentNames";
+import { renameRoleTitled } from "@/lib/agentNames";
 import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 import {
   remapModelIds,
@@ -694,23 +694,19 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       return { agents: [], result: { ok: true } };
     }
     const resolvedModels = remapModelIds(modelIds, availableIds);
-    // #71: rename role-titled imports before collision resolution; migrate prompts.
-    const taken = state.agents.map((a) => a.displayName);
-    const prepared = items.map((item) => {
-      const systemPrompt = migrateLegacySystemPrompt(
+    // #71: migrate prompts, then rename role-titled rows with live roster names
+    // (collect-first; shared with parseRosterImport via renameRoleTitled).
+    const withPrompts = items.map((item) => ({
+      ...item,
+      systemPrompt: migrateLegacySystemPrompt(
         item.systemPrompt,
         item.polyPresetId,
-      );
-      let displayName = item.displayName;
-      if (
-        !displayName.trim() ||
-        isRoleDefaultName(displayName, item.polyPresetId)
-      ) {
-        displayName = pickAgentName(taken);
-      }
-      taken.push(displayName);
-      return { ...item, displayName, systemPrompt };
-    });
+      ),
+    }));
+    const prepared = renameRoleTitled(
+      withPrompts,
+      state.agents.map((a) => a.displayName),
+    );
     const names = resolveImportNames(
       prepared.map((item) => item.displayName),
       state.agents.map((a) => a.displayName),

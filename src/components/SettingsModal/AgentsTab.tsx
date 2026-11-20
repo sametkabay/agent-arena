@@ -200,6 +200,7 @@ export function AgentsTab() {
       const result = parseRosterImport(text, {
         fileSize: file.size,
         existingCount: agents.length,
+        existingNames: agents.map((a) => a.displayName),
       });
       setPendingImport(result);
     } catch (err) {

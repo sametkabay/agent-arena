@@ -20,6 +20,7 @@ import { parseChatterMode } from "@/lib/ai/conversation";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
 import { migrateAgentNames } from "@/lib/agentNames";
 import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
+import { ALL_POLY_PRESETS } from "@/lib/poly/presets";
 
 export { DEFAULT_GRAPHICS };
 
@@ -171,22 +172,33 @@ function sanitizeSkills(raw: unknown): AgentSkill[] {
     }));
 }
 
+const KNOWN_POLY_PRESET_IDS = new Set(ALL_POLY_PRESETS.map((p) => p.id));
+
 function sanitizeAgents(raw: unknown): AgentConfig[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
-    .map((a) => ({
-      ...(a as unknown as AgentConfig),
-      displayName: typeof a.displayName === "string" ? a.displayName : "",
-      enabled: a.enabled !== false,
-      thinkingEnabled: a.thinkingEnabled === true,
-      chattiness: clampChattiness(a.chattiness),
-      temperament: clampTemperament(a.temperament),
-      skills: sanitizeSkills(a.skills),
-      characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
-        ? (a.characterId as string)
-        : DEFAULT_CHARACTER_ID,
-    }));
+    .map((a) => {
+      // Missing/unknown polyPresetId → defaults.roleId (same as roster import).
+      const polyPresetId =
+        typeof a.polyPresetId === "string" &&
+        KNOWN_POLY_PRESET_IDS.has(a.polyPresetId)
+          ? a.polyPresetId
+          : appConfig.defaults.roleId;
+      return {
+        ...(a as unknown as AgentConfig),
+        displayName: typeof a.displayName === "string" ? a.displayName : "",
+        polyPresetId,
+        enabled: a.enabled !== false,
+        thinkingEnabled: a.thinkingEnabled === true,
+        chattiness: clampChattiness(a.chattiness),
+        temperament: clampTemperament(a.temperament),
+        skills: sanitizeSkills(a.skills),
+        characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
+          ? (a.characterId as string)
+          : DEFAULT_CHARACTER_ID,
+      };
+    });
 }
 
 /**
@@ -321,16 +333,12 @@ export function loadPersisted(): AppPersisted {
       // remaps by agentId at read time — see formatArenaHistory).
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };
-    // Write the flag (and any renames / prompt migrations) back now so the
-    // migration never re-runs after a successful disk write. Check the result:
-    // on failure, in-memory data is still migrated; the next successful
-    // persistSlice save writes agentNamesMigrated: true with these agents.
+    // Best-effort write-back of the flag / renames / prompt migrations.
+    // On failure the disk may still hold the legacy blob; callers keep migrated
+    // `data` in memory, and the next successful persistSlice writes
+    // agentNamesMigrated: true (migration is deterministic on reload).
     if (needsWriteBack) {
-      const writeBack = savePersisted(data);
-      if (!writeBack.ok) {
-        // Disk still has the pre-migration blob; callers keep `data` (migrated).
-        // persistSlice always sets agentNamesMigrated: true on later saves.
-      }
+      savePersisted(data);
     }
     return data;
   } catch {

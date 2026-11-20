@@ -76,6 +76,19 @@ describe("describeAgentBrief", () => {
     expect(blurb.endsWith("…")).toBe(true);
     expect(blurb.length).toBeLessThanOrEqual(prompts.briefs.bioMax);
   });
+
+  it("does not cut the first sentence after common abbreviations (Dr., Mr., …)", () => {
+    const { blurb } = describeAgentBrief(
+      sampleAgent({
+        bio: "",
+        polyPresetId: "custom",
+        displayName: "Ada",
+        systemPrompt: "You are Dr. Smith, a surgeon. Stay calm.",
+      }),
+    );
+    expect(blurb).not.toBe("Dr.");
+    expect(blurb.toLowerCase()).toContain("surgeon");
+  });
 });
 
 describe("world context builders", () => {

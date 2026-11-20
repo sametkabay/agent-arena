@@ -44,10 +44,21 @@ export function languageLabel(language: LanguageCode): string {
   return languageEnglishName(language);
 }
 
+/** Common abbreviations that end with "." but are not sentence boundaries. */
+const SENTENCE_ABBREV = /\b(?:Dr|Mr|Mrs|Ms|St|Prof|e\.g|i\.e)\./gi;
+
 /** First sentence only (for roster blurbs — never leak later second-person lines). */
 function firstSentence(text: string): string {
-  const m = text.match(/^(.+?[.!?])(?:\s|$)/);
-  return (m?.[1] ?? text).trim();
+  // Protect abbreviations so "Dr. Smith" is not cut after "Dr.".
+  const placeholders: string[] = [];
+  const protectedText = text.replace(SENTENCE_ABBREV, (match) => {
+    const i = placeholders.length;
+    placeholders.push(match);
+    return `\0${i}\0`;
+  });
+  const m = protectedText.match(/^(.+?[.!?])(?:\s|$)/);
+  const sentence = (m?.[1] ?? protectedText).trim();
+  return sentence.replace(/\0(\d+)\0/g, (_, i: string) => placeholders[Number(i)] ?? "");
 }
 
 function capitalizeFragment(text: string): string {

@@ -333,6 +333,67 @@ describe("round-trip", () => {
     expect(result.agents[0]!.systemPrompt).not.toContain("Explorer,");
   });
 
+  it("maps a custom-preset row’s legacy explorer prompt to current explorer stock", () => {
+    const legacy =
+      "You are Explorer, a curious and adventurous guide in Agent Arena. You love discovering ideas, asking follow-up questions, and explaining things clearly. Keep answers friendly and vivid.";
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: ROSTER_VERSION,
+        agents: [
+          {
+            displayName: "Kai",
+            polyPresetId: "custom",
+            systemPrompt: legacy,
+          },
+        ],
+      }),
+    );
+    expect(result.agents[0]!.systemPrompt).toBe(
+      getPolyPreset("explorer").defaultSystemPrompt,
+    );
+  });
+
+  it("seeds rename with existingNames so preview matches live roster", () => {
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: 1,
+        agents: [
+          {
+            displayName: "Explorer",
+            polyPresetId: "explorer",
+            systemPrompt: "Hi",
+          },
+        ],
+      }),
+      { existingCount: 1, existingNames: ["Kai"] },
+    );
+    expect(result.agents[0]!.displayName).toBe("Mira");
+  });
+
+  it("does not let a role row steal a later row’s kept name", () => {
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: ROSTER_VERSION,
+        agents: [
+          {
+            displayName: "Explorer",
+            polyPresetId: "explorer",
+            systemPrompt: "x",
+          },
+          {
+            displayName: "Kai",
+            polyPresetId: "engineer",
+            systemPrompt: "y",
+          },
+        ],
+      }),
+    );
+    expect(result.agents.map((a) => a.displayName)).toEqual(["Mira", "Kai"]);
+  });
+
   it("preserves persona fields with fresh skill ids", () => {
     const source = sampleAgent({
       displayName: "Ada",
