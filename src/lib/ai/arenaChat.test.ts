@@ -222,6 +222,74 @@ describe("resolveArenaTargets", () => {
     expect(miss.targets).toHaveLength(0);
     expect(miss.unmatched).toEqual(["Nobody'nin"]);
   });
+
+  it("routes by the user-given name only, never by role/class (#71)", () => {
+    const roster = [
+      sampleAgent({
+        id: "ada",
+        displayName: "Ada",
+        polyPresetId: "explorer",
+        modelConfigId: "m1",
+      }),
+      sampleAgent({
+        id: "bo",
+        displayName: "Bo",
+        polyPresetId: "engineer",
+        modelConfigId: "m1",
+      }),
+    ];
+    const byClass = resolveArenaTargets("@Explorer what do you think?", roster);
+    expect(byClass.mentioned).toBe(true);
+    expect(byClass.targets).toHaveLength(0);
+    expect(byClass.unmatched).toEqual(["Explorer"]);
+    expect(resolveArenaTargets("@Engineer, hi", roster).targets).toHaveLength(0);
+
+    for (const text of ["@Ada hi", "@Ada, hi", "@Ada'nın fikri?", "@ada."]) {
+      expect(resolveArenaTargets(text, roster).targets.map((t) => t.id)).toEqual([
+        "ada",
+      ]);
+    }
+  });
+
+  it("resolves pool-overflow names without spaces (@Kai2)", () => {
+    const roster = [
+      sampleAgent({ id: "k1", displayName: "Kai", modelConfigId: "m1" }),
+      sampleAgent({ id: "k2", displayName: "Kai2", modelConfigId: "m1" }),
+    ];
+    expect(resolveArenaTargets("@Kai2", roster).targets.map((t) => t.id)).toEqual([
+      "k2",
+    ]);
+    expect(resolveArenaTargets("@Kai", roster).targets.map((t) => t.id)).toEqual([
+      "k1",
+    ]);
+  });
+
+  it("matches Turkish dotted/dotless I case-insensitively", () => {
+    const roster = [
+      sampleAgent({ id: "ipek", displayName: "İpek", modelConfigId: "m1" }),
+      sampleAgent({ id: "izci", displayName: "İzci", modelConfigId: "m1" }),
+      sampleAgent({ id: "iris", displayName: "Iris", modelConfigId: "m1" }),
+      sampleAgent({ id: "irmak", displayName: "Irmak", modelConfigId: "m1" }),
+    ];
+    expect(resolveArenaTargets("@ipek", roster).targets.map((t) => t.id)).toEqual([
+      "ipek",
+    ]);
+    expect(resolveArenaTargets("@İPEK", roster).targets.map((t) => t.id)).toEqual([
+      "ipek",
+    ]);
+    expect(resolveArenaTargets("@izci", roster).targets.map((t) => t.id)).toEqual([
+      "izci",
+    ]);
+    expect(resolveArenaTargets("@İris selam", roster).targets.map((t) => t.id)).toEqual([
+      "iris",
+    ]);
+    expect(resolveArenaTargets("@IRMAK", roster).targets.map((t) => t.id)).toEqual([
+      "irmak",
+    ]);
+    expect(resolveArenaTargets("@ırmak", roster).targets.map((t) => t.id)).toEqual([
+      "irmak",
+    ]);
+  });
 });
 
 describe("sendArenaChatMessage", () => {

@@ -18,6 +18,9 @@ import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
 import { parseChatterMode } from "@/lib/ai/conversation";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
+import { migrateAgentNames } from "@/lib/agentNames";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
+import { ALL_POLY_PRESETS } from "@/lib/poly/presets";
 
 export { DEFAULT_GRAPHICS };
 
@@ -74,6 +77,8 @@ export function defaultPersisted(): AppPersisted {
     chatterMode: parseChatterMode(appConfig.defaults.chatterMode),
     onboardingSeen: false,
     controlsHelpSeen: false,
+    // Fresh profiles have no agents, so there is nothing to rename.
+    agentNamesMigrated: true,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -167,21 +172,42 @@ function sanitizeSkills(raw: unknown): AgentSkill[] {
     }));
 }
 
+const KNOWN_POLY_PRESET_IDS = new Set(ALL_POLY_PRESETS.map((p) => p.id));
+
+/** Known preset id, or defaults.roleId for missing/unknown values. */
+function resolvePolyPresetId(raw: unknown): string {
+  return typeof raw === "string" && KNOWN_POLY_PRESET_IDS.has(raw)
+    ? raw
+    : appConfig.defaults.roleId;
+}
+
 function sanitizeAgents(raw: unknown): AgentConfig[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
-    .map((a) => ({
-      ...(a as unknown as AgentConfig),
-      enabled: a.enabled !== false,
-      thinkingEnabled: a.thinkingEnabled === true,
-      chattiness: clampChattiness(a.chattiness),
-      temperament: clampTemperament(a.temperament),
-      skills: sanitizeSkills(a.skills),
-      characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
-        ? (a.characterId as string)
-        : DEFAULT_CHARACTER_ID,
-    }));
+    .map((a) => {
+      // Keep raw string ids (even unknown) so migrateAgentNames can run the
+      // all-titles unknown-preset rename check first. Non-strings → "" (also
+      // unknown). Final remap to defaults.roleId happens after rename.
+      const polyPresetId =
+        typeof a.polyPresetId === "string" ? a.polyPresetId : "";
+      return {
+        ...(a as unknown as AgentConfig),
+        displayName: typeof a.displayName === "string" ? a.displayName : "",
+        polyPresetId,
+        // Coerce before migrateLegacySystemPrompt — a non-string would throw
+        // and loadPersisted's catch-all would wipe the whole profile.
+        systemPrompt: typeof a.systemPrompt === "string" ? a.systemPrompt : "",
+        enabled: a.enabled !== false,
+        thinkingEnabled: a.thinkingEnabled === true,
+        chattiness: clampChattiness(a.chattiness),
+        temperament: clampTemperament(a.temperament),
+        skills: sanitizeSkills(a.skills),
+        characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
+          ? (a.characterId as string)
+          : DEFAULT_CHARACTER_ID,
+      };
+    });
 }
 
 /**
@@ -258,11 +284,36 @@ export function loadPersisted(): AppPersisted {
     const parsed = JSON.parse(raw) as Partial<AppPersisted>;
     const customMaps = sanitizeCustomMaps(parsed.customMaps);
     const models = sanitizeModels(parsed.models);
-    return {
+    const storedAgents = sanitizeAgents(parsed.agents);
+    // One-shot (#71): legacy agents named after their role get a person name.
+    // Once flagged, a user who later names an agent "Explorer" keeps it.
+    // Rename runs on the pre-sanitize preset id so missing/unknown presets
+    // still hit isRoleDefaultName's all-titles branch (Muse/Engineer/…).
+    const namesMigration =
+      parsed.agentNamesMigrated === true
+        ? { agents: storedAgents, changed: false }
+        : migrateAgentNames(storedAgents);
+    // Idempotent stock-prompt rewrite (pre-#71 "You are Explorer, …" → current).
+    let promptsChanged = false;
+    const agents = namesMigration.agents.map((a) => {
+      const polyPresetId = resolvePolyPresetId(a.polyPresetId);
+      const systemPrompt = migrateLegacySystemPrompt(
+        a.systemPrompt ?? "",
+        polyPresetId,
+      );
+      if (systemPrompt !== a.systemPrompt || polyPresetId !== a.polyPresetId) {
+        promptsChanged = true;
+        return { ...a, polyPresetId, systemPrompt };
+      }
+      return a;
+    });
+    const needsWriteBack =
+      parsed.agentNamesMigrated !== true || promptsChanged;
+    const data: AppPersisted = {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
       language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
       models,
-      agents: sanitizeAgents(parsed.agents),
+      agents,
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
@@ -280,15 +331,28 @@ export function loadPersisted(): AppPersisted {
       controlsHelpSeen:
         typeof parsed.controlsHelpSeen === "boolean"
           ? parsed.controlsHelpSeen
-          : sanitizeAgents(parsed.agents).length > 0,
+          : storedAgents.length > 0,
+      // In-memory always reflects migrated agents; flag stays true so the store
+      // and persistSlice write agentNamesMigrated: true on the next successful save.
+      agentNamesMigrated: true,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")
             .map(migratePlaceableId)
         : [],
       chats: sanitizeChats(parsed.chats),
+      // Speaker names in past messages stay as they were spoken (model context
+      // remaps by agentId at read time — see formatArenaHistory).
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };
+    // Best-effort write-back of the flag / renames / prompt migrations.
+    // On failure the disk may still hold the legacy blob; callers keep migrated
+    // `data` in memory, and the next successful persistSlice writes
+    // agentNamesMigrated: true (migration is deterministic on reload).
+    if (needsWriteBack) {
+      savePersisted(data);
+    }
+    return data;
   } catch {
     return defaultPersisted();
   }

@@ -236,16 +236,27 @@ export function formatArenaHistory(
   lines: FloatingChatLine[],
   selfId: string,
   opts: { max: number; maxChars: number },
+  /** Current roster — model context uses live names by agentId (stored labels as fallback). */
+  agents?: ReadonlyArray<{ id: string; displayName: string }>,
 ): string {
+  const nameById = agents
+    ? new Map(agents.map((a) => [a.id, a.displayName.trim()] as const))
+    : null;
+
   const usable = lines
     .filter((l) => l.kind === "user" || l.kind === "agent")
     .slice(-opts.max);
 
   const formatted = usable.map((l) => {
+    const stored = l.agentName;
+    const current =
+      l.kind === "agent" && l.agentId && nameById
+        ? nameById.get(l.agentId) || stored
+        : stored;
     const name =
       l.kind === "agent" && l.agentId === selfId
-        ? `${l.agentName} (you)`
-        : l.agentName;
+        ? `${current} (you)`
+        : current;
     return `${name}: ${l.text}`;
   });
 

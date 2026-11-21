@@ -1,8 +1,11 @@
 import type { AgentConfig, AgentSkill } from "@/lib/types";
 import { normalizeAgentName, nextCopyName } from "@/lib/agentCopy";
+import { renameRoleTitled } from "@/lib/agentNames";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 import { ALL_POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
+import { appConfig } from "@/lib/config";
 
 export const ROSTER_FORMAT = "agent-arena/agents" as const;
 export const ROSTER_VERSION = 1 as const;
@@ -122,18 +125,24 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
   );
   if (!displayName) return null;
 
+  // Keep raw/unknown string ids for renameRoleTitled (all-titles path).
+  // Non-strings → "" (also unknown). Remap to defaults.roleId after rename.
   const polyPresetId =
-    typeof a.polyPresetId === "string" && isKnownPolyPresetId(a.polyPresetId)
-      ? a.polyPresetId
-      : "explorer";
+    typeof a.polyPresetId === "string" ? a.polyPresetId : "";
 
   const characterId =
     typeof a.characterId === "string" && isCharacterId(a.characterId)
       ? a.characterId
       : DEFAULT_CHARACTER_ID;
 
+  // getPolyPreset already falls back for unknown ids (color / prompt context).
+  const preset = getPolyPreset(polyPresetId);
+
   const systemPrompt = clip(
-    typeof a.systemPrompt === "string" ? a.systemPrompt : "",
+    migrateLegacySystemPrompt(
+      typeof a.systemPrompt === "string" ? a.systemPrompt : "",
+      polyPresetId,
+    ),
     ROSTER_LIMITS.systemPromptMax,
   );
 
@@ -141,8 +150,6 @@ function sanitizeImportAgent(raw: unknown): ImportedAgent | null {
   const bio = bioRaw
     ? clip(bioRaw, ROSTER_LIMITS.bioMax)
     : undefined;
-
-  const preset = getPolyPreset(polyPresetId);
   const color =
     typeof a.color === "string" && COLOR_RE.test(a.color)
       ? a.color
@@ -206,6 +213,8 @@ export type ParseRosterOptions = {
   fileSize?: number;
   /** Current roster length; used for the total cap. */
   existingCount?: number;
+  /** Live roster display names — seeds rename so the preview matches import. */
+  existingNames?: readonly string[];
 };
 
 /**
@@ -271,7 +280,18 @@ export function parseRosterImport(
     throw new RosterImportError("tooManyTotal");
   }
 
-  return { agents, skipped };
+  // #71: rename against the original (possibly unknown) preset first so
+  // Muse/Engineer/Custom titles on a bad id are renamed; then sanitize.
+  const renamed = renameRoleTitled(agents, opts.existingNames ?? []);
+  return {
+    agents: renamed.map((a) => ({
+      ...a,
+      polyPresetId: isKnownPolyPresetId(a.polyPresetId)
+        ? a.polyPresetId
+        : appConfig.defaults.roleId,
+    })),
+    skipped,
+  };
 }
 
 /** Map chosen model ids onto the importer's model list (fallback = first). */

@@ -45,6 +45,8 @@ import {
   type StoragePersistResult,
 } from "@/lib/storage";
 import { createAgentCopy } from "@/lib/agentCopy";
+import { renameRoleTitled } from "@/lib/agentNames";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
 import {
   remapModelIds,
   resolveImportNames,
@@ -242,6 +244,8 @@ function persistSlice(s: ArenaState): AppPersisted {
     chatterMode: s.chatterMode,
     onboardingSeen: s.onboardingSeen === true,
     controlsHelpSeen: s.controlsHelpSeen === true,
+    // State always comes from loadPersisted(), which runs the rename first.
+    agentNamesMigrated: true,
     favoriteAssets: s.favoriteAssets ?? [],
     chats: sanitizeChats(s.chats),
     arenaChatHistory: s.arenaChatHistory.slice(-MAX_ARENA_CHAT_HISTORY),
@@ -690,13 +694,26 @@ export const useArenaStore = create<ArenaState>((set, get) => {
       return { agents: [], result: { ok: true } };
     }
     const resolvedModels = remapModelIds(modelIds, availableIds);
+    // #71: migrate prompts, then rename role-titled rows with live roster names
+    // (collect-first; shared with parseRosterImport via renameRoleTitled).
+    const withPrompts = items.map((item) => ({
+      ...item,
+      systemPrompt: migrateLegacySystemPrompt(
+        item.systemPrompt,
+        item.polyPresetId,
+      ),
+    }));
+    const prepared = renameRoleTitled(
+      withPrompts,
+      state.agents.map((a) => a.displayName),
+    );
     const names = resolveImportNames(
-      items.map((item) => item.displayName),
+      prepared.map((item) => item.displayName),
       state.agents.map((a) => a.displayName),
       copyLabel,
     );
     const createdAt = Date.now();
-    const created: AgentConfig[] = items.map((item, i) => ({
+    const created: AgentConfig[] = prepared.map((item, i) => ({
       ...item,
       id: uid("agent"),
       displayName: names[i] ?? item.displayName,

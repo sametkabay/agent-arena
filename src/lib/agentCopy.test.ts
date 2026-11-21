@@ -13,6 +13,17 @@ describe("normalizeAgentName", () => {
   it("trims, lowercases, and collapses spaces", () => {
     expect(normalizeAgentName("  Explorer  One ")).toBe("explorerone");
   });
+
+  it("folds Turkish dotted/dotless I so @İpek ↔ ipek and @ırmak ↔ irmak", () => {
+    expect(normalizeAgentName("İpek")).toBe("ipek");
+    expect(normalizeAgentName("ipek")).toBe("ipek");
+    expect(normalizeAgentName("İPEK")).toBe("ipek");
+    expect(normalizeAgentName("İris")).toBe("iris");
+    expect(normalizeAgentName("Iris")).toBe("iris");
+    expect(normalizeAgentName("ırmak")).toBe("irmak");
+    expect(normalizeAgentName("IRMAK")).toBe("irmak");
+    expect(normalizeAgentName("Irmak")).toBe("irmak");
+  });
 });
 
 describe("AGENT_COPY_LABELS", () => {

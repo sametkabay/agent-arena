@@ -6,7 +6,9 @@ import {
   agentOverlayStackWorldY,
 } from "@/lib/agentOverlay";
 import { getPolyPreset } from "@/lib/poly/presets";
+import { useTranslation } from "react-i18next";
 import type { ArenaAgent } from "@/lib/types";
+import { agentLabel } from "@/lib/agentLabel";
 import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
 import { SafeHtml } from "@/components/scene/SafeHtml";
 
@@ -41,6 +43,7 @@ const Limb = forwardRef<
 
 /** Soft rounded low-poly character (capsules + spheres — visible limbs). */
 export function JellyAgent({ agent, selected, onPick }: Props) {
+  const { t } = useTranslation();
   const group = useRef<THREE.Group>(null);
   const leftArm = useRef<THREE.Mesh>(null);
   const rightArm = useRef<THREE.Mesh>(null);
@@ -174,7 +177,7 @@ export function JellyAgent({ agent, selected, onPick }: Props) {
               useArenaStore.getState().selectAgent(agent.id);
             }}
           >
-            {agent.displayName}
+            {agentLabel(agent, t)}
           </button>
         </div>
       </SafeHtml>

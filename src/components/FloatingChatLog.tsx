@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendArenaChatMessage } from "@/lib/ai/arenaChat";
+import { normalizeAgentName } from "@/lib/agentCopy";
 import type { AgentConfig, FloatingChatLine } from "@/lib/types";
+import { agentLabel } from "@/lib/agentLabel";
 import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
 
@@ -54,14 +56,12 @@ function getActiveMention(
 }
 
 function filterMentionAgents(agents: AgentConfig[], query: string): AgentConfig[] {
-  const q = query.trim().toLowerCase().replace(/\s+/g, "");
+  const q = normalizeAgentName(query);
   return agents
     .filter((a) => a.enabled !== false && Boolean(a.modelConfigId))
     .filter((a) => {
       if (!q) return true;
-      const name = a.displayName.toLowerCase();
-      const compact = name.replace(/\s+/g, "");
-      return name.startsWith(query.toLowerCase()) || compact.startsWith(q);
+      return normalizeAgentName(a.displayName).startsWith(q);
     })
     .slice(0, 8);
 }
@@ -150,7 +150,7 @@ export function FloatingChatLog() {
 
   function applyMention(agent: AgentConfig) {
     if (!activeMention) return;
-    const tag = `@${agent.displayName.replace(/\s+/g, "")}`;
+    const tag = `@${agentLabel(agent, t).replace(/\s+/g, "")}`;
     const before = input.slice(0, activeMention.start);
     const after = input.slice(caret);
     const next = `${before}${tag} ${after.replace(/^\s*/, "")}`;
@@ -261,7 +261,7 @@ export function FloatingChatLog() {
                     className="arena-chat-dock__mention-name"
                     style={{ color: agent.color }}
                   >
-                    @{agent.displayName.replace(/\s+/g, "")}
+                    @{agentLabel(agent, t).replace(/\s+/g, "")}
                   </span>
                 </button>
               </li>

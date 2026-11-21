@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { sampleAgent, sampleModel } from "@/test/fixtures";
 import { STORAGE_KEY, loadPersisted } from "@/lib/storage";
-import type { ImportedAgent } from "@/lib/agentRoster";
+import {
+  ROSTER_FORMAT,
+  parseRosterImport,
+  type ImportedAgent,
+} from "@/lib/agentRoster";
 import { useArenaStore } from "@/store/arenaStore";
 
 function resetStore() {
@@ -117,5 +121,72 @@ describe("arenaStore importAgents", () => {
     });
     expect(useArenaStore.getState().agents).toEqual(beforeAgents);
     expect(localStorage.getItem(STORAGE_KEY)).toBe(beforeRaw);
+  });
+
+  it("gives an imported role-titled agent the next free pool name when roster has Kai", () => {
+    const model = sampleModel();
+    useArenaStore.getState().upsertModel(model);
+    useArenaStore.getState().upsertAgent(
+      sampleAgent({ id: "a-kai", displayName: "Kai", modelConfigId: model.id }),
+    );
+
+    const { agents: created } = useArenaStore.getState().importAgents(
+      [imported({ displayName: "Explorer", polyPresetId: "explorer", systemPrompt: "x" })],
+      [model.id],
+      "copy",
+    );
+    expect(created[0]!.displayName).toBe("Mira");
+    expect(created[0]!.displayName).not.toMatch(/\(copy\)/i);
+  });
+
+  it("keeps a later row’s Kai and assigns Mira to a preceding Explorer row", () => {
+    const model = sampleModel();
+    useArenaStore.getState().upsertModel(model);
+    const { agents: created } = useArenaStore.getState().importAgents(
+      [
+        imported({ displayName: "Explorer", polyPresetId: "explorer", systemPrompt: "x" }),
+        imported({ displayName: "Kai", polyPresetId: "engineer", systemPrompt: "y" }),
+      ],
+      [model.id, model.id],
+      "copy",
+    );
+    expect(created.map((a) => a.displayName)).toEqual(["Mira", "Kai"]);
+    expect(created[1]!.polyPresetId).toBe("engineer");
+  });
+
+  it("parse with existingNames then importAgents stays on the previewed pool name", () => {
+    const model = sampleModel();
+    useArenaStore.setState({
+      ...useArenaStore.getState(),
+      models: [model],
+      agents: [
+        sampleAgent({
+          id: "live-kai",
+          displayName: "Kai",
+          modelConfigId: model.id,
+        }),
+      ],
+    });
+
+    const parsed = parseRosterImport(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: 1,
+        agents: [
+          {
+            displayName: "Explorer",
+            polyPresetId: "explorer",
+            systemPrompt: "Hi",
+          },
+        ],
+      }),
+      { existingCount: 1, existingNames: ["Kai"] },
+    );
+    expect(parsed.agents[0]!.displayName).toBe("Mira");
+
+    const { agents: created } = useArenaStore
+      .getState()
+      .importAgents(parsed.agents, [model.id], "copy");
+    expect(created[0]!.displayName).toBe("Mira");
   });
 });

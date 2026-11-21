@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sampleAgent } from "@/test/fixtures";
 import { DEFAULT_CHARACTER_ID } from "@/lib/assets/characters";
+import { appConfig } from "@/lib/config";
 import { getPolyPreset } from "@/lib/poly/presets";
 import {
   ROSTER_FORMAT,
@@ -288,6 +289,146 @@ describe("resolveImportNames", () => {
 });
 
 describe("round-trip", () => {
+  it("renames legacy role-titled agents on import (#71)", () => {
+    const json = JSON.stringify({
+      format: ROSTER_FORMAT,
+      version: 1,
+      agents: [
+        {
+          displayName: "Explorer",
+          polyPresetId: "explorer",
+          systemPrompt: "You are a curious guide.",
+        },
+        {
+          displayName: "Kaşif",
+          polyPresetId: "explorer",
+          systemPrompt: "You are a curious guide.",
+        },
+      ],
+    });
+    const result = parseOk(json);
+    expect(result.agents.map((a) => a.displayName)).toEqual(["Kai", "Mira"]);
+    expect(result.agents.every((a) => !/^(Explorer|Kaşif)$/i.test(a.displayName))).toBe(
+      true,
+    );
+  });
+
+  it("migrates legacy stock system prompts on import", () => {
+    const legacy =
+      "You are Explorer, a curious and adventurous guide in Agent Arena. You love discovering ideas, asking follow-up questions, and explaining things clearly. Keep answers friendly and vivid.";
+    const json = JSON.stringify({
+      format: ROSTER_FORMAT,
+      version: 1,
+      agents: [
+        {
+          displayName: "Ada",
+          polyPresetId: "explorer",
+          systemPrompt: legacy,
+        },
+      ],
+    });
+    const result = parseOk(json);
+    expect(result.agents[0]!.systemPrompt).toBe(
+      getPolyPreset("explorer").defaultSystemPrompt,
+    );
+    expect(result.agents[0]!.systemPrompt).not.toContain("Explorer,");
+  });
+
+  it("maps a custom-preset row’s legacy explorer prompt to current explorer stock", () => {
+    const legacy =
+      "You are Explorer, a curious and adventurous guide in Agent Arena. You love discovering ideas, asking follow-up questions, and explaining things clearly. Keep answers friendly and vivid.";
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: ROSTER_VERSION,
+        agents: [
+          {
+            displayName: "Kai",
+            polyPresetId: "custom",
+            systemPrompt: legacy,
+          },
+        ],
+      }),
+    );
+    expect(result.agents[0]!.systemPrompt).toBe(
+      getPolyPreset("explorer").defaultSystemPrompt,
+    );
+  });
+
+  it("seeds rename with existingNames so preview matches live roster", () => {
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: 1,
+        agents: [
+          {
+            displayName: "Explorer",
+            polyPresetId: "explorer",
+            systemPrompt: "Hi",
+          },
+        ],
+      }),
+      { existingCount: 1, existingNames: ["Kai"] },
+    );
+    expect(result.agents[0]!.displayName).toBe("Mira");
+  });
+
+  it("does not let a role row steal a later row’s kept name", () => {
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: ROSTER_VERSION,
+        agents: [
+          {
+            displayName: "Explorer",
+            polyPresetId: "explorer",
+            systemPrompt: "x",
+          },
+          {
+            displayName: "Kai",
+            polyPresetId: "engineer",
+            systemPrompt: "y",
+          },
+        ],
+      }),
+    );
+    expect(result.agents.map((a) => a.displayName)).toEqual(["Mira", "Kai"]);
+  });
+
+  it("renames non-default role titles when polyPresetId is a typo / unknown", () => {
+    const result = parseOk(
+      JSON.stringify({
+        format: ROSTER_FORMAT,
+        version: ROSTER_VERSION,
+        agents: [
+          {
+            displayName: "Engineer",
+            polyPresetId: "typo-role",
+            systemPrompt: "x",
+          },
+          {
+            displayName: "Muse (copy)",
+            polyPresetId: "???",
+            systemPrompt: "x",
+          },
+          {
+            displayName: "Guardian",
+            polyPresetId: "nope",
+            systemPrompt: "x",
+          },
+        ],
+      }),
+    );
+    expect(result.agents.map((a) => a.displayName)).toEqual([
+      "Kai",
+      "Mira",
+      "Theo",
+    ]);
+    for (const a of result.agents) {
+      expect(a.polyPresetId).toBe(appConfig.defaults.roleId);
+    }
+  });
+
   it("preserves persona fields with fresh skill ids", () => {
     const source = sampleAgent({
       displayName: "Ada",

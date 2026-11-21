@@ -241,13 +241,15 @@ export async function runConversationTurn(
     );
   };
 
+  const store = useArenaStore.getState();
   const history = formatArenaHistory(
-    useArenaStore.getState().arenaChatHistory,
+    store.arenaChatHistory,
     agent.id,
     {
       max: budget().historyLines,
       maxChars: budget().historyMaxChars,
     },
+    store.agents,
   );
   const userPrompt = fillPrompt(prompts.user.arenaConversation, {
     history,
