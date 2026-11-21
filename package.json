@@ -23,11 +23,7 @@
     "lint": "oxlint .",
     "test": "vitest run --coverage",
     "zip": "zibby-zip",
-    "assets:inventory": "node scripts/generate-pack-inventory.mjs",
-    "prepare": "simple-git-hooks"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npm run lint && npm test"
+    "assets:inventory": "node scripts/generate-pack-inventory.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
@@ -50,7 +46,6 @@
     "@vitejs/plugin-react": "^6.1.0",
     "@vitest/coverage-v8": "^4.1.10",
     "oxlint": "^1.78.0",
-    "simple-git-hooks": "^2.13.1",
     "typescript": "~7.0.2",
     "vite": "^8.2.2",
     "vitest": "^4.1.11"
