@@ -1,40 +1,127 @@
 import { chatCompletion } from "@/lib/ai/providers";
+import { notifyAiCallFailed } from "@/lib/ai/aiErrorNotice";
 import {
   buildAgentSystemPrompt,
   getArenaWorldContext,
   withSituationUserMessage,
 } from "@/lib/ai/arenaContext";
+import { normalizeAgentName } from "@/lib/agentCopy";
 import type { AgentConfig, AiModelConfig } from "@/lib/types";
 import i18n from "@/i18n";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig, fillPrompt, prompts, speechMsForText } from "@/lib/config";
 
-function normalizeName(name: string): string {
-  return name.trim().toLowerCase().replace(/\s+/g, "");
+/** Closing brackets kept only when balanced by a matching opener in the token. */
+const MENTION_BRACKET_OPENERS: Record<string, string> = {
+  ")": "(",
+  "]": "[",
+  "}": "{",
+  "）": "（",
+  "」": "「",
+  "』": "『",
+};
+
+function countCodePoints(token: string, ch: string): number {
+  let n = 0;
+  for (const c of token) if (c === ch) n += 1;
+  return n;
 }
 
-/** Extract @mentions (without the @). */
-export function extractMentions(text: string): string[] {
-  const found: string[] = [];
+/**
+ * Strip trailing punctuation from a captured @mention token.
+ * Keeps letters/digits/marks and internal `.`/`-`/`_`; drops unbalanced closers.
+ */
+export function trimMentionPunctuation(token: string): string {
+  let result = token;
+  while (result.length > 0) {
+    const chars = [...result];
+    const last = chars[chars.length - 1]!;
+    const opener = MENTION_BRACKET_OPENERS[last];
+    if (opener !== undefined) {
+      if (countCodePoints(result, last) > countCodePoints(result, opener)) {
+        chars.pop();
+        result = chars.join("");
+        continue;
+      }
+      break;
+    }
+    if (/^\p{P}$/u.test(last)) {
+      chars.pop();
+      result = chars.join("");
+      continue;
+    }
+    break;
+  }
+  return result;
+}
+
+/**
+ * Strip a possessive / case suffix after an apostrophe (`'` or U+2019).
+ * Pure helper: always reduces e.g. "O'Brien" → "O"; callers that need exact-name
+ * precedence must check the unstripped token against the roster first.
+ */
+export function stripMentionPossessive(token: string): string {
+  const m = token.match(/^(.+)['\u2019](\p{L}\p{M}*)+$/u);
+  return m?.[1] ?? token;
+}
+
+type MentionToken = { raw: string; trimmed: string; base: string };
+
+function mentionTokens(text: string): MentionToken[] {
+  const found: MentionToken[] = [];
   const re = /@([^\s@]+)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text))) {
-    found.push(m[1]);
+    const raw = m[1];
+    const trimmed = trimMentionPunctuation(raw);
+    if (trimmed) {
+      found.push({ raw, trimmed, base: stripMentionPossessive(trimmed) });
+    }
   }
   return found;
+}
+
+/** Extract @mentions (without the @); trailing punctuation stripped. */
+export function extractMentions(text: string): string[] {
+  return mentionTokens(text).map((t) => t.trimmed);
+}
+
+function findExactAgent(
+  agents: AgentConfig[],
+  token: string,
+): AgentConfig | undefined {
+  const key = normalizeAgentName(token);
+  return agents.find((a) => normalizeAgentName(a.displayName) === key);
+}
+
+function findPrefixAgent(
+  agents: AgentConfig[],
+  token: string,
+): AgentConfig | undefined {
+  const key = normalizeAgentName(token);
+  if (!key) return undefined;
+  return agents.find((a) => normalizeAgentName(a.displayName).startsWith(key));
 }
 
 /**
  * @name → matching agents (case-insensitive, spaces optional).
  * No mentions → every agent that has a model configured.
+ * When `selfId` is set, that agent is excluded from both matching and broadcast.
+ *
+ * Match precedence per mention: exact raw → exact trimmed → exact possessive
+ * base → prefix trimmed → prefix base. Unmatched reports use the trimmed token.
  */
 export function resolveArenaTargets(
   text: string,
   agents: AgentConfig[],
+  opts?: { selfId?: string },
 ): { targets: AgentConfig[]; mentioned: boolean; unmatched: string[] } {
-  const mentions = extractMentions(text);
+  const mentions = mentionTokens(text);
   const withModel = agents.filter(
-    (a) => a.enabled !== false && Boolean(a.modelConfigId),
+    (a) =>
+      a.enabled !== false &&
+      Boolean(a.modelConfigId) &&
+      a.id !== opts?.selfId,
   );
 
   if (mentions.length === 0) {
@@ -44,14 +131,32 @@ export function resolveArenaTargets(
   const unmatched: string[] = [];
   const matched = new Map<string, AgentConfig>();
 
-  for (const mention of mentions) {
-    const key = normalizeName(mention);
-    const hit = withModel.find((a) => {
-      const n = normalizeName(a.displayName);
-      return n === key || n.startsWith(key) || a.displayName.toLowerCase().startsWith(mention.toLowerCase());
-    });
+  for (const { raw, trimmed, base } of mentions) {
+    const rawExact = findExactAgent(withModel, raw);
+    if (rawExact) {
+      matched.set(rawExact.id, rawExact);
+      continue;
+    }
+
+    const trimmedExact = findExactAgent(withModel, trimmed);
+    if (trimmedExact) {
+      matched.set(trimmedExact.id, trimmedExact);
+      continue;
+    }
+
+    if (base !== trimmed) {
+      const baseExact = findExactAgent(withModel, base);
+      if (baseExact) {
+        matched.set(baseExact.id, baseExact);
+        continue;
+      }
+    }
+
+    const hit =
+      findPrefixAgent(withModel, trimmed) ??
+      (base !== trimmed ? findPrefixAgent(withModel, base) : undefined);
     if (hit) matched.set(hit.id, hit);
-    else unmatched.push(mention);
+    else unmatched.push(trimmed);
   }
 
   return {
@@ -71,6 +176,7 @@ function buildArenaReplySystem(
     skills: agent.skills ?? [],
     world: getArenaWorldContext(agent.id),
     mode: mentioned ? "arena_mention" : "arena_broadcast",
+    temperament: agent.temperament,
   });
 }
 
@@ -83,13 +189,52 @@ function sanitizeReply(text: string): string {
 
 const arenaReplyAborts = new Map<string, AbortController>();
 
+/** Latest-wins queue when an agent is busy (private chat or another arena reply). */
+const pendingArenaReplies = new Map<
+  string,
+  { userText: string; mentioned: boolean; userName: string }
+>();
+
 export function abortArenaReplies(): void {
   for (const ac of arenaReplyAborts.values()) ac.abort();
   arenaReplyAborts.clear();
+  pendingArenaReplies.clear();
+}
+
+/** Drop queued arena replies (e.g. when entering conversation mode). */
+export function clearPendingArenaReplies(): void {
+  pendingArenaReplies.clear();
+}
+
+/** Drain queued arena replies for agents that are no longer busy. */
+export function drainPendingArenaReplies(): void {
+  const store = useArenaStore.getState();
+  if (store.chatterMode === "conversation") {
+    // Stale idle/off queues must not fire minutes later on mode switch-back.
+    pendingArenaReplies.clear();
+    return;
+  }
+
+  for (const [agentId, pending] of [...pendingArenaReplies.entries()]) {
+    if (store.chatBusyById[agentId]) continue;
+    const agent = store.agents.find((a) => a.id === agentId);
+    if (!agent || agent.enabled === false || !agent.modelConfigId) {
+      pendingArenaReplies.delete(agentId);
+      continue;
+    }
+    pendingArenaReplies.delete(agentId);
+    void runArenaReply(
+      agent,
+      pending.userText,
+      pending.mentioned,
+      pending.userName,
+    );
+  }
 }
 
 /**
  * Post a user line to the shared arena chat and ask target agents for short replies.
+ * In conversation mode the line seeds the sequential scheduler instead of parallel replies.
  */
 export async function sendArenaChatMessage(rawText: string): Promise<void> {
   const text = rawText.trim();
@@ -131,6 +276,11 @@ export async function sendArenaChatMessage(rawText: string): Promise<void> {
     return;
   }
 
+  if (store.chatterMode === "conversation") {
+    store.seedConversation(mentioned ? targets.map((t) => t.id) : []);
+    return;
+  }
+
   await Promise.all(
     targets.map((agent) => runArenaReply(agent, text, mentioned, userName)),
   );
@@ -148,8 +298,15 @@ async function runArenaReply(
     | undefined;
   if (!model) return;
 
-  // Skip if private 1:1 chat is mid-stream for this agent.
-  if (store.chatBusyById[agent.id]) return;
+  // Queue instead of dropping when private 1:1 chat (or another reply) is mid-stream.
+  if (store.chatBusyById[agent.id]) {
+    pendingArenaReplies.set(agent.id, {
+      userText,
+      mentioned: wasMentioned,
+      userName,
+    });
+    return;
+  }
 
   arenaReplyAborts.get(agent.id)?.abort();
   const ac = new AbortController();
@@ -162,7 +319,7 @@ async function runArenaReply(
 
   const flushBubble = () => {
     raf = 0;
-    if (!assembled.trim()) return;
+    if (!assembled.trim() || ac.signal.aborted) return;
     setAgentSpeech(agent.id, sanitizeReply(assembled) || "…", appConfig.speech.streamingHoldMs);
   };
 
@@ -195,6 +352,10 @@ async function runArenaReply(
     });
 
     if (raf) cancelAnimationFrame(raf);
+    if (ac.signal.aborted) {
+      setAgentSpeech(agent.id, undefined);
+      return;
+    }
     const text = sanitizeReply((reply || assembled).trim());
     if (text) {
       setAgentSpeech(agent.id, text, speechMsForText(text));
@@ -212,6 +373,7 @@ async function runArenaReply(
     if (raf) cancelAnimationFrame(raf);
     if ((e as Error).name !== "AbortError") {
       setAgentSpeech(agent.id, undefined);
+      notifyAiCallFailed(agent, model, e);
     }
   } finally {
     if (arenaReplyAborts.get(agent.id) === ac) arenaReplyAborts.delete(agent.id);

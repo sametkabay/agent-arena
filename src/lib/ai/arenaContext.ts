@@ -2,7 +2,7 @@ import type { AgentConfig, AgentSkill, DayNightMode, LanguageCode } from "@/lib/
 import { languageEnglishName } from "@/i18n/languages";
 import type { ArenaMapDefinition } from "@/lib/maps/schema";
 import { resolveMapDefinition } from "@/lib/maps/runtime";
-import { getPolyPreset } from "@/lib/poly/presets";
+import { POLY_PRESETS, getPolyPreset } from "@/lib/poly/presets";
 import { useArenaStore } from "@/store/arenaStore";
 import {
   appConfig,
@@ -12,6 +12,7 @@ import {
   prompts,
   type ArenaPromptMode,
 } from "@/lib/config";
+import { clampTemperament } from "@/lib/storage";
 
 export type { ArenaPromptMode };
 
@@ -43,6 +44,64 @@ export function languageLabel(language: LanguageCode): string {
   return languageEnglishName(language);
 }
 
+/** Common abbreviations that end with "." but are not sentence boundaries. */
+const SENTENCE_ABBREV = /\b(?:Dr|Mr|Mrs|Ms|St|Prof|e\.g|i\.e)\./gi;
+
+/** First sentence only (for roster blurbs — never leak later second-person lines). */
+function firstSentence(text: string): string {
+  // Protect abbreviations so "Dr. Smith" is not cut after "Dr.".
+  const placeholders: string[] = [];
+  const protectedText = text.replace(SENTENCE_ABBREV, (match) => {
+    const i = placeholders.length;
+    placeholders.push(match);
+    return `\0${i}\0`;
+  });
+  const m = protectedText.match(/^(.+?[.!?])(?:\s|$)/);
+  const sentence = (m?.[1] ?? protectedText).trim();
+  return sentence.replace(/\0(\d+)\0/g, (_, i: string) => placeholders[Number(i)] ?? "");
+}
+
+function capitalizeFragment(text: string): string {
+  if (!text) return text;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * Turn a leading "You are …" stock/custom sentence into a third-person-neutral
+ * roster fragment. Strips a leading role/own proper name; otherwise rewrites
+ * "You are " → capitalised remainder (e.g. "A practical problem-solver.").
+ */
+function blurbFromSystemPrompt(prompt: string, agent: AgentConfig): string {
+  const sentence = firstSentence(prompt);
+  if (!sentence) return "";
+
+  const properNames = [
+    ...POLY_PRESETS.map((p) => p.defaultDisplayName?.trim()).filter(
+      (n): n is string => Boolean(n),
+    ),
+    agent.displayName.trim(),
+  ]
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+
+  for (const proper of properNames) {
+    const re = new RegExp(
+      `^You are ${escapeRegExp(proper)}[,.]\\s*`,
+      "i",
+    );
+    if (!re.test(sentence)) continue;
+    const rest = sentence.replace(re, "").trim();
+    return rest ? capitalizeFragment(rest) : "";
+  }
+
+  if (/^You are /i.test(sentence)) {
+    const rest = sentence.replace(/^You are /i, "").trim();
+    return rest ? capitalizeFragment(rest) : "";
+  }
+
+  return sentence;
+}
+
 /** Short public blurb for another agent (bio → role → clipped system prompt). */
 export function describeAgentBrief(agent: AgentConfig): {
   role: string;
@@ -56,10 +115,8 @@ export function describeAgentBrief(agent: AgentConfig): {
 
   const prompt = agent.systemPrompt.trim().replace(/\s+/g, " ");
   if (prompt) {
-    const cleaned = prompt
-      .replace(/^you are [^.,;:]+[.,;:]?\s*/i, "")
-      .trim();
-    return { role, blurb: clip(cleaned || prompt, prompts.briefs.promptMax) };
+    const cleaned = blurbFromSystemPrompt(prompt, agent);
+    return { role, blurb: clip(cleaned, prompts.briefs.promptMax) };
   }
 
   return { role, blurb: "" };
@@ -78,20 +135,55 @@ function formatPeopleLines(
   agents: ArenaWorldContext["otherAgents"],
 ): string[] {
   if (agents.length === 0) return [`- ${prompts.labels.none}`];
-  return agents.map((other) => {
-    const who =
-      other.role && other.role !== other.name
-        ? `${other.name} (${other.role})`
-        : other.name;
-    return other.blurb.trim() ? `- ${who}: ${other.blurb.trim()}` : `- ${who}`;
-  });
+  // Names only — roles/classes are never shown, so agents address each other by name.
+  return agents.map((other) =>
+    other.blurb.trim()
+      ? `- ${other.name}: ${other.blurb.trim()}`
+      : `- ${other.name}`,
+  );
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeName(name: string): string {
+  return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * Narrow runtime safety net for unmigrated legacy prompts:
+ * only exact case-sensitive `You are <RoleYamlName>,` (comma required).
+ * Name is inserted via a replacer function so `$`, `$&`, `$1`, etc. stay literal.
+ * User-written prompts ("You are guardian of the vault…") are never rewritten.
+ */
+export function personalizeAgentPrompt(prompt: string, agentName: string): string {
+  const name = agentName.trim();
+  if (!name) return prompt;
+  // Real role presets only — "Custom" is not a persona name.
+  const roleNames = POLY_PRESETS.map((p) => p.defaultDisplayName?.trim())
+    .filter((n): n is string => Boolean(n))
+    .sort((a, b) => b.length - a.length);
+  for (const role of roleNames) {
+    const re = new RegExp(`^(\\s*You are )(${escapeRegExp(role)})(,)`);
+    const m = prompt.match(re);
+    if (!m) continue;
+    if (normalizeName(m[2]!) === normalizeName(name)) return prompt;
+    return prompt.replace(re, (_match, lead: string, _role: string, comma: string) =>
+      `${lead}${name}${comma}`,
+    );
+  }
+  return prompt;
 }
 
 /**
  * Full session facts for the system prompt.
  * Tagged block = industry-standard structured context (portable across providers).
  */
-export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
+export function buildArenaWorldContext(
+  ctx: ArenaWorldContext,
+  mode?: ArenaPromptMode,
+): string {
   const peopleLines = formatPeopleLines(ctx.otherAgents).join("\n");
   const areas =
     ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
@@ -106,11 +198,16 @@ export function buildArenaWorldContext(ctx: ArenaWorldContext): string {
     peopleLines,
   }).trim();
 
+  const discipline =
+    mode === "arena_conversation"
+      ? prompts.session.speechDisciplineConversation
+      : prompts.session.speechDiscipline;
+
   return [
     prompts.session.heading,
     prompts.session.intro.trim(),
     session,
-    prompts.session.speechDiscipline.trim(),
+    discipline.trim(),
   ].join("\n");
 }
 
@@ -130,6 +227,11 @@ export function buildSituationUserPrefix(
     ctx.mapAreas.length > 0 ? ctx.mapAreas.join("; ") : prompts.labels.noneListed;
   const ch = channelMeta(channel);
 
+  const footer =
+    channel === "arena_conversation"
+      ? prompts.situation.footerConversation
+      : prompts.situation.footer;
+
   return [
     fillPrompt(prompts.situation.block, {
       channelId: ch.id,
@@ -142,7 +244,7 @@ export function buildSituationUserPrefix(
       namedAreas: areas,
       peoplePresent: peers,
     }).trim(),
-    prompts.situation.footer,
+    footer,
   ].join("\n");
 }
 
@@ -169,9 +271,27 @@ function formatSkills(skills: AgentSkill[]): string[] {
   return lines;
 }
 
+/** Build the temperament system-prompt line, or "" for neutral (5). */
+export function buildTemperamentLine(level: number): string {
+  const clamped = clampTemperament(level);
+  const band = prompts.temperament.bands[String(clamped)];
+  if (!band) return "";
+  const civility =
+    band.civility === "blunt"
+      ? prompts.temperament.civilityBlunt
+      : prompts.temperament.civilityAgreeable;
+  return fillPrompt(prompts.temperament.line, {
+    level: clamped,
+    label: band.label,
+    instruction: band.instruction,
+    civility,
+  });
+}
+
 /**
  * Shared system prompt shell for private chat, arena chat, and idle mutters.
  * Keeps identity / language / session facts consistent across call sites.
+ * `temperament` is required so every call site opts in at compile time.
  */
 export function buildAgentSystemPrompt(opts: {
   agentPrompt: string;
@@ -179,21 +299,24 @@ export function buildAgentSystemPrompt(opts: {
   skills?: AgentSkill[];
   world: ArenaWorldContext;
   mode: ArenaPromptMode;
+  temperament: number;
 }): string {
   const { agentPrompt, agentName, world, mode } = opts;
   const vars = { agentName, language: languageLabel(world.language), userName: world.userName };
-  const parts: string[] = [
-    agentPrompt.trim(),
+  const parts: string[] = [personalizeAgentPrompt(agentPrompt, agentName).trim()];
+  const temperamentLine = buildTemperamentLine(opts.temperament);
+  if (temperamentLine) parts.push(temperamentLine);
+  parts.push(
     fillPrompt(prompts.identity, vars),
     fillPrompt(prompts.language, vars),
     ...fillPromptLines(promptMode(mode).lines, vars),
     prompts.internals,
-  ];
+  );
 
   parts.push(...formatSkills(opts.skills ?? []));
 
   // Session facts last so they stay salient after identity/skills.
-  parts.push("", buildArenaWorldContext(world));
+  parts.push("", buildArenaWorldContext(world, mode));
 
   return parts.filter(Boolean).join("\n");
 }

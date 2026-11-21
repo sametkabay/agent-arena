@@ -40,6 +40,26 @@ describe("map regions", () => {
         radius: 3,
       }),
     ).toBe(true);
+    expect(
+      isMapZone({
+        id: "z",
+        name: "Rect",
+        kind: "custom",
+        center: [0, 0, 0],
+        radius: 2,
+        size: [4, 4],
+      }),
+    ).toBe(true);
+    expect(
+      isMapZone({
+        id: "z",
+        name: "Bad",
+        kind: "custom",
+        center: [0, 0, 0],
+        radius: 2,
+        size: [0, 4],
+      }),
+    ).toBe(false);
     expect(isMapLightPoint(null)).toBe(false);
     expect(
       isMapLightPoint({

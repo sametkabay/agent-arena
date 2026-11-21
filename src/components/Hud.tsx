@@ -3,6 +3,7 @@ import { hostNavigate, isEmbedded, ZIBBY_CREDITS_PATH } from "@zibby-run/app-kit
 import { useTranslation } from "react-i18next";
 import { useArenaStore } from "@/store/arenaStore";
 import { DayNightSwitch } from "@/components/ui/DayNightSwitch";
+import { builtinDisplayText, getBuiltinMap } from "@/lib/maps";
 
 export function Hud() {
   const { t } = useTranslation();
@@ -14,6 +15,24 @@ export function Hud() {
   const dayNight = useArenaStore((s) => s.dayNight);
   const toggleDayNight = useArenaStore((s) => s.toggleDayNight);
   const setSettingsOpen = useArenaStore((s) => s.setSettingsOpen);
+  const setControlsHelpOpen = useArenaStore((s) => s.setControlsHelpOpen);
+
+  const mapLabel = (() => {
+    if (!activeMap) return "—";
+    const builtinDefault = activeMap.builtin
+      ? (getBuiltinMap(activeMap.id)?.name ?? null)
+      : null;
+    const translated =
+      activeMap.builtin
+        ? (t(`maps.${activeMap.id}.name`, { defaultValue: "" }) as string) ||
+          null
+        : null;
+    return builtinDisplayText({
+      stored: activeMap.name,
+      builtinDefault,
+      translated,
+    });
+  })();
 
   return (
     <header className="hud">
@@ -29,7 +48,7 @@ export function Hud() {
           {t("hud.models")}: {models.length}
         </span>
         <span>
-          {t("hud.map")}: {activeMap?.name ?? "—"}
+          {t("hud.map")}: {mapLabel}
         </span>
         <button
           type="button"
@@ -45,6 +64,15 @@ export function Hud() {
       </div>
       <div className="hud__actions">
         <DayNightSwitch mode={dayNight} onToggle={toggleDayNight} />
+        <button
+          type="button"
+          className="hud__settings hud__help"
+          aria-label={t("hud.help")}
+          title={t("hud.help")}
+          onClick={() => setControlsHelpOpen(true)}
+        >
+          ?
+        </button>
         <button
           type="button"
           className="hud__settings"

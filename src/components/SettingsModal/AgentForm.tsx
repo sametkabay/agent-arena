@@ -1,16 +1,12 @@
 import { useTranslation } from "react-i18next";
 import type { AgentConfig, AgentSkill, AiModelConfig } from "@/lib/types";
-import {
-  ALL_POLY_PRESETS,
-  CUSTOM_PRESET,
-  getPolyPreset,
-  isCustomPreset,
-} from "@/lib/poly/presets";
+import { ALL_POLY_PRESETS } from "@/lib/poly/presets";
 import {
   ALL_CHARACTERS,
   getCharacter,
 } from "@/lib/assets/characters";
-import { clampChattiness, uid } from "@/lib/storage";
+import { applyRolePreset, isStockBio } from "@/lib/agentPreset";
+import { clampChattiness, clampTemperament, uid } from "@/lib/storage";
 import { ColorField } from "@/components/ui/ColorField";
 import { Select } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
@@ -35,12 +31,23 @@ const SKILL_TEMPLATES = [
   },
 ] as const;
 
-function isStockBio(bio: string | undefined, characterId: string, roleId: string) {
-  const trimmed = bio?.trim() ?? "";
-  if (!trimmed) return true;
-  const lookBio = getCharacter(characterId).defaultBio ?? "";
-  const roleBio = getPolyPreset(roleId).defaultBio ?? "";
-  return trimmed === lookBio || trimmed === roleBio;
+function temperamentValueText(
+  value: number,
+  t: (key: string, opts?: Record<string, string | number>) => string,
+): string {
+  if (value === 1) {
+    return t("settings.agents.temperamentValueText", {
+      value,
+      label: t("settings.agents.temperamentAgreeable"),
+    });
+  }
+  if (value === 10) {
+    return t("settings.agents.temperamentValueText", {
+      value,
+      label: t("settings.agents.temperamentAggressive"),
+    });
+  }
+  return String(value);
 }
 
 export function AgentForm({
@@ -56,34 +63,7 @@ export function AgentForm({
   const skills = editing.skills ?? [];
 
   function applyPreset(presetId: string) {
-    const preset = getPolyPreset(presetId);
-    const roleName = t(preset.nameKey);
-    const custom = isCustomPreset(presetId);
-    const prevRoleName = t(getPolyPreset(editing.polyPresetId).nameKey);
-    const nameIsFromRole =
-      !editing.displayName.trim() || editing.displayName.trim() === prevRoleName;
-    const nextBio = custom
-      ? editing.bio
-      : isStockBio(editing.bio, editing.characterId, editing.polyPresetId)
-        ? preset.defaultBio || editing.bio
-        : editing.bio;
-
-    onChange({
-      ...editing,
-      polyPresetId: presetId,
-      displayName: custom
-        ? nameIsFromRole
-          ? ""
-          : editing.displayName
-        : nameIsFromRole
-          ? roleName
-          : editing.displayName,
-      systemPrompt: custom
-        ? editing.systemPrompt || CUSTOM_PRESET.defaultSystemPrompt
-        : preset.defaultSystemPrompt,
-      color: custom ? editing.color || preset.defaultColor : preset.defaultColor,
-      bio: nextBio,
-    });
+    onChange(applyRolePreset(editing, presetId));
   }
 
   function applyCharacter(characterId: string) {
@@ -119,13 +99,22 @@ export function AgentForm({
         <input
           value={editing.displayName}
           onChange={(e) => onChange({ ...editing, displayName: e.target.value })}
-          placeholder={
-            isCustomPreset(editing.polyPresetId)
-              ? t("settings.agents.customRole")
-              : undefined
+          placeholder={t("settings.agents.displayNamePlaceholder")}
+          required
+          aria-invalid={!editing.displayName.trim()}
+          aria-describedby={
+            editing.displayName.trim() ? undefined : "agent-display-name-required"
           }
           autoFocus
         />
+        {!editing.displayName.trim() && (
+          <span
+            id="agent-display-name-required"
+            className="settings-hint settings-hint--inline"
+          >
+            {t("settings.agents.displayNameRequired")}
+          </span>
+        )}
       </label>
       <label>
         {t("settings.agents.model")}
@@ -237,6 +226,42 @@ export function AgentForm({
           aria-label={t("settings.agents.chattiness")}
         />
       </div>
+      <section
+        className="aa-personality"
+        aria-labelledby="aa-personality-heading"
+      >
+        <div className="aa-personality__header">
+          <div>
+            <h3 id="aa-personality-heading" className="aa-toggle-card__title">
+              {t("settings.agents.personality")}
+            </h3>
+            <p className="aa-toggle-card__hint">
+              {t("settings.agents.personalityHint")}
+            </p>
+          </div>
+          <span className="aa-personality__value">
+            {clampTemperament(editing.temperament)}
+          </span>
+        </div>
+        <Slider
+          min={1}
+          max={10}
+          step={1}
+          value={clampTemperament(editing.temperament)}
+          onChange={(temperament) =>
+            onChange({ ...editing, temperament: clampTemperament(temperament) })
+          }
+          aria-label={t("settings.agents.temperament")}
+          aria-valuetext={temperamentValueText(
+            clampTemperament(editing.temperament),
+            t,
+          )}
+        />
+        <div className="aa-personality__ends" aria-hidden="true">
+          <span>{t("settings.agents.temperamentAgreeable")}</span>
+          <span>{t("settings.agents.temperamentAggressive")}</span>
+        </div>
+      </section>
       <label>
         {t("settings.agents.systemPrompt")}
         <textarea

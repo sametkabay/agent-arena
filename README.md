@@ -1,391 +1,277 @@
-# Agent Arena
+<p align="center">
+  <a href="https://sametkabay.github.io/agent-arena/"><img src="docs/readme/banner.jpg" alt="Agent Arena: LLM agents with a body and a place, on a low-poly Space outpost at night" width="100%" /></a>
+</p>
 
-**Agent Arena is an open-source, browser-native multi-agent playground.** You place LLM-powered characters on a 3D map (office, forest, or space), watch them idle-talk, and chat with them privately or in a shared arena. It runs entirely in the browser with OpenAI, Gemini, Claude, or Ollama — no Agent Arena backend.
+<h1 align="center">Agent Arena</h1>
 
-[![Live demo](https://img.shields.io/badge/Try_live_demo-2563eb?style=for-the-badge)](https://sametkabay.github.io/agent-arena/)
-[![Code: MIT](https://img.shields.io/badge/code-MIT-yellow.svg)](./LICENSE)
-[![Assets](https://img.shields.io/badge/3D_assets-see_ATTRIBUTION-informational.svg)](./public/assets/ATTRIBUTION.md)
-[![Version](https://img.shields.io/badge/version-0.1.0--preview-orange)](https://github.com/sametkabay/agent-arena)
-[![Client-side](https://img.shields.io/badge/client--side-no_backend-2ea043)](https://github.com/sametkabay/agent-arena)
-
-> **Early preview** (`v0.1.0`) — map format and UI may still change.
-
-[Live demo](https://sametkabay.github.io/agent-arena/) · [Run locally](#run-locally) · [Issues](https://github.com/sametkabay/agent-arena/issues) · [Contributing](./CONTRIBUTING.md) · [License](./LICENSE)
-
-**Contents:** [Try it](#try-the-live-demo) · [Run locally](#run-locally) · [Controls](#controls) · [Features](#features) · [Configuration](#configuration) · [Deploy](#deploy-github-pages) · [FAQ](#troubleshooting--faq) · [Roadmap](#roadmap) · [Contributing](#contributing)
+<p align="center"><b>Put your LLMs on a tiny 3D island and watch them talk.</b><br/>
+An open-source, browser-only playground for multi-agent chat. Bring your own model: no backend, no sign-up.</p>
 
 <p align="center">
-  <a href="https://sametkabay.github.io/agent-arena/">
-    <img src="docs/screenshot-space-night.png" alt="Space map at night — four agents on a Martian outpost, private chat open with Explorer" width="920" />
-  </a>
+  <a href="https://sametkabay.github.io/agent-arena/"><b>▶ Try the live demo</b></a> ·
+  <a href="#quick-start">Run locally</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="https://github.com/sametkabay/agent-arena/releases/tag/v0.2.0-preview">What's new in v0.2</a>
 </p>
-<p align="center"><sub><b>Mars night at the Space outpost</b> — four agents, speech bubbles, private chat with Explorer. <a href="https://sametkabay.github.io/agent-arena/">Open the live demo</a></sub></p>
 
-**At a glance**
+<p align="center">
+  <a href="https://github.com/sametkabay/agent-arena/releases/tag/v0.2.0-preview"><img src="https://img.shields.io/badge/version-0.2.0--preview-orange" alt="Version 0.2.0-preview" /></a>
+  <img src="https://img.shields.io/badge/runs-100%25_in_your_browser-2ea043" alt="Runs 100% in your browser" />
+  <img src="https://img.shields.io/badge/UI-10_languages-8250df" alt="10 UI languages" />
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/code-MIT-yellow.svg" alt="Code: MIT" /></a>
+</p>
 
-- Drop LLM-powered characters onto an office floor, a forest camp, or a night-lit planetary outpost
-- Chat one-on-one, broadcast in a shared arena feed, or `@mention` a single agent
-- Idle mutters appear as speech bubbles — the world keeps living when you are not typing
-- Tune personas, maps, lighting, and provider defaults in YAML — no redeploy to experiment
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-camp-dark.jpg" />
+    <img src="docs/readme/hero-camp.jpg" alt="Five named agents at the forest camp map: tents, a campfire and low-poly trees on a floating island" width="100%" />
+  </picture>
+</p>
 
-**What this is not:** not a hosted multi-agent orchestration framework, not a Discord bot, and not a server-side agent runtime — it’s a visual playground you run (or host statically) yourself.
+## Why it's interesting
 
----
+- **Agents with a body and a place.** Each agent is a low-poly character on a 3D map, with a persona, a model, a temperament and skills. Click one to talk, or right-click the floor to send it walking. Every prompt carries a short session block (who you are, the map and its zones, day or night, who else is here), so agents know where they are without narrating the scenery.
+- **They talk to each other, on a budget.** In *Conversation* mode agents take turns in the shared arena chat: one speaker at a time, at least 5 s apart, at most 6 agent turns after your last message. Then they wait for you, so your API bill stays yours.
+- **No server.** It's a static site. Your browser calls OpenAI, Gemini, Claude or any OpenAI-compatible endpoint directly. Keys and settings stay in `localStorage`; your imported 3D models stay in IndexedDB.
+- **Built to be forked.** Defaults, provider endpoints, prompt templates, characters, roles and the built-in maps are plain YAML/JSON in the repo.
+
+**What this is not:** a hosted orchestration framework, a Discord bot or a server-side agent runtime. It's a visual playground you run, or host statically, yourself.
+
+## What's new in v0.2.0-preview
+
+| | |
+|---|---|
+| 🗣️ **Conversation mode** | **Settings → General → Ambient talk**: *Off* (default, no model calls), *Idle* (short asides) or *Conversation* (agents take turns, `@mentions` jump the queue) |
+| 🧱 **Your own 3D models** | Import `.glb` / `.gltf` in the map editor, stored locally, auto-fitted to ~1 m, placed like built-ins |
+| 🗺️ **A real map editor** | Zones and point lights, a preset gallery, undo/redo, safe import on id clash |
+| 🎭 **Personas** | Personality slider (agreeable → aggressive), duplicate agent, roster and model-config export/import |
+| 🌍 **10 languages, all the way down** | UI plus every built-in object, zone and map name in en, tr, de, es, fr, pt, ru, ja, ko, zh |
+| 📱 **Phones and tablets** | Touch controls, scrollable Settings tabs, responsive layouts |
+
+<p align="center">
+  <picture>
+    <source srcset="docs/readme/orbit-camp.webp" type="image/webp" />
+    <img src="docs/readme/orbit-camp.gif" alt="A slow orbit around the camp map while the agents talk in speech bubbles, handing the turn to each other with @mentions" width="100%" />
+  </picture>
+  <br/><sub>Conversation mode on the camp map. The lines in this clip are scripted by a local mock endpoint with a fake key, so the GIF stays reproducible. Your own model writes its own.</sub>
+</p>
+
+Full notes: [v0.2.0-preview release](https://github.com/sametkabay/agent-arena/releases/tag/v0.2.0-preview).
 
 ## Quick start
 
-### Try the live demo
+**Live demo, nothing to install:** open **<https://sametkabay.github.io/agent-arena/>**, pick a name and language, then follow the setup guide: **Settings → AI Models** (add a provider and key) → **Settings → Agents** (bind the model) → click an agent.
 
-Open **[https://sametkabay.github.io/agent-arena/](https://sametkabay.github.io/agent-arena/)**, pick a display name, language, and day/night, add a model under **Settings → AI Models**, bind it on an agent under **Settings → Agents**, then click an agent to chat.
-
-> Cloud providers work on the static demo **subject to provider CORS**. **Ollama / localhost models need the local dev server.**
-
-### Run locally
-
-**Requirements:** Node.js **20+** (CI uses **24**), npm. Modern browser with **WebGL2** (Chromium, Firefox, or Safari). Desktop-first — the scene uses mouse + right-click.
+**Locally** (Node.js 20+, a WebGL2 browser):
 
 ```bash
 git clone https://github.com/sametkabay/agent-arena.git
 cd agent-arena
 npm install
-npm run dev
+npm run dev        # → http://localhost:5174
 ```
 
-Dev server: **http://localhost:5174/** (port from `agent-arena.yaml` → `dev.port`)
+| | Live demo (GitHub Pages) | Local `npm run dev` |
+|---|---|---|
+| OpenAI / Gemini / Claude | Yes, as far as the provider's CORS allows | Yes |
+| Ollama and other local servers | No | Yes, via the `/ollama` and `/local-llm/<host>/<port>` proxies |
+| Map editor, custom models, export/import | Yes | Yes |
+| Ambient talk (idle / conversation) | Yes | Yes |
 
-#### First 60 seconds
+In dev, a `localhost` / `127.0.0.1` base URL entered in Settings is rewritten to those proxies automatically.
 
-1. Open the URL above
-2. Enter your display name, UI language, and day/night → **Enter Arena**
-3. **Settings → AI Models** → add a provider + API key (or Ollama at `/ollama` in dev — Ollama must already be running locally)
-4. **Settings → Agents** → add or edit an agent, pick a **character look** + **role**, and bind a model
-5. Click an agent to open private chat, or **right-click the floor** to walk them somewhere
-6. Switch maps in the left **Maps** panel (Office / Nature / Space), or open **Edit map**
+**Controls:** left-drag to orbit · scroll to zoom · click an agent to chat · right-click the floor to walk it there (long-press on touch) · `@Name` in the arena bar · **?** in the HUD for everything else.
 
-| Capability | Live demo (GitHub Pages) | Local `npm run dev` |
-|------------|--------------------------|---------------------|
-| OpenAI / Gemini / Claude | Yes (provider CORS permitting) | Yes |
-| Ollama / local gateways | No (no dev proxy) | Yes (`/ollama`, `/local-llm`) |
-| Map editor + `.aamf.json` export | Yes | Yes |
-| Idle chatter + private / arena chat | Yes | Yes |
-
-| Script | Purpose |
-|--------|---------|
-| `npm run dev` | Development server (port **5174**) |
-| `npm run build` | Typecheck + production build → `dist/` |
-| `npm run preview` | Preview the production build |
-| `npm run assets:inventory` | Regenerate GLB inventory after adding packs under `public/assets/packs/` |
-
-**Local LLM proxies (dev only):**
-
-- `/ollama` → `http://127.0.0.1:11434`
-- `/local-llm/<host>/<port>/...` → local OpenAI-compatible gateways
-
-> **Your keys stay in your browser.** There is no Agent Arena backend. API keys live in `localStorage` and are sent only to the providers you configure. Prefer restricted / rotatable keys.
-
----
-
-## Controls
-
-| Action | How |
-|--------|-----|
-| Select agent / open private chat | Click the character, or **Talk** in the agent list |
-| Move agent | Right-click the floor |
-| Arena broadcast | Type in the floating bar and **Say** |
-| Target one agent | `@Name` in arena chat (autocomplete) |
-| Day / night | HUD toggle (also chosen on first visit) |
-| Edit world | **Edit map** — full-screen editor |
-| Idle chatter | Off by default — turn it on in **Settings → General** |
-
----
-
-## Highlights
-
-<table align="center">
-  <tr>
-    <td width="50%"><img src="docs/screenshot-office.png" alt="Office map with four agents on the floor" width="100%" /></td>
-    <td width="50%"><img src="docs/screenshot-nature.png" alt="Nature camp with four agents among tents and trees" width="100%" /></td>
-  </tr>
-</table>
-<p align="center"><sub><b>Office</b> — lounge, kitchen, desks, wandering cat&nbsp;&nbsp;·&nbsp;&nbsp;<b>Nature</b> — tents, campfire, forest clearing</sub></p>
+## Build your world
 
 <p align="center">
-  <img src="docs/screenshot-map-editor.png" alt="Full-screen map editor with asset library and theme inspector" width="920" />
+  <picture>
+    <source srcset="docs/readme/editor-import.webp" type="image/webp" />
+    <img src="docs/readme/editor-import.gif" alt="Map editor: importing a GLB model into the Custom library and placing it on the camp map, then adding pine trees" width="100%" />
+  </picture>
 </p>
-<p align="center"><sub><b>Map editor</b> — place props, set spawns, tune floor and lighting, import / export <code>.aamf.json</code></sub></p>
 
-- **Agents on a map** — they walk, idle, think, and talk in a low-poly world
-- **Private chat** — resizable, draggable panel; replies stream into the panel and a speech bubble
-- **Arena chat** — fading live feed + history; broadcast or `@mention`
-- **Idle mutter** — opt-in; short asides on a chattiness slider (pauses when the tab is hidden)
-- **YAML-configured fork** — app defaults, prompt templates, characters, roles, and maps live in files you can edit
-- **10 UI languages** — English, Türkçe, Español, 简体中文, Português, Français, Deutsch, 日本語, 한국어, Русский
+Start from a built-in map (Office, Nature, Space) or a preset, then place objects, zones, lights and your own glTF/GLB models. Maps are versioned `aamf` v1 JSON you can export and share. Custom models are referenced by id for now, so bundle export with the model files is tracked in [#57](https://github.com/sametkabay/agent-arena/issues/57). *(The model in the clip is the CC0 Kenney rover from the repo's own packs, imported through the real dialog.)*
 
----
+## Speaks your language
 
-## Why Agent Arena?
+<p align="center">
+  <picture>
+    <source srcset="docs/readme/languages.webp" type="image/webp" />
+    <img src="docs/readme/languages.gif" alt="The same map editor library in English, Turkish, German, Spanish, Japanese and Chinese" width="100%" />
+  </picture>
+</p>
 
-Most multi-agent demos are terminals, dashboards, or chat bots. Agent Arena treats agents as **characters in a place**:
+All 10 UI languages cover the built-in library, zones, lights and map names. Agents reply in your UI language. Names you type yourself are never rewritten.
 
-- They stand on a map, walk to targets, idle-mutter into speech bubbles, and answer when you click them
-- Session context (your name, UI language, map, zones, day/night, other people) is available to the model — prompts also tell agents **not** to volunteer a scenery tour unless you steer there
-- Agents, models, and the map itself are **editable in-app** — no redeploy to try a new persona or layout
+## Gallery
 
-Use it to prototype agent personas, stage small multi-agent scenes, compare LLM providers side by side, or explore a tactile sandbox for agent UX.
+<p align="center">
+  <img src="docs/readme/hero-mars-night.jpg" alt="Five named agents on the Space map at night: a dome, rovers, lamps and red rocks on a floating Mars outpost, seen from above at a three-quarter angle" width="100%" />
+  <br/><sub>The Space map at night: the same five agents spread across a Mars outpost.</sub>
+</p>
 
-**Stack:** Vite · React 19 · TypeScript · Three.js / React Three Fiber · Zustand · i18next · YAML config
+<p align="center">
+  <picture>
+    <source srcset="docs/readme/orbit-mars-night.webp" type="image/webp" />
+    <img src="docs/readme/orbit-mars-night.gif" alt="The same slow orbit on the Space map at night: a dome, lamps and rovers on red ground while the agents talk in speech bubbles" width="100%" />
+  </picture>
+  <br/><sub>The Space map at night, same 18-second orbit. Lines are scripted by a local mock with a fake key, as above.</sub>
+</p>
 
----
+<table>
+  <tr>
+    <td width="50%"><img src="docs/readme/still-camp-talk.jpg" alt="Camp map in conversation mode: Explorer asks Muse to name a trail behind the tents while Scholar, Engineer and Guardian wait their turn" width="100%" /></td>
+    <td width="50%"><img src="docs/readme/still-mars-night-talk.jpg" alt="Space map at night in conversation mode: Guardian insists on a suit check and hands the turn to Scholar with an @mention" width="100%" /></td>
+  </tr>
+</table>
 
-## Features
+<p align="center"><sub>Conversation mode up close. Lines are scripted by a local mock with a fake key, as above.</sub></p>
 
-### Agents & simulation
+## Architecture
 
-- Spawn multiple agents on map spawn points
-- Each agent has a **GLB character look** (13 shipped faces, from `data/characters.yaml`) and a **role preset** (explorer, engineer, botanist, scholar, artisan, guardian, scout, muse, or custom)
-- Role fills default name, color, bio, and system prompt; **character look** (GLB) is independent of role
-- **Idle chatter loop** — opt-in in Settings (off by default); rate via *chattiness* (0–100; default 10; 100 ≈ 2 mutters/minute); pauses when the tab is hidden or Settings / Map Editor is open
-- Click to select; **right-click the floor** to send them walking
-- Thinking / talking visual states while replies stream (`🤔` bubble while a reply is in flight; optional **thinking / reasoning** toggle per agent — provider-specific)
-- Optional **skills** blocks (coding / docs / tools templates) appended to the system prompt
-
-### Conversation
-
-- **Private chat** — resizable, draggable panel (from the agent list or the scene)
-- **Shared arena chat** — fading live feed + expandable history; `@mention` autocomplete
-- Four prompt channels in `prompts.yaml`: `private_chat`, `arena_broadcast`, `arena_mention`, `idle_mutter`
-- World context in prompts: your name, reply language, map name/description, named zones, day/night, other agents
-
-### Maps & editor
-
-- **Builtin worlds:** Office, Nature, Space (`aamf` v1 JSON in `data/maps/`)
-- **Day/night** is a global lighting mode (not a separate map) — HUD toggle, name-gate choice, and editor preview
-- **Full-screen map editor:** place / move / rotate / scale assets, multi-select, snap grid, spawn tool, drag-drop from the library, favorites, floor size & surface, theme colors, prop wander / animated behavior, undo/redo, import / export (`.aamf.json`)
-- Saving a builtin creates a **custom copy** in `localStorage`
-- Zones and map light points render in the editor today; editing them in the UI is on the [roadmap](#roadmap)
-- Night sky, practical lights (lamps, campfire FX, map lights), optional room lights on indoor surfaces
-
-### AI providers
-
-| Provider | Default model | Notes |
-|----------|---------------|--------|
-| **OpenAI** | `gpt-4o-mini` | Chat Completions–compatible API |
-| **Gemini** | `gemini-2.0-flash` | Google Generative Language API; thinking budget on 2.5+ |
-| **Claude** | `claude-3-5-sonnet-latest` | Anthropic Messages API (browser direct-access header) |
-| **Ollama** | `llama3.2` | Local models (best with `npm run dev` proxy) |
-| **Custom** | `default` | Any OpenAI-compatible gateway |
-
-Connection test, model list fetch, optional extra headers, per-agent model binding, optional **thinking / reasoning** toggle (provider-specific).
-
-### Internationalization & settings
-
-- **10 UI languages** from `agent-arena.yaml` (see [Languages](#languages)) — the same language is sent to models as the reply language
-- Graphics: shadows, quality, contact shadows, lamp / room lights, antialias, max DPR
-- First-visit name gate (display name + language + day/night)
-- Static deploy (GitHub Pages)
-
----
-
-## Configuration
-
-All shipped defaults live in YAML / JSON at the repo root so you can fork the playground without hunting through source. Restart `npm run dev` (or rebuild) after editing — Vite transforms YAML at build time.
-
-| File | What to edit |
-|------|----------------|
-| [`agent-arena.yaml`](./agent-arena.yaml) | App name, defaults, storage keys, graphics, providers, chatter, lighting, languages, dev port / proxies |
-| [`prompts.yaml`](./prompts.yaml) | System / situation / idle-mutter / arena-chat templates (`{{variable}}` placeholders) |
-| [`data/characters.yaml`](./data/characters.yaml) | Playable GLB looks + default bios |
-| [`data/roles.yaml`](./data/roles.yaml) | Role presets + default persona prompts |
-| [`data/maps/*.json`](./data/maps/) | Builtin worlds (aamf v1) — drop another JSON here to ship a map |
-| [`data/map-presets.yaml`](./data/map-presets.yaml) | Starter layout templates (YAML + `createMapFromPreset()` — **not wired in Settings UI yet**; use **Duplicate** on a builtin or **New map** for now) |
-| [`data/floor-surfaces.yaml`](./data/floor-surfaces.yaml) | Procedural ground looks |
-| [`data/placeables.yaml`](./data/placeables.yaml) | Curated prop ids + wander clips |
-
-UI copy stays in `src/i18n/*.json`.
-
-### Fork in two minutes
-
-```yaml
-# agent-arena.yaml — common fork tweaks
-app:
-  name: My Agent Lab
-defaults:
-  language: en
-  mapId: nature
-  dayNight: night
-  agentChattiness: 25
-  idleChatterEnabled: false
-chatter:
-  maxMuttersPerMinute: 2   # 100 chattiness ≈ 2 mutters/min at default
-```
-
-### Prompt templates
-
-`prompts.yaml` is the behavioral core. Modes: **private chat**, **arena broadcast**, **@mention**, **idle mutter**. Session facts are wrapped in `<session>` / `<situation>`; a speech-discipline block tells agents not to narrate the scenery unless you ask.
-
-| Placeholder | Used for |
-|-------------|----------|
-| `{{userName}}` | Your display name |
-| `{{language}}` | UI / reply language |
-| `{{mapName}}`, `{{mapDescription}}` | World grounding |
-| `{{namedAreas}}` | Zone names |
-| `{{peopleLines}}` | Other agents present |
-| `{{timeOfDay}}` | `day` or `night` |
-
-### Languages
-
-Ten UI locales ship today: **en**, **tr**, **es**, **zh**, **pt**, **fr**, **de**, **ja**, **ko**, **ru** — labels and codes live in [`agent-arena.yaml`](./agent-arena.yaml) under `languages`. The active UI language is also sent to models as the reply language.
-
-**Add a language:** copy `src/i18n/en.json` → `src/i18n/xx.json`, add an entry under `languages` in `agent-arena.yaml`, restart the dev server.
-
-### Privacy & API keys
-
-See [`SECURITY.md`](./SECURITY.md) for how to report a vulnerability.
-
-- **No `.env` required.** Keys and settings are entered in the UI and stored in `localStorage` (key from `agent-arena.yaml` → `storage.key`).
-- Keys leave your machine only when **your browser** calls the provider you configured — there is no Agent Arena backend holding secrets.
-- Prefer restricted / rotatable API keys. Clear site data if you share the machine.
-- **Claude from the browser** uses Anthropic’s `anthropic-dangerous-direct-browser-access` header; treat that key as **origin-exposed** (not a server secret).
-- Browser **CORS** applies. Some self-hosted gateways need CORS headers; `npm run dev` proxies help for Ollama.
-
----
-
-## How it works
+Agent Arena is a single-page Vite + React 19 app. The 3D scene is Three.js through React Three Fiber, state lives in Zustand, and the UI is translated with i18next. Nothing runs server-side: the only network traffic is static assets plus the LLM calls your browser makes.
 
 ```mermaid
 flowchart TB
-  UI["React UI — settings, chat, agent list, map editor"]
-  Store["Zustand store"]
-  Scene["ArenaScene — R3F + Three.js"]
-  AI["AI layer — private / arena / idle mutter"]
-  Maps["aamf maps + YAML config + prompts"]
-  Persist["localStorage"]
-  LLMs["OpenAI · Gemini · Claude · Ollama · custom"]
+  subgraph build["Build time (Vite)"]
+    YAML["agent-arena.yaml, prompts.yaml, data/*.yaml"]
+    MAPS["data/maps/*.json (aamf v1)"]
+    LOC["src/i18n/*.json (10 locales)"]
+  end
 
-  UI <--> Store
-  Store <--> Scene
-  Store <--> AI
-  Store --> Persist
-  Maps --> Store
-  AI -->|"fetch from the browser"| LLMs
+  subgraph browser["Browser (static site)"]
+    CFG["lib/config: appConfig + prompts"]
+    I18N["i18next"]
+    STORE["useArenaStore (Zustand)"]
+    UAS["useUserAssetStore (Zustand)"]
+    UI["React UI: HUD, chat, Settings, map editor"]
+    SCENE["ArenaScene (R3F + Three.js)"]
+    LOOP["AgentChatterLoop: 1 s tick"]
+    AI["chatter · conversationLoop · arenaChat"]
+    CTX["arenaContext: system prompt + session block"]
+    PROV["providers.chatCompletion"]
+    LS[("localStorage 'agent-arena-data'")]
+    IDB[("IndexedDB 'agent-arena-user-assets'")]
+  end
+
+  subgraph llm["LLM endpoints"]
+    OAI["OpenAI / Custom / Ollama (OpenAI-compatible)"]
+    GEM["Gemini"]
+    CLA["Claude Messages API"]
+    DEV["Vite dev proxy: /ollama, /local-llm (npm run dev only)"]
+  end
+
+  YAML -->|"yaml-import plugin"| CFG
+  MAPS -->|"import.meta.glob"| STORE
+  LOC -->|"import.meta.glob"| I18N
+  CFG --> STORE
+  STORE <--> UI
+  STORE <--> SCENE
+  UAS --> SCENE
+  STORE <-->|"loadPersisted / savePersisted"| LS
+  UAS <--> IDB
+  LOOP --> AI
+  UI -->|"private and arena chat"| AI
+  AI --> CTX
+  CTX --> PROV
+  PROV --> OAI
+  PROV --> GEM
+  PROV --> CLA
+  OAI -.->|"localhost URLs in dev"| DEV
 ```
 
-1. **State** — Zustand (`src/store/arenaStore.ts`), hydrated from `localStorage`
-2. **Scene** — active `ArenaMapDefinition`: floor, theme, spawns, placeables, zones, lights
-3. **Agents** — config (look + persona + model) + runtime (position, path, speech bubble, state)
-4. **Prompts** — private chat, arena broadcast, `@mention`, or idle mutter + shared world context
-5. **Providers** — OpenAI-style, Gemini, and Claude behind one chat interface
+**How the pieces fit**
 
-### Map format (`aamf` v1)
+- **Config without code.** A small Vite plugin turns every imported `.yaml` into a JS module, so `agent-arena.yaml` and `prompts.yaml` are baked in at build time. Built-in maps and locales are picked up with `import.meta.glob`: drop a JSON into `data/maps/` or `src/i18n/` and it ships.
+- **Two stores.** `useArenaStore` (`src/store/arenaStore.ts`) holds agents, models, maps, chats, graphics and the ambient-talk mode. It persists to one `localStorage` key, rolls back on a failed write and reports quota errors instead of losing data. `useUserAssetStore` keeps imported glTF/GLB models in IndexedDB (`src/lib/userAssets/`).
+- **One background loop.** `AgentChatterLoop` ticks once a second and drives idle mutters, conversation turns and arena replies queued while an agent was busy. Idle mutters and conversation turns pause while Settings or the map editor is open, or the tab is hidden.
+- **One prompt shell.** `arenaContext` composes the persona, an optional temperament line, language rules, the mode text from `prompts.yaml` (`private_chat`, `arena_broadcast`, `arena_mention`, `idle_mutter`, `arena_conversation`), skills, and finally the session block.
+- **One provider entry point.** `chatCompletion()` sends Gemini and Claude to their own adapters; OpenAI, Ollama and custom gateways share the OpenAI-compatible path. Tokens stream into the chat and the agent's speech bubble as they arrive.
 
-Versioned JSON (`ArenaMapDefinition`): floor, theme, spawn points, placeables, optional zones and lights. Builtins: `data/maps/`. Custom maps and exports use the same schema (`.aamf.json`).
+<details>
+<summary><b>How the conversation budget works</b></summary>
 
-| Builtin | Theme | Notes |
-|---------|-------|-------|
-| `office` | Indoor office | Zones, practical lights, wandering cat |
-| `nature` | Forest camp | Grass, tents, campfire |
-| `space` | Planetary outpost | Habitat dome, beacons, rover — shines at night |
-
-### Assets
-
-Low-poly GLB packs under `public/assets/packs/`; character looks under `public/assets/characters/`. **Code is MIT; assets are not** — authors and licenses: [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md).
-
----
-
-## Project structure
-
-```text
-agent-arena.yaml  # App / provider / runtime defaults
-prompts.yaml      # LLM prompt templates
-data/             # Characters, roles, maps, placeables, surfaces
-src/
-  components/     # UI, SettingsModal, MapEditor, scene/
-  lib/
-    ai/           # providers, arena chat, chatter, prompt context
-    config/       # YAML loaders + {{var}} interpolation
-    maps/         # aamf schema, runtime, presets
-    assets/       # catalog + generated pack inventory
-    poly/         # role preset loader
-  store/          # Zustand arena store
-  i18n/           # locale JSON (en, tr, es, zh, pt, fr, de, ja, ko, ru)
-public/           # favicon + GLB packs + characters + ATTRIBUTION.md
-docs/             # README screenshots
-scripts/          # pack inventory generator
-.github/workflows # GitHub Pages deploy
+```mermaid
+flowchart TD
+  T["1 s tick"] --> M{"Conversation mode?"}
+  M -- "no" --> X["skip this tick"]
+  M -- "yes" --> P{"Paused?"}
+  P -- "yes" --> PA["abort the in-flight turn, not counted"]
+  P -- "no" --> I{"Turn in flight?"}
+  I -- "yes" --> X
+  I -- "no" --> B{"6 agent turns since you?"}
+  B -- "yes" --> W["wait for you"]
+  B -- "no" --> G{"Gap passed?"}
+  G -- "no" --> X
+  G -- "yes" --> S["pick a speaker"]
+  S --> C["one streamed completion"]
+  C --> D["count the turn, success or failure"]
 ```
 
----
+- **Paused** means Settings or the map editor is open, or the tab is hidden.
+- **Gap:** at least 5 s between agent turns; after you post, the first reply comes after about 400 ms.
+- **Speaker:** `@mentioned` agents first, otherwise weighted by chattiness, and never the same agent twice in a row.
+- **Context:** the last 12 arena lines (max 1,600 characters) go into the prompt.
+- Failed turns count toward the budget, so a broken endpoint can't loop forever. All numbers live under `conversation:` in `agent-arena.yaml`.
 
-## Deploy (GitHub Pages)
+</details>
 
-Push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) ([![Deploy](https://github.com/sametkabay/agent-arena/actions/workflows/deploy.yml/badge.svg)](https://github.com/sametkabay/agent-arena/actions/workflows/deploy.yml)).
+## Configuration
 
-1. Repo **Settings → Pages → Source: GitHub Actions**
-2. Push to `main` (or run the workflow manually)
-3. Site: **https://sametkabay.github.io/agent-arena/**
+| File | What it controls |
+|---|---|
+| [`agent-arena.yaml`](./agent-arena.yaml) | Defaults, storage keys, graphics, idle rate, conversation budget, provider defaults, dev port and proxies, languages |
+| [`prompts.yaml`](./prompts.yaml) | All prompt text: identity, language, the five chat modes, session block, temperament bands (`{{variable}}` placeholders) |
+| [`data/characters.yaml`](./data/characters.yaml) · [`data/roles.yaml`](./data/roles.yaml) | 13 character looks · 8 role presets |
+| [`data/maps/*.json`](./data/maps/) · [`data/map-presets.yaml`](./data/map-presets.yaml) | Built-in worlds (aamf v1) · the preset gallery |
+| [`data/placeables.yaml`](./data/placeables.yaml) · [`data/floor-surfaces.yaml`](./data/floor-surfaces.yaml) | Curated props · ground looks |
 
-Vite `base` is `/` in dev and `/agent-arena/` on production builds so asset URLs match the project Pages path.
+```yaml
+# agent-arena.yaml: the knobs people ask about most
+defaults:
+  mapId: office
+  dayNight: day
+  agentChattiness: 10
+  chatterMode: off          # off | idle | conversation
+conversation:
+  minGapMs: 5000            # min gap between agent turns (YAML only, no Settings UI yet)
+  maxAgentTurns: 6          # then agents wait for you
+  historyLines: 12
+```
 
-Crawler files on the demo origin: [`robots.txt`](https://sametkabay.github.io/agent-arena/robots.txt), [`sitemap.xml`](https://sametkabay.github.io/agent-arena/sitemap.xml), [`llms.txt`](https://sametkabay.github.io/agent-arena/llms.txt). Google still reads `robots.txt` from the `github.io` host root — submit the sitemap in [Google Search Console](https://search.google.com/search-console) and Bing Webmaster after deploy.
+Restart `npm run dev` (or rebuild) after editing. **Add a language:** copy `src/i18n/en.json` to `src/i18n/xx.json`, add `xx` under `languages:` in `agent-arena.yaml`, and restart.
 
----
+## FAQ
 
-## Troubleshooting & FAQ
+**Where do my API keys go?** Into your browser's `localStorage`, and only to the endpoints you configure. Use restricted, rotatable keys. Claude calls from the browser use Anthropic's `anthropic-dangerous-direct-browser-access` header, so treat that key as exposed to the page. Model exports leave keys out unless you opt in.
 
-| Problem | What to try |
-|---------|-------------|
-| Blank page / missing assets on Pages | Open the deployed app under `/agent-arena/`; local dev uses `/` |
-| Ollama fails on GitHub Pages | Expected — use `npm run dev` (proxies are **dev-only**) |
-| CORS errors on custom gateway | Enable CORS on the gateway, or call it through a local proxy |
-| Claude browser calls rejected | Needs Anthropic browser/CORS-allowed setup + the direct-browser-access header the app sends; use a restricted key |
-| Stale agents / maps | Clear site data for the origin, or reset from Settings where available |
-| Huge PR with new GLBs | Update [`ATTRIBUTION.md`](public/assets/ATTRIBUTION.md) and run `npm run assets:inventory` |
+**Will it spend my budget while I'm away?** Ambient talk is off by default. In Conversation mode agents stop after 6 turns without you, and both idle and conversation pause when the tab is hidden.
 
-**Do I need a backend?** No — only the LLM providers you choose.
+**Why does Ollama fail on the live demo?** The proxies exist only in `npm run dev`; GitHub Pages is static.
 
-**Are my keys uploaded to Agent Arena?** No. They stay in `localStorage` and are sent only to the provider endpoints you configure.
+**Which glTF files can I import?** `.glb` and `.gltf` (with its `.bin` and textures). Meshopt works; Draco and KTX2 are rejected, and animated models aren't supported yet. Models are stored per browser, so clearing site data removes them.
 
-**Can I run only on Ollama?** Yes, locally with `npm run dev`.
+**Something looks broken or stale?** **Settings → General → Reset playground** offers a backup export first.
 
-**Is `aamf` stable?** Versioned as v1 in early preview — expect additive changes; pin exports if you depend on them.
+## Roadmap and known limitations
 
----
+- Map bundle export that includes your custom models ([#57](https://github.com/sametkabay/agent-arena/issues/57))
+- Custom character looks from your own GLB ([#8](https://github.com/sametkabay/agent-arena/issues/8))
+- Animated custom models, and a Settings UI for the conversation budget
+
+Ideas and bug reports: [Issues](https://github.com/sametkabay/agent-arena/issues).
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md) (setup, pre-commit hook, lint/test) and the [code of conduct](./CODE_OF_CONDUCT.md).
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) and the [code of conduct](./CODE_OF_CONDUCT.md). `npm run lint` (oxlint), `npm test` (Vitest, **fails below 80% coverage** on `src/lib`) and `npm run build` run in CI; the pre-commit hook runs lint and tests. Good first contributions: [`good first issue`](https://github.com/sametkabay/agent-arena/labels/good%20first%20issue) tickets, locale fixes, new built-in maps and attributed GLB packs.
 
-`npm test` runs Vitest on `src/lib` and **fails below 80% coverage**. `npm run lint` is oxlint. Pre-commit runs both (`simple-git-hooks` via `npm install`); CI also runs `npm run build`.
+**Deploying a fork:** pushes to `main` run [`deploy.yml`](./.github/workflows/deploy.yml) to GitHub Pages (**Settings → Pages → Source: GitHub Actions**). Production builds use `base: /agent-arena/` in [`vite.config.ts`](./vite.config.ts), so change it if your repo has another name.
 
-**Good first contributions:** [good first issue](https://github.com/sametkabay/agent-arena/labels/good%20first%20issue) tickets — locale translations (`src/i18n/` + `agent-arena.yaml`), new builtin maps, and attributed GLB packs.
+## License and credits
 
----
+**Code and documentation:** [MIT](./LICENSE) © 2026 Samet Kabay. **3D assets** under `public/assets/` are **not MIT**: they keep their CC0 / CC BY licenses, listed in [`ATTRIBUTION.md`](./public/assets/ATTRIBUTION.md) (Kenney, poly.pizza and others). Report vulnerabilities via [`SECURITY.md`](./SECURITY.md).
 
-## Roadmap
+Built with [Vite](https://vitejs.dev/), [React](https://react.dev/), [Three.js](https://threejs.org/) / [React Three Fiber](https://docs.pmnd.rs/react-three-fiber), [Zustand](https://zustand-demo.pmnd.rs/) and [i18next](https://www.i18next.com/).
 
-- Richer zone / light editing in the map editor UI
-- Wire **Settings → Map** gallery presets from `data/map-presets.yaml`
-- Deeper agent behaviors and multi-agent tasks
-- Export / import of full arena setups (agents + models + map)
-- More builtins and polished demo scenes
-
-Ideas and PRs welcome.
-
----
-
-## Credits
-
-- 3D packs and characters: Kenney (CC0) and poly.pizza (CC BY / CC0) — [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md)
-- [Vite](https://vitejs.dev/) · [React](https://react.dev/) · [Three.js](https://threejs.org/) / [R3F](https://docs.pmnd.rs/react-three-fiber) · [Zustand](https://zustand-demo.pmnd.rs/) · [i18next](https://www.i18next.com/)
-
-If Agent Arena helps you prototype agent UX, [star the repo](https://github.com/sametkabay/agent-arena) — it helps others find it.
-
----
-
-## License
-
-**Code and documentation:** [MIT](./LICENSE) © 2026 Samet Kabay.
-
-**3D assets** under `public/assets/` are **not MIT**. They keep their original CC0 / CC BY licenses — see [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md).
-
-Report vulnerabilities via [`SECURITY.md`](./SECURITY.md).
+If Agent Arena helps you prototype agent UX, [give it a star](https://github.com/sametkabay/agent-arena): it helps others find it.

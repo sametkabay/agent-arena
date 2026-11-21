@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import type { AiModelConfig } from "@/lib/types";
 import type { ProviderGroup } from "@/components/SettingsModal/groupModels";
+import {
+  DeleteActionIcon,
+  EditActionIcon,
+} from "@/components/SettingsModal/CardActionIcons";
 
 export function ModelList({
   groups,
@@ -15,16 +19,20 @@ export function ModelList({
 }) {
   const { t } = useTranslation();
   const empty = groups.length === 0;
+  const editLabel = t("settings.edit");
+  const deleteLabel = t("settings.delete");
 
   return (
     <div>
-      <div className="header-row">
+      <div className="header-row models-tab__header">
         <p className="settings-hint" style={{ margin: 0 }}>
           {t("settings.models.hint")}
         </p>
-        <button type="button" className="btn btn--primary" onClick={onAdd}>
-          {t("settings.add")}
-        </button>
+        <div className="models-tab__actions">
+          <button type="button" className="btn btn--primary" onClick={onAdd}>
+            {t("settings.add")}
+          </button>
+        </div>
       </div>
       {empty ? (
         <p className="settings-hint">{t("settings.models.empty")}</p>
@@ -52,16 +60,22 @@ export function ModelList({
                       <button
                         type="button"
                         className="btn btn--ghost"
+                        aria-label={editLabel}
+                        title={editLabel}
                         onClick={() => onEdit(m)}
                       >
-                        {t("settings.edit")}
+                        <span className="card-item__action-label">{editLabel}</span>
+                        <EditActionIcon />
                       </button>
                       <button
                         type="button"
                         className="btn btn--danger"
+                        aria-label={deleteLabel}
+                        title={deleteLabel}
                         onClick={() => onDelete(m.id)}
                       >
-                        {t("settings.delete")}
+                        <span className="card-item__action-label">{deleteLabel}</span>
+                        <DeleteActionIcon />
                       </button>
                     </div>
                   </li>

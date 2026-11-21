@@ -1,4 +1,4 @@
-import { Html, useAnimations, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import {
   Component,
@@ -21,9 +21,16 @@ import {
   applyCharacterProportions,
   scaleHeadAnimationTracks,
 } from "@/lib/three/characterRig";
+import {
+  AGENT_OVERLAY_STACK_GAP_PX,
+  agentOverlayStackWorldY,
+} from "@/lib/agentOverlay";
+import { useTranslation } from "react-i18next";
 import type { ArenaAgent } from "@/lib/types";
+import { agentLabel } from "@/lib/agentLabel";
 import { THINKING_BUBBLE, useArenaStore } from "@/store/arenaStore";
 import { JellyAgent } from "@/components/scene/JellyAgent";
+import { SafeHtml } from "@/components/scene/SafeHtml";
 
 interface CharacterAgentProps {
   agent: ArenaAgent;
@@ -83,46 +90,45 @@ function AgentLabels({
   selected: boolean;
   height: number;
 }) {
+  const { t } = useTranslation();
   const settingsOpen = useArenaStore((s) => s.settingsOpen);
   const showLabels = !settingsOpen;
   const thinking = agent.state === "thinking" || agent.thinkingIntensity > 0.35;
   const bubble = agent.speechBubble || (thinking ? THINKING_BUBBLE : undefined);
 
+  // Keep SafeHtml mounted while settings are open (hide via CSS) so toggling
+  // settings does not tear down the nested React root mid-frame.
   return (
-    <>
-      {showLabels && (
-        <Html
-          position={[0, height + 0.22, 0]}
-          center
-          zIndexRange={[45, 10]}
-          className="agent-html-overlay"
+    <SafeHtml
+      position={[0, agentOverlayStackWorldY(height), 0]}
+      center={false}
+      zIndexRange={[45, 10]}
+      style={{
+        transform: "translate3d(-50%, -100%, 0)",
+        pointerEvents: "none",
+        visibility: showLabels ? "visible" : "hidden",
+      }}
+      className="agent-html-overlay"
+    >
+      <div
+        className="agent-overlay-stack"
+        style={{ gap: AGENT_OVERLAY_STACK_GAP_PX }}
+      >
+        {bubble ? <div className="agent-speech">{bubble}</div> : null}
+        <button
+          type="button"
+          className={
+            "agent-label" + (selected ? " agent-label--selected" : "")
+          }
+          onClick={(ev) => {
+            ev.stopPropagation();
+            useArenaStore.getState().selectAgent(agent.id);
+          }}
         >
-          <button
-            type="button"
-            className={
-              "agent-label" + (selected ? " agent-label--selected" : "")
-            }
-            onClick={(ev) => {
-              ev.stopPropagation();
-              useArenaStore.getState().selectAgent(agent.id);
-            }}
-          >
-            {agent.displayName}
-          </button>
-        </Html>
-      )}
-      {showLabels && bubble && (
-        <Html
-          position={[0, height + 0.62, 0]}
-          center
-          zIndexRange={[45, 10]}
-          style={{ pointerEvents: "none" }}
-          className="agent-html-overlay"
-        >
-          <div className="agent-speech">{bubble}</div>
-        </Html>
-      )}
-    </>
+          {agentLabel(agent, t)}
+        </button>
+      </div>
+    </SafeHtml>
   );
 }
 

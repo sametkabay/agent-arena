@@ -6,9 +6,12 @@ import {
   truncateChatHistory,
 } from "@/lib/ai/providers";
 import { getArenaWorldContext, withSituationUserMessage } from "@/lib/ai/arenaContext";
+import { agentLabel } from "@/lib/agentLabel";
 import { useStickToBottom } from "@/lib/useStickToBottom";
 import { useArenaStore } from "@/store/arenaStore";
 import { appConfig } from "@/lib/config";
+import { dockClearanceFor } from "@/lib/chatPanelLayout";
+import { safeSetItem } from "@/lib/storage";
 
 const STORAGE_KEY = appConfig.storage.chatPanelKey;
 const MIN_W = appConfig.chat.panel.minWidth;
@@ -18,7 +21,7 @@ const MARGIN = appConfig.chat.panel.margin;
 // desktop-sized floating window, and stays clear of the bottom arena chat
 // dock (composer) so the two never overlap by default.
 const MOBILE_BREAKPOINT = 720;
-const DOCK_CLEARANCE = 96;
+const DOCK_CLEARANCE = 112;
 
 function isMobileViewport(): boolean {
   return window.innerWidth <= MOBILE_BREAKPOINT;
@@ -46,12 +49,21 @@ function defaultLayout(): ChatLayout {
     };
   }
   const width = Math.min(appConfig.chat.panel.defaultWidth, Math.max(MIN_W, window.innerWidth - 24));
-  const height = Math.min(appConfig.chat.panel.defaultHeight, Math.max(MIN_H, window.innerHeight - 100));
+  const left = Math.max(MARGIN, window.innerWidth - width - 18);
+  const clearance = dockClearanceFor({
+    panelLeft: left,
+    panelWidth: width,
+    viewportWidth: window.innerWidth,
+  });
+  const height = Math.min(
+    appConfig.chat.panel.defaultHeight,
+    Math.max(MIN_H, window.innerHeight - clearance - MARGIN),
+  );
   return {
     width,
     height,
-    left: Math.max(MARGIN, window.innerWidth - width - 18),
-    top: Math.max(MARGIN, window.innerHeight - height - 18),
+    left,
+    top: Math.max(MARGIN, window.innerHeight - height - clearance),
   };
 }
 
@@ -110,6 +122,7 @@ export function ChatPanel() {
   const setAgentSpeech = useArenaStore((s) => s.setAgentSpeech);
   const selectAgent = useArenaStore((s) => s.selectAgent);
   const setChatOpen = useArenaStore((s) => s.setChatOpen);
+  const resetSeq = useArenaStore((s) => s.resetSeq);
 
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState<ChatLayout>(() => loadLayout());
@@ -138,7 +151,11 @@ export function ChatPanel() {
   }, [selectedAgentId, chatOpen, stickNow]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+    abortRef.current?.abort();
+  }, [resetSeq]);
+
+  useEffect(() => {
+    safeSetItem(STORAGE_KEY, JSON.stringify(layout));
   }, [layout]);
 
   useEffect(() => {
@@ -202,6 +219,8 @@ export function ChatPanel() {
 
   if (!chatOpen || !agent) return null;
 
+  const label = agentLabel(agent, t);
+
   async function send() {
     const text = input.trim();
     if (!text || !agent || busy) return;
@@ -228,6 +247,7 @@ export function ChatPanel() {
       agent.displayName,
       agent.skills ?? [],
       getArenaWorldContext(agent.id),
+      agent.temperament,
     );
     abortRef.current?.abort();
     const ac = new AbortController();
@@ -300,7 +320,7 @@ export function ChatPanel() {
         }}
       >
         <div>
-          <strong>{agent.displayName}</strong>
+          <strong>{label}</strong>
           <span className="chat-popup__meta">
             {model ? model.name : t("chat.noModel")}
           </span>
@@ -342,7 +362,7 @@ export function ChatPanel() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={t("chat.placeholder", { name: agent.displayName })}
+          placeholder={t("chat.placeholder", { name: label })}
           disabled={busy}
         />
         <button type="submit" disabled={busy || !input.trim()}>

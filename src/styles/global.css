@@ -435,6 +435,136 @@ button {
 }
 
 /* —— Switch —— */
+.aa-segmented {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-muted);
+}
+
+.aa-segmented--stack {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 8px;
+  background: transparent;
+  border-color: transparent;
+}
+
+.aa-segmented__option,
+.form-grid .aa-segmented__option {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 44px;
+  padding: 8px 6px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: center;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: transparent;
+  box-shadow: none;
+  /* No color/background transitions: under main-thread pressure (3D scene)
+     pending transitions freeze on the prior option and the highlight sticks. */
+}
+
+.aa-segmented--stack .aa-segmented__option,
+.form-grid .aa-segmented--stack .aa-segmented__option {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  justify-content: flex-start;
+  text-align: start;
+  padding: 10px 14px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(60, 45, 30, 0.06);
+}
+
+.aa-segmented__option input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.aa-segmented__label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.aa-segmented--stack .aa-segmented__label {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.aa-segmented--stack .aa-segmented__option.is-selected .aa-segmented__label::after,
+.aa-segmented--stack .aa-segmented__option:has(input:checked) .aa-segmented__label::after {
+  content: "✓";
+  flex: 0 0 auto;
+  color: var(--sage-dark);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.aa-segmented__option.is-selected,
+.aa-segmented__option:has(input:checked),
+.form-grid .aa-segmented__option.is-selected,
+.form-grid .aa-segmented__option:has(input:checked) {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(60, 45, 30, 0.12);
+}
+
+.aa-segmented--stack .aa-segmented__option.is-selected,
+.aa-segmented--stack .aa-segmented__option:has(input:checked),
+.form-grid .aa-segmented--stack .aa-segmented__option.is-selected,
+.form-grid .aa-segmented--stack .aa-segmented__option:has(input:checked) {
+  border-color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 18%, var(--surface));
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sage) 35%, transparent);
+}
+
+.aa-segmented__option:has(input:focus-visible) {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+.aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)),
+.form-grid .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)) {
+  color: var(--ink);
+}
+
+.aa-segmented--stack .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)),
+.form-grid .aa-segmented--stack .aa-segmented__option:hover:not(.is-selected):not(:has(input:checked)) {
+  background: var(--surface-soft-hover);
+  border-color: var(--border-strong);
+}
+
 .aa-switch {
   position: relative;
   flex: 0 0 auto;
@@ -559,6 +689,8 @@ button {
   position: relative;
   z-index: 1;
   width: 100%;
+  /* ≥44px touch target; overflows the 28px visual box without changing track look */
+  height: 44px;
   margin: 0;
   appearance: none;
   background: transparent;
@@ -943,6 +1075,55 @@ button {
   color: var(--ink-soft);
 }
 
+.aa-personality {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-chip);
+}
+
+.aa-personality__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aa-personality__value {
+  flex-shrink: 0;
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+.aa-personality h3.aa-toggle-card__title {
+  margin: 0;
+}
+
+.aa-personality__ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.aa-personality__ends > span {
+  max-width: 46%;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.aa-personality__ends > span:last-child {
+  text-align: right;
+}
+
 /* —— Name gate —— */
 .name-gate {
   min-height: 100%;
@@ -1012,6 +1193,14 @@ button {
 
 .name-gate__field .aa-select {
   width: 100%;
+}
+
+.name-gate__field .aa-select__trigger {
+  min-height: 44px;
+  padding: 0.78rem 0.95rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .name-gate__theme {
@@ -1206,6 +1395,151 @@ button {
 .hud__ghost {
   background: var(--wood) !important;
   box-shadow: none !important;
+}
+
+.hud__help {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* —— First-run setup guide (#23) —— */
+.setup-guide {
+  position: absolute;
+  z-index: 95;
+  top: 76px;
+  right: 18px;
+  width: min(340px, calc(100vw - 36px));
+  max-height: calc(100dvh - 94px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 14px;
+  border-radius: 16px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: var(--modal-shadow);
+  color: var(--ink);
+  pointer-events: auto;
+}
+
+.setup-guide__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.setup-guide__title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.setup-guide__intro,
+.setup-guide__alive {
+  margin: 0 0 10px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.setup-guide__steps {
+  margin: 0 0 12px;
+  padding-left: 1.2rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.setup-guide__steps li + li {
+  margin-top: 4px;
+}
+
+.setup-guide__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 0 0 auto;
+  padding-top: 8px;
+}
+
+/* —— Controls help overlay (#27) —— */
+.confirm-dialog__card.controls-help__card {
+  width: min(640px, 100%);
+  max-height: min(80vh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.controls-help__table-wrap {
+  position: relative;
+  overflow: auto;
+  margin: 0 0 14px;
+  flex: 1 1 auto;
+}
+
+.controls-help__table-wrap::after {
+  content: "";
+  display: block;
+  position: sticky;
+  bottom: 0;
+  height: 24px;
+  background: linear-gradient(transparent, var(--surface-raised));
+  pointer-events: none;
+}
+
+.controls-help__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.controls-help__table th,
+.controls-help__table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  line-height: 1.4;
+}
+
+.controls-help__table th {
+  font-weight: 800;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.controls-help__table td:first-child {
+  font-weight: 750;
+  width: 28%;
+}
+
+.controls-help__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.controls-help__dont-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.controls-help__dont-show input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--sage);
 }
 
 /* —— Day / night decorative switch —— */
@@ -1755,6 +2089,17 @@ body.is-chat-panel-dragging .chat-popup__resize {
   z-index: 40 !important;
 }
 
+.agent-overlay-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.agent-overlay-stack .agent-label {
+  pointer-events: auto;
+}
+
 .agent-label {
   display: inline-block;
   margin: 0;
@@ -2026,6 +2371,19 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-weight: 500;
 }
 
+.settings-row--inline {
+  flex-wrap: nowrap;
+}
+
+.settings-row--inline > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.settings-row--flush {
+  border-bottom: none;
+}
+
 .settings-row input[type="text"],
 .settings-row input[type="password"],
 .settings-row input[type="number"] {
@@ -2053,7 +2411,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.88rem;
 }
 
-.form-grid input,
+/* Exclude range: Slider paints track via .aa-slider::before/::after */
+.form-grid input:not([type="range"]),
 .form-grid textarea {
   width: 100%;
   border: 1px solid var(--border-strong);
@@ -2170,7 +2529,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.8rem;
 }
 
-.form-grid input:focus,
+.form-grid input:not([type="range"]):focus,
 .form-grid textarea:focus {
   border-color: var(--sage);
   box-shadow: 0 0 0 3px rgba(122, 158, 126, 0.16);
@@ -2349,14 +2708,27 @@ body.is-chat-panel-dragging .chat-popup__resize {
   opacity: 0.62;
 }
 
+.card-item__main {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+
+.card-item__text {
+  min-width: 0;
+}
+
 .card-item__title {
   font-weight: 900;
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 .card-item__sub {
   font-size: 0.8rem;
   color: var(--ink-soft);
+  overflow-wrap: anywhere;
 }
 
 .card-item__actions {
@@ -2366,12 +2738,436 @@ body.is-chat-panel-dragging .chat-popup__resize {
   flex-shrink: 0;
 }
 
+.card-item__action-icon {
+  display: none;
+}
+
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
+}
+
+.agents-tab__header,
+.models-tab__header {
+  flex-wrap: wrap;
+}
+
+.agents-tab__header > :first-child,
+.models-tab__header > :first-child {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.agents-tab__actions,
+.models-tab__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.agents-tab__actions .btn,
+.models-tab__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+}
+
+/* Match ghost 1px border so Export/Import/Add share the same outer height. */
+.agents-tab__actions .btn--primary,
+.models-tab__actions .btn--primary {
+  border: 1px solid transparent;
+}
+
+.agents-tab__io-btn,
+.models-tab__io-btn {
+  padding: 0.55rem 0.9rem;
+}
+
+/* Model config export dialog (#21) */
+.model-export-dialog__card {
+  width: min(440px, 100%);
+  max-height: min(85dvh, 520px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.model-export-dialog__body {
+  padding: 20px 20px 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.model-export-dialog__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.model-export-dialog__check input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.model-export-dialog__warning {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger, #c44) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger, #c44) 35%, transparent);
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.model-export-dialog__footer {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.model-export-dialog__footer .btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Factory reset playground dialog (#26) */
+.reset-playground-dialog__card {
+  width: min(480px, 100%);
+  max-height: min(85dvh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.reset-playground-dialog__body {
+  padding: 20px 20px 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.reset-playground-dialog__keeps {
+  margin: 8px 0 0;
+}
+
+.reset-playground-dialog__backup {
+  margin: 14px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-chip);
+}
+
+.reset-playground-dialog__backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.reset-playground-dialog__check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.reset-playground-dialog__check input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.reset-playground-dialog__check-label {
+  display: block;
+}
+
+.reset-playground-dialog__check-hint {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.reset-playground-dialog__footer {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.reset-playground-dialog__footer .btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.settings-export-focus {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sage) 28%, transparent);
+}
+
+/* Agent roster import remap dialog (#20) */
+.agent-import-dialog__card {
+  width: min(520px, 100%);
+  max-height: min(85dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.agent-import-dialog__body {
+  padding: 20px 20px 12px;
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.agent-import-dialog__summary {
+  margin-bottom: 14px;
+}
+
+.agent-import-dialog__apply-all {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.agent-import-dialog__apply-all > span {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* Same compact Select size for apply-all and per-row model picks. */
+.agent-import-dialog .aa-select {
+  width: 100%;
+}
+
+.agent-import-dialog .aa-select__trigger {
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 0.45rem 0.7rem;
+  min-height: 36px;
+  height: 36px;
+  box-sizing: border-box;
+}
+
+.agent-import-dialog__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.agent-import-dialog__row {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) minmax(120px, 1.2fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-chip);
+  border: 1px solid var(--border);
+}
+
+.agent-import-dialog__name {
+  font-size: 0.9rem;
+  font-weight: 750;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-import-dialog__footer {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+/* Map import id-collision dialog (#41) */
+.map-import-conflict-dialog {
+  /* Above .map-editor (250) chrome when rendered inside the editor tree. */
+  z-index: 280;
+}
+
+.map-import-conflict-dialog__card {
+  width: min(440px, 100%);
+  max-height: min(85dvh, 520px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-import-conflict-dialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 20px 12px;
+}
+
+.map-import-conflict-dialog__footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+  gap: 10px;
+}
+
+.map-import-conflict-dialog__footer .btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (max-width: 480px) {
+  .agents-tab__header,
+  .models-tab__header {
+    align-items: flex-start;
+  }
+
+  .agents-tab__actions,
+  .models-tab__actions {
+    width: 100%;
+  }
+
+  .agents-tab__actions .btn,
+  .agents-tab__io-btn,
+  .models-tab__actions .btn,
+  .models-tab__io-btn {
+    flex: 1 1 auto;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .agent-import-dialog,
+  .model-export-dialog,
+  .reset-playground-dialog {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .model-export-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .model-export-dialog__check {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .reset-playground-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .reset-playground-dialog__backup-actions {
+    flex-direction: column;
+  }
+
+  .reset-playground-dialog__backup-actions .btn,
+  .reset-playground-dialog__check,
+  .reset-playground-dialog__footer .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .reset-playground-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .reset-playground-dialog__footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .agent-import-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .map-import-conflict-dialog {
+    place-items: end center;
+    padding: 0;
+  }
+
+  .map-import-conflict-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .map-import-conflict-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .map-import-conflict-dialog__footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .agent-import-dialog__row {
+    grid-template-columns: 14px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+
+  .agent-import-dialog__row .aa-select {
+    grid-column: 1 / -1;
+  }
+
+  .agent-import-dialog .aa-select__trigger {
+    min-height: 44px;
+    height: 44px;
+  }
 }
 
 .poly-grid {
@@ -2462,6 +3258,85 @@ body.is-chat-panel-dragging .chat-popup__resize {
   gap: 10px;
 }
 
+.map-preset-gallery {
+  margin: 0 0 4px;
+  min-width: 0;
+}
+
+.map-preset-gallery__hint {
+  margin: -0.25rem 0 0.55rem;
+}
+
+.map-preset-gallery__grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.map-preset-card {
+  padding: 10px;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.map-preset-card .map-card__select {
+  min-height: 44px;
+}
+
+.map-preset-card .map-card__select:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.map-preset-card .map-card__preview {
+  /* Full card width, 4:3 box. height:0 + padding-bottom beats the shared
+     .map-card__preview { height: 72px } and prevents SVG intrinsic size from
+     shrinking the preview to a left-aligned ~100px strip. */
+  width: 100%;
+  height: 0;
+  padding-bottom: 75%;
+  max-height: none;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-preset-card__svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.map-preset-card .card-item__title {
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+
+.map-preset-card .card-item__sub {
+  font-size: 0.75rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .map-preset-gallery__hint {
+    display: none;
+  }
+
+  .map-preset-card {
+    padding: 8px;
+  }
+
+  .map-preset-card .card-item__sub {
+    -webkit-line-clamp: 1;
+  }
+}
+
 .map-card {
   border: 2px solid var(--border);
   border-radius: 14px;
@@ -2515,16 +3390,119 @@ body.is-chat-panel-dragging .chat-popup__resize {
   flex-shrink: 0;
 }
 
+/* Card actions wrap earlier than the full mobile layout so long locales
+   (e.g. Russian) keep buttons inside the modal on tablet widths. */
+@media (max-width: 900px) {
+  .settings-modal .card-item {
+    flex-wrap: wrap;
+  }
+  .settings-modal .card-item__actions {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .settings-modal .provider-group__item {
+    flex-wrap: wrap;
+  }
+  .settings-modal .provider-group__item-main {
+    flex: 1 1 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .settings-modal .provider-group__item-main .card-item__sub {
+    grid-column: 2;
+  }
+}
+
+/* Phone widths: keep switch + Edit / Duplicate / Delete on one row.
+   Compact padding first; icon-only labels for long locales (ru/de/pt/fr).
+   Tablet (768) stays on the 900px wrap rules above and is unchanged. */
+@media (max-width: 480px) {
+  .settings-modal .card-item__actions {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  /* Keep visual 48×28; extend vertical hit area to ≥36px for touch. */
+  .settings-modal .card-item__actions .aa-switch::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  .settings-modal .card-item__actions .btn {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    line-height: 1;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .settings-modal .card-item__actions .card-item__action-label {
+    display: none;
+  }
+
+  .settings-modal .card-item__actions .card-item__action-icon {
+    display: block;
+  }
+}
+
 @media (max-width: 720px) {
   .settings-modal__card {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     height: min(760px, calc(100vh - 24px));
   }
   .settings-modal__nav {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    /* Mask gradient is set inline from tabStripFadeMaskGradient (src/lib). */
+    --nav-fade-ink: rgba(44, 38, 32, 0.5);
+    --nav-fade-left: #000;
+    --nav-fade-right: #000;
+  }
+  :root[data-day-night="night"] .settings-modal__nav {
+    --nav-fade-ink: rgba(0, 0, 0, 0.78);
+  }
+  /* Inset shadows reinforce the mask so the cue reads on muted beige / night. */
+  .settings-modal__nav[data-scroll-edge~="left"] {
+    --nav-fade-left: transparent;
+    box-shadow: inset 36px 0 22px -8px var(--nav-fade-ink);
+  }
+  .settings-modal__nav[data-scroll-edge~="right"] {
+    --nav-fade-right: transparent;
+    box-shadow: inset -36px 0 22px -8px var(--nav-fade-ink);
+  }
+  .settings-modal__nav[data-scroll-edge="left right"] {
+    box-shadow:
+      inset 36px 0 22px -8px var(--nav-fade-ink),
+      inset -36px 0 22px -8px var(--nav-fade-ink);
+  }
+  .settings-modal__nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  .settings-modal__nav-title {
+    display: none;
+  }
+  .settings-modal__nav button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    white-space: nowrap;
+    outline-offset: -2px;
   }
   .arena-side-panels {
     /* Stay pinned under the HUD (not the bottom) so an expanded list never
@@ -2540,13 +3518,73 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .hud__stats {
     display: none;
   }
+  /* Third HUD button (? + settings + day/night) wraps at 360px without this. */
+  .hud__brand {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .hud__sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .setup-guide {
+    top: auto;
+    right: 12px;
+    left: 12px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: min(56dvh, 420px);
+  }
+  .controls-help__table thead {
+    display: none;
+  }
+  .controls-help__table,
+  .controls-help__table tbody,
+  .controls-help__table tr,
+  .controls-help__table td {
+    display: block;
+    width: 100%;
+  }
+  .controls-help__table tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .controls-help__table td {
+    border: none;
+    padding: 4px 0;
+    white-space: normal;
+  }
+  .controls-help__table td:first-child {
+    width: 100%;
+    white-space: normal;
+  }
+  .controls-help__table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    margin-bottom: 2px;
+  }
+  .controls-help__table td:first-child[data-label]::before {
+    content: none;
+  }
+  .controls-help__footer .confirm-dialog__actions {
+    margin-left: auto;
+  }
 }
 
 /* Larger tap targets for touch pointers, independent of viewport width
    (a touch-capable tablet can still be wide). */
 @media (pointer: coarse) {
+  .arena-side-panels {
+    --side-panel-row: 46px;
+  }
   .agent-label {
-    padding: 0.4rem 0.85rem;
+    padding: 0.5rem 0.85rem;
     font-size: 16px;
   }
   .hud__settings {
@@ -2564,6 +3602,23 @@ body.is-chat-panel-dragging .chat-popup__resize {
   .side-panel__header {
     min-height: 44px;
   }
+  .settings-modal__back {
+    position: relative;
+  }
+  .settings-modal__back::after {
+    content: "";
+    position: absolute;
+    inset: -14px -8px;
+  }
+  .daynight-switch::after {
+    content: "";
+    position: absolute;
+    inset: -8px 0;
+  }
+  .side-panel__item-edit {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 @supports (height: 100dvh) {
@@ -2576,10 +3631,13 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .toast {
   position: absolute;
-  z-index: 300;
+  z-index: 400;
   top: 70px;
   left: 50%;
   transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  text-align: center;
   padding: 0.55rem 1rem;
   border-radius: 999px;
   background: var(--toast-bg);
@@ -2587,6 +3645,61 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-weight: 800;
   font-size: 0.88rem;
   box-shadow: var(--shadow);
+}
+
+.map-editor__save-error {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.55rem 0.65rem 0.9rem;
+  background: #5c2218;
+  color: #ffe8e0;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.35;
+  border-bottom: 1px solid rgba(255, 200, 180, 0.25);
+  text-wrap: pretty;
+}
+
+.map-editor__save-error-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.map-editor__save-error-dismiss {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -0.35rem -0.15rem -0.35rem 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.map-editor__save-error-dismiss:hover,
+.map-editor__save-error-dismiss:focus-visible {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+
+@media (max-width: 480px) {
+  .map-editor__save-error {
+    font-size: 0.78rem;
+    padding: 0.55rem 0.4rem 0.55rem 0.75rem;
+    line-height: 1.3;
+  }
 }
 
 /* —— MMO-style arena chat dock (bottom center) —— */
@@ -2616,6 +3729,25 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .arena-chat-dock__composer {
   position: relative;
   pointer-events: none;
+}
+
+.arena-chat-dock__waiting {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(20, 18, 16, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+:root[data-day-night="day"] .arena-chat-dock__waiting {
+  color: rgba(44, 38, 32, 0.78);
+  background: rgba(255, 254, 249, 0.55);
+  border-color: rgba(160, 130, 100, 0.28);
 }
 
 .arena-chat-dock__mentions {
@@ -2976,11 +4108,11 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .map-tab__actions button {
   border: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--surface-chip);
   color: var(--ink);
-  border-radius: 10px;
+  border-radius: 999px;
   padding: 0.4rem 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.85rem;
 }
 
@@ -3007,10 +4139,10 @@ body.is-chat-panel-dragging .chat-popup__resize {
   position: absolute;
   left: 8px;
   bottom: 8px;
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  border: 2px solid rgba(255, 255, 255, 0.75);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -3082,11 +4214,23 @@ body.is-chat-panel-dragging .chat-popup__resize {
   scroll-snap-align: start;
 }
 
+/* Stack snap + pack so locale labels stay fully visible in the narrow library. */
 .map-editor__filter-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   margin-bottom: 8px;
+}
+
+.map-editor__filter-row .aa-select__trigger {
+  padding: 0.4rem 0.55rem;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+
+.map-editor__filter-snap .aa-select__value {
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .map-editor__asset-wrap {
@@ -3102,6 +4246,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   position: absolute;
   top: 4px;
   right: 4px;
+  z-index: 2;
   width: 22px;
   height: 22px;
   border-radius: 6px;
@@ -3128,10 +4273,10 @@ body.is-chat-panel-dragging .chat-popup__resize {
   border: 1px solid var(--border);
   background: var(--surface-chip);
   color: var(--ink);
-  border-radius: 8px;
+  border-radius: 999px;
   padding: 0.28rem 0.55rem;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .map-card__row button.danger {
@@ -3144,9 +4289,16 @@ body.is-chat-panel-dragging .chat-popup__resize {
   inset: 0;
   z-index: 250;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   background: #1c1916;
   color: #f4efe6;
+}
+
+.map-editor__top {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .map-editor__toolbar {
@@ -3155,6 +4307,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
+  min-width: 0;
   background: rgba(28, 25, 22, 0.96);
   border-bottom: 1px solid rgba(244, 239, 230, 0.12);
 }
@@ -3163,22 +4316,43 @@ body.is-chat-panel-dragging .chat-popup__resize {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  min-width: 0;
+  /* Keep title + badge visible while the map name ellipsizes; yield leftover
+     space to actions (esp. 721–1199 before actions wrap). Do not overflow:hidden
+     here — that clips the non-shrinking badge; only the name ellipsizes. */
+  flex: 1 1 0;
+  min-width: min(100%, 12.5rem);
 }
 
 .map-editor__brand strong {
   font-size: 0.95rem;
+  /* Editor title must never collapse (e.g. "Karteneditor" → "K"). */
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
-.map-editor__brand span {
+.map-editor__map-name {
   opacity: 0.75;
   font-size: 0.85rem;
+  /* Cap so a ~60-char name cannot push Close onto a second toolbar row at
+     1440 (German labels are the widest). Built-in names stay short enough
+     to remain fully visible via the clamp upper bound. */
+  flex: 1 1 auto;
+  min-width: 3ch;
+  max-width: clamp(8ch, 14vw, 28ch);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .map-editor__badge {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  align-self: center;
+  white-space: nowrap;
+  line-height: 1.2;
+  max-height: 44px;
+  box-sizing: border-box;
   font-size: 0.72rem;
   font-style: normal;
   font-weight: 700;
@@ -3190,9 +4364,62 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .map-editor__toolbar-actions {
   display: flex;
+  /* Allow wrap between 721–1199 so long German labels don't overflow (#59/#60).
+     flex-shrink lets brand keep title+badge before the whole toolbar wraps.
+     One-row nowrap is restored only on wide desktops (≥1200). */
   flex-wrap: wrap;
+  flex: 0 1 auto;
   gap: 6px;
   justify-content: flex-end;
+  align-items: center;
+  max-width: 100%;
+}
+
+@media (min-width: 1200px) {
+  .map-editor__toolbar-actions {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+  }
+}
+
+.map-editor__toolbar-cluster {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.map-editor__toolbar-io {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.map-editor__toolbar-more {
+  display: none;
+  position: relative;
+}
+
+.map-editor__toolbar-more-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 160px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(28, 25, 22, 0.98);
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  display: grid;
+  gap: 2px;
+}
+
+.map-editor__toolbar-more-menu button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .map-editor__toolbar-actions button {
@@ -3274,6 +4501,7 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__body {
   display: grid;
   grid-template-columns: 280px 1fr 270px;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -3295,6 +4523,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__inspector h4 {
   margin: 0 0 10px;
   font-size: 0.92rem;
+  font-weight: 700;
+  color: #f4efe6;
 }
 
 .map-editor__search {
@@ -3387,13 +4617,14 @@ body.is-chat-panel-dragging .chat-popup__resize {
 
 .map-editor__asset-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 .map-editor__asset {
   display: grid;
   gap: 4px;
+  width: 100%;
   text-align: left;
   border: 1px solid rgba(244, 239, 230, 0.12);
   background: rgba(255, 255, 255, 0.04);
@@ -3413,6 +4644,14 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-size: 0.72rem;
   line-height: 1.2;
   padding: 0 2px 2px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .map-editor__asset-meta {
@@ -3549,13 +4788,20 @@ body.is-chat-panel-dragging .chat-popup__resize {
   left: 50%;
   top: 12px;
   transform: translateX(-50%);
+  max-width: calc(100% - 16px);
+  box-sizing: border-box;
   padding: 0.4rem 0.85rem;
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(28, 25, 22, 0.82);
   border: 1px solid rgba(244, 239, 230, 0.16);
   font-size: 0.8rem;
   font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
   pointer-events: none;
+  z-index: 2;
 }
 
 .map-editor__field {
@@ -3566,7 +4812,8 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-weight: 700;
 }
 
-.map-editor__field input,
+/* Exclude range: Slider paints track via .aa-slider::before/::after (#55 / #28) */
+.map-editor__field input:not([type="range"]),
 .map-editor__field textarea {
   width: 100%;
   border: 1px solid rgba(244, 239, 230, 0.16);
@@ -3579,10 +4826,6 @@ body.is-chat-panel-dragging .chat-popup__resize {
 .map-editor__field input[type="color"] {
   height: 34px;
   padding: 2px;
-}
-
-.map-editor__field input[type="range"] {
-  padding: 0;
 }
 
 .map-editor__divider {
@@ -3602,6 +4845,65 @@ body.is-chat-panel-dragging .chat-popup__resize {
   font-weight: 800;
 }
 
+.map-editor__inline-btn {
+  width: 100%;
+  margin-bottom: 8px;
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f4efe6;
+  border-radius: 9px;
+  padding: 0.45rem;
+  font-weight: 700;
+}
+
+.map-editor__region-list {
+  margin-bottom: 12px;
+}
+
+.map-editor__region-list h4 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: rgba(244, 239, 230, 0.85);
+}
+
+.map-editor__region-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.map-editor__region-list-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(244, 239, 230, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f4efe6;
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.map-editor__region-list-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.map-editor__inspector h3:focus {
+  outline: none;
+}
+
+/* Editor toasts: below the toolbar, never covering it (any viewport). */
+.app:has(.map-editor) .toast {
+  top: calc(
+    var(--map-editor-toolbar-height, 96px) + 8px + env(safe-area-inset-top, 0px)
+  );
+  bottom: auto;
+  z-index: 350;
+}
+
 @media (max-width: 960px) {
   .map-editor__body {
     grid-template-columns: 180px 1fr;
@@ -3612,5 +4914,511 @@ body.is-chat-panel-dragging .chat-popup__resize {
     max-height: 220px;
     border-left: none;
     border-top: 1px solid rgba(244, 239, 230, 0.08);
+  }
+}
+
+/* —— Mobile polish (#44) —— */
+/* After the base .toast rule so phone bottom anchoring wins over top: 70px.
+   Explicit height:auto prevents a stretched pill if both insets ever apply. */
+@media (max-width: 720px) {
+  .toast {
+    top: auto;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    height: auto;
+    max-height: none;
+    /* Long storage/quota errors must wrap — ellipsis hid the recovery hint. */
+    white-space: normal;
+    line-height: 1.35;
+    overflow: visible;
+    text-overflow: unset;
+    border-radius: 12px;
+    max-width: calc(100vw - 24px);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  /* Map editor: keep toasts under the toolbar (override phone bottom pin). */
+  .app:has(.map-editor) .toast {
+    top: calc(
+      var(--map-editor-toolbar-height, 96px) + 8px +
+        env(safe-area-inset-top, 0px)
+    );
+    bottom: auto;
+  }
+}
+
+/* While a confirm / bottom-sheet dialog is open, pin toast above the sheet so
+   it never covers Overwrite / Cancel / Import actions (follow-up to #41).
+   `:has` applies immediately; `.toast--above-modal` mirrors the same rule from
+   the Toast host (src/lib/toastPlacement.ts) for an explicit class path. */
+.toast.toast--above-modal,
+.app:has(.confirm-dialog) .toast {
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  bottom: auto;
+}
+
+/* Settings Map gallery is tall on phones; keep failure toasts off the preset
+   / map action buttons (same top pin as confirm-dialog). */
+@media (max-width: 720px) {
+  .app:has(.settings-modal) .toast {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+}
+
+@media (max-width: 960px) {
+  .map-editor__toolbar {
+    flex-wrap: wrap;
+  }
+  .map-editor__brand {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .map-editor__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 6px 8px;
+  }
+  .map-editor__brand {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    min-width: 0;
+  }
+  .map-editor__brand strong {
+    font-size: 0.82rem;
+    flex: 0 0 auto;
+  }
+  .map-editor__map-name {
+    font-size: 0.75rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+  .map-editor__badge {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .map-editor__toolbar-actions {
+    flex: 0 0 auto;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow: visible;
+    justify-content: flex-start;
+    /* Grow with wrapped rows so actions stay inside the toolbar (#59). */
+    max-height: none;
+  }
+  .map-editor__toolbar-cluster {
+    gap: 4px;
+  }
+  /* Narrow: Export/Import + theme collapse into More to limit wrap. */
+  .map-editor__toolbar-io--desktop,
+  .map-editor__toolbar-sep--desktop {
+    display: none;
+  }
+  .map-editor__toolbar-more {
+    display: block;
+  }
+  .map-editor__toolbar-actions > .daynight-switch {
+    display: none;
+  }
+  .map-editor__toolbar-actions button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.76rem;
+  }
+  .map-editor__toolbar-sep {
+    margin: 0 2px;
+  }
+}
+
+/* Phone: keep a one-line brand (title + truncated name); actions may wrap. */
+@media (max-width: 480px) {
+  .map-editor__toolbar {
+    padding: 4px 6px;
+    gap: 2px;
+  }
+  .map-editor__brand {
+    display: flex;
+  }
+  .map-editor__brand strong {
+    font-size: 0.78rem;
+  }
+  .map-editor__map-name {
+    font-size: 0.72rem;
+  }
+  .map-editor__toolbar-actions {
+    gap: 3px;
+  }
+  .map-editor__toolbar-cluster {
+    gap: 3px;
+  }
+  .map-editor__toolbar-actions button {
+    padding: 0.28rem 0.4rem;
+    font-size: 0.74rem;
+  }
+  .map-editor__badge {
+    font-size: 0.64rem;
+    padding: 0.15rem 0.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-row .aa-select {
+    min-width: 120px;
+    flex: 0 1 160px;
+  }
+  .settings-row > span {
+    min-width: 0;
+  }
+  .provider-group__head,
+  .header-row {
+    flex-wrap: wrap;
+  }
+  .provider-group__head .btn,
+  .header-row .btn {
+    white-space: nowrap;
+  }
+  .provider-group__head > div:first-child,
+  .header-row > :first-child {
+    flex: 1 1 150px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) and (pointer: coarse) {
+  .settings-modal .card-item__actions .btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+  .settings-modal .card-item__actions {
+    gap: 6px;
+  }
+}
+
+@media (pointer: coarse) {
+  .arena-chat-dock__form input,
+  .arena-chat-dock__form button[type="submit"],
+  .arena-chat-dock__history-btn,
+  .arena-chat-dock__icon-btn {
+    height: 44px;
+  }
+  .arena-chat-dock__history-btn,
+  .arena-chat-dock__icon-btn {
+    width: 44px;
+  }
+  .arena-chat-dock__form input {
+    text-overflow: ellipsis;
+  }
+  .map-tab__actions button,
+  .map-card__row button {
+    min-height: 36px;
+  }
+  .map-editor__selection-card button,
+  .map-editor__region-list-item,
+  .map-editor__toolbar-actions button,
+  .map-editor__inline-btn,
+  .map-editor__danger,
+  .map-editor__import-asset,
+  .map-editor__asset-menu-btn {
+    min-height: 44px;
+  }
+}
+
+/* Custom map asset import (#7) — dark chrome for editor dialogs */
+.confirm-dialog--dark .confirm-dialog__card,
+.import-asset-dialog .confirm-dialog__card,
+.import-asset-dialog__card {
+  background: rgba(28, 26, 24, 0.98);
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.14);
+}
+.confirm-dialog--dark .confirm-dialog__title,
+.import-asset-dialog .confirm-dialog__title {
+  color: #f4efe6;
+}
+.confirm-dialog--dark .confirm-dialog__message,
+.import-asset-dialog .confirm-dialog__message {
+  color: rgba(244, 239, 230, 0.82);
+}
+.confirm-dialog--dark .btn--ghost,
+.import-asset-dialog .btn--ghost {
+  background: rgba(244, 239, 230, 0.08);
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.18);
+}
+.confirm-dialog--dark .btn--primary,
+.import-asset-dialog .btn--primary {
+  background: linear-gradient(180deg, #6a8f6a, #4f6e4f);
+  color: #f4efe6;
+}
+.confirm-dialog--dark .btn--danger,
+.import-asset-dialog .btn--danger {
+  background: rgba(160, 60, 50, 0.85);
+  color: #f8e6e2;
+}
+.confirm-dialog--dark .confirm-dialog__field,
+.confirm-dialog--dark .map-editor__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 14px;
+  color: rgba(244, 239, 230, 0.88);
+}
+.confirm-dialog--dark .confirm-dialog__field input,
+.confirm-dialog--dark .map-editor__field input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 239, 230, 0.16);
+  background: rgba(0, 0, 0, 0.28);
+  color: #f4efe6;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
+  min-height: 44px;
+}
+
+.map-editor__library-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.map-editor__library-head h3 {
+  margin: 0;
+  flex: 1 1 auto;
+  /* Wrap inside the library column; never spill into the viewport (#61). */
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  overflow: visible;
+  text-overflow: clip;
+  font-size: 0.95rem;
+}
+.map-editor__import-asset {
+  flex: 0 0 auto;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  /* Match toolbar action buttons (dark editor chrome) */
+  background: #2c2824;
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.2);
+  border-radius: 9px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.map-editor__import-asset:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.map-editor__import-asset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.map-editor__asset-menu {
+  /* Top-left — ★ stays top-right; no overlap at 390 or 1440 */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  z-index: 2;
+}
+.map-editor__asset-menu-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #f4efe6;
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  display: grid;
+  /* Small chip top-left; padding expands hit to 44×44 without covering the thumb */
+  place-items: start start;
+  text-indent: 0;
+  padding: 4px 0 0 4px;
+  z-index: 1;
+}
+/* Small visible chip; full 44×44 hit target */
+.map-editor__asset-menu-btn::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  z-index: -1;
+}
+.map-editor__asset-menu-pop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: auto;
+  margin-top: 4px;
+  min-width: 140px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(28, 26, 24, 0.98);
+  border: 1px solid rgba(244, 239, 230, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.map-editor__asset-menu-pop button {
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: #f4efe6;
+  padding: 0.55rem 0.7rem;
+  min-height: 44px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.map-editor__asset-menu-pop button:hover,
+.map-editor__asset-menu-pop button:focus-visible {
+  background: rgba(244, 239, 230, 0.08);
+  outline: none;
+}
+.import-asset-dialog__card {
+  width: min(480px, 94vw);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+}
+.import-asset-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.import-asset-dialog__body input[type="text"],
+.import-asset-dialog__body input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(244, 239, 230, 0.16);
+  background: rgba(0, 0, 0, 0.28);
+  color: #f4efe6;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.88rem;
+  min-height: 44px;
+}
+.import-asset-dialog__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.import-asset-dialog__pick-btn {
+  align-self: flex-start;
+  min-height: 44px;
+  background: rgba(244, 239, 230, 0.1);
+  color: #f4efe6;
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.import-asset-dialog__selected {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 0.82rem;
+  color: rgba(244, 239, 230, 0.85);
+}
+.import-asset-dialog__selected li {
+  padding: 0.2rem 0;
+}
+.import-asset-dialog__files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.82rem;
+}
+.import-asset-dialog__files .is-ok { color: #9ec49a; }
+.import-asset-dialog__files .is-bad { color: #e8a090; }
+.import-asset-dialog__files .is-warn { color: #e0c070; }
+.import-asset-dialog__alert {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(180, 90, 60, 0.18);
+  border: 1px solid rgba(220, 140, 100, 0.35);
+  color: #f4efe6;
+  font-size: 0.84rem;
+}
+.import-asset-dialog__ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.5rem;
+  min-height: 44px;
+}
+.import-asset-dialog__progress {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.map-editor__user-model {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(244, 239, 230, 0.1);
+}
+.map-editor__selection-preview {
+  max-width: 96px;
+}
+@media (max-width: 480px) {
+  .import-asset-dialog {
+    align-items: stretch;
+  }
+  .import-asset-dialog__card {
+    width: 100%;
+    max-width: none;
+    max-height: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+  .map-editor__library-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .map-editor__library-head h3 {
+    font-size: 0.95rem;
+    min-width: 0;
+    width: 100%;
+  }
+  .map-editor__import-asset {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.65rem;
+    width: 100%;
+    justify-self: stretch;
   }
 }

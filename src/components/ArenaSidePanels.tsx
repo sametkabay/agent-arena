@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AgentList } from "@/components/AgentList";
 import { MapList } from "@/components/MapList";
 import { appConfig } from "@/lib/config";
+import { safeSetItem } from "@/lib/storage";
 
 const STORAGE_KEY = appConfig.storage.sidePanelsKey;
 
@@ -32,7 +33,7 @@ export function ArenaSidePanels() {
   const [open, setOpen] = useState<SidePanelOpenState>(loadOpenState);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(open));
+    safeSetItem(STORAGE_KEY, JSON.stringify(open));
   }, [open]);
 
   return (

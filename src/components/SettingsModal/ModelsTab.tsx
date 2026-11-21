@@ -44,7 +44,7 @@ export function ModelsTab() {
     if (!draft) return;
     const catalog = resolveZibbyTextModel(draft.modelId);
     const name = draft.name.trim() || catalog.label;
-    upsertModel({
+    const result = upsertModel({
       ...draft,
       name,
       provider: catalog.kind,
@@ -53,6 +53,7 @@ export function ModelsTab() {
       apiKey: undefined,
       extraHeaders: [],
     });
+    if (!result.ok) return;
     closeForm();
     showToast(t("settings.saved"));
   }

@@ -8,6 +8,7 @@ import type {
   AiModelConfig,
   AiProviderKind,
   ChatMessage,
+  ExtraHeader,
 } from "@/lib/types";
 import {
   buildAgentSystemPrompt,
@@ -27,12 +28,34 @@ export function providerDefaults(
   return { name: hit.label, baseUrl: "", modelId: hit.id };
 }
 
+/**
+ * Build request headers; skip empty values so keyless-import stubs are not sent.
+ * Tolerates missing / null / malformed extras so legacy persisted models never throw.
+ * Kept for main API parity (Zibby gateway does not send visitor headers).
+ */
+export function headersToRecord(
+  extras: ExtraHeader[] | undefined | null,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!Array.isArray(extras)) return out;
+  for (const h of extras) {
+    if (!h || typeof h !== "object") continue;
+    if (typeof h.key !== "string") continue;
+    const key = h.key.trim();
+    if (!key) continue;
+    if (typeof h.value !== "string" || h.value === "") continue;
+    out[key] = h.value;
+  }
+  return out;
+}
+
 /** Private 1:1 chat system prompt (session facts come from `world`). */
 export function buildSystemPrompt(
   agentPrompt: string,
   agentName: string,
   skills: AgentSkill[] = [],
   world: ArenaWorldContext,
+  temperament: number,
 ): string {
   return buildAgentSystemPrompt({
     agentPrompt,
@@ -40,6 +63,7 @@ export function buildSystemPrompt(
     skills,
     world,
     mode: "private_chat",
+    temperament,
   });
 }
 

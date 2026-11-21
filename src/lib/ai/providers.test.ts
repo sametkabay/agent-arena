@@ -4,6 +4,7 @@ import {
   buildSystemPrompt,
   chatCompletion,
   fetchModels,
+  headersToRecord,
   providerDefaults,
   testConnection,
   truncateChatHistory,
@@ -56,9 +57,23 @@ describe("provider helpers", () => {
   });
 
   it("builds a private-chat system prompt", () => {
-    const prompt = buildSystemPrompt("Be brief.", "Explorer", [], world);
+    const prompt = buildSystemPrompt("Be brief.", "Explorer", [], world, 7);
     expect(prompt).toContain("Be brief");
     expect(prompt).toContain("Explorer");
+    expect(prompt).toContain("Temperament: 7/10 (argumentative)");
+  });
+
+  it("includes the level-9 temperament line for private chat", () => {
+    const prompt = buildSystemPrompt("Be brief.", "Explorer", [], world, 9);
+    expect(prompt).toContain(
+      "Temperament: 9/10 (very combative). Contradict freely, press weak points hard, and rarely back down.",
+    );
+    expect(prompt).toContain("Even when blunt, stay civil");
+  });
+
+  it("omits temperament at neutral level 5", () => {
+    const prompt = buildSystemPrompt("Be brief.", "Explorer", [], world, 5);
+    expect(prompt).not.toContain("Temperament:");
   });
 });
 
@@ -202,5 +217,32 @@ describe("fetchModels / testConnection", () => {
       ok: true,
       detail: "claude-sonnet-5",
     });
+  });
+});
+
+describe("headersToRecord", () => {
+  it("omits headers whose values are empty strings", () => {
+    expect(
+      headersToRecord([
+        { key: "X-Org", value: "" },
+        { key: "  ", value: "nope" },
+        { key: "X-Ok", value: "yes" },
+        { key: "X-Zero", value: "0" },
+      ]),
+    ).toEqual({ "X-Ok": "yes", "X-Zero": "0" });
+  });
+
+  it("tolerates undefined, null, and malformed entries without throwing", () => {
+    expect(headersToRecord(undefined)).toEqual({});
+    expect(headersToRecord(null)).toEqual({});
+    expect(
+      headersToRecord([
+        { key: "X-Ok", value: "yes" },
+        null as never,
+        { key: 1, value: "nope" } as never,
+        { key: "X-Num", value: 7 } as never,
+        "skip" as never,
+      ]),
+    ).toEqual({ "X-Ok": "yes" });
   });
 });

@@ -4,6 +4,7 @@ import type {
   AiModelConfig,
   AppPersisted,
   ChatMessage,
+  ExtraHeader,
   FloatingChatLine,
   GraphicsSettings,
   LanguageCode,
@@ -15,8 +16,12 @@ import { isArenaMapDefinition, migrateLegacyMapFloorStyles, migratePlaceableId }
 import { isBuiltinMapId } from "@/lib/maps/runtime";
 import { isDayNightMode } from "@/lib/dayNight";
 import { DEFAULT_CHARACTER_ID, isCharacterId } from "@/lib/assets/characters";
+import { parseChatterMode } from "@/lib/ai/conversation";
 import { defaultZibbyModels, resolveZibbyTextModel } from "@/lib/ai/zibbyModels";
 import { appConfig, DEFAULT_GRAPHICS } from "@/lib/config";
+import { migrateAgentNames } from "@/lib/agentNames";
+import { migrateLegacySystemPrompt } from "@/lib/legacyRolePrompts";
+import { ALL_POLY_PRESETS } from "@/lib/poly/presets";
 
 export { DEFAULT_GRAPHICS };
 
@@ -70,7 +75,11 @@ export function defaultPersisted(): AppPersisted {
     customMaps: [],
     graphics: { ...DEFAULT_GRAPHICS },
     dayNight: appConfig.defaults.dayNight,
-    idleChatterEnabled: appConfig.defaults.idleChatterEnabled,
+    chatterMode: parseChatterMode(appConfig.defaults.chatterMode),
+    onboardingSeen: false,
+    controlsHelpSeen: false,
+    // Fresh profiles have no agents, so there is nothing to rename.
+    agentNamesMigrated: true,
     favoriteAssets: [],
     chats: {},
     arenaChatHistory: [],
@@ -133,7 +142,7 @@ function sanitizeCustomMaps(raw: unknown): ArenaMapDefinition[] {
   }));
   // Legacy "checker" meant surface default — migrate once so explicit checker works later.
   if (typeof localStorage !== "undefined" && !localStorage.getItem(FLOOR_STYLE_MIGRATE_KEY)) {
-    localStorage.setItem(FLOOR_STYLE_MIGRATE_KEY, "1");
+    safeSetItem(FLOOR_STYLE_MIGRATE_KEY, "1");
     return maps.map(migrateLegacyMapFloorStyles);
   }
   return maps;
@@ -164,6 +173,76 @@ function sanitizeSkills(raw: unknown): AgentSkill[] {
     }));
 }
 
+const KNOWN_POLY_PRESET_IDS = new Set(ALL_POLY_PRESETS.map((p) => p.id));
+
+/** Known preset id, or defaults.roleId for missing/unknown values. */
+function resolvePolyPresetId(raw: unknown): string {
+  return typeof raw === "string" && KNOWN_POLY_PRESET_IDS.has(raw)
+    ? raw
+    : appConfig.defaults.roleId;
+}
+
+function sanitizeAgents(raw: unknown): AgentConfig[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
+    .map((a) => {
+      // Keep raw string ids (even unknown) so migrateAgentNames can run the
+      // all-titles unknown-preset rename check first. Non-strings → "" (also
+      // unknown). Final remap to defaults.roleId happens after rename.
+      const polyPresetId =
+        typeof a.polyPresetId === "string" ? a.polyPresetId : "";
+      return {
+        ...(a as unknown as AgentConfig),
+        displayName: typeof a.displayName === "string" ? a.displayName : "",
+        polyPresetId,
+        // Coerce before migrateLegacySystemPrompt — a non-string would throw
+        // and loadPersisted's catch-all would wipe the whole profile.
+        systemPrompt: typeof a.systemPrompt === "string" ? a.systemPrompt : "",
+        enabled: a.enabled !== false,
+        thinkingEnabled: a.thinkingEnabled === true,
+        chattiness: clampChattiness(a.chattiness),
+        temperament: clampTemperament(a.temperament),
+        skills: sanitizeSkills(a.skills),
+        characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
+          ? (a.characterId as string)
+          : DEFAULT_CHARACTER_ID,
+      };
+    });
+}
+
+/**
+ * Normalize persisted / legacy `extraHeaders` so request code can always iterate.
+ * Missing, null, or non-array → []; drop non-object entries and non-string keys;
+ * coerce non-string values to "".
+ */
+export function normalizeExtraHeaders(raw: unknown): ExtraHeader[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ExtraHeader[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+    const row = item as Record<string, unknown>;
+    if (typeof row.key !== "string") continue;
+    out.push({
+      key: row.key,
+      value: typeof row.value === "string" ? row.value : "",
+    });
+  }
+  return out;
+}
+
+/** Ensure a persisted model always has a usable `extraHeaders` array. */
+export function normalizePersistedModel(raw: unknown): AiModelConfig | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const m = raw as AiModelConfig;
+  return {
+    ...m,
+    extraHeaders: normalizeExtraHeaders(
+      (raw as { extraHeaders?: unknown }).extraHeaders,
+    ),
+  };
+}
+
 function sanitizeModels(raw: unknown): AiModelConfig[] {
   if (!Array.isArray(raw) || raw.length === 0) return defaultZibbyModels();
   const out: AiModelConfig[] = [];
@@ -186,26 +265,29 @@ function sanitizeModels(raw: unknown): AiModelConfig[] {
   return out.length ? out : defaultZibbyModels();
 }
 
-function sanitizeAgents(raw: unknown): AgentConfig[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter((a): a is Record<string, unknown> => !!a && typeof a === "object")
-    .map((a) => ({
-      ...(a as unknown as AgentConfig),
-      enabled: a.enabled !== false,
-      thinkingEnabled: a.thinkingEnabled === true,
-      chattiness: clampChattiness(a.chattiness),
-      skills: sanitizeSkills(a.skills),
-      characterId: isCharacterId(typeof a.characterId === "string" ? a.characterId : undefined)
-        ? (a.characterId as string)
-        : DEFAULT_CHARACTER_ID,
-    }));
-}
-
 export function clampChattiness(v: unknown): number {
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return 0;
   return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+/**
+ * Temperament 1–10; only finite numbers and non-blank numeric strings are accepted.
+ * Everything else (missing/null/blank/booleans/arrays/objects/Infinity/NaN) → 5.
+ */
+export function clampTemperament(v: unknown): number {
+  if (typeof v === "number") {
+    if (!Number.isFinite(v)) return 5;
+    return Math.max(1, Math.min(10, Math.round(v)));
+  }
+  if (typeof v === "string") {
+    const trimmed = v.trim();
+    if (trimmed === "") return 5;
+    const n = Number(trimmed);
+    if (!Number.isFinite(n)) return 5;
+    return Math.max(1, Math.min(10, Math.round(n)));
+  }
+  return 5;
 }
 
 export function loadPersisted(): AppPersisted {
@@ -214,31 +296,165 @@ export function loadPersisted(): AppPersisted {
     if (!raw) return defaultPersisted();
     const parsed = JSON.parse(raw) as Partial<AppPersisted>;
     const customMaps = sanitizeCustomMaps(parsed.customMaps);
-    return {
+    const models = sanitizeModels(parsed.models);
+    const storedAgents = sanitizeAgents(parsed.agents);
+    // One-shot (#71): legacy agents named after their role get a person name.
+    // Once flagged, a user who later names an agent "Explorer" keeps it.
+    // Rename runs on the pre-sanitize preset id so missing/unknown presets
+    // still hit isRoleDefaultName's all-titles branch (Muse/Engineer/…).
+    const namesMigration =
+      parsed.agentNamesMigrated === true
+        ? { agents: storedAgents, changed: false }
+        : migrateAgentNames(storedAgents);
+    // Idempotent stock-prompt rewrite (pre-#71 "You are Explorer, …" → current).
+    let promptsChanged = false;
+    const agents = namesMigration.agents.map((a) => {
+      const polyPresetId = resolvePolyPresetId(a.polyPresetId);
+      const systemPrompt = migrateLegacySystemPrompt(
+        a.systemPrompt ?? "",
+        polyPresetId,
+      );
+      if (systemPrompt !== a.systemPrompt || polyPresetId !== a.polyPresetId) {
+        promptsChanged = true;
+        return { ...a, polyPresetId, systemPrompt };
+      }
+      return a;
+    });
+    const needsWriteBack =
+      parsed.agentNamesMigrated !== true || promptsChanged;
+    const data: AppPersisted = {
       userName: typeof parsed.userName === "string" ? parsed.userName : "",
       language: isLanguageCode(parsed.language) ? parsed.language : appConfig.defaults.language,
-      models: sanitizeModels(parsed.models),
-      agents: sanitizeAgents(parsed.agents),
+      models,
+      agents,
       customMaps,
       mapId: sanitizeMapId(parsed.mapId, customMaps),
       graphics: sanitizeGraphics(parsed.graphics),
       dayNight: isDayNightMode(parsed.dayNight) ? parsed.dayNight : appConfig.defaults.dayNight,
-      idleChatterEnabled: parsed.idleChatterEnabled === true,
+      chatterMode: parseChatterMode(
+        (parsed as { chatterMode?: unknown }).chatterMode,
+        (parsed as { idleChatterEnabled?: unknown }).idleChatterEnabled,
+      ),
+      // Legacy blobs omit these flags: treat existing setups as already seen
+      // so returning users are not interrupted. Non-booleans count as missing.
+      onboardingSeen:
+        typeof parsed.onboardingSeen === "boolean"
+          ? parsed.onboardingSeen
+          : models.length > 0,
+      controlsHelpSeen:
+        typeof parsed.controlsHelpSeen === "boolean"
+          ? parsed.controlsHelpSeen
+          : storedAgents.length > 0,
+      // In-memory always reflects migrated agents; flag stays true so the store
+      // and persistSlice write agentNamesMigrated: true on the next successful save.
+      agentNamesMigrated: true,
       favoriteAssets: Array.isArray(parsed.favoriteAssets)
         ? parsed.favoriteAssets
             .filter((x): x is string => typeof x === "string")
             .map(migratePlaceableId)
         : [],
       chats: sanitizeChats(parsed.chats),
+      // Speaker names in past messages stay as they were spoken (model context
+      // remaps by agentId at read time — see formatArenaHistory).
       arenaChatHistory: sanitizeArenaChatHistory(parsed.arenaChatHistory),
     };
+    // Best-effort write-back of the flag / renames / prompt migrations.
+    // On failure the disk may still hold the legacy blob; callers keep migrated
+    // `data` in memory, and the next successful persistSlice writes
+    // agentNamesMigrated: true (migration is deterministic on reload).
+    if (needsWriteBack) {
+      savePersisted(data);
+    }
+    return data;
   } catch {
     return defaultPersisted();
   }
 }
 
-export function savePersisted(data: AppPersisted): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+/** Result of writing AppPersisted to localStorage — never throws. */
+export type StoragePersistReason = "quota" | "unavailable" | "unknown";
+export type StoragePersistResult =
+  | { ok: true }
+  | { ok: false; reason: StoragePersistReason };
+
+/** Thrown when a map/agent write was rolled back after persist failure. */
+export class PersistFailedError extends Error {
+  readonly code = "persist_failed" as const;
+  constructor(message = "persist_failed") {
+    super(message);
+    this.name = "PersistFailedError";
+  }
+}
+
+export function isPersistFailedError(err: unknown): boolean {
+  if (err instanceof PersistFailedError) return true;
+  return (
+    !!err &&
+    typeof err === "object" &&
+    "code" in err &&
+    (err as { code: unknown }).code === "persist_failed"
+  );
+}
+
+/**
+ * Classify a storage write failure across browsers.
+ * Quota: QuotaExceededError / NS_ERROR_DOM_QUOTA_REACHED / code 22 / 1014.
+ * Unavailable: SecurityError (private mode, disabled storage) / code 18.
+ */
+export function classifyStorageError(err: unknown): StoragePersistReason {
+  if (err == null) return "unknown";
+
+  const name =
+    typeof err === "object" && err !== null && "name" in err
+      ? String((err as { name: unknown }).name)
+      : "";
+  const codeRaw =
+    typeof err === "object" && err !== null && "code" in err
+      ? (err as { code: unknown }).code
+      : undefined;
+  const code = typeof codeRaw === "number" ? codeRaw : Number(codeRaw);
+
+  if (
+    name === "QuotaExceededError" ||
+    name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+    code === 22 ||
+    code === 1014
+  ) {
+    return "quota";
+  }
+  if (name === "SecurityError" || code === 18) {
+    return "unavailable";
+  }
+  return "unknown";
+}
+
+/** i18n key for a failed write — map scope uses editor copy; storage is the toast. */
+export function storageFailureMessageKey(
+  reason: StoragePersistReason,
+  scope: "storage" | "map" = "storage",
+): string {
+  if (scope === "map") {
+    if (reason === "quota") return "mapEditor.saveFailed";
+    if (reason === "unavailable") return "mapEditor.saveFailedUnavailable";
+    return "mapEditor.saveFailedUnknown";
+  }
+  if (reason === "quota") return "storage.quotaExceeded";
+  if (reason === "unavailable") return "storage.unavailable";
+  return "storage.writeFailed";
+}
+
+/** localStorage.setItem that never throws (quota / private mode / etc.). */
+export function safeSetItem(key: string, value: string): StoragePersistResult {
+  try {
+    localStorage.setItem(key, value);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, reason: classifyStorageError(err) };
+  }
+}
+
+export function savePersisted(data: AppPersisted): StoragePersistResult {
+  return safeSetItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 export function uid(prefix = "id"): string {
