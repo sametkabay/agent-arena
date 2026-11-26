@@ -38,11 +38,6 @@ Coverage excludes generated files, `src/lib/three/**`, `src/lib/useStickToBottom
 - Docs-only or CI-only PRs can skip the changelog.
 - When a release is cut, the maintainer renames `[Unreleased]` to the new version with its date, adds a fresh empty `[Unreleased]` section, updates the compare links at the bottom, sets `version` in `package.json` (and `package-lock.json`) to the same number, and updates the version badge and "What's new" links in `README.md`. Tags use a `v` prefix and a `-preview` suffix while the project is in preview, for example `v0.2.0-preview`.
 - Only maintainers create tags and GitHub Releases.
-- User-visible changes get a line under `[Unreleased]` in [`CHANGELOG.md`](./CHANGELOG.md)
-
-## Releases
-
-Maintainers keep three things in step whenever a version is cut: the `version` in `package.json` / `package-lock.json`, the `CHANGELOG.md` section (move `[Unreleased]` entries under the new version heading and date), and the README version badge and release link. Git tags are `v<version>` (for example `v0.2.0-preview`).
 
 ## Good first issues
 
