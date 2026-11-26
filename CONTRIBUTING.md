@@ -28,6 +28,16 @@ Coverage excludes generated files, `src/lib/three/**`, `src/lib/useStickToBottom
 - Before opening a PR, run `npm run lint`, `npm test`, and `npm run build`, then smoke-check chat plus at least one map in Chromium
 - New GLBs under `public/assets/packs/` → `npm run assets:inventory` + credit in [`public/assets/ATTRIBUTION.md`](public/assets/ATTRIBUTION.md)
 - Discuss larger features in [Issues](https://github.com/sametkabay/agent-arena/issues) first
+- Add a line under `## [Unreleased]` in [`CHANGELOG.md`](./CHANGELOG.md) for user-visible changes (see below)
+
+## Changelog and versions
+
+[`CHANGELOG.md`](./CHANGELOG.md) follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/).
+
+- User-visible changes go under `## [Unreleased]` in the matching section (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), with a link to the PR. Grouped dependency bumps can share one line.
+- Docs-only or CI-only PRs can skip the changelog.
+- When a release is cut, the maintainer renames `[Unreleased]` to the new version with its date, adds a fresh empty `[Unreleased]` section, updates the compare links at the bottom, sets `version` in `package.json` (and `package-lock.json`) to the same number, and updates the version badge and "What's new" links in `README.md`. Tags use a `v` prefix and a `-preview` suffix while the project is in preview, for example `v0.2.0-preview`.
+- Only maintainers create tags and GitHub Releases.
 
 ## Good first issues
 
